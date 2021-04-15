@@ -7,10 +7,10 @@
     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(USER_ROLE.'/home') }}" class="nav-link">Home</a>
+    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(USER_ROLE.'/business-types') }}" class="nav-link">{{ $page->title ?? ''}}</a>
+    <a href="{{ url(ROUTE_PREFIX.'/business-types') }}" class="nav-link">{{ $page->title ?? ''}}</a>
   </li>
 @endsection
 
@@ -84,7 +84,7 @@
 <script>
 
   var table;
-  var role = '{{USER_ROLE}}';
+  var role = '{{ROUTE_PREFIX}}';
   var link    = '{{ $page->link }}';
   var entity  = '{{ strtolower(str_replace(' ', '', $page->title)) }}';
   alert(role)
@@ -116,7 +116,7 @@
         $("#business_types_id").val('');
         $("#business-types-modal").modal("show");
     } else {
-        $.ajax({url: "{{ url(USER_ROLE.'/business-types') }}/" + business_types_id + "/edit", type: "GET", dataType: "html"})
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/business-types') }}/" + business_types_id + "/edit", type: "GET", dataType: "html"})
             .done(function (a) {
                 var data = JSON.parse(a);
                 if(data.flagError == false){
@@ -149,7 +149,7 @@
           business_types_id   = "" == id ? "" : "/" + id;
           formMethod  = "" == id ? "POST" : "PUT";
           var forms = $("#businessTypesForm");
-          $.ajax({ url: "{{ url(USER_ROLE.'/business-types') }}" + business_types_id, type: formMethod, processData: false, 
+          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/business-types') }}" + business_types_id, type: formMethod, processData: false, 
           data: forms.serialize(), dataType: "html",
           }).done(function (a) {
             var data = JSON.parse(a);
@@ -187,7 +187,7 @@
               //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               //     }
               // });
-              $.ajax({url: "{{ url(USER_ROLE.'/business-types') }}/" + b, type: "DELETE", dataType: "html"})
+              $.ajax({url: "{{ url(ROUTE_PREFIX.'/business-types') }}/" + b, type: "DELETE", dataType: "html"})
                   .done(function (a) {
                       var data = JSON.parse(a);
                       if(data.flagError == false){
