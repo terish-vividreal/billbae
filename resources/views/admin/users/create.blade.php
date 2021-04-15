@@ -63,7 +63,12 @@
                         {!! Form::label('shop_name', 'Store Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
                         {!! Form::text('shop_name', $user->shop->name ?? '' , array('placeholder' => 'Store Name','class' => 'form-control')) !!}                        
                         <div class="error" id="email_error"></div>
-                    </div>             
+                    </div> 
+                    <div class="form-group">
+                        {!! Form::label('business_type', 'Business Types*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                        {!! Form::select('business_type', $variants->business_types, $user->shop->business_type_id ?? '' , ['class' => 'form-control','placeholder'=>'Select Business Type']) !!}
+                        <div class="error" id="roles_error"></div>
+                    </div>            
                     <div class="form-group">
                         {!! Form::label('name', 'Admin Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
                         {!! Form::text('name', $user->name ?? '', array('placeholder' => 'Admin Name','class' => 'form-control')) !!}
@@ -91,7 +96,7 @@
                     </div>
                     <div class="form-group">
                         {!! Form::label('roles', 'Role*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::select('roles[]', $roles, $userRole ??  [] , array('class' => 'form-control','multiple')) !!}
+                        {!! Form::select('roles[]', $variants->roles, $userRole ??  [] , array('class' => 'form-control','multiple')) !!}
                         <div class="error" id="roles_error"></div>
                     </div>                  
                     

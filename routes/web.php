@@ -38,7 +38,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // Dashboard
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-    // Shop Routes
+    // Store Routes
     $store_link = 'store';
     Route::get($store_link . '/profile', [Store::class, 'index']);
     Route::post($store_link . '/unique', [Store::class, 'isUnique']);

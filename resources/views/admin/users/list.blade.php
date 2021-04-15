@@ -44,7 +44,9 @@
                                <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Name</th>
+                                    <th>Store</th>
+                                    <th>Business Type</th>
+                                    <th>Admin Name</th>
                                     <th>Mobile</th>
                                     <th>Email</th>
                                     <th>Role</th>
@@ -87,6 +89,8 @@
         ajax: "{{ url('admin/stores/lists') }}",
         columns: [
             {data: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'store', name: 'name'},
+            {data: 'businesstype', name: 'name'},
             {data: 'name', name: 'name'},
             {data: 'mobile', name: 'mobile'},
             {data: 'email', name: 'email'},
