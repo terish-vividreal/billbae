@@ -10,7 +10,8 @@
     <a href="{{ url('/home') }}" class="nav-link">Home</a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url('/roles') }}" class="nav-link">Roles
+    <a href="{{ url('/roles') }}" class="nav-link">Roles</a>
+  </li>
 @endsection
 
 <!-- Content Wrapper. Contains page content -->
@@ -54,7 +55,7 @@
                         <td>{{ ++$i }}</td>
                         <td>{{ $role->name }}</td>
                         <td>
-                            <a class="btn btn-info" href="{{ route('roles.show',$role->id) }}">Show</a>
+                            <a class="btn btn-info" href="{{ url(ROUTE_PREFIX.'/roles/'.$role->id) }}">Show</a>
                             @can('role-edit')
                                 <a class="btn btn-primary" href="{{ route('roles.edit',$role->id) }}">Edit</a>
                             @endcan

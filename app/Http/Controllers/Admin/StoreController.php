@@ -53,8 +53,8 @@ class StoreController extends Controller
      */
     public function lists(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $detail =  User::with('shop')->select(['name', 'mobile', 'email', 'id']);
+        $user_id    = Auth::user()->id;
+        $detail     =  User::with('shop')->select(['name', 'mobile', 'email', 'id']);
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -65,34 +65,34 @@ class StoreController extends Controller
         }
             $detail->where('parent_id', $user_id)->orderBy('id', 'desc');
             return Datatables::of($detail)
-                    ->addIndexColumn()
-                    ->addColumn('role', function($detail){
-                        $roles = User::find($detail->id)->roles;
-                        $html = '';
-                        if($roles){
-                            foreach($roles as $role){
-                                $html.= $role->name;
-                            }
-                        }                        
-                        return $html;
-                    })
-                    ->addColumn('store', function($detail){                        
-                        $html = $detail->shop->name;                      
-                        return $html;
-                    })
-                    ->addColumn('businesstype', function($detail){                        
-                        $html =$detail->shop->business_types->name;                      
-                        return $html;
-                    })
-                    ->addColumn('action', function($detail){
-                        $action = ' <a  href="' . url('admin/stores/' . $detail->id . '/edit') . '" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                         $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
-                        '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2"><i class="fa fa-trash" aria-hidden="true"></i></button></form>';
-                        return $action;
-                    })
-                    ->removeColumn('id')
-                    ->escapeColumns([])
-                    ->make(true);
+                ->addIndexColumn()
+                ->addColumn('role', function($detail){
+                    $roles = User::find($detail->id)->roles;
+                    $html = '';
+                    if($roles){
+                        foreach($roles as $role){
+                            $html.= $role->name;
+                        }
+                    }                        
+                    return $html;
+                })
+                ->addColumn('store', function($detail){                        
+                    $html = $detail->shop->name;                      
+                    return $html;
+                })
+                ->addColumn('businesstype', function($detail){                        
+                    $html =$detail->shop->business_types->name;                      
+                    return $html;
+                })
+                ->addColumn('action', function($detail){
+                    $action = ' <a  href="' . url('admin/stores/' . $detail->id . '/edit') . '" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
+                        $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
+                    '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2"><i class="fa fa-trash" aria-hidden="true"></i></button></form>';
+                    return $action;
+                })
+                ->removeColumn('id')
+                ->escapeColumns([])
+                ->make(true);
                     
     }
     

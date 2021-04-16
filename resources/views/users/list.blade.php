@@ -84,7 +84,7 @@
         searchDelay: 500,
         processing: true,
         serverSide: true,
-        ajax: "{{ url('admin/stores/lists') }}",
+        ajax: "{{ url('users/lists') }}",
         columns: [
             {data: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'name', name: 'name'},

@@ -26,6 +26,7 @@ class RoleController extends Controller
          $this->middleware('permission:role-create', ['only' => ['create','store']]);
          $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+         $this->middleware('permission:role-list', ['only' => ['show']]);
     }
     
     /**
@@ -38,7 +39,9 @@ class RoleController extends Controller
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
-        $roles          = Role::all();
+        $roles          = Role::where('name', '!=' , 'Super Admin')->get();
+
+        
         return view($this->viewPath . '.index', compact('page', 'roles'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
     
@@ -89,7 +92,7 @@ class RoleController extends Controller
             ->where("role_has_permissions.role_id",$id)
             ->get();
     
-        return view('roles.show',compact('role','rolePermissions'));
+        return view($this->viewPath . '.show',compact('role','rolePermissions'));
     }
     
     /**

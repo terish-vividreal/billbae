@@ -13,6 +13,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,11 +48,18 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // User Routes
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('users/lists', [UserController::class, 'lists']);
+    Route::post( 'users/unique', [UserController::class, 'isUnique']);
 
     // Business type Routes
     $business_type = 'business-types';
     Route::resource($business_type, AdminBusinessType::class)->except(['show']);
     Route::get($business_type . '/lists', [AdminBusinessType::class, 'lists']);
+
+    Route::get('change-password', [ProfileController::class, 'index']);
+    Route::post('change-password', [ProfileController::class, 'update']);
+
+    // Roles Routes
+    Route::resource('roles', RoleController::class);
 
 });
 

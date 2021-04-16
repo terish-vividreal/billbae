@@ -10,7 +10,8 @@
     <a href="{{ url('/home') }}" class="nav-link">Home</a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url('/roles') }}" class="nav-link">Roles
+    <a href="{{ url('/roles') }}" class="nav-link">Roles</a>
+  </li>
 @endsection
 
 

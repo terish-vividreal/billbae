@@ -9,6 +9,7 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use DB;
 use Auth;
+use Validator;
 use Hash;
 use DataTables;
 use Illuminate\Support\Arr;
@@ -39,19 +40,6 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        // echo "<pre>"; print_r(Auth::user()->roles->name); exit;
-
-        // dd(Auth::user()->roles->pluck('name')->toArray() );
-
-
-        // echo Auth::user()->roles->name; exit;
-
-        // $encrypted = Crypt::encryptString('user@gmail.com');
-        // echo  $encrypted . '<br>'; 
-
-        // $decrypted = Crypt::decryptString($encrypted);
-        // echo  $decrypted; 
-
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
@@ -110,14 +98,14 @@ class UserController extends Controller
     {
         
         $page               = collect();
-        $user               = Auth::user();
+        $you                = Auth::user();
         $page->title        = $this->title;
         $page->link         = url($this->link);
         $page->form_url     = url($this->link);
         $page->form_method  = 'POST';
 
         $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
-        return view($this->viewPath . '.create', compact('page', 'roles', 'user'));
+        return view($this->viewPath . '.create', compact('page', 'roles', 'you'));
     }
     
     /**
@@ -128,38 +116,38 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|same:confirm-password',
             'roles' => 'required'
         ]);
-    
-        $input = $request->all();
-        $user_id = Auth::user()->id;
-        $input['password'] = Hash::make($input['password']);
-        $input['parent_id'] = $user_id;
 
-        $user = User::create($input);
-        $user->assignRole($request->input('roles'));
+        if ($validator->passes()) {
+            $input = $request->all();
+            $user_id = Auth::user()->id;
+            $input['password'] = Hash::make($input['password']);
+            $input['parent_id'] = $user_id;
 
-        if(Auth::user()->parent_id == null){
-            $shop = new Shop();
-            $shop->name = $input['shop_name'];
-        $shop->user_id = $user->id;
-        $shop->save();
+            $user = User::create($input);
+            $user->assignRole($request->input('roles'));
 
-        $user->shop_id = $shop->id;
-        
-        }else{
-            $user->shop_id = Auth::user()->shop_id;
+            if(Auth::user()->parent_id == null){
+                $shop = new Shop();
+                $shop->name = $input['shop_name'];
+                $shop->user_id = $user->id;
+                $shop->save();
+                $user->shop_id = $shop->id;
+                
+            }else{
+                $user->shop_id = Auth::user()->shop_id;
+            }
+            
+            $user->save();
+            return ['flagError' => false, 'message' => "Account Added successfully"];
         }
-        
-        $user->save();
-
-        
-        return redirect()->route('users.index')
-                        ->with('success','User created successfully');
+        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+    
     }
     
     /**
@@ -190,7 +178,7 @@ class UserController extends Controller
         $page->form_url = url($this->link . '/' . $user->id);
         $page->form_method = 'PUT';
         
-        $roles = Role::pluck('name','name')->all();
+        $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
         $userRole = $user->roles->pluck('name','name')->all();
     
         return view($this->viewPath . '.create',compact('user','roles','userRole', 'page'));
@@ -205,28 +193,33 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
+
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
-            'password' => 'same:confirm-password',
             'roles' => 'required'
         ]);
+
+        if ($validator->passes()) {
     
-        $input = $request->all();
-        if(!empty($input['password'])){ 
-            $input['password'] = Hash::make($input['password']);
-        }else{
-            $input = Arr::except($input,array('password'));    
+            $input = $request->all();
+            if(!empty($input['password'])){ 
+                $input['password'] = Hash::make($input['password']);
+            }else{
+                $input = Arr::except($input,array('password'));    
+            }
+        
+            $user = User::find($id);
+            $user->update($input);
+            DB::table('model_has_roles')->where('model_id',$id)->delete();
+        
+            $user->assignRole($request->input('roles'));
+
+            return ['flagError' => false, 'message' => "Account Added successfully"];
         }
-    
-        $user = User::find($id);
-        $user->update($input);
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
-    
-        $user->assignRole($request->input('roles'));
-    
-        return redirect()->route('users.index')
-                        ->with('success','User updated successfully');
+
+        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+
     }
     
     /**
@@ -243,5 +236,16 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
                         ->with('success','User deleted successfully');
+    }
+
+    public function isUnique(Request $request){ 
+        if($request->user_id == 0){
+            $count = User::where('email', $request->email)->count();
+            echo ($count > 0 ? 'false' : 'true');
+        }else{
+            $count = User::where('email', $request->email)->where('id', '!=' , $request->user_id)->count();
+            echo ($count > 0 ? 'false' : 'true');
+        }
+        
     }
 }
