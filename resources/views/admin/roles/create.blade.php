@@ -14,6 +14,40 @@
   </li>
 @endsection
 
+@push('page-css')
+<style>
+.table-box{
+  width: 100%;
+  display:flex;
+  flex-wrap: wrap;
+  margin: 0px;
+  padding: 0px;
+}
+.table-box li{
+  padding: 0.5rem;
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid #DDD;
+}
+.sm-box{
+  width: 25%;
+}
+.lg-box{
+  width: 75%;
+}
+.lg-box-list{
+  width: 100%;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+.lg-box-list li{
+  border-bottom:inherit;
+}
+</style>
+
+@endpush
+
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -62,18 +96,31 @@
                         <div class="form-group clearfix"> 
     
                             </div>
-                        @foreach($permission as $value)
-      
-                            <div class="form-group clearfix"> 
-                                <div class="icheck-primary d-inline">
-                                <label>{{ Form::checkbox('permission[]', $value->id, false, array('class' => 'name')) }}
-                                    
-                                    {{ $value->name }}
-                                    </label>
-                                </div>
-                            </div>
-                     
-                        @endforeach
+
+                            <ul class="table-box">
+                              @foreach($permissions as $value)
+                                <li>
+                                  <div class="sm-box"> 
+                                    <h4>{{ $value->name }}</h4>
+                                  </div>
+
+                                  <div class="lg-box"> 
+                                    @php $permission = Spatie\Permission\Models\Permission::where('parent', '=', $value->id)->get();  @endphp
+
+                                    <ul class="lg-box-list">
+                                      @foreach($permission as $row)
+                                        <li>
+                                        <label>{{ Form::checkbox('permission[]', $row->id, false, array('class' => 'name')) }} {{ $row->name }}</label
+                                        </li>
+                                      @endforeach
+                                    </ul>                                
+                                  </div>
+
+
+                                </li>
+                              @endforeach
+                            </ul>
+
 
                     </div>            
                     

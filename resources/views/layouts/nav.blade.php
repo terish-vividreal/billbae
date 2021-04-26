@@ -134,6 +134,30 @@
                 </ul>
             </li>
             @endcan
+
+            @can('service-category-list')
+            <li class="nav-item {{ Request::is('service-category*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('service-category*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-key"></i><p>Service category <i class="fas fa-angle-left right"></i></p>
+                </a>
+                <ul class="nav nav-treeview">
+                    @can('service-category-edit', 'service-category-create')
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/service-category/create') }}" class="nav-link {{ Request::is('service-category/create*') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Add New </p>
+                        </a>
+                    </li>
+                    @endcan
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>List All</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endcan
             
         </ul>
       </nav>
