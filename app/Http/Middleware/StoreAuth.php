@@ -19,8 +19,9 @@ class StoreAuth
     {
         $user = Auth::user();
         if($user->hasAnyRole(['Shop Admin', 'Manager', 'Staff'])){
-
             define('USER_ROLE', 'user');
+            define('ROUTE_PREFIX', '');
+            define('SHOP_ID', $user->shop_id);
             return $next($request);            
         }
    

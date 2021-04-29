@@ -9,10 +9,15 @@ use App\Http\Controllers\Admin\BusinessTypeController as AdminBusinessType;
 
 
 use App\Http\Controllers\StoreController as Store;
+use App\Http\Controllers\ServiceCategoryController as ServiceCategory;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CountryController;
+use App\Http\Controllers\StateController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +43,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // Dashboard
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-    // Shop Routes
+    // Store Routes
     $store_link = 'store';
     Route::get($store_link . '/profile', [Store::class, 'index']);
     Route::post($store_link . '/unique', [Store::class, 'isUnique']);
@@ -47,11 +52,34 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // User Routes
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('users/lists', [UserController::class, 'lists']);
+    Route::post( 'users/unique', [UserController::class, 'isUnique']);
 
     // Business type Routes
     $business_type = 'business-types';
     Route::resource($business_type, AdminBusinessType::class)->except(['show']);
     Route::get($business_type . '/lists', [AdminBusinessType::class, 'lists']);
+
+    Route::get('change-password', [ProfileController::class, 'index']);
+    Route::post('change-password', [ProfileController::class, 'update']);
+
+    // Roles Routes
+    Route::resource('roles', RoleController::class);
+
+    // Serice category Routes
+    $service_category = 'service-category';
+    Route::resource($service_category, ServiceCategory::class)->except(['show']);;
+    Route::get($service_category . '/lists', [ServiceCategory::class, 'lists']);
+
+    // Country Routes
+    $country = 'country';
+    Route::resource($country, CountryController::class)->except(['show']);;
+    Route::get($country . '/lists', [CountryController::class, 'lists']);
+
+    // State Routes
+    $state = 'states';
+    Route::resource($state, StateController::class)->except(['show']);;
+    Route::get($state . '/lists', [StateController::class, 'lists']);
+    
 
 });
 
@@ -77,12 +105,3 @@ Route::prefix('admin/')->group(function () {
     });
 
 });
-
-// Route::group(['middleware' => ['auth']], function() {
-    
-
-//     Route::resource('users', UserController::class)->except(['show']);;
-//     Route::get('users/lists', [UserController::class, 'lists']);
-
-//     Route::resource('products', ProductController::class);
-// });

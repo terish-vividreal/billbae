@@ -10,8 +10,43 @@
     <a href="{{ url('/home') }}" class="nav-link">Home</a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url('/roles') }}" class="nav-link">Roles
+    <a href="{{ url('/roles') }}" class="nav-link">Roles </a>
+  </li>
 @endsection
+
+@push('page-css')
+<style>
+.table-box{
+  width: 100%;
+  display:flex;
+  flex-wrap: wrap;
+  margin: 0px;
+  padding: 0px;
+}
+.table-box li{
+  padding: 0.5rem;
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid #DDD;
+}
+.sm-box{
+  width: 25%;
+}
+.lg-box{
+  width: 75%;
+}
+.lg-box-list{
+  width: 100%;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+.lg-box-list li{
+  border-bottom:inherit;
+}
+</style>
+
+@endpush
 
 
   <!-- Content Wrapper. Contains page content -->
@@ -57,25 +92,35 @@
                         <div class="error" id="name_error"></div>
                     </div>
                     <div class="form-group">
-                        {!! Form::label('permission', 'Permission*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
                         <div class="form-group clearfix"> 
     
                             </div>
-                        @foreach($permission as $value)
-      
-                            <div class="form-group clearfix"> 
-                                <div class="icheck-primary d-inline">
-                                <!-- <label for="{{ $value->name }}">{{ Form::checkbox('permission[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, array('class' => 'name')) }}
-                                    
-                                    {{ $value->name }}
-                                    </label> -->
 
-                                    <label>{{ Form::checkbox('permission[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, array('class' => 'name')) }}
-                {{ $value->name }}</label>
-                                </div>
-                            </div>
-                     
-                        @endforeach
+                            <ul class="table-box">
+                              @foreach($permissions as $value)
+                                <li>
+                                  <div class="sm-box"> 
+                                    <h4>{{ $value->name }}</h4>
+                                  </div>
+
+                                  <div class="lg-box"> 
+                                    @php $permission = Spatie\Permission\Models\Permission::where('parent', '=', $value->id)->get();  @endphp
+
+                                    <ul class="lg-box-list">
+                                      @foreach($permission as $row)
+                                        <li>
+                                        <label>{{ Form::checkbox('permission[]', $row->id, in_array($row->id, $rolePermissions) ? true : false, array('class' => 'name')) }}{{ $row->name }}</label>
+                                        </li>
+                                      @endforeach
+                                    </ul>                                
+                                  </div>
+
+
+                                </li>
+                              @endforeach
+                            </ul>
+
+                      
 
                     </div>            
                     

@@ -7,10 +7,10 @@
     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url('/home') }}" class="nav-link">Home</a>
+    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url('/users') }}" class="nav-link">Users</a>
+    <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link">Users</a>
   </li>
 @endsection
 
@@ -84,7 +84,7 @@
         searchDelay: 500,
         processing: true,
         serverSide: true,
-        ajax: "{{ url('admin/stores/lists') }}",
+        ajax: "{{ url(ROUTE_PREFIX.'/users/lists') }}",
         columns: [
             {data: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'name', name: 'name'},

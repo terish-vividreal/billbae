@@ -22,6 +22,7 @@ class IsAdmin
             $user = Auth::user();
             if($user->hasRole('Super Admin')){
                 define('USER_ROLE', 'admin');
+                define('ROUTE_PREFIX', 'admin');
             }else{
                 define('USER_ROLE', '');
             }           

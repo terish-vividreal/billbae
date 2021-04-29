@@ -7,10 +7,10 @@
     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(USER_ROLE.'/home') }}" class="nav-link">Home</a>
+    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(USER_ROLE.'/users') }}" class="nav-link">{{ $page->title ?? ''}}</a>
+    <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link">{{ $page->title ?? ''}}</a>
   </li>
 @endsection
 
@@ -44,7 +44,9 @@
                                <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Name</th>
+                                    <th>Store</th>
+                                    <th>Business Type</th>
+                                    <th>Admin Name</th>
                                     <th>Mobile</th>
                                     <th>Email</th>
                                     <th>Role</th>
@@ -87,6 +89,8 @@
         ajax: "{{ url('admin/stores/lists') }}",
         columns: [
             {data: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'store', name: 'name'},
+            {data: 'businesstype', name: 'name'},
             {data: 'name', name: 'name'},
             {data: 'mobile', name: 'mobile'},
             {data: 'email', name: 'email'},

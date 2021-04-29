@@ -14,4 +14,9 @@ class Shop extends Model
         return $this->hasMany('App\Models\User');
     }
 
+    public function business_types()
+    {
+        return $this->hasOne('App\Models\BusinessType', 'id', 'business_type_id');
+    }
+
 }

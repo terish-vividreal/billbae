@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use App\Models\BusinessType;
 use DB;
 use Validator;
 use Auth;
@@ -40,19 +41,6 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        // echo "<pre>"; print_r(Auth::user()->roles->name); exit;
-
-        // dd(Auth::user()->roles->pluck('name')->toArray() );
-
-
-        // echo Auth::user()->roles->name; exit;
-
-        // $encrypted = Crypt::encryptString('user@gmail.com');
-        // echo  $encrypted . '<br>'; 
-
-        // $decrypted = Crypt::decryptString($encrypted);
-        // echo  $decrypted; 
-
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
@@ -65,8 +53,8 @@ class StoreController extends Controller
      */
     public function lists(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $detail =  User::select(['name', 'mobile', 'email', 'id']);
+        $user_id    = Auth::user()->id;
+        $detail     =  User::with('shop')->select(['name', 'mobile', 'email', 'id']);
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -77,26 +65,34 @@ class StoreController extends Controller
         }
             $detail->where('parent_id', $user_id)->orderBy('id', 'desc');
             return Datatables::of($detail)
-                    ->addIndexColumn()
-                    ->addColumn('role', function($detail){
-                        $roles = User::find($detail->id)->roles;
-                        $html = '';
-                        if($roles){
-                            foreach($roles as $role){
-                                $html.= $role->name;
-                            }
-                        }                        
-                        return $html;
-                    })
-                    ->addColumn('action', function($detail){
-                        $action = ' <a  href="' . url('admin/stores/' . $detail->id . '/edit') . '" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                         $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
-                        '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2"><i class="fa fa-trash" aria-hidden="true"></i></button></form>';
-                        return $action;
-                    })
-                    ->removeColumn('id')
-                    ->escapeColumns([])
-                    ->make(true);
+                ->addIndexColumn()
+                ->addColumn('role', function($detail){
+                    $roles = User::find($detail->id)->roles;
+                    $html = '';
+                    if($roles){
+                        foreach($roles as $role){
+                            $html.= $role->name;
+                        }
+                    }                        
+                    return $html;
+                })
+                ->addColumn('store', function($detail){                        
+                    $html = $detail->shop->name;                      
+                    return $html;
+                })
+                ->addColumn('businesstype', function($detail){                        
+                    $html =$detail->shop->business_types->name;                      
+                    return $html;
+                })
+                ->addColumn('action', function($detail){
+                    $action = ' <a  href="' . url('admin/stores/' . $detail->id . '/edit') . '" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
+                        $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
+                    '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2"><i class="fa fa-trash" aria-hidden="true"></i></button></form>';
+                    return $action;
+                })
+                ->removeColumn('id')
+                ->escapeColumns([])
+                ->make(true);
                     
     }
     
@@ -108,14 +104,15 @@ class StoreController extends Controller
     public function create()
     {
         $page               = collect();
+        $variants           = collect();
         $user               = Auth::user();       
         $page->title        = $this->title;
         $page->link         = url($this->link);
         $page->form_url     = url($this->link);
         $page->form_method  = 'POST';
-
-        $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
-        return view($this->viewPath . '.create', compact('page', 'roles'));
+        $variants->business_types     = BusinessType::pluck('name','id')->all();
+        $variants->roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
+        return view($this->viewPath . '.create', compact('page', 'variants'));
     }
     
     /**
@@ -145,8 +142,9 @@ class StoreController extends Controller
 
             if(Auth::user()->parent_id == null){
                 $shop = new Shop();
-                $shop->name = $input['shop_name'];
-                $shop->user_id = $user->id;
+                $shop->name             = $input['shop_name'];
+                $shop->business_type_id = $input['business_type'];
+                $shop->user_id          = $user->id;
                 $shop->save();
     
                 $user->shop_id = $shop->id;
@@ -185,15 +183,16 @@ class StoreController extends Controller
     {
         $user               = User::find($id);
         $page               = collect();
+        $variants           = collect();
         $page->title        = $this->title;
         $page->link         = url($this->link);
-        $page->form_url = url($this->link . '/' . $user->id);
-        $page->form_method = 'PUT';
-        
-        $roles = Role::pluck('name','name')->all();
-        $userRole = $user->roles->pluck('name','name')->all();
+        $page->form_url     = url($this->link . '/' . $user->id);
+        $page->form_method  = 'PUT';        
+        $variants->roles    = Role::pluck('name','name')->all();
+        $variants->business_types     = BusinessType::pluck('name','id')->all();
+        $userRole           = $user->roles->pluck('name','name')->all();
     
-        return view($this->viewPath . '.create',compact('user','roles','userRole', 'page'));
+        return view($this->viewPath . '.create',compact('user','variants','userRole', 'page'));
     }
     
     /**
@@ -227,6 +226,12 @@ class StoreController extends Controller
             DB::table('model_has_roles')->where('model_id',$id)->delete();
         
             $user->assignRole($request->input('roles'));
+
+            $shop = Shop::find($user->shop_id);
+            $shop->name             = $input['shop_name'];
+            $shop->business_type_id = $input['business_type'];
+            $shop->save();
+
 
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }

@@ -128,7 +128,7 @@
 
           @if(USER_ROLE === 'user')
             @can('store-profile-update')
-              <span class="dropdown-item dropdown-header">{{ Auth::user()->shop->name }} - Settings</span>
+              <span class="dropdown-item dropdown-header"> Store - Settings</span>
               <div class="dropdown-divider"></div>
               <a href="{{ url('store/profile') }}" class="dropdown-item"><i class="fas fa-building mr-2"></i> Store Profile </a>
               <div class="dropdown-divider"></div>
@@ -136,21 +136,19 @@
             @endcan
           @endif
 
-          <span class="dropdown-item dropdown-header">{{ Auth::user()->name }} - Settings</span>
+          <span class="dropdown-item dropdown-header">User - Settings</span>
 
           
           <div class="dropdown-divider"></div>
-          <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-            <i class="fas fa-key mr-2"></i> Logout 
-          </a>
-
+          <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"> <i class="fas fa-key mr-2"></i> Logout</a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                 @csrf
             </form>
 
-
-
+            @if(USER_ROLE === 'user')
+              <div class="dropdown-divider"></div>
+              <a href="{{ url('change-password') }}" class="dropdown-item"><i class="fas fa-envelope mr-2"></i>Accounts Settings</a>
+            @endif
         </div>
 
         

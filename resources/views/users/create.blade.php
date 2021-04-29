@@ -7,10 +7,10 @@
     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(USER_ROLE.'/home') }}" class="nav-link">Home</a>
+    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(USER_ROLE.'/users') }}" class="nav-link">{{ $page->title ?? ''}}</a>
+    <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link">{{ $page->title ?? ''}}</a>
   </li>
 @endsection
 
@@ -54,18 +54,18 @@
             </div>
 
 
-              <form id="storeForm" name="storeForm" role="form" method="" action="" class="ajax-submit">
+              <form id="userForm" name="userForm" role="form" method="" action="" class="ajax-submit">
                 {{ csrf_field() }}
                 {!! Form::hidden('user_id', $user->id ?? '' , ['id' => 'user_id'] ); !!}
                 <div class="col-md-8 ">  
 
                     <div class="form-group">
                         {!! Form::label('shop_name', 'Store Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('shop_name', $user->shop->name ?? '' , array('placeholder' => 'Store Name','class' => 'form-control')) !!}                        
+                        {!! Form::text('shop_name', $you->shop->name ?? '' , array('placeholder' => 'Store Name','class' => 'form-control', 'disabled')) !!}                        
                         <div class="error" id="email_error"></div>
                     </div>             
                     <div class="form-group">
-                        {!! Form::label('name', 'Admin Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                        {!! Form::label('name', 'User Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
                         {!! Form::text('name', $user->name ?? '', array('placeholder' => 'Admin Name','class' => 'form-control')) !!}
                         <div class="error" id="name_error"></div>
                     </div>
@@ -121,8 +121,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <script type="text/javascript">
 
-if ($("#storeForm").length > 0) {
-    var validator = $("#storeForm").validate({ 
+if ($("#userForm").length > 0) {
+    var validator = $("#userForm").validate({ 
         rules: {
             shop_name: {
                     required: true,
@@ -131,7 +131,7 @@ if ($("#storeForm").length > 0) {
             // email: {
             //     required: true,
             //     email: true,
-            //     remote: { url: "{{ url('admin/users/unique') }}", type: "POST",
+            //     remote: { url: "{{ url(ROUTE_PREFIX.'/users/unique') }}", type: "POST",
             //         data: {
             //             user_id: function () {
             //                 return $('#user_id').val();
@@ -158,7 +158,7 @@ if ($("#storeForm").length > 0) {
                 email: "Please enter a valid email address.",
                 remote: "Email already existing"
             },
-            password: {
+            passworda: {
                 required: "Please enter password",
                 minlength: "Passwords must be at least 6 characters in length",
                 maxlength: "Length cannot be more than 10 characters",
@@ -166,24 +166,21 @@ if ($("#storeForm").length > 0) {
             password_confirmation: {
                 equalTo: "Passwords are not matching",
             },
-            department_id: {
-                required: "Please choose department"
-            },
         },
         submitHandler: function (form) {
             id = $("#user_id").val();
             userId      = "" == id ? "" : "/" + id;
             formMethod  = "" == id ? "POST" : "PUT";
-            var forms   = $("#storeForm");
-            $.ajax({ url: "{{ url('admin/stores') }}" + userId, type: formMethod, processData: false, 
+            var forms   = $("#userForm");
+            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/users') }}" + userId, type: formMethod, processData: false, 
             data: forms.serialize(), dataType: "html",
             }).done(function (a) {
                 var data = JSON.parse(a);
                 if(data.flagError == false){
                     showSuccessToaster(data.message);
                     setTimeout(function () { 
-                        window.location.href = "{{ url('admin/stores')}}";                    
-                    }, 3000);
+                        window.location.href = "{{ url(ROUTE_PREFIX.'/users')}}";                    
+                    }, 2000);
 
                 }else{
                   showErrorToaster(data.message);

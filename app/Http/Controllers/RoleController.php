@@ -26,6 +26,7 @@ class RoleController extends Controller
          $this->middleware('permission:role-create', ['only' => ['create','store']]);
          $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+         $this->middleware('permission:role-list', ['only' => ['show']]);
     }
     
     /**
@@ -38,7 +39,7 @@ class RoleController extends Controller
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
-        $roles          = Role::all();
+        $roles          = Role::get();        
         return view($this->viewPath . '.index', compact('page', 'roles'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
     
@@ -49,12 +50,11 @@ class RoleController extends Controller
      */
     public function create()
     {
-        $permission = Permission::get();
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
-        $permission     = Permission::get();
-        return view($this->viewPath . '.create', compact('page', 'permission'));
+        $permissions    = Permission::where('parent', '=', 0)->get();
+        return view($this->viewPath . '.create', compact('page', 'permissions'));
     }
     
     /**
@@ -89,7 +89,7 @@ class RoleController extends Controller
             ->where("role_has_permissions.role_id",$id)
             ->get();
     
-        return view('roles.show',compact('role','rolePermissions'));
+        return view($this->viewPath . '.show',compact('role','rolePermissions'));
     }
     
     /**
@@ -101,12 +101,12 @@ class RoleController extends Controller
     public function edit($id)
     {
         $role = Role::find($id);
-        $permission = Permission::get();
+        $permissions    = Permission::where('parent', '=', 0)->get();
         $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)
             ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
             ->all();
     
-        return view('admin.roles.edit',compact('role','permission','rolePermissions'));
+        return view('admin.roles.edit',compact('role','permissions','rolePermissions'));
     }
     
     /**
