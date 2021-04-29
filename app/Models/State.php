@@ -27,5 +27,4 @@ class State extends Model
         
         return response($states);
     }
-
 }

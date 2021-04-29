@@ -54,6 +54,7 @@
                                     <th>No</th>
                                     <th>Country</th>
                                     <th>State</th>
+                                    <th>Name</th>
                                     <th width="100px">Action</th>
                                 </tr>
                             </thead>
@@ -113,6 +114,7 @@
     validator.resetForm();
     $('input').removeClass('error');
     $('select').removeClass('error');
+
 
     if (state_id === null) {
         $("#{{$page->entity}}Form")[0].reset();

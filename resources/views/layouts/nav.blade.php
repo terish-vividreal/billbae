@@ -136,22 +136,25 @@
             @endcan
 
             @can('service-category-list')
-              <li class="nav-item {{ Request::is('service-category*') ? 'menu-open' : '' }}">
-                  <a href="#" class="nav-link {{ Request::is('service-category*') ? 'active' : '' }}">
+              <li class="nav-item {{ Request::is('services*') ? 'menu-open' : '' }}">
+                  <a href="#" class="nav-link {{ Request::is('services*') ? 'active' : '' }}">
                   <i class="nav-icon fa fa-list-ul" ></i><p>Services<i class="fas fa-angle-left right"></i></p>
                   </a>
                   <ul class="nav nav-treeview">
-                    @can('service-category-edit', 'service-category-create', 'service-category-delete')
-                      <li class="nav-item">
-                          <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}">
-                          <i class="nav-icon fa fa-forward"></i>
-                          <p>Service category</p>
-                          </a>
-                      </li>
-                    @endcan
+                    
+
+                    
                   </ul>
                   
               </li>
+            @endcan
+            @can('service-category-edit', 'service-category-create', 'service-category-delete')
+            <li class="nav-item">
+                <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}">
+                  <i class="nav-icon fa fa-forward"></i>
+                  <p>Service category</p>
+                </a>
+            </li>
             @endcan
 
             @can('manage-location')
