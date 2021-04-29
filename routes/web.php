@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\BusinessTypeController as AdminBusinessType;
 
 use App\Http\Controllers\StoreController as Store;
 use App\Http\Controllers\ServiceCategoryController as ServiceCategory;
+use App\Http\Controllers\CommonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\DistrictController;
 
 
 /*
@@ -79,7 +81,15 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $state = 'states';
     Route::resource($state, StateController::class)->except(['show']);;
     Route::get($state . '/lists', [StateController::class, 'lists']);
-    
+
+    // District Routes
+    $district = 'districts';
+    Route::resource($district, DistrictController::class)->except(['show']);;
+    Route::get($district . '/lists', [DistrictController::class, 'lists']);
+
+
+    $link = 'common';
+    Route::get($link . '/get-states', [CommonController::class, 'getStates']);    
 
 });
 

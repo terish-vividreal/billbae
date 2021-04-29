@@ -24,9 +24,6 @@
             <h1 class="m-0">{{ $page->title ?? ''}}</h1>
           </div><!-- /.col -->
 
-          <div class="col-sm-6">
-              <input type="submit" value="Create new {{ $page->title ?? ''}}" class="btn btn-success float-sm-right">
-          </div>
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
     </div>
@@ -59,11 +56,11 @@
                             @can('role-edit')
                                 <a class="btn btn-primary" href="{{ route('roles.edit',$role->id) }}">Edit</a>
                             @endcan
-                            <!-- @can('role-delete')
+                            @can('role-delete')
                                 {!! Form::open(['method' => 'DELETE','route' => ['roles.destroy', $role->id],'style'=>'display:inline']) !!}
                                     {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
                                 {!! Form::close() !!}
-                            @endcan -->
+                            @endcan
                         </td>
                     </tr>
                     @endforeach

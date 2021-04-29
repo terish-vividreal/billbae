@@ -54,7 +54,7 @@
                                     <th>No</th>
                                     <th>Country</th>
                                     <th>State</th>
-                                    <th>Name</th>
+                                    <th>District</th>
                                     <th width="100px">Action</th>
                                 </tr>
                             </thead>
@@ -78,7 +78,7 @@
   <!-- /.content-wrapper -->
       
 
-@include('state.manage')
+@include('district.manage')
 @endsection
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
@@ -89,6 +89,7 @@
   var role        = '{{ROUTE_PREFIX}}';
   var link        = '{{$page->link}}';
   var entity      = '{{$page->entity}}';
+  var selected    = '';
 
   $(function () {
     table = $('.data-tables').DataTable({
@@ -103,6 +104,7 @@
         columns: [
             {data: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'country', name: 'name'},
+            {data: 'state', name: 'name'},
             {data: 'name', name: 'name'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
@@ -110,25 +112,35 @@
   });
   
 
-  function manageState(state_id){
+  function manageState(district_id){
     validator.resetForm();
     $('input').removeClass('error');
     $('select').removeClass('error');
 
-
-    if (state_id === null) {
+    if (district_id === null) {
         $("#{{$page->entity}}Form")[0].reset();
         $('#{{$page->entity}}Form').find("input[type=text]").val("");
-        $("#state_id").val('');
+        $("#district_id").val('');
         $("#business-types-modal").modal("show");
     } else {
-        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + state_id + "/edit", type: "GET", dataType: "html"})
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + district_id + "/edit", type: "GET", dataType: "html"})
             .done(function (a) {
                 var data = JSON.parse(a);
                 if(data.flagError == false){
-                    $("#state_id").val(data.data.id);
-                    $("#country_id").val(data.data.country.id);  
+                    $("#district_id").val(data.data.id);
+                    $("#country_id").val(data.data.state.country.id);  
                     $("#{{$page->entity}}Form input[name=name]").val(data.data.name);
+                    $("#state_block").html('');
+                    var selectTerms = '<select id="country_id" class="form-control valid" name="country_id" aria-invalid="false"><option value="">Select a state</option>';
+                    $.each(data.states, function(key, value) {
+                      selected = '';
+                      if (value.id == data.data.state.id) {
+                        selected = 'selected';
+                      }
+                      selectTerms += '<option value="' + value.id + '" ' + selected + '>' + value.name + '</option>';
+                    });
+                    selectTerms +='</select>';
+                    $("#state_block").html(selectTerms);
                     $("#business-types-modal").modal("show");
                 }
             }).fail(function () {
@@ -146,23 +158,30 @@
             },
             country_id: {
                   required: true,
-            }
+            },
+            state_id: {
+                  required: true,
+            },
+            
         },
         messages: { 
           name: {
-            required: "Please enter state name",
+            required: "Please enter district name",
             maxlength: "Length cannot be more than 30 characters",
             },
           country_id: {
             required: "Please select country",
+            },
+          state_id: {
+            required: "Please select state",
             }
         },
         submitHandler: function (form) {
-          id = $("#state_id").val();
-          state_id   = "" == id ? "" : "/" + id;
+          id = $("#district_id").val();
+          district_id   = "" == id ? "" : "/" + id;
           formMethod  = "" == id ? "POST" : "PUT";
           var forms = $("#{{$page->entity}}Form");
-          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + state_id, type: formMethod, processData: false, 
+          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + district_id, type: formMethod, processData: false, 
           data: forms.serialize(), dataType: "html",
           }).done(function (a) {
             var data = JSON.parse(a);
@@ -214,6 +233,18 @@
           }
       });
   }
+
+  $(document).on('change', '#country_id', function () {
+    $.ajax({
+          url: "{{ url(ROUTE_PREFIX.'/common/get-states') }}/",
+          type: "GET",
+          data:{'country_id':this.value },
+          dataType: "html"
+      }).done(function (data) {
+      console.log(data);
+        $("#state_block").html(data);
+      })
+});
 
 </script>
 @endpush

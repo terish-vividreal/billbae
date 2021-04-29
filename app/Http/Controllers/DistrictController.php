@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\District;
+use App\Models\State;
 use App\Models\Country;
+use Form;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use DataTables;
 use Validator;
 
-class CountryController extends Controller
+class DistrictController extends Controller
 {
-    protected $title    = 'Country';
-    protected $viewPath = 'country';
-    protected $link     = 'countries';
-    protected $route    = 'country';
-    protected $entity   = 'country';
+    protected $title    = 'District';
+    protected $viewPath = 'district';
+    protected $link     = 'districts';
+    protected $route    = 'districts';
+    protected $entity   = 'district';
 
     /**
      * Display a listing of the resource.
@@ -32,12 +35,14 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $page           = collect();
-        $page->title    = $this->title;
-        $page->link     = url($this->link);
-        $page->route    = $this->route;
-        $page->entity   = $this->entity;
-        return view($this->viewPath . '.list', compact('page'));
+        $page                   = collect();
+        $variants               = collect();
+        $page->title            = $this->title;
+        $page->link             = url($this->link);
+        $page->route            = $this->route;
+        $page->entity           = $this->entity;        
+        $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');        
+        return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 
     /**
@@ -46,7 +51,7 @@ class CountryController extends Controller
      */
     public function lists(Request $request)
     {
-        $detail =  Country::select(['name', 'id'])->where('shop_id', SHOP_ID)->orderBy('id', 'desc');
+        $detail =  District::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -57,16 +62,23 @@ class CountryController extends Controller
         }
             
             return Datatables::of($detail)
-                    ->addIndexColumn()
-                    ->addColumn('action', function($detail){
-                        $action = ' <a  href="javascript:" onclick="manageCountry(' . $detail->id . ')" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                        $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
-                        return $action;
-                    })
-                    ->removeColumn('id')
-                    ->escapeColumns([])
-                    ->make(true);
-                    
+                ->addIndexColumn()
+                ->addColumn('action', function($detail){
+                    $action = ' <a  href="javascript:" onclick="manageState(' . $detail->id . ')" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
+                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                    return $action;
+                })
+                ->addColumn('country', function($detail){
+                    $country = $detail->state->country->name;
+                    return $country;
+                })
+                ->addColumn('state', function($detail){
+                    $country = $detail->state->name;
+                    return $country;
+                })
+                ->removeColumn('id')
+                ->escapeColumns([])
+                ->make(true);
     }
 
     /**
@@ -89,7 +101,7 @@ class CountryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => [
-                'required',Rule::unique('countries')->where(function($query) {
+                'required',Rule::unique('districts')->where(function($query) {
                   $query->where('shop_id', '=', SHOP_ID);
               })
             ],
@@ -97,8 +109,9 @@ class CountryController extends Controller
 
         if ($validator->passes()) {
 
-            $data           = new Country();
+            $data           = new District();
             $data->name     = $request->name;
+            $data->state_id = $request->state_id;
             $data->shop_id  = SHOP_ID;
             $data->save();
 
@@ -127,9 +140,12 @@ class CountryController extends Controller
      */
     public function edit($id)
     {
-        $data = Country::findOrFail($id);
+        $data   = District::with('state')->findOrFail($id);
+        // $states = State::where('country_id',$data->state->country->id)->pluck('name','id');
+        $states = State::where('country_id',$data->state->country->id)->get();
+
         if($data){
-            return ['flagError' => false, 'data' => $data];
+            return ['flagError' => false, 'data' => $data, 'country_id' => $data->state->country->id, 'states' => $states];
         }else{
             return ['flagError' => true, 'message' => "Data not found, Try again!"];
         }
@@ -146,14 +162,15 @@ class CountryController extends Controller
     {
         $rules = [
             'name' => [
-                'required',Rule::unique('countries')->where(function($query) use($id) {
-                  $query->where('shop_id', '=', SHOP_ID)->where('id', '!=', $id);
-              })
+                'required',
+                    Rule::unique('districts')->where(function($query) use($id) {
+                    $query->where('shop_id', '=', SHOP_ID)->where('id', '!=', $id);
+                    })
             ],
         ];
     
         $messages = [
-            'required' => 'Please enter country name'
+            'required' => 'Please enter district name'
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);

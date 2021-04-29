@@ -24,10 +24,7 @@ class StateController extends Controller
      */
     function __construct()
     {
-        // $this->middleware('permission:service-category-list|service-category-create|service-category-edit|service-category-delete', ['only' => ['index','show']]);
-        // $this->middleware('permission:service-category-create', ['only' => ['create','store']]);
-        // $this->middleware('permission:service-category-edit', ['only' => ['edit','update']]);
-        // $this->middleware('permission:service-category-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:manage-location', ['only' => ['index','store', 'edit', 'destroy']]);
     }
 
     /**
@@ -43,7 +40,7 @@ class StateController extends Controller
         $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity;        
-        $variants->countries    = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');
+        $variants->countries    = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');        
         return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 
@@ -53,7 +50,7 @@ class StateController extends Controller
      */
     public function lists(Request $request)
     {
-        $detail =  State::select(['name', 'id'])->where('shop_id', SHOP_ID)->orderBy('id', 'desc');
+        $detail =  State::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -64,15 +61,19 @@ class StateController extends Controller
         }
             
             return Datatables::of($detail)
-                    ->addIndexColumn()
-                    ->addColumn('action', function($detail){
-                        $action = ' <a  href="javascript:" onclick="manageState(' . $detail->id . ')" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                        $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
-                        return $action;
-                    })
-                    ->removeColumn('id')
-                    ->escapeColumns([])
-                    ->make(true);
+                ->addIndexColumn()
+                ->addColumn('action', function($detail){
+                    $action = ' <a  href="javascript:" onclick="manageState(' . $detail->id . ')" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
+                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                    return $action;
+                })
+                ->addColumn('country', function($detail){
+                    $country = $detail->country->name;
+                    return $country;
+                })
+                ->removeColumn('id')
+                ->escapeColumns([])
+                ->make(true);
                     
     }
 
@@ -96,7 +97,7 @@ class StateController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => [
-                'required',Rule::unique('countries')->where(function($query) {
+                'required',Rule::unique('states')->where(function($query) {
                   $query->where('shop_id', '=', SHOP_ID);
               })
             ],
@@ -105,9 +106,10 @@ class StateController extends Controller
 
         if ($validator->passes()) {
 
-            $data           = new Country();
-            $data->name     = $request->name;
-            $data->shop_id  = SHOP_ID;
+            $data               = new State();
+            $data->name         = $request->name;
+            $data->country_id   = $request->country_id;
+            $data->shop_id      = SHOP_ID;
             $data->save();
 
             return ['flagError' => false, 'message' => $this->title. " Added successfully"];
@@ -133,9 +135,14 @@ class StateController extends Controller
      * @param  \App\Models\State  $state
      * @return \Illuminate\Http\Response
      */
-    public function edit(State $state)
+    public function edit($id)
     {
-        //
+        $data = State::with('country')->findOrFail($id);
+        if($data){
+            return ['flagError' => false, 'data' => $data];
+        }else{
+            return ['flagError' => true, 'message' => "Data not found, Try again!"];
+        }
     }
 
     /**
@@ -145,9 +152,31 @@ class StateController extends Controller
      * @param  \App\Models\State  $state
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, State $state)
-    {
-        //
+    public function update(Request $request, $id)
+    {   
+        $validator = Validator::make($request->all(), [
+            'name' => [
+                'required',Rule::unique('states')->where(function($query) use($id) {
+                  $query->where('shop_id', '=', SHOP_ID)->where('id', '!=', $id);
+              })
+            ],
+            'country_id' => 'required',
+        ]);
+
+
+        if ($validator->passes()) {
+            $data = State::findOrFail($id);
+            if($data){
+                $data->name         = $request->name;
+                $data->country_id   = $request->country_id;
+                $data->shop_id      = SHOP_ID;
+                $data->save();
+                return ['flagError' => false, 'message' => $this->title. " Updated successfully"];
+            }else{
+                return ['flagError' => true, 'message' => "Data not found, Try again!"];
+            }
+        }
+        return ['flagError' => true, 'error'=>$validator->errors()->all()];
     }
 
     /**

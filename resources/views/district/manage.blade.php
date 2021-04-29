@@ -13,17 +13,25 @@
                 <div class="alert alert-success fade alert-messages print-success-msg" style="display:none;"></div>
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="POST" action="" class="ajax-submit">
                 {{ csrf_field() }}
-                {!! Form::hidden('state_id', '' , ['id' => 'state_id'] ); !!}
+                {!! Form::hidden('district_id', '' , ['id' => 'district_id'] ); !!}
                 <div class="card-body">
                   <div class="form-group">
-                    {!! Form::label('name', 'Enter State *', ['class' => '']) !!}
-                    {!! Form::text('name', '', ['class' => 'form-control', 'id' => 'name', 'placeholder'=>'Enter State']) !!}
+                    {!! Form::label('name', 'Enter District *', ['class' => '']) !!}
+                    {!! Form::text('name', '', ['class' => 'form-control', 'id' => 'name', 'placeholder'=>'Enter district']) !!}
                   </div>
 
                   <div class="form-group">
                     {!! Form::label('country_id', 'country*', ['class' => '']) !!}
-                    {!! Form::select('country_id', $variants->countries , '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
+                    {!! Form::select('country_id', $variants->country , '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
                   </div>
+
+                  <div class="form-group">
+                    {!! Form::label('state_id', 'State*', ['class' => '']) !!}
+                    <div id="state_block">
+                    {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                    </div>
+                  </div>
+
                 </div>
 
                 <div class="modal-footer">					
