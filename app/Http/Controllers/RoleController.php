@@ -39,7 +39,15 @@ class RoleController extends Controller
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
-        $roles          = Role::get();        
+
+        if(auth()->user()->is_admin == 1){
+            $roles          = Role::get(); 
+        }else{
+            $roles          = Role::where('name', '!=', 'Super Admin')->get(); 
+        }
+                  
+        
+        // exit;
         return view($this->viewPath . '.index', compact('page', 'roles'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
     
