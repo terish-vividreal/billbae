@@ -98,7 +98,7 @@
             @can('role-list')
             <li class="nav-item {{ Request::is('roles*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('roles*') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-key"></i><p>Manage Roles <i class="fas fa-angle-left right"></i></p>
+                    <i class="nav-icon fas fa-certificate"></i><p>Manage Roles <i class="fas fa-angle-left right"></i></p>
                 </a>
                 <ul class="nav nav-treeview">
                     @can('role-edit', 'role-create')
@@ -136,28 +136,56 @@
             @endcan
 
             @can('service-category-list')
-            <li class="nav-item {{ Request::is('service-category*') ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ Request::is('service-category*') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-key"></i><p>Service category <i class="fas fa-angle-left right"></i></p>
-                </a>
-                <ul class="nav nav-treeview">
-                    @can('service-category-edit', 'service-category-create')
-                    <li class="nav-item">
-                        <a href="{{ url(ROUTE_PREFIX.'/service-category/create') }}" class="nav-link {{ Request::is('service-category/create*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Add New </p>
-                        </a>
-                    </li>
+              <li class="nav-item {{ Request::is('service-category*') ? 'menu-open' : '' }}">
+                  <a href="#" class="nav-link {{ Request::is('service-category*') ? 'active' : '' }}">
+                  <i class="nav-icon fa fa-list-ul" ></i><p>Services<i class="fas fa-angle-left right"></i></p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    @can('service-category-edit', 'service-category-create', 'service-category-delete')
+                      <li class="nav-item">
+                          <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}">
+                          <i class="nav-icon fa fa-forward"></i>
+                          <p>Service category</p>
+                          </a>
+                      </li>
                     @endcan
-                    <li class="nav-item">
-                        <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>List All</p>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+                  </ul>
+                  
+              </li>
             @endcan
+
+            @can('manage-location')
+              <li class="nav-item @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) menu-open @endif">
+                  <a href="#" class="nav-link @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) active @endif">
+                  <i class="nav-icon fa fa-map-marker" ></i><p>Location <i class="fas fa-angle-left right"></i></p>
+                  </a>
+                  <ul class="nav nav-treeview">                    
+                      <li class="nav-item">
+                          <a href="{{ url(ROUTE_PREFIX.'/country') }}" class="nav-link {{ Request::is('country') ? 'active' : '' }}">
+                          <i class="nav-icon fa fa-globe"></i>
+                          <p>Country</p>
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="{{ url(ROUTE_PREFIX.'/states') }}" class="nav-link {{ Request::is('states') ? 'active' : '' }}">
+                          <i class="nav-icon fa fa-globe"></i>
+                          <p>States</p>
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a href="{{ url(ROUTE_PREFIX.'/districts') }}" class="nav-link {{ Request::is('districts') ? 'active' : '' }}">
+                          <i class="nav-icon fa fa-globe"></i>
+                          <p>Districts</p>
+                          </a>
+                      </li>
+                  </ul>
+                  
+              </li>
+            @endcan
+
+            
+
+            
             
         </ul>
       </nav>

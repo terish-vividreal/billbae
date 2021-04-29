@@ -9,11 +9,17 @@ use App\Http\Controllers\Admin\BusinessTypeController as AdminBusinessType;
 
 
 use App\Http\Controllers\StoreController as Store;
+use App\Http\Controllers\ServiceCategoryController as ServiceCategory;
+use App\Http\Controllers\CommonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CountryController;
+use App\Http\Controllers\StateController;
+use App\Http\Controllers\DistrictController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +67,30 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // Roles Routes
     Route::resource('roles', RoleController::class);
 
+    // Serice category Routes
+    $service_category = 'service-category';
+    Route::resource($service_category, ServiceCategory::class)->except(['show']);;
+    Route::get($service_category . '/lists', [ServiceCategory::class, 'lists']);
+
+    // Country Routes
+    $country = 'country';
+    Route::resource($country, CountryController::class)->except(['show']);;
+    Route::get($country . '/lists', [CountryController::class, 'lists']);
+
+    // State Routes
+    $state = 'states';
+    Route::resource($state, StateController::class)->except(['show']);;
+    Route::get($state . '/lists', [StateController::class, 'lists']);
+
+    // District Routes
+    $district = 'districts';
+    Route::resource($district, DistrictController::class)->except(['show']);;
+    Route::get($district . '/lists', [DistrictController::class, 'lists']);
+
+
+    $link = 'common';
+    Route::get($link . '/get-states', [CommonController::class, 'getStates']);    
+
 });
 
 // Super Admin Routes
@@ -85,12 +115,3 @@ Route::prefix('admin/')->group(function () {
     });
 
 });
-
-// Route::group(['middleware' => ['auth']], function() {
-    
-
-//     Route::resource('users', UserController::class)->except(['show']);;
-//     Route::get('users/lists', [UserController::class, 'lists']);
-
-//     Route::resource('products', ProductController::class);
-// });
