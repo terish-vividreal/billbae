@@ -19,6 +19,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\PackageController;
 
 
 /*
@@ -87,9 +89,22 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($district, DistrictController::class)->except(['show']);;
     Route::get($district . '/lists', [DistrictController::class, 'lists']);
 
+    // Services Routes
+    $services = 'services';
+    Route::resource($services, ServiceController::class)->except(['show']);;
+    Route::get($services . '/lists', [ServiceController::class, 'lists']);
+    Route::get($services . '/select-list', [ServiceController::class, 'lists']);
+
+    // Packages Routes
+    $packages = 'packages';
+    Route::resource($packages, PackageController::class)->except(['show']);;
+    Route::get($packages . '/lists', [PackageController::class, 'lists']);
+
 
     $link = 'common';
     Route::get($link . '/get-states', [CommonController::class, 'getStates']);    
+    Route::get($link . '/get-all-services', [CommonController::class, 'getAllServices']);    
+    Route::post($link . '/get-services', [CommonController::class, 'getServices']);    
 
 });
 

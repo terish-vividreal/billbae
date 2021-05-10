@@ -34,161 +34,117 @@
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
         <!-- Add icons to the links using the .nav-icon class  with font-awesome or any other icon font library -->
-            <li class="nav-item">
-                <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-tachometer-alt"></i>
-                    <p>Dashboard</p>
-                </a>
-            </li>
-            @php   $role = (Auth::user()->is_admin == 1) ? 'admin/' : '' ; @endphp
+            <li class="nav-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a> </li>
+
+            @php $role = (Auth::user()->is_admin == 1) ? 'admin/' : '' ; @endphp
 
             @if(Auth::user()->is_admin == 1)
-                    <li class="nav-item {{ Request::is('admin/stores*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ Request::is('admin/stores*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-user"></i><p>Manage Stores <i class="fas fa-angle-left right"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">                    
-                            
-                            @can('user-create')
-                            <li class="nav-item">
-                                <a href="{{ url(ROUTE_PREFIX.'/stores/create') }}" class="nav-link {{ Request::is('admin/stores/create*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p> Add New </p>
-                                </a>
-                            </li>
-                            @endcan
-                            <li class="nav-item">
-                                <a href="{{ url(ROUTE_PREFIX.'/stores') }}" class="nav-link {{ Request::is('admin/stores') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>List All</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
+                <li class="nav-item {{ Request::is('admin/stores*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Request::is('admin/stores*') ? 'active' : '' }}"><i class="nav-icon fas fa-user"></i><p>Manage Stores <i class="fas fa-angle-left right"></i></p></a>
+                    <ul class="nav nav-treeview">                
+                        @can('user-create')
+                        <li class="nav-item">
+                            <a href="{{ url(ROUTE_PREFIX.'/stores/create') }}" class="nav-link {{ Request::is('admin/stores/create*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p> Add New </p></a>
+                        </li>
+                        @endcan
+                        <li class="nav-item">
+                            <a href="{{ url(ROUTE_PREFIX.'/stores') }}" class="nav-link {{ Request::is('admin/stores') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
+                        </li>
+                    </ul>
+                </li>
             @else
-                  @can('user-list')         
-                    <li class="nav-item {{ Request::is('users*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ Request::is('users*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-user"></i><p>Manage Users <i class="fas fa-angle-left right"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">                    
-                            
-                            @can('user-create')
-                            <li class="nav-item">
-                                <a href="{{ url(ROUTE_PREFIX.'/users/create') }}" class="nav-link {{ Request::is('users/create*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p> Add New </p>
-                                </a>
-                            </li>
-                            @endcan
-                            <li class="nav-item">
-                                <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link {{ Request::is('users') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>List All</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                  @endcan
+              @can('user-list')         
+                <li class="nav-item {{ Request::is('users*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Request::is('users*') ? 'active' : '' }}"><i class="nav-icon fas fa-user"></i><p> Users <i class="fas fa-angle-left right"></i></p></a>
+                    <ul class="nav nav-treeview">             
+                        @can('user-create')
+                        <li class="nav-item">
+                            <a href="{{ url(ROUTE_PREFIX.'/users/create') }}" class="nav-link {{ Request::is('users/create*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p> Add New </p></a>
+                        </li>
+                        @endcan
+                        <li class="nav-item">
+                            <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link {{ Request::is('users') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
+                        </li>
+                    </ul>
+                </li>
+              @endcan
 
             @endif
 
-                    
-            @can('role-list')
-            <li class="nav-item {{ Request::is('roles*') ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ Request::is('roles*') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-certificate"></i><p>Manage Roles <i class="fas fa-angle-left right"></i></p>
-                </a>
-                <ul class="nav nav-treeview">
-                    @can('role-edit', 'role-create')
+            @can('manage-business-types')
+              <li class="nav-item">
+                  <a href="{{ url(ROUTE_PREFIX.'/business-types') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'/business-types*') ? 'active' : '' }} "><i class="nav-icon fas fa fa-briefcase"></i><p>Business Types</p></a>
+              </li>            
+            @endcan
+
+            <li class="nav-item @if (Request::is('services*') || Request::is('service-category*')) menu-open  @endif">
+                <a href="#" class="nav-link {{ Request::is('services*') ? 'active' : '' }}"><i class="nav-icon fas fa-list-ul"></i><p> Services <i class="fas fa-angle-left right"></i></p></a>
+                <ul class="nav nav-treeview"> 
+                    @can('user-create')
                     <li class="nav-item">
-                        <a href="{{ url(ROUTE_PREFIX.'/roles/create') }}" class="nav-link {{ Request::is('roles/create*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Add New </p>
-                        </a>
+                        <a href="{{ url(ROUTE_PREFIX.'/services/create') }}" class="nav-link {{ Request::is('services/create') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p> Add New </p></a>
                     </li>
                     @endcan
                     <li class="nav-item">
-                        <a href="{{ url(ROUTE_PREFIX.'/roles') }}" class="nav-link {{ Request::is('roles') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>List All</p>
-                        </a>
+                        <a href="{{ url(ROUTE_PREFIX.'/services') }}" class="nav-link {{ Request::is('services') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
                     </li>
+
+                    @can('service-category-edit', 'service-category-create', 'service-category-delete')
+                      <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}"><i class="nav-icon fa fa-forward"></i><p>Service category</p></a>
+                      </li>
+                    @endcan
                 </ul>
             </li>
-            @endcan
 
-            @can('manage-business-types')
-            <li class="nav-item {{ Request::is('business-types*') ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ Request::is('business-types*') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-key"></i><p>Manage Business Types <i class="fas fa-angle-left right"></i></p>
-                </a>
+            <li class="nav-item {{ Request::is(ROUTE_PREFIX.'packages*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is(ROUTE_PREFIX.'packages*') ? 'active' : '' }}"><i class="nav-icon fas fa-briefcase"></i><p>Packages <i class="fas fa-angle-left right"></i></p></a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
-                        <a href="{{ url($role.'business-types') }}" class="nav-link {{ Request::is('business-types') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>List All</p>
-                        </a>
+                        <a href="{{ url(ROUTE_PREFIX.'/packages/create') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'packages/create*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>Add New </p></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/packages') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'packages') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
                     </li>
                 </ul>
             </li>
-            @endcan
 
-            @can('service-category-list')
-              <li class="nav-item {{ Request::is('services*') ? 'menu-open' : '' }}">
-                  <a href="#" class="nav-link {{ Request::is('services*') ? 'active' : '' }}">
-                  <i class="nav-icon fa fa-list-ul" ></i><p>Services<i class="fas fa-angle-left right"></i></p>
-                  </a>
-                  <ul class="nav nav-treeview">
-                    
 
-                    
-                  </ul>
-                  
-              </li>
-            @endcan
-            @can('service-category-edit', 'service-category-create', 'service-category-delete')
-            <li class="nav-item">
-                <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}">
-                  <i class="nav-icon fa fa-forward"></i>
-                  <p>Service category</p>
-                </a>
-            </li>
-            @endcan
 
             @can('manage-location')
               <li class="nav-item @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) menu-open @endif">
-                  <a href="#" class="nav-link @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) active @endif">
-                  <i class="nav-icon fa fa-map-marker" ></i><p>Location <i class="fas fa-angle-left right"></i></p>
-                  </a>
+                  <a href="#" class="nav-link @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) active @endif"><i class="nav-icon fa fa-globe" ></i><p>Location <i class="fas fa-angle-left right"></i></p></a>
                   <ul class="nav nav-treeview">                    
                       <li class="nav-item">
-                          <a href="{{ url(ROUTE_PREFIX.'/country') }}" class="nav-link {{ Request::is('country') ? 'active' : '' }}">
-                          <i class="nav-icon fa fa-globe"></i>
-                          <p>Country</p>
-                          </a>
+                          <a href="{{ url(ROUTE_PREFIX.'/country') }}" class="nav-link {{ Request::is('country') ? 'active' : '' }}"><i class="nav-icon fa fa-map-marker"></i><p>Country</p></a>
                       </li>
                       <li class="nav-item">
-                          <a href="{{ url(ROUTE_PREFIX.'/states') }}" class="nav-link {{ Request::is('states') ? 'active' : '' }}">
-                          <i class="nav-icon fa fa-globe"></i>
-                          <p>States</p>
-                          </a>
+                          <a href="{{ url(ROUTE_PREFIX.'/states') }}" class="nav-link {{ Request::is('states') ? 'active' : '' }}"><i class="nav-icon fa fa-map-marker"></i><p>States</p></a>
                       </li>
                       <li class="nav-item">
-                          <a href="{{ url(ROUTE_PREFIX.'/districts') }}" class="nav-link {{ Request::is('districts') ? 'active' : '' }}">
-                          <i class="nav-icon fa fa-globe"></i>
-                          <p>Districts</p>
-                          </a>
+                          <a href="{{ url(ROUTE_PREFIX.'/districts') }}" class="nav-link {{ Request::is('districts') ? 'active' : '' }}"><i class="nav-icon fa fa-map-marker"></i><p>Districts</p></a>
                       </li>
-                  </ul>
-                  
+                  </ul>                  
               </li>
             @endcan
 
             
 
-            
+            @can('role-list')
+              <li class="nav-item {{ Request::is(ROUTE_PREFIX.'/roles*') ? 'menu-open' : '' }}">
+                  <a href="#" class="nav-link {{ Request::is(ROUTE_PREFIX.'/roles*') ? 'active' : '' }}"><i class="nav-icon fas fa-certificate"></i><p>Manage Roles <i class="fas fa-angle-left right"></i></p></a>
+                  <ul class="nav nav-treeview">
+                      @can('role-edit', 'role-create')
+                      <li class="nav-item">
+                          <a href="{{ url(ROUTE_PREFIX.'/roles/create') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'/roles/create*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>Add New </p></a>
+                      </li>
+                      @endcan
+                      <li class="nav-item">
+                          <a href="{{ url(ROUTE_PREFIX.'/roles') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'/roles') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
+                      </li>
+                  </ul>
+              </li>
+            @endcan
             
         </ul>
       </nav>

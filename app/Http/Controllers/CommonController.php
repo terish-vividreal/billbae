@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Form;
 use Illuminate\Http\Request;
+use App\Models\Service;
 use App\Models\Country;
 use App\Models\State;
 use DB;
@@ -19,6 +20,30 @@ class CommonController extends Controller
         $form     = Form::select('state_id', $states , '', ['class' => 'form-control', 'placeholder' => 'Select a state' , 'id'=>'state_id' ]);
         return response($form);
     }
+    
+    public function getAllServices(Request $request)
+    {
+        // if($request->category_id)
+        // whereIn('service_category_id', $request->category_id)->
+
+        $services   = Service::select('name','id')->get();
+        if($services)
+            return response()->json(['flagError' => false, 'data' => $services]);
+    }
+    
+    public function getServices(Request $request)
+    {
+        $query   = Service::with('hours')->where('shop_id', SHOP_ID)->orderBy('id', 'desc');
+
+        if($request->service_ids)
+            $query   = $query->whereIn('id', $request->service_ids);
+
+        $services   = $query->get();   
+
+        if($services)
+            return response()->json(['flagError' => false, 'data' => $services, 'totalPrice' => $services->sum('price')]);
+    }
+    
 
     // public function getSubjects($curriculum_id)
     // {
@@ -55,6 +80,7 @@ class CommonController extends Controller
                    
     //     $form       = Form::select('topic_id', $topics , '', ['class' => 'form-control new-drop-section', 'placeholder' => 'Select Topic' , 'id'=>'topic_id' ]);
     //     return response($form);
+    //     
     // }
 
     // public function getUnits($chapter_id)
