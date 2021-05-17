@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Form;
 use Illuminate\Http\Request;
+use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Country;
 use App\Models\State;
+use App\Models\District;
+use App\Models\Package;
 use DB;
 use Session;
 use Auth;
@@ -20,6 +23,20 @@ class CommonController extends Controller
         $form     = Form::select('state_id', $states , '', ['class' => 'form-control', 'placeholder' => 'Select a state' , 'id'=>'state_id' ]);
         return response($form);
     }
+
+    public function getDistricts(Request $request)
+    {
+        $districts  = District::where('state_id',$request->state_id)->pluck('name','id');
+        $form       = Form::select('district_id', $districts , '', ['class' => 'form-control', 'placeholder' => 'Select a district' , 'id'=>'district_id' ]);
+        return response($form);
+    }
+
+    public function getShopDistricts(Request $request)
+    {
+        $districts  = DB::table('shop_districts')->where('state_id',$request->state_id)->pluck('name','id');
+        $form       = Form::select('district_id', $districts , '', ['class' => 'form-control', 'placeholder' => 'Select a district' , 'id'=>'district_id' ]);
+        return response($form);
+    }
     
     public function getAllServices(Request $request)
     {
@@ -29,6 +46,14 @@ class CommonController extends Controller
         $services   = Service::select('name','id')->get();
         if($services)
             return response()->json(['flagError' => false, 'data' => $services]);
+    }
+    
+    public function getAllPackages(Request $request)
+    {
+
+        $packages   = Package::select('name','id')->get();
+        if($packages)
+            return response()->json(['flagError' => false, 'data' => $packages]);
     }
     
     public function getServices(Request $request)
@@ -42,6 +67,15 @@ class CommonController extends Controller
 
         if($services)
             return response()->json(['flagError' => false, 'data' => $services, 'totalPrice' => $services->sum('price')]);
+    }
+    
+    public function getCustomerDetails(Request $request)
+    {
+        $customer   = Customer::where('id', $request->customer_id)->where('shop_id', SHOP_ID)->first();
+        if($customer)
+            return response()->json(['flagError' => false,'data'=>$customer]);
+        else
+          return response()->json(['flagError' => true,'message'=>'Customer not fount']);
     }
     
 
@@ -137,19 +171,6 @@ class CommonController extends Controller
 
     //     return response($form);
     // }
-    // public function setSyllabus($unit_id)
-    // {
-    //     $unit   = Unit::join('chapters','chapters.id','units.chapter_id')
-    //                   ->join('topics','chapters.topic_id','topics.id')
-    //                   ->join('curriculum','topics.curriculum_id','curriculum.id')
-    //                  ->select('chapters.id','chapters.topic_id','topics.country_id','topics.curriculum_id','topics.year_id','topics.paper_id','topics.subject_id','units.chapter_id','curriculum.component_type')
-    //                  ->first();
-    //     if($unit)
-    //         return response()->json(['flagError' => false,'data'=>$unit]);
-    //     else
-    //       return response()->json(['flagError' => true,'message'=>'Syllabus not fount']);
-    // }
-
     //  public function getStudents($class_id)
     // {
     //     $students     = Student::where('class_id',$class_id)->pluck('fname','id');

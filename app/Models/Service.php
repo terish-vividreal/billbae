@@ -29,6 +29,11 @@ class Service extends Model
         return $this->belongsToMany('App\Models\Package');
     }
 
+    public function additionaltax()
+    {
+        return $this->belongsToMany('App\Models\Additionaltax');
+    }
+
 
     /**
      * Get the options for generating the slug.

@@ -55,7 +55,7 @@
             @else
               @can('user-list')         
                 <li class="nav-item {{ Request::is('users*') ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ Request::is('users*') ? 'active' : '' }}"><i class="nav-icon fas fa-user"></i><p> Users <i class="fas fa-angle-left right"></i></p></a>
+                    <a href="#" class="nav-link {{ Request::is('users*') ? 'active' : '' }}"><i class="nav-icon fas fa-user"></i><p> Staffs <i class="fas fa-angle-left right"></i></p></a>
                     <ul class="nav nav-treeview">             
                         @can('user-create')
                         <li class="nav-item">
@@ -77,7 +77,31 @@
               </li>            
             @endcan
 
-            <li class="nav-item @if (Request::is('services*') || Request::is('service-category*')) menu-open  @endif">
+            <li class="nav-item {{ Request::is(ROUTE_PREFIX.'customers*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is(ROUTE_PREFIX.'customers*') ? 'active' : '' }}"><i class="nav-icon fas fa fa-user-plus"></i><p>Customers <i class="fas fa-angle-left right"></i></p></a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/customers/create') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'customers/create*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>Add New </p></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/customers') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'customers') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item {{ Request::is(ROUTE_PREFIX.'billings*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is(ROUTE_PREFIX.'billings*') ? 'active' : '' }}"><i class="nav-icon fas fa fa-book"></i><p>Billing <i class="fas fa-angle-left right"></i></p></a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/billings/create') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'billings/create*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>Add New </p></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/billings') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'billings') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item @if (Request::is('services*') ) menu-open  @endif">
                 <a href="#" class="nav-link {{ Request::is('services*') ? 'active' : '' }}"><i class="nav-icon fas fa-list-ul"></i><p> Services <i class="fas fa-angle-left right"></i></p></a>
                 <ul class="nav nav-treeview"> 
                     @can('user-create')
@@ -87,13 +111,7 @@
                     @endcan
                     <li class="nav-item">
                         <a href="{{ url(ROUTE_PREFIX.'/services') }}" class="nav-link {{ Request::is('services') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
-                    </li>
-
-                    @can('service-category-edit', 'service-category-create', 'service-category-delete')
-                      <li class="nav-item">
-                        <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}"><i class="nav-icon fa fa-forward"></i><p>Service category</p></a>
-                      </li>
-                    @endcan
+                    </li>                    
                 </ul>
             </li>
 
@@ -109,7 +127,12 @@
                 </ul>
             </li>
 
-
+            <li class="nav-item"><a href="{{ url(ROUTE_PREFIX.'/additional-tax') }}" class="nav-link {{ Request::is('additional-tax*') ? 'active' : '' }}"><i class="nav-icon fas fa fa-tags "></i><p>Additional tax</p></a> </li>
+            
+            
+            @can('service-category-edit', 'service-category-create', 'service-category-delete')
+            <li class="nav-item"> <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}"><i class="nav-icon fa fa-forward"></i><p>Service category</p></a></li>
+            @endcan
 
             @can('manage-location')
               <li class="nav-item @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) menu-open @endif">

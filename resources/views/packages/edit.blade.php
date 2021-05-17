@@ -114,6 +114,19 @@ tfoot {font-weight: bold;}
                       </div>
                   </div>
 
+                  <div class="form-group ">
+                          {!! Form::label('name', 'Package validity ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          <select id="validity_mode" class="col-sm-6 form-control" name="validity_mode">
+                          <option @if($package->validity_mode == 1) selected="selected" @endif value="1">Day</option>
+                          <option @if($package->validity_mode == 2) selected="selected" @endif value="2">Month</option>
+                          <option @if($package->validity_mode == 3) selected="selected" @endif value="3">Year</option>
+                          
+                          </select>
+                      </div> 
+                      <div class="form-group ">
+                          {!! Form::text('validity', $package->validity ?? '' , array('placeholder' => 'Package validity','class' => 'col-sm-6 check_numeric form-control')) !!}                        
+                      </div>
+
            
                     
                 </div>

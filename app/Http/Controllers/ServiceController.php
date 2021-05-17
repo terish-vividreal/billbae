@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\ServiceCategory;
+use App\Models\Additionaltax;
 use Illuminate\Support\Arr;
 use App\Models\Service;
 use App\Models\User;
@@ -54,7 +55,6 @@ class ServiceController extends Controller
         $page->route            = $this->route;
         $page->entity           = $this->entity;        
         $variants->service_category      = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');         
-        
         return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 
@@ -114,11 +114,14 @@ class ServiceController extends Controller
         $page                   = collect();
         $variants               = collect();
         $page->title            = $this->title;
-        $page->link              = url($this->link);
+        $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity; 
         $variants->hours        = Hours::pluck('name', 'id'); 
-        $variants->service_category      = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');         
+        $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');  
+        $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
+        $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+        $variants->additional_tax_ids   = [];
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
 
@@ -143,19 +146,25 @@ class ServiceController extends Controller
 
         if ($validator->passes()) {
 
-            $data               = new Service();
-            $data->shop_id      = SHOP_ID;
-            $data->name         = $request->name;
-            $data->slug         = $request->name;
-            $data->service_category_id   = $request->service_category_id;
-            $data->price      = $request->price;
-            $data->tax_included      = ($request->tax_included == 1) ? 1 : 0 ;            
-            $data->lead_before      = $request->lead_before;
-            $data->lead_after      = $request->lead_after;  
-            $data->hours_id      = $request->hours_id;
+            $data                       = new Service();
+            $data->shop_id              = SHOP_ID;
+            $data->name                 = $request->name;
+            $data->slug                 = $request->name;
+            $data->service_category_id  = $request->service_category_id;
+            $data->price                = $request->price;
+            $data->tax_included         = ($request->tax_included == 1) ? 1 : 0 ;            
+            $data->lead_before          = $request->lead_before;
+            $data->lead_after           = $request->lead_after;  
+            $data->hours_id             = $request->hours_id;
+            $data->gst_tax              = $request->gst_tax;
+
             $data->save();
 
-            return ['flagError' => false, 'message' => $this->title. " Added successfully"];
+            if($request->additional_tax){
+                $data->additionaltax()->sync($request->additional_tax);
+            }
+
+            return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
 
@@ -189,7 +198,16 @@ class ServiceController extends Controller
             $page->route            = $this->route;
             $page->entity           = $this->entity; 
             $variants->hours        = Hours::pluck('name', 'id'); 
-            $variants->service_category      = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');         
+            $variants->service_category      = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+            $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
+            $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+            
+            if($service->additionaltax){
+                $variants->additional_tax_ids = [];
+                foreach($service->additionaltax as $row){
+                    $variants->additional_tax_ids[] = $row->id;
+                }
+            }
             return view($this->viewPath . '.create', compact('page', 'variants', 'service'));
         }else{
             return redirect('services')->with('error', $this->title.' not found');
@@ -221,15 +239,22 @@ class ServiceController extends Controller
         if ($validator->passes()) {
             $data = Service::findOrFail($id);
             if($data){
-                $data->name         = $request->name;
-                $data->service_category_id   = $request->service_category_id;
-                $data->price      = $request->price;
-                $data->lead_before      = $request->lead_before;
-                $data->lead_after      = $request->lead_after;  
-                $data->hours_id      = $request->hours_id;
-                $data->tax_included      = ($request->tax_included == 1) ? 1 : 0 ;
+                $data->name                 = $request->name;
+                $data->service_category_id  = $request->service_category_id;
+                $data->price                = $request->price;
+                $data->lead_before          = $request->lead_before;
+                $data->lead_after           = $request->lead_after;  
+                $data->hours_id             = $request->hours_id;
+                $data->tax_included         = ($request->tax_included == 1) ? 1 : 0 ;
+                $data->gst_tax              = $request->gst_tax;
+
                 $data->save();
-                return ['flagError' => false, 'message' => $this->title. " Updated successfully"];
+
+                // if($request->additional_tax){
+                    $data->additionaltax()->sync($request->additional_tax);
+                // }
+
+                return ['flagError' => false, 'message' => $this->title. " updated successfully"];
             }else{
                 return ['flagError' => true, 'message' => "Data not found, Try again!"];
             }

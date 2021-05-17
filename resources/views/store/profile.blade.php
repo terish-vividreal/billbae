@@ -45,27 +45,26 @@
               <div class="card-body box-profile">
                 <div class="text-center">
                   <img class="profile-user-img img-fluid img-circle"
-                       src=" {{ asset('admin/img/user4-128x128.jpg') }}"
+                       src=" {{ asset('admin/img/avatar5.png') }}"
                        alt="User profile picture">
                 </div>
 
                 <h3 class="profile-username text-center">{{ $store->name ?? '' }}</h3>
 
-                <p class="text-muted text-center">Business Type</p>
+                <p class="text-muted text-center">{{ $store->business_types->name ?? '' }}</p>
 
                 <ul class="list-group list-group-unbordered mb-3">
                   <li class="list-group-item">
                     <b>Employees</b> <a class="float-right">{{ count($store->users) }}</a>
                   </li>
                   <li class="list-group-item">
-                    <b>Customers</b> <a class="float-right">0</a>
+                    <b>Customers</b> <a class="float-right">{{ count($store->customer) }}</a>
                   </li>
                   <li class="list-group-item">
-                    <b>Enquiries</b> <a class="float-right">19</a>
+                    <b>Services</b> <a class="float-right">{{ count($store->service) }}</a>
                   </li>
                 </ul>
 
-                <a href="#" class="btn btn-primary btn-block"><b>Orders</b></a>
               </div>
               <!-- /.card-body -->
             </div>
@@ -75,7 +74,7 @@
             <!-- About Me Box -->
             <div class="card card-primary">
               <div class="card-header">
-                <h3 class="card-title">About Details</h3>
+                <h3 class="card-title">Store Profile</h3>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -89,7 +88,7 @@
 
                 <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
 
-                <p class="text-muted">{{ $store->location ?? '' }}</p>
+                <p class="text-muted">{{ $store->state ?? '' }} {{ $store->district ?? '' }} , {{ $store->location ?? '' }}</p>
 
                 <hr>
 
@@ -105,9 +104,10 @@
 
                 <hr> -->
 
-                <strong><i class="far fa-file-alt mr-1"></i> Notes</strong>
+                <strong><i class="far fa-file-alt mr-1"></i> Address </strong>
 
-                <p class="text-muted">{{ $store->about ?? '' }}</p>
+                <p class="text-muted">{{ $store->address ?? '' }}</p>
+                <p class="text-muted">{{ $store->pincode ?? '' }}</p>
               </div>
               <!-- /.card-body -->
             </div>
@@ -120,26 +120,63 @@
             <div class="card">
               <div class="card-header p-2">
                 <ul class="nav nav-pills">
-                  <li class="nav-item"><a class="nav-link active" href="#profile" data-toggle="tab">Profile</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Timeline</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Settings</a></li>
+                  <li class="nav-item"><a class="nav-link active" href="#profile" data-toggle="tab">Store Profile</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#billingtab" data-toggle="tab">Billing Details</a></li>
+                  <!-- <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Settings</a></li> -->
                 </ul>
               </div><!-- /.card-header -->
               <div class="card-body">
                 <div class="tab-content">
                   <div class="active tab-pane" id="profile">
+                    <h3>Store Profile Form</h3><br>
+
                     <form id="storeProfileForm" name="storeProfileForm" role="form" method="" action="" class="ajax-submit">
                       {{ csrf_field() }}
                       {!! Form::hidden('store_id', $store->id ?? '' , ['id' => 'store_id'] ); !!}
                       <div class="col-md-8 ">  
 
                           <div class="form-group">
-                              {!! Form::label('name', 'Store Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                              {!! Form::label('name', 'Store Name*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
                               {!! Form::text('name', $store->name ?? '' , array('placeholder' => 'Store Name','class' => 'form-control')) !!}                        
                               <div class="error" id="email_error"></div>
                           </div> 
+
+                          <div class="form-group ">
+                              {!! Form::label('address', 'Address. ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                              {!! Form::textarea('address', $store->address ?? '', ['class' => 'form-control','placeholder'=>'Address', 'rows' => '4']) !!}                       
+                          </div>
+
                           <div class="form-group">
-                              {!! Form::label('email', 'Email*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                            {!! Form::label('state_id', 'State *', ['class' => '']) !!}
+                            {!! Form::select('state_id', $variants->states , $store->state_id ?? '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                          </div>
+
+                          <div class="form-group">
+                            {!! Form::label('district_id', 'District*', ['class' => '']) !!}
+                            <div id="district_block">
+                            @if($store->district_id)
+                              {!! Form::select('district_id', $variants->districts , $store->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
+                            @else  
+                              {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
+                            @endif
+
+                             </div>
+                          </div>
+
+                          <div class="form-group">
+                              {!! Form::label('pincode', 'Pincode ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
+                              {!! Form::text('pincode', $store->pincode ?? '' , array('placeholder' => 'Pincode','class' => 'form-control check_numeric')) !!}
+                              <div class="error" id="email_error"></div>
+                          </div>
+
+                          <div class="form-group">
+                              {!! Form::label('pin', 'PIN ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
+                              {!! Form::text('pin', $store->pin ?? '' , array('placeholder' => 'PIN','class' => 'form-control')) !!}
+                              <div class="error" id="email_error"></div>
+                          </div>
+
+                          <div class="form-group">
+                              {!! Form::label('email', 'Email*', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
                               {!! Form::text('email', $store->email ?? '' , array('placeholder' => 'Email','class' => 'form-control')) !!}
                               <div class="error" id="email_error"></div>
                           </div>
@@ -149,7 +186,7 @@
                               <div class="error" id="name_error"></div>
                           </div> 
                           <div class="form-group">
-                              {!! Form::label('location', 'Store location*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                              {!! Form::label('location', 'Store location*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
                               {!! Form::text('location', $store->location ?? '', array('placeholder' => 'Store location','class' => 'form-control')) !!}
                               <div class="error" id="name_error"></div>
                           </div>   
@@ -169,14 +206,73 @@
                     </form>
                   </div>
                   <!-- /.tab-pane -->
-                  <div class="tab-pane" id="timeline">
-                     time line
+                  <div class="tab-pane" id="billingtab">
+                  <h3>Store Billing Form</h3><br>
+                    <form id="storeBillingForm" name="storeBillingForm" role="form" method="" action="" class="ajax-submit">
+                      {{ csrf_field() }}
+                      {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'billing_id'] ); !!}
+                      <div class="col-md-8 ">  
+
+                          <div class="form-group">
+                              {!! Form::label('company_name', 'Company Name*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                              {!! Form::text('company_name', $billing->company_name ?? '' , array('placeholder' => 'Company Name','class' => 'form-control')) !!}                        
+                              <div class="error" id="email_error"></div>
+                          </div> 
+
+                          <div class="form-group ">
+                              {!! Form::label('address', 'Address. ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                              {!! Form::textarea('address', $billing->address ?? '', ['class' => 'form-control','placeholder'=>'Address', 'rows' => '4']) !!}                       
+                          </div>
+
+                          <div class="form-group">
+                              {!! Form::label('pincode', 'Pincode ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
+                              {!! Form::text('pincode', $billing->pincode ?? '' , array('placeholder' => 'Pincode','class' => 'form-control check_numeric')) !!}
+                              <div class="error" id="email_error"></div>
+                          </div>
+
+                          <div class="form-group">
+                            {!! Form::label('billing_state_id', 'State *', ['class' => '']) !!}
+                            {!! Form::select('billing_state_id', $variants->states , $billing->state_id ?? '' , ['id' => 'billing_state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                          </div>
+
+                          <div class="form-group">
+                            {!! Form::label('billing_district_id', 'District*', ['class' => '']) !!}
+                            <div id="billing_district_block">
+                            @if($billing->district_id)
+                              {!! Form::select('billing_district_id', $variants->billing_districts , $billing->district_id ?? '' , ['id' => 'billing_district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
+                            @else  
+                              {!! Form::select('billing_district_id', [] , '' , ['id' => 'billing_district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
+                            @endif
+
+                             </div>
+                          </div>                          
+
+                          <div class="form-group">
+                              {!! Form::label('in', 'PIN ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
+                              {!! Form::text('pin', $billing->pin ?? '' , array('placeholder' => 'PIN','class' => 'form-control')) !!}
+                              <div class="error" id="email_error"></div>
+                          </div>
+
+                          <div class="form-group">
+                              {!! Form::label('gst', 'GST ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
+                              {!! Form::text('gst', $billing->gst ?? '' , array('placeholder' => 'GST','class' => 'form-control')) !!}
+                              <div class="error" id="email_error"></div>
+                          </div>           
+                          
+                      </div>
+                      <div class="row">
+                          <div class="col-12">
+                          <a href="#" class="btn btn-secondary">Cancel</a>
+                          <button class="btn btn-success ajax-submit">Submit</button>
+                          </div>
+                      </div>
+                    </form>
                   </div>
                   <!-- /.tab-pane -->
 
-                  <div class="tab-pane" id="settings">
+                  <!-- <div class="tab-pane" id="settings">
                     
-                  </div>
+                  </div> -->
                   <!-- /.tab-pane -->
                 </div>
                 <!-- /.tab-content -->
@@ -254,6 +350,68 @@ if ($("#storeProfileForm").length > 0) {
 jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
+
+
+if ($("#storeBillingForm").length > 0) {
+    var validator = $("#storeBillingForm").validate({ 
+        rules: {
+          company_name: {
+                    maxlength: 200,
+            }
+        },
+        messages: { 
+          company_name: {
+                maxlength: "Length cannot be more than 200 characters",
+                }
+        },
+        submitHandler: function (form) {
+            id = $("#billing_id").val();
+            userId      = "" == id ? "" : "/" + id;
+            formMethod  = "" == id ? "POST" : "PUT";
+            var forms   = $("#storeBillingForm");
+            $.ajax({ url: "{{ url('/store/update/billing') }}" + userId, type: formMethod, processData: false, 
+            data: forms.serialize(), dataType: "html",
+            }).done(function (a) {
+                var data = JSON.parse(a);
+                if(data.flagError == false){
+                    showSuccessToaster(data.message);
+                    setTimeout(function () { 
+                        window.location.href = "{{ url('store/profile')}}";                    
+                    }, 3000);
+
+                }else{
+                  showErrorToaster(data.message);
+                  printErrorMsg(data.error);
+                }
+            });
+        }
+    })
+} 
+
+
+
+$(document).on('change', '#state_id', function () {
+    $.ajax({
+          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-districts') }}/",
+          type: "POST",
+          data:{'state_id':this.value },
+          dataType: "html"
+      }).done(function (data) {
+      console.log(data);
+        $("#district_block").html(data);
+      })
+});
+$(document).on('change', '#billing_state_id', function () {
+    $.ajax({
+          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-districts') }}/",
+          type: "POST",
+          data:{'state_id':this.value },
+          dataType: "html"
+      }).done(function (data) {
+      console.log(data);
+        $("#billing_district_block").html(data);
+      })
+});
 
 
 </script>

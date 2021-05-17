@@ -111,19 +111,18 @@ class PackageController extends Controller
         ]);
 
         if ($validator->passes()) {
-            $data               = new Package();
-            $data->shop_id      = SHOP_ID;
-            $data->name         = $request->name;
-            $data->slug         = $request->name;
-            $data->price        = $request->price;
-            $data->service_price        = $request->totalPrice;
-            $data->discount        = $request->discount;
+            $data                   = new Package();
+            $data->shop_id          = SHOP_ID;
+            $data->name             = $request->name;
+            $data->slug             = $request->name;
+            $data->price            = $request->price;
+            $data->service_price    = $request->totalPrice;
+            $data->discount         = $request->discount;
+            $data->validity_mode    = $request->validity_mode;
+            $data->validity         = $request->validity;
             $data->save();
 
-
             $data->service()->sync($request->services);
-
-
 
             return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
@@ -132,7 +131,7 @@ class PackageController extends Controller
 
     /**
      * Display the specified resource.
-     *
+     * 
      * @param  \App\Models\Package  $package
      * @return \Illuminate\Http\Response
      */
@@ -193,12 +192,14 @@ class PackageController extends Controller
 
         if ($validator->passes()) {
             $data = Package::findOrFail($id);
-            $data->shop_id      = SHOP_ID;
-            $data->name         = $request->name;
-            $data->slug         = $request->name;
-            $data->price        = $request->price;
-            $data->service_price        = $request->totalPrice;
-            $data->discount        = $request->discount;
+            $data->shop_id          = SHOP_ID;
+            $data->name             = $request->name;
+            $data->slug             = $request->name;
+            $data->price            = $request->price;
+            $data->service_price    = $request->totalPrice;
+            $data->discount         = $request->discount;
+            $data->validity_mode    = $request->validity_mode;
+            $data->validity         = $request->validity;
             $data->save();
 
 

@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+@push('page-css')
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+@endpush
 
 @section('breadcrumb')
   <li class="nav-item">
@@ -83,6 +86,8 @@
                         <div class="error" id="email_error"></div>
                     </div>
 
+
+
                     <div class="form-group">
                           @php 
                             $checked = '';
@@ -91,10 +96,25 @@
                               }                      
                           @endphp
                           
-                        {!! Form::label('tax_included', 'Tax Included *', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
-
-                        <input type="checkbox" name="tax_included" id="tax_included" class="col-sm-2 form-control" value="1" {{ $checked }} />
+                        
+                        
+                        <div class="custom-control custom-checkbox">
+                          <input class="custom-control-input" type="checkbox" name="tax_included" id="tax_included" value="1" {{ $checked }} >
+                          {!! Form::label('tax_included', 'Tax Included *', ['class' => 'custom-control-label']) !!}
+                        </div>
                         <small class= 'col-sm-2'>Check if tax is included with price !</small>
+                    </div>
+
+                    <div class="form-group">
+                        {!! Form::label('gst_tax', 'GST Tax %', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                        {!! Form::select('gst_tax', $variants->tax_percentage, $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => 'form-control','placeholder'=>'Select tax percentage']) !!}
+                        <div class="error" id="roles_error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        {!! Form::label('additional_tax', 'Additional Tax', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                        {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'form-control col-sm-12 selec2']) !!}
+                        <div class="error" id="roles_error"></div>
                     </div>
 
                     <div class="form-group">
@@ -133,7 +153,19 @@
 
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <script type="text/javascript">
+
+$('#additional_tax').select2({ placeholder: "Please choose services", allowClear: false });
+
+// $("#services").select2({ placeholder: "Please choose services", allowClear: false })
+//     .on('select2:select select2:unselect', function (e) { 
+//       loadData() 
+//       $(this).valid()
+//       });
+
+//   getServices();
+// });
 
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 

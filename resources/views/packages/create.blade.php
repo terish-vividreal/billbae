@@ -72,12 +72,12 @@ tfoot {font-weight: bold;}
 
                     <div class="form-group ">
                         {!! Form::label('name', 'Package Name*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::text('name', $package->name ?? '' , array('placeholder' => 'Package Name','class' => 'form-control')) !!}                        
+                        {!! Form::text('name', $package->name ?? '' , array('placeholder' => 'Package Name','class' => 'col-sm-6 form-control')) !!}                        
                     </div> 
 
                     <div class="form-group ">
                         {!! Form::label('name', 'Choose services*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        <select class="form-control selec2" name="services[]" id="services" multiple="multiple"> </select>
+                        <select class="col-sm-6 form-control selec2" name="services[]" id="services" multiple="multiple"> </select>
                     </div> 
 
                     
@@ -92,27 +92,32 @@ tfoot {font-weight: bold;}
                               <th>price</th>
                             </tr>
                           </thead>
-                          <tbody>
-                         
+                          <tbody>                         
                             
                           </tbody>
                         </table>
                     </div> 
 
                     <div class="form-group">
-                      <div class="col-md-12">
-                          <div class="form-group row">
-                              <label for="price" class="col-md-2 control-label">Package price*</label>
-                              <div class="col-md-3">
-                                <input class="form-control check_numeric" type="text" name="price" id="price" value="" disabled/> 
-                                <input class="form-control" type="hidden" name="totalPrice" id="totalPrice" value=""/>                     
-                                <input class="form-control" type="hidden" name="discount" id="discount" value="" />                      
-                        
-                              </div>
-                              
-                          </div>
+                      <label for="price" class="col-md-2 control-label">Package price*</label>
+                      <input class="col-sm-6 form-control check_numeric" type="text" name="price" id="price" value="" disabled/> 
+                      <input class="form-control" type="hidden" name="totalPrice" id="totalPrice" value=""/>                     
+                      <input class="form-control" type="hidden" name="discount" id="discount" value="" /> 
+                      <h6><i><span id="price_info_message">Please choose service to enable price !</i></h6>                     
+                    </div>
+
+                    <div class="form-group ">
+                          {!! Form::label('name', 'Package validity ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          <select id="validity_mode" class="col-sm-6 form-control" name="validity_mode">
+                          <option selected="selected" value="1">Day</option>
+                          <option value="2">Month</option>
+                          <option value="3">Year</option>
+                          
+                          </select>
+                      </div> 
+                      <div class="form-group ">
+                          {!! Form::text('validity', $package->validity ?? '' , array('placeholder' => 'Package validity','class' => 'col-sm-6 check_numeric form-control')) !!}                        
                       </div>
-                  </div>
 
            
                     
@@ -147,7 +152,10 @@ tfoot {font-weight: bold;}
 $(document).ready(function() {
 
   $("#services").select2({ placeholder: "Please choose services", allowClear: false })
-    .on('select2:select select2:unselect', function (e) { loadData() });
+    .on('select2:select select2:unselect', function (e) { 
+      loadData() 
+      $(this).valid()
+      });
 
   getServices();
 });
@@ -175,6 +183,7 @@ function loadData(){
             $( "#price" ).prop( "disabled", false );
             $('#servicesTable').append(html);
             $('#usedServicesDiv').show();
+            $('#price_info_message').hide();
             calculateDiscount();
           }
         }
@@ -184,6 +193,8 @@ function loadData(){
     $('#totalPrice').val('');
     $('#price').val('');
     $('#discount').val('');
+    $('#price_info_message').show();
+    $( "#price" ).prop( "disabled", true );
   }
 }
 
@@ -235,14 +246,20 @@ if ($("#{{$page->entity}}Form").length > 0) {
             price: {
                     required: true,
             },
+            "services[]": {
+                    required: true,
+            },
         },
         messages: { 
             name: {
                 required: "Please enter package name",
                 maxlength: "Length cannot be more than 200 characters",
                 },
-              price: {
+            price: {
                 required: "Please enter package price",
+                },
+            "services[]": {
+                required: "Please choose services",
                 },
         },
         submitHandler: function (form) {
@@ -265,6 +282,13 @@ if ($("#{{$page->entity}}Form").length > 0) {
                   printErrorMsg(data.error);
                 }
             });
+        },
+        errorPlacement: function(error, element) {
+            if (element.is("select")) {
+                error.insertAfter(element.next('.select2'));
+            }else {
+                error.insertAfter(element);
+            }
         }
     })
 } 
