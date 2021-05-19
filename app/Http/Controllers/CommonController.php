@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Form;
 use Illuminate\Http\Request;
+use App\Helpers\TaxHelper;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Country;
@@ -60,8 +61,8 @@ class CommonController extends Controller
     {
         $query   = Service::with('hours')->where('shop_id', SHOP_ID)->orderBy('id', 'desc');
 
-        if($request->service_ids)
-            $query   = $query->whereIn('id', $request->service_ids);
+        if($request->data_ids)
+            $query   = $query->whereIn('id', $request->data_ids);
 
         $services   = $query->get();   
 
@@ -69,6 +70,19 @@ class CommonController extends Controller
             return response()->json(['flagError' => false, 'data' => $services, 'totalPrice' => $services->sum('price')]);
     }
     
+    public function getPackages(Request $request)
+    {
+        $query   = Package::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
+
+        if($request->data_ids)
+            $query   = $query->whereIn('id', $request->data_ids);
+
+        $ackages   = $query->get();   
+
+        if($ackages)
+            return response()->json(['flagError' => false, 'data' => $ackages, 'totalPrice' => $ackages->sum('price')]);
+    }
+
     public function getCustomerDetails(Request $request)
     {
         $customer   = Customer::where('id', $request->customer_id)->where('shop_id', SHOP_ID)->first();
@@ -78,6 +92,102 @@ class CommonController extends Controller
           return response()->json(['flagError' => true,'message'=>'Customer not fount']);
     }
     
+    public function calculateTax(Request $request)
+    {
+        $type = $request->type;
+        if($type == 'services'){
+            $result = Service::with('additionaltax')->where('shop_id', SHOP_ID)->whereIn('id', $request->data_ids)->orderBy('id', 'desc')->get();
+        }else{
+            $result = Package::with('additionaltax')->where('shop_id', SHOP_ID)->whereIn('id', $request->data_ids)->orderBy('id', 'desc')->get();
+        }
+
+        if($result){
+            $html                   = '';
+            $table_footer           = '';
+            $index                  = 1;
+            $grand_total            = 0;
+            $total_tax              = 0;
+            $grand_total            = 0;
+            $gst_amount             = 0;
+            $additional_tax_array   = array();
+
+            foreach($result as $row){
+                if($row->tax_included == 1) {
+                    $tax_included   = 'Included';
+                    $tax_array      = TaxHelper::getGstincluded($row->price, $row->gst_tax, ($row->gst_tax/2), ($row->gst_tax/2));
+                    $tax_amount     = $tax_array['withoutgst'];
+                    $total_amount   = $tax_array['withgst'];
+
+                    // print_r($tax_array); 
+
+                }else{
+                    $tax_included   = 'Excluded'; 
+                    $tax_array      = TaxHelper::getGstexcluded($row->price, $row->gst_tax, ($row->gst_tax/2), ($row->gst_tax/2));
+                    $tax_amount     = $tax_array['amount'];
+                    $total_amount   = $tax_array['amountwithgst'];
+   
+                    // print_r($tax_array); 
+                }
+
+                    // Array - Included
+                    // (
+                    //     [withoutgst] => 847.45762711864
+                    //     [gst] => 152.54
+                    //     [withgst] => 1,000.00
+                    //     [CGST] => 76.27
+                    //     [SGST] => 76.27
+                    // )
+                    // Array- Excluded
+                    // (
+                    //     [amount] => 1000
+                    //     [gst] => 180
+                    //     [amountwithgst] => 1180
+                    //     [CGST] => 90.00
+                    //     [SGST] => 90.00
+                    // )
+
+                    $html.='<tr data-widget="expandable-table" aria-expanded="true"><td>'.$index.'</td><td>'.$row->name.'</td><td> '.number_format($tax_amount,2).'</td></tr>';
+                    $html.='<tr class="expandable-body"> </tr>';
+                    $html.='<tr class="expandable-body"><td colspan="3"><div id="cgst"> <span> '.($row->gst_tax/2).' % CGST -  </span> '.$tax_array['CGST'].' </div>';
+                    $html.='<div id="sgst"> <span> '.($row->gst_tax/2).'% SGST -  </span> '.$tax_array['SGST'].' </div>';
+                
+                    if(count($row->additionaltax) > 0){
+                        foreach($row->additionaltax as $additional){
+                            $additional_tax_array[] =   [   'name' => $additional->name, 
+                                                            'percentage' => $additional->percentage,
+                                                            'amount' => number_format($tax_amount-($tax_amount*(100/(100+$additional->percentage))),2)                                                        
+                                                        ]; 
+                            $html.='<div id="flood"> <span> ' .$additional->percentage. '% '.$additional->name.' -  '.number_format($tax_amount-($tax_amount*(100/(100+$additional->percentage))),2).'</span> </div></td></tr>';
+                        }
+                    }
+
+
+                    // print_r($additional_tax_array); 
+                    // print_r($tax_array); 
+                    // exit;
+
+                    
+                    // $html.='<div id="flood"> <span> 1% Flood Tax  </span> </div></td></tr>';
+                    $html.='<tr data-widget="expandable-table" aria-expanded="false"><td colspan="2">Total </td><td >'.number_format($total_amount,2).'</td></tr>';
+                    
+                    
+
+
+                // $html.= '<tr><td>'.$index.'</td><td>'.$row->name.'</td><td>'.$tax_array['CGST'].'</td><td>'.$tax_array['SGST'].'</td><td>'.number_format($tax_amount,2).'</td><td>'.number_format($total_amount,2).'</td></tr>';
+                
+                // $total_amount   = ($total_amount + $tax_amount);
+                // echo $total_amount . '<br>' ;
+                // echo $tax_amount . '<br>' ;
+                // exit;
+                $grand_total = ( $grand_total+$total_amount ) ;
+                $index++;
+            }
+            
+            // $table_footer='<tfoot><tr><td></td><td></td><td></td><td></td><td></td><td><b>Total - <h4>₹ '.$total_tax.'</h4></b></td><td><b>Total - <h4>₹ '.number_format($total_amount,2).'</h4></b></td></tr></tfoot>';
+        }
+        
+        return response()->json(['flagError' => false, 'grand_total' => number_format($grand_total,2), 'html' => $html]);
+    }
 
     // public function getSubjects($curriculum_id)
     // {

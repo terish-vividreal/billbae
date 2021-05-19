@@ -125,7 +125,7 @@ class ServiceController extends Controller
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
 
-    /**
+    /** 
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -198,7 +198,7 @@ class ServiceController extends Controller
             $page->route            = $this->route;
             $page->entity           = $this->entity; 
             $variants->hours        = Hours::pluck('name', 'id'); 
-            $variants->service_category      = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+            $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
             $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
             $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
             
@@ -222,7 +222,7 @@ class ServiceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {   
+    {       
 
         $validator = Validator::make($request->all(), [
             'name' => [

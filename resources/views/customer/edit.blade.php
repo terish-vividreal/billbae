@@ -49,55 +49,27 @@
         <div class="card card-primary">
           <div class="card-header">
             <h3 class="card-title">{{ $page->title ?? ''}} Form</h3>
-
-
-            
-            <div class="card-tools">
-              <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                <i class="fas fa-minus"></i>
-              </button>
-            </div>
           </div>
             <!-- /.card-header -->
             <div class="card-body">
+              <div class="alert alert-danger print-error-msg" style="display:none"><ul></ul></div>        
 
-            <div class="alert alert-danger print-error-msg" style="display:none">
-
-            <ul></ul>
-
-            </div>
-            
-
-
-              <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
-                {{ csrf_field() }}
-                {!! Form::hidden('customer_id', $customer->id ?? '' , ['id' => 'customer_id'] ); !!}
-                <div class=""> 
-
-                    <div class="form-group ">
-                        {!! Form::label('name', 'Customer Name*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::text('name', $customer->name ?? '' , array('placeholder' => 'Customer Name','class' => 'col-sm-6 form-control')) !!}                        
-                    </div> 
-
-                    <div class="form-group">
-                        {!! Form::label('name', 'Gender', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                    </div>
-                    <div class="form-group">
-
-                        <input type="radio" value="1" id="male" name="gender" @if($customer->gender == 1) checked @endif>
-                        <label for="male">Male</label>
-                        <input type="radio" value="2" id="female" name="gender" @if($customer->gender == 2) checked @endif>
-                        <label for="female">Female</label>
-                        <input type="radio" value="3" id="others" name="gender" @if($customer->gender == 3) checked @endif>
-                        <label for="others">Others</label>
-                    </div> 
-
-                          <!-- Date -->
-
-
-                      <div class="form-group col-xl-6 col-lg-6">
-                          <label class="col-xl-4 col-lg-4 col-form-label font-weight-bolder">Start Date</label>
-                          <div class='col-lg-4 col-xl-6 input-group date' id='customerdob'>
+                <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
+                  {{ csrf_field() }}
+                  {!! Form::hidden('customer_id', $customer->id ?? '' , ['id' => 'customer_id'] ); !!}
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group ">
+                          {!! Form::label('name', 'Customer Name*', ['class' => 'col-form-label text-alert']) !!}
+                          {!! Form::text('name', $customer->name ?? '' , array('placeholder' => 'Customer Name','class' => 'form-control')) !!}                        
+                        </div>
+                        <div class="form-group ">
+                          {!! Form::label('mobile', 'Mobile', ['class' => 'col-form-label text-alert']) !!}
+                          {!! Form::text('mobile', $customer->mobile ?? '' , array('placeholder' => 'Mobile','class' => 'form-control check_numeric')) !!}                        
+                        </div>
+                        <div class="form-group ">
+                          <label class="col-form-label font-weight-bolder">Customer DOB</label>
+                          <div class='input-group date' id='customerdob'>
                               <input type='text' name="dob" id="dob" onkeydown="return false" class="form-control" autocomplete="off" />
                               <div class="input-group-append">
                                   <span class="input-group-text">
@@ -105,73 +77,72 @@
                                   </span>
                               </div>
                           </div>
-                      </div>
+                        </div>
+                        <div class="form-group ">
+                            {!! Form::label('pincode', 'Pincode ', ['class' => 'col-form-label text-alert']) !!}
+                            {!! Form::text('pincode', $customer->pincode ?? '' , array('placeholder' => 'Pincode','class' => 'form-control check_numeric')) !!}                        
+                        </div>
+
+                        <div class="form-group ">
+                            {!! Form::label('gst', 'GST No. ', ['class' => 'col-form-label text-alert']) !!}
+                            {!! Form::text('gst', $customer->gst ?? '' , array('placeholder' => 'GST No.','class' => 'form-control')) !!}                        
+                        </div>
+                        <div class="form-group ">
+                            {!! Form::label('address', 'Address. ', ['class' => 'col-form-label text-alert']) !!}
+                            {!! Form::textarea('address', $customer->address ?? '', ['class' => 'form-control','placeholder'=>'Address','rows'=>3]) !!}                       
+                        </div>
 
 
-                    <!-- <div class="form-group ">
-                        {!! Form::label('billing_name', 'Billing Name*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::text('billing_name', $customer->billing_name ?? '' , array('placeholder' => 'Billing Name','class' => 'col-sm-6 form-control')) !!}                        
-                    </div> -->
 
-                    <div class="form-group ">
-                      {!! Form::label('mobile', 'Mobile', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                      {!! Form::text('mobile', $customer->mobile ?? '' , array('placeholder' => 'Mobile','class' => 'col-sm-6 form-control check_numeric')) !!}                        
-                    </div>
-
-                    <div class="form-group ">
-                      {!! Form::label('email', 'E mail ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                      {!! Form::text('email', $customer->email ?? '' , array('placeholder' => 'E mail','class' => 'col-sm-6 form-control')) !!}                        
-                    </div>
-
-                    <div class="row">
-                      <div class="form-group">
-                        {!! Form::label('country_id', 'country*', ['class' => '']) !!} <br>
-                        {!! Form::select('country_id', $variants->country , $variants->country_id ?? '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
-                      </div>
-                      <div class="form-group">
-                        {!! Form::label('state_id', 'State*', ['class' => '']) !!} <br>
-                        <div id="state_block">
+                      </div>  
+                      <div class="col-md-6">                      
+                        <div class="form-group ">
+                          {!! Form::label('email', 'E mail ', ['class' => 'col-form-label text-alert']) !!}
+                          {!! Form::text('email', $customer->email ?? '' , array('placeholder' => 'E mail','class' => 'form-control')) !!}                        
+                        </div>
+                        <div class="form-group">
+                          {!! Form::label('name', 'Gender', ['class' => 'col-form-label text-alert']) !!} <br><br>
+                          <input type="radio" value="1" id="male" name="gender" @if($customer->gender == 1) checked @endif>
+                          <label for="male">Male</label>
+                          <input type="radio" value="2" id="female" name="gender" @if($customer->gender == 2) checked @endif>
+                          <label for="female">Female</label>
+                          <input type="radio" value="3" id="others" name="gender" @if($customer->gender == 3) checked @endif>
+                          <label for="others">Others</label>
+                        </div>
+                        <div class="form-group" >
+                          {!! Form::label('country_id', 'country*', ['class' => '']) !!} <br>
+                          {!! Form::select('country_id', $variants->country , $variants->country_id ?? '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
+                        </div>
+                        <div class="form-group" style="margin-left:10px">
+                          {!! Form::label('state_id', 'State*', ['class' => '']) !!} <br>
+                          <div id="state_block">
+                            @if($customer->district_id)
+                              {!! Form::select('state_id', $variants->states , $variants->state_id ?? '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                            @else
+                              {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                            @endif
+                          </div>
+                        </div>
+                        <div class="form-group" style="margin-left:10px">
+                          {!! Form::label('state_id', 'District*', ['class' => '']) !!} <br>
+                          <div id="district_block">
                           @if($customer->district_id)
-                            {!! Form::select('state_id', $variants->states , $variants->state_id ?? '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
-                          @else
-                            {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                            {!! Form::select('district_id', $variants->districts , $customer->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
+                          @else  
+                            {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
                           @endif
+                          </div>
                         </div>
-                      </div>
-                      <div class="form-group">
-                        {!! Form::label('state_id', 'District*', ['class' => '']) !!} <br>
-                        <div id="district_block">
-                        @if($customer->district_id)
-                          {!! Form::select('district_id', $variants->districts , $customer->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
-                        @else  
-                          {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
-                        @endif
-                        </div>
-                      </div>
-                    </div>
 
-                    <div class="form-group ">
-                        {!! Form::label('pincode', 'Pincode ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::text('pincode', $customer->pincode ?? '' , array('placeholder' => 'Pincode','class' => 'col-sm-6 form-control check_numeric')) !!}                        
+                      </div>            
                     </div>
-
-                    <div class="form-group ">
-                        {!! Form::label('gst', 'GST No. ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::text('gst', $customer->gst ?? '' , array('placeholder' => 'GST No.','class' => 'col-sm-6 form-control')) !!}                        
-                    </div>
-                    <div class="form-group ">
-                        {!! Form::label('address', 'Address. ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::textarea('address', $customer->address ?? '', ['class' => 'form-control col-sm-6','placeholder'=>'Address','rows'=>3]) !!}                       
-                    </div>
-           
-                    
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                    <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success ajax-submit">Submit</button>
-                    </div>
-                </div>
+                
+                  <div class="row">
+                      <div class="col-12">
+                      <a href="#" class="btn btn-secondary">Cancel</a>
+                      <button class="btn btn-success ajax-submit">Submit</button>
+                      </div>
+                  </div>
               </form>              
 
             </div>

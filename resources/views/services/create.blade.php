@@ -38,105 +38,83 @@
         <div class="card card-primary">
           <div class="card-header">
             <h3 class="card-title">{{ $page->title ?? ''}} Form</h3>
-
-
-            
-            <div class="card-tools">
-              <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                <i class="fas fa-minus"></i>
-              </button>
-            </div>
           </div>
             <!-- /.card-header -->
             <div class="card-body">
+              <div class="alert alert-danger print-error-msg" style="display:none"><ul></ul></div>
 
-            <div class="alert alert-danger print-error-msg" style="display:none">
-
-            <ul></ul>
-
-            </div>
-
-
-              <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
-                {{ csrf_field() }}
-                {!! Form::hidden('service_id', $service->id ?? '' , ['id' => 'service_id'] ); !!}
-                <div class="col-md-10">  
-
-                    <div class="form-group">
-                        {!! Form::label('service_category_id', 'Service Category*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::select('service_category_id', $variants->service_category, $service->service_category_id ?? '' , ['id' => 'service_category_id', 'class' => 'form-control','placeholder'=>'Select Service Category']) !!}
-                        <div class="error" id="roles_error"></div>
-                    </div> 
-
-                    <div class="form-group">
-                        {!! Form::label('name', 'Service Name*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::text('name', $service->name ?? '' , array('placeholder' => 'Service Name','class' => 'form-control')) !!}                        
-                        <div class="error" id="email_error"></div>
-                    </div> 
-                               
-                    <div class="form-group">
-                        {!! Form::label('hours_id', 'Service hours*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::select('hours_id', $variants->hours, $service->hours_id ?? '' , ['id' => 'hours_id', 'class' => 'form-control','placeholder'=>'Select Service hours']) !!}
-                        <div class="error" id="roles_error"></div>
-                    </div>
-
-                    <div class="form-group">
-                        {!! Form::label('price', 'Price*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('price', $service->price ?? '' , array('placeholder' => 'Price','class' => 'form-control check_numeric')) !!}
-                        <div class="error" id="email_error"></div>
-                    </div>
-
-
-
-                    <div class="form-group">
-                          @php 
-                            $checked = '';
-                              if(isset($service)){
-                                  $checked = ($service->tax_included == 1) ? 'checked' : '' ; 
-                              }                      
-                          @endphp
-                          
-                        
-                        
-                        <div class="custom-control custom-checkbox">
-                          <input class="custom-control-input" type="checkbox" name="tax_included" id="tax_included" value="1" {{ $checked }} >
-                          {!! Form::label('tax_included', 'Tax Included *', ['class' => 'custom-control-label']) !!}
+                  <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">            
+                    {{ csrf_field() }}
+                    {!! Form::hidden('service_id', $service->id ?? '' , ['id' => 'service_id'] ); !!}
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                            {!! Form::label('name', 'Service Name*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                            {!! Form::text('name', $service->name ?? '' , array('placeholder' => 'Service Name','class' => 'form-control')) !!}                        
+                            <div class="error" id="email_error"></div>
+                        </div> 
+                        <div class="form-group">
+                          {!! Form::label('price', 'Price*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                          {!! Form::text('price', $service->price ?? '' , array('placeholder' => 'Price','class' => 'form-control check_numeric')) !!}
+                          <div class="error" id="email_error"></div>
+                        </div>                      
+                        <div class="form-group">
+                            @php 
+                              $checked = '';
+                                if(isset($service)){
+                                    $checked = ($service->tax_included == 1) ? 'checked' : '' ; 
+                                }                      
+                            @endphp                                            
+                          <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" name="tax_included" id="tax_included" value="1" {{ $checked }} >
+                            {!! Form::label('tax_included', 'Tax Included *', ['class' => 'custom-control-label']) !!}
+                          </div>
+                          <small class= 'col-sm-2'>Check if tax is included with price !</small>
                         </div>
-                        <small class= 'col-sm-2'>Check if tax is included with price !</small>
-                    </div>
+                        <div class="form-group">
+                          {!! Form::label('gst_tax', 'GST Tax %', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          {!! Form::select('gst_tax', $variants->tax_percentage, $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => 'form-control','placeholder'=>'Select tax percentage']) !!}
+                          <div class="error" id="roles_error"></div>
+                        </div>
+                        <div class="form-group">
+                          {!! Form::label('additional_tax', 'Additional Tax', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'form-control col-sm-12 selec2']) !!}
+                          <div class="error" id="roles_error"></div>
+                        </div>
 
-                    <div class="form-group">
-                        {!! Form::label('gst_tax', 'GST Tax %', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::select('gst_tax', $variants->tax_percentage, $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => 'form-control','placeholder'=>'Select tax percentage']) !!}
-                        <div class="error" id="roles_error"></div>
-                    </div>
 
-                    <div class="form-group">
-                        {!! Form::label('additional_tax', 'Additional Tax', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'form-control col-sm-12 selec2']) !!}
-                        <div class="error" id="roles_error"></div>
-                    </div>
+                      </div>  
+                      <div class="col-md-6">                      
+                        <div class="form-group">
+                            {!! Form::label('service_category_id', 'Service Category*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                            {!! Form::select('service_category_id', $variants->service_category, $service->service_category_id ?? '' , ['id' => 'service_category_id', 'class' => 'form-control','placeholder'=>'Select Service Category']) !!}
+                            <div class="error" id="roles_error"></div>
+                        </div>
+                        <div class="form-group">
+                          {!! Form::label('hours_id', 'Service hours*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          {!! Form::select('hours_id', $variants->hours, $service->hours_id ?? '' , ['id' => 'hours_id', 'class' => 'form-control','placeholder'=>'Select Service hours']) !!}
+                          <div class="error" id="roles_error"></div>
+                        </div>                   
+                        <div class="form-group">
+                          {!! Form::label('lead_before', 'Lead time before', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          {!! Form::select('lead_before', $variants->hours, $service->lead_before ?? '' , ['id' => 'lead_before', 'class' => 'form-control','placeholder'=>'Select Lead time before']) !!}
+                          <div class="error" id="roles_error"></div>
+                        </div>
+                        <div class="form-group">
+                          {!! Form::label('lead_after', 'Lead time after', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          {!! Form::select('lead_after', $variants->hours, $service->lead_after ?? '' , ['id' => 'lead_after', 'class' => 'form-control','placeholder'=>'Select Lead time after']) !!}
+                          <div class="error" id="roles_error"></div>
+                        </div>
 
-                    <div class="form-group">
-                        {!! Form::label('lead_before', 'Lead time before', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::select('lead_before', $variants->hours, $service->lead_before ?? '' , ['id' => 'lead_before', 'class' => 'form-control','placeholder'=>'Select Lead time before']) !!}
-                        <div class="error" id="roles_error"></div>
+                      </div>            
                     </div>
-
-                    <div class="form-group">
-                        {!! Form::label('lead_after', 'Lead time after', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::select('lead_after', $variants->hours, $service->lead_after ?? '' , ['id' => 'lead_after', 'class' => 'form-control','placeholder'=>'Select Lead time after']) !!}
-                        <div class="error" id="roles_error"></div>
-                    </div>                 
-                    
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                    <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success ajax-submit">Submit</button>
+                    <div class="row">
+                      <div class="col-12">
+                        <a href="#" class="btn btn-secondary">Cancel</a>
+                        <button class="btn btn-success ajax-submit">Submit</button>
+                      </div>
                     </div>
-                </div>
-              {!! Form::close() !!}              
+                </form>
 
             </div>
           <!-- /.card-body -->

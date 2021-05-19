@@ -125,10 +125,13 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($link . '/get-states', [CommonController::class, 'getStates']);    
     Route::get($link . '/get-districts', [CommonController::class, 'getDistricts']);    
     Route::get($link . '/get-all-services', [CommonController::class, 'getAllServices']);    
+    Route::post($link . '/get-services', [CommonController::class, 'getServices']);    
+    Route::post($link . '/get-packages', [CommonController::class, 'getPackages']);    
     Route::get($link . '/get-all-packages', [CommonController::class, 'getAllPackages']);    
     Route::get($link . '/get-districts', [CommonController::class, 'getDistricts']);    
     Route::post($link . '/get-shop-districts', [CommonController::class, 'getShopDistricts']);    
     Route::post($link . '/get-customer-details', [CommonController::class, 'getCustomerDetails']);   
+    Route::post($link . '/get-taxdetails', [CommonController::class, 'calculateTax']);   
 });
 
 // Super Admin Routes

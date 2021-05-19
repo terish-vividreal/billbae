@@ -43,93 +43,114 @@ tfoot {font-weight: bold;}
         <div class="card card-primary">
           <div class="card-header">
             <h3 class="card-title">{{ $page->title ?? ''}} Form</h3>
-
-
-            
-            <div class="card-tools">
-              <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                <i class="fas fa-minus"></i>
-              </button>
-            </div>
           </div>
             <!-- /.card-header -->
             <div class="card-body">
+              <div class="alert alert-danger print-error-msg" style="display:none"><ul></ul></div>
+                <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
+                  {{ csrf_field() }}
+                  {!! Form::hidden('package_id', $package->id ?? '' , ['id' => 'package_id'] ); !!}
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group ">
+                            {!! Form::label('name', 'Package Name*', ['class' => 'col-form-label text-alert']) !!}
+                            {!! Form::text('name', $package->name ?? '' , array('placeholder' => 'Package Name','class' => 'form-control')) !!}                        
+                        </div> 
+                      </div>
 
-            <div class="alert alert-danger print-error-msg" style="display:none">
-
-            <ul></ul>
-
-            </div>
-            
-
-
-              <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
-                {{ csrf_field() }}
-                {!! Form::hidden('package_id', $package->id ?? '' , ['id' => 'package_id'] ); !!}
-                <div class=""> 
-
-
-
-                    <div class="form-group ">
-                        {!! Form::label('name', 'Package Name*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        {!! Form::text('name', $package->name ?? '' , array('placeholder' => 'Package Name','class' => 'col-sm-6 form-control')) !!}                        
-                    </div> 
-
-                    <div class="form-group ">
-                        {!! Form::label('name', 'Choose services*', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                        <select class="col-sm-6 form-control selec2" name="services[]" id="services" multiple="multiple"> </select>
-                    </div> 
-
-                    
-
-                    <div class="form-group" id="usedServicesDiv" style="display:none;">
-                      <label for="name" class="col-sm-6 col-form-label text-alert"><span>Services</span></label>           
-                        <table class="table table-hover" id="servicesTable" >
-                          <thead>
-                            <tr>
-                              <th>Name</th>
-                              <th>Hours</th>
-                              <th>price</th>
-                            </tr>
-                          </thead>
-                          <tbody>                         
-                            
-                          </tbody>
-                        </table>
-                    </div> 
-
-                    <div class="form-group">
-                      <label for="price" class="col-md-2 control-label">Package price*</label>
-                      <input class="col-sm-6 form-control check_numeric" type="text" name="price" id="price" value="" disabled/> 
-                      <input class="form-control" type="hidden" name="totalPrice" id="totalPrice" value=""/>                     
-                      <input class="form-control" type="hidden" name="discount" id="discount" value="" /> 
-                      <h6><i><span id="price_info_message">Please choose service to enable price !</i></h6>                     
+                      <div class="col-md-6">
+                        <div class="form-group ">
+                            {!! Form::label('name', 'Choose services*', ['class' => 'col-form-label text-alert']) !!}
+                            <select class="form-control selec2" name="services[]" id="services" multiple="multiple"> </select>
+                        </div> 
+                      </div>
                     </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                      <div class="form-group" id="usedServicesDiv" style="display:none;">
+                        <label for="name" class="col-sm-6 col-form-label text-alert"><span>Services</span></label>           
+                          <table class="table table-hover text-nowrap" id="servicesTable" >
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>Hours</th>
+                                <th>price</th>
+                              </tr>
+                            </thead>
+                            <tbody>                         
+                              
+                            </tbody>
+                          </table>
+                      </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="price" class="control-label">Package price*</label>
+                          <input class="form-control check_numeric" type="text" name="price" id="price" value="" disabled/> 
+                          <input class="form-control" type="hidden" name="totalPrice" id="totalPrice" value=""/>                     
+                          <input class="form-control" type="hidden" name="discount" id="discount" value="" /> 
+                          <h6><i><span id="price_info_message">Please choose service to enable price !</i></h6>                     
+                        </div>
+                      </div>
 
-                    <div class="form-group ">
-                          {!! Form::label('name', 'Package validity ', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
-                          <select id="validity_mode" class="col-sm-6 form-control" name="validity_mode">
+                      
+                      <div class="col-md-3">
+                        <div class="form-group ">
+                          {!! Form::label('name', 'Validity Type', ['class' => 'col-form-label text-alert']) !!}
+                          <select id="validity_mode" class="form-control" name="validity_mode">
                           <option selected="selected" value="1">Day</option>
                           <option value="2">Month</option>
                           <option value="3">Year</option>
                           
                           </select>
-                      </div> 
-                      <div class="form-group ">
-                          {!! Form::text('validity', $package->validity ?? '' , array('placeholder' => 'Package validity','class' => 'col-sm-6 check_numeric form-control')) !!}                        
+                        </div> 
                       </div>
-
-           
-                    
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                    <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success ajax-submit">Submit</button>
+                      <div class="col-md-3">
+                        <div class="form-group ">
+                          {!! Form::label('name', 'Package validity ', ['class' => 'col-form-label text-alert']) !!}
+                          {!! Form::text('validity', $package->validity ?? '' , array('placeholder' => 'Package validity','class' => 'check_numeric form-control')) !!}                        
+                        </div> 
+                      </div>
                     </div>
-                </div>
-              </form>              
 
+                    <div class="row">
+                      <div class="col-6">
+                        <div class="form-group">
+                            @php 
+                              $checked = '';
+                                if(isset($service)){
+                                    $checked = ($service->tax_included == 1) ? 'checked' : '' ; 
+                                }                      
+                            @endphp                                            
+                          <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" name="tax_included" id="tax_included" value="1" {{ $checked }} >
+                            {!! Form::label('tax_included', 'Tax Included *', ['class' => 'custom-control-label']) !!}
+                          </div>
+                          <small class= 'col-sm-2'>Check if tax is included with price !</small>
+                        </div>
+                        <div class="form-group">
+                          {!! Form::label('gst_tax', 'GST Tax %', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          {!! Form::select('gst_tax', $variants->tax_percentage, $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => 'form-control','placeholder'=>'Select tax percentage']) !!}
+                          <div class="error" id="roles_error"></div>
+                        </div>
+                        <div class="form-group">
+                          {!! Form::label('additional_tax', 'Additional Tax', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
+                          {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'form-control col-sm-12 selec2']) !!}
+                          <div class="error" id="roles_error"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                 
+                    <div class="row">
+                      <div class="col-12">
+                      <a href="#" class="btn btn-secondary">Cancel</a>
+                      <button class="btn btn-success ajax-submit">Submit</button>
+                      </div>
+                    </div>
+                </form>             
             </div>
           <!-- /.card-body -->
         </div>
@@ -150,7 +171,8 @@ tfoot {font-weight: bold;}
 
 
 $(document).ready(function() {
-
+  $('#additional_tax').select2({ placeholder: "Please choose services", allowClear: false });
+  
   $("#services").select2({ placeholder: "Please choose services", allowClear: false })
     .on('select2:select select2:unselect', function (e) { 
       loadData() 
@@ -167,7 +189,7 @@ function loadData(){
         type: 'post',
         url: "{{ url(ROUTE_PREFIX.'/common/get-services') }}",
         dataType: 'json',
-        data: { service_ids:service_ids},
+        data: { data_ids:service_ids},
         delay: 250,
         success: function(data) {
 

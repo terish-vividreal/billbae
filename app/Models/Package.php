@@ -18,4 +18,10 @@ class Package extends Model
     {
         return $this->belongsToMany('App\Models\Service')->withTimestamps();
     }
+
+    public function additionaltax()
+    {
+        return $this->belongsToMany('App\Models\Additionaltax');
+    }
+
 }

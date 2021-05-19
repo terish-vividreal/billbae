@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Package;
+use App\Models\Additionaltax;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use DataTables;
 use Validator;
+use DB;
 
 class PackageController extends Controller
 {
@@ -45,13 +47,14 @@ class PackageController extends Controller
         $page                   = collect();
         $variants               = collect();
         $page->title            = $this->title;
-        $page->link              = url($this->link);
+        $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity; 
         $variants->services     = Service::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
-
-        
-        $variants->service_category      = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');         
+        $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
+        $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id');        
+        $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');    
+        $variants->additional_tax_ids   = [];     
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
 
@@ -120,9 +123,15 @@ class PackageController extends Controller
             $data->discount         = $request->discount;
             $data->validity_mode    = $request->validity_mode;
             $data->validity         = $request->validity;
+            $data->tax_included     = ($request->tax_included == 1) ? 1 : 0 ;
+            $data->gst_tax          = $request->gst_tax;
             $data->save();
 
             $data->service()->sync($request->services);
+
+            if($request->additional_tax){
+                $data->additionaltax()->sync($request->additional_tax);
+            }
 
             return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
@@ -159,14 +168,24 @@ class PackageController extends Controller
             $page                   = collect();
             $variants               = collect();
             $page->title            = $this->title;
-            $page->link              = url($this->link);
+            $page->link             = url($this->link);
             $page->route            = $this->route;
             $page->entity           = $this->entity;   
             $service_ids            = array();
-
+            $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
+            $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+            $variants->additional_tax_ids   = [];
             foreach($package->service as $data){
                 $service_ids[] = $data->id ;
             }
+
+            if($package->additionaltax){
+                $variants->additional_tax_ids = [];
+                foreach($package->additionaltax as $row){
+                    $variants->additional_tax_ids[] = $row->id;
+                }
+            }
+
             return view($this->viewPath . '.edit', compact('page', 'variants', 'package', 'service_ids'));
         }else{
             return redirect('services')->with('error', $this->title.' not found');
@@ -200,10 +219,14 @@ class PackageController extends Controller
             $data->discount         = $request->discount;
             $data->validity_mode    = $request->validity_mode;
             $data->validity         = $request->validity;
+            $data->tax_included     = ($request->tax_included == 1) ? 1 : 0 ;
+            $data->gst_tax          = $request->gst_tax;
             $data->save();
 
 
             $data->service()->sync($request->services);
+
+            $data->additionaltax()->sync($request->additional_tax);
 
             return ['flagError' => false, 'message' => $this->title. " updated successfully"];
         }
