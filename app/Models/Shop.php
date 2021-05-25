@@ -31,7 +31,7 @@ class Shop extends Model
 
     public function billing()
     {
-        return $this->belongsTo('App\Models\ShopBilling',);
+        return $this->belongsTo('App\Models\ShopBilling', 'id', 'shop_id');
     }
 
 }

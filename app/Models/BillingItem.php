@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class BillingItem extends Model
 {
     use HasFactory;
+    
 }

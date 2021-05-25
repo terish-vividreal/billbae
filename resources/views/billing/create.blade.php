@@ -72,7 +72,7 @@
             
 
 
-              <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
+              <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="post" action="{{ url(ROUTE_PREFIX.'/'.$page->route) }}">
                 {{ csrf_field() }}
                 {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'billing_id'] ); !!}
                 {!! Form::hidden('customer_id', $billing->customer_id ?? '' , ['id' => 'customer_id'] ); !!}
@@ -211,11 +211,11 @@
                             <label>Select Details</label>
                             
                               <div id="services_block">
-                                <select class="form-control select2" name="bill_item[]" id="services" multiple="multiple" style="width: 100%;"> </select>
+                                <select class="form-control service-type" data-type="services" name="bill_item[]" id="services" multiple="multiple" style="width: 100%;"> </select>
                               </div>
 
                               <div id="packages_block" style="display:none;">
-                                <select class="form-control select2" name="bill_item[]" id="packages" multiple="multiple" style="width: 100%;"> </select>
+                                <select class="form-control service-type" data-type="packages" name="bill_item[]" id="packages" multiple="multiple" style="width: 100%;"> </select>
                               </div>
                           </div>
                           <!-- /.form-group  style="display:none;"-->
@@ -243,8 +243,12 @@
                             </table>
 
                             <div class="float-right" id="total">
+                              {!! Form::hidden('grand_total', '' , ['id' => 'grand_total'] ); !!}
                               
-                              <h3>Grand Total : <span id="grandTotal"></span></h3>
+                              <h4>Grand Total : <span id="grandTotal"></span></h4>
+                              <!-- <h3><span id="discountAmount"></span></h3>
+                              <h2><span id="afterdiscount"></span></h2> -->
+                              <!-- <div id="discountDiv"><button class="btn btn-sm btn-primary" id="discount_btn">Discount</button></div> -->
 
                             </div>
                           </div>
@@ -260,7 +264,7 @@
                 <div class="row">
                     <div class="col-12">
                     <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success ajax-submit">Generate Bill</button>
+                    <button class="btn btn-success"> Continue </button>
                     </div>
                 </div>
               </form>              
@@ -275,6 +279,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+@include('billing.discount-manage')
 @endsection
 @push('page-scripts')
 
@@ -288,40 +293,25 @@
 
 <script type="text/javascript">
 
-$('#services').select2({ placeholder: "Please choose services", allowClear: false }).on('select2:select select2:unselect', function (e) { 
-  listItemDetails('services') 
-  $(this).valid()
-});
-
-$('#packages').select2({ placeholder: "Please choose packages", allowClear: false }).on('select2:select select2:unselect', function (e) { 
-  listItemDetails('packages') 
+$('.service-type').select2({ placeholder: "Please choose packages", allowClear: false }).on('select2:select select2:unselect', function (e) { 
+  var type = $(this).data("type");
+  listItemDetails(type) 
   $(this).valid()
 });
 
 function listItemDetails(type){
   var data_ids = $('#'+type).val();
-  // if(type == 'services'){
-  //   var url         =  "{{ url(ROUTE_PREFIX.'/common/calculate-tax') }}";
-  // }else{
-  //   var url         =  "{{ url(ROUTE_PREFIX.'/common/get-packages') }}";
-  // }
   if(data_ids != ''){
     $.ajax({
         type: 'post',
         url: "{{ url(ROUTE_PREFIX.'/common/get-taxdetails') }}",
         dataType: 'json',data: { data_ids:data_ids, type : type},delay: 250,
         success: function(data) {
-          // if(data.data.length > 0){
             $("#servicesTable").find("tr:gt(0)").remove();
-            // $.each(data.data, function(key, value) {
-            //   html += '<tr><td>'+parseFloat(key+1)+'</td><td>'+value.name+'</td><td>₹ '+value.price+'</td></tr>';
-            // });
-
             $('#servicesTable').append(data.html);
-            // $('#servicesTable').append(data.table_footer);
             $('#grandTotal').text(data.grand_total);
+            $('#grand_total').val(data.grand_total);
             $('#usedServicesDiv').show();
-          // }
         }
     });
   }else{
@@ -330,7 +320,7 @@ function listItemDetails(type){
 }
 
 
-$('#packages').select2({ placeholder: "Please choose packages", allowClear: false });
+
 
   var path = "{{ route('billing.autocomplete') }}";
   $('input.typeahead').typeahead({
@@ -448,22 +438,23 @@ if ($("#{{$page->entity}}Form").length > 0) {
             },
         },
         submitHandler: function (form) {
-            var forms = $("#{{$page->entity}}Form");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}", type: "POST", processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    // setTimeout(function () { 
-                    //   window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-                    // }, 2000);
+            // var forms = $("#{{$page->entity}}Form");
+            // $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}", type: "POST", processData: false, 
+            // data: forms.serialize(), dataType: "html",
+            // }).done(function (a) {
+            //     var data = JSON.parse(a);
+            //     if(data.flagError == false){
+            //         showSuccessToaster(data.message);
+            //         // setTimeout(function () { 
+            //         //   window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+            //         // }, 2000);
 
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
+            //     }else{
+            //       showErrorToaster(data.message);
+            //       printErrorMsg(data.error);
+            //     }
+            // });
+            form.submit();
         },
         errorPlacement: function(error, element) {
             if (element.is("select")) {
@@ -506,6 +497,45 @@ $(document).on('change', '#state_id', function () {
         $("#district_block").html(data);
       })
 });
+
+$("#discount_btn").click(function(){
+  $("#discount-modal").modal("show");
+});
+
+if ($("#discountForm").length > 0) {
+    var validator = $("#discountForm").validate({ 
+        rules: {
+            discount_value: {
+                    required: true,
+            },
+        },
+        messages: { 
+            discount_value: {
+                required: "Please enter discount value",
+            }
+        },
+        submitHandler: function (form) {
+            var forms       = $("#discountForm");
+            var grand_total = $("#grand_total").val();
+            $input          = $('<input type="hidden" name="grand_total"/>').val(grand_total);
+            forms.append($input);
+            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, 
+            data: forms.serialize(), dataType: "html",
+            }).done(function (a) {
+                var data = JSON.parse(a);
+                if(data.flagError == false){
+                    $('#discountAmount').text('Discount Amount : ' + data.discount_value);
+                    $('#afterdiscount').text('After discount : ' + data.amount);
+                    $('#grand_total').val(data.amount);
+                    $("#discount-modal").modal("hide");
+                }else{
+                  showErrorToaster(data.message);
+                  printErrorMsg(data.error);
+                }
+            });
+        }
+    })
+} 
 
 
 

@@ -136,6 +136,11 @@ tfoot {font-weight: bold;}
                           <div class="error" id="roles_error"></div>
                         </div>
                         <div class="form-group">
+                          {!! Form::label('hsn_code', 'HSN Code', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                          {!! Form::text('hsn_code', $service->hsn_code ?? '' , array('placeholder' => 'HSN Code','class' => 'form-control')) !!}
+                          <div class="error" id="email_error"></div>
+                        </div>
+                        <div class="form-group">
                           {!! Form::label('additional_tax', 'Additional Tax', ['class' => 'col-sm-6 col-form-label text-alert']) !!}
                           {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'form-control col-sm-12 selec2']) !!}
                           <div class="error" id="roles_error"></div>

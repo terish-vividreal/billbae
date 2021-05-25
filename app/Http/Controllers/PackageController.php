@@ -125,6 +125,7 @@ class PackageController extends Controller
             $data->validity         = $request->validity;
             $data->tax_included     = ($request->tax_included == 1) ? 1 : 0 ;
             $data->gst_tax          = $request->gst_tax;
+            $data->hsn_code         = $request->hsn_code;
             $data->save();
 
             $data->service()->sync($request->services);
@@ -221,6 +222,7 @@ class PackageController extends Controller
             $data->validity         = $request->validity;
             $data->tax_included     = ($request->tax_included == 1) ? 1 : 0 ;
             $data->gst_tax          = $request->gst_tax;
+            $data->hsn_code         = $request->hsn_code;
             $data->save();
 
 

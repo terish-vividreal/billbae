@@ -157,6 +157,7 @@ class ServiceController extends Controller
             $data->lead_after           = $request->lead_after;  
             $data->hours_id             = $request->hours_id;
             $data->gst_tax              = $request->gst_tax;
+            $data->hsn_code              = $request->hsn_code;
 
             $data->save();
 
@@ -247,7 +248,7 @@ class ServiceController extends Controller
                 $data->hours_id             = $request->hours_id;
                 $data->tax_included         = ($request->tax_included == 1) ? 1 : 0 ;
                 $data->gst_tax              = $request->gst_tax;
-
+                $data->hsn_code              = $request->hsn_code;
                 $data->save();
 
                 // if($request->additional_tax){

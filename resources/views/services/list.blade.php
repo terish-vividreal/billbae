@@ -54,8 +54,8 @@
                                <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Service Category</th>
                                     <th>Name</th>
+                                    <th>Service Category</th>                                    
                                     <th>Price</th>
                                     <th>Hours</th>
                                     <th width="100px">Action</th>
@@ -106,9 +106,9 @@
                 data: search
             },
         columns: [
-            {data: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'service_category', name: 'name'},
-            {data: 'name', name: 'name'},            
+            {data: 'DT_RowIndex', orderable: false, searchable: false},            
+            {data: 'name', name: 'name'},  
+            {data: 'service_category', name: 'name'},          
             {data: 'price', name: 'name'},            
             {data: 'hours', name: 'name'},            
             {data: 'action', name: 'action', orderable: false, searchable: false},

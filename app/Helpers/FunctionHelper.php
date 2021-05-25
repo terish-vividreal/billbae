@@ -6,9 +6,24 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Keygen\Keygen;
 
 class FunctionHelper
 {
+
+    public static function generateCode($length, $prefix, $user_id = null)
+    {
+			
+        $code 		= Keygen::numeric($length)->prefix($prefix, false)->suffix($user_id)->generate();
+        return $code;		
+        // do {
+        // 	$code 		= Keygen::numeric($length)->prefix($prefix, false)->generate();
+        // 	$data 		= Admin::where('code', $code)->first();
+        // 	$flag 		= (isset($data))? true:false;
+        // }
+        // while ($data->count() > 0);
+
+    }
     public static function storeImage($file, $path, $slug)
     {
         $path = 'public/' . $path;
