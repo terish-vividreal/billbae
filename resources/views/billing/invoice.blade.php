@@ -148,13 +148,12 @@
               <!-- this row will not appear when printing -->
               <div class="row no-print">
                 <div class="col-12">
-                  <a href="invoice-print.html" rel="noopener" target="_blank" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
-                  <button type="button" class="btn btn-success float-right"><i class="far fa-credit-card"></i> Submit
+                  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice-data/generate-pdf/'.$billing->id) }}" rel="noopener" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
+                  <a href="javascript:" class="btn btn-success float-right"><i class="far fa-credit-card"></i> Submit
                     Payment
-                  </button>
-                  <button type="button" class="btn btn-primary float-right" style="margin-right: 5px;">
-                    <i class="fas fa-download"></i> Generate PDF
-                  </button>
+                  </a>
+                  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice-data/generate-pdf/'.$billing->id) }}" class="btn btn-primary float-right" style="margin-right: 5px;"><i class="fas fa-download"></i> Generate PDF</a>
+                  
                 </div>
               </div>
             </div>
@@ -169,7 +168,7 @@
 @include('billing.discount-manage')
 @endsection
 @push('page-scripts')
-script src="{{ asset('admin/js/common-script.js') }}"></script>
+<script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
@@ -183,14 +182,14 @@ getInvoiceDetails();
 
 function getInvoiceDetails(discount = null){
   var item_ids = {!! json_encode($variants->item_ids) !!};
-  var discount = discount;
+  // var discount = discount;
 
-  var discount = {item_id:"1", discount_type: "amount", value:100 };
+  // var discount = {item_id:"1", discount_type: "amount", value:100 };
 
   $.ajax({
       type: 'post',
       url: "{{ url(ROUTE_PREFIX.'/billings/get-invoice-data') }}",
-      dataType: 'json',data: { bill_id:bill_id, item_ids:item_ids, discount : discount} , delay: 250,
+      dataType: 'json',data: { bill_id:bill_id, item_ids:item_ids} , delay: 250,
       success: function(data) {
         if(data.flagError == false){
           $('#invoiceTable').html(data.html);

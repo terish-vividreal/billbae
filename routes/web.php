@@ -123,6 +123,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($billing . '/manage-discount', [BillingController::class, 'manageDiscount']);
     Route::post($billing . '/get-invoice-data', [BillingController::class, 'getInvoiceData']);
     Route::get($billing . '/invoice/{id}', [BillingController::class, 'invoice']);
+    Route::get($billing .'/invoice-data/generate-pdf/{id}', [BillingController::class, 'generatePDF']);
 
     $link = 'common';
     Route::get($link . '/get-states', [CommonController::class, 'getStates']);    

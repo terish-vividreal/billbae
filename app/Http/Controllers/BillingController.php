@@ -20,6 +20,7 @@ use Auth;
 use App\Helpers\FunctionHelper;
 use App\Models\Customer;
 use App\Models\Billing;
+use PDF;
 
 class BillingController extends Controller
 {
@@ -109,7 +110,6 @@ class BillingController extends Controller
         
         return response()->json(['flagError' => false]);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -236,11 +236,17 @@ class BillingController extends Controller
                                     ->join('billing_items', 'billing_items.item_id', '=', 'services.id')
                                     ->where('services.shop_id', SHOP_ID)
                                     ->where('billing_items.billing_id', $request->bill_id)
-                                    ->whereIn('services.id', $request->item_ids)->orderBy('services.id', 'desc')->get();
+                                    ->whereIn('services.id', $request->item_ids)
+                                    ->orderBy('services.id', 'desc')->get();
             }
             else            
             {
-                $billing_items = Package::where('shop_id', SHOP_ID)->whereIn('id', $request->item_ids)->orderBy('id', 'desc')->get();
+                $billing_items = Package::select('packages.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
+                                    ->join('billing_items', 'billing_items.item_id', '=', 'packages.id')
+                                    ->where('packages.shop_id', SHOP_ID)
+                                    ->where('billing_items.billing_id', $request->bill_id)
+                                    ->whereIn('packages.id', $request->item_ids)
+                                    ->orderBy('packages.id', 'desc')->get();
             }
 
             // foreach($billing_items as $row){
@@ -287,6 +293,85 @@ class BillingController extends Controller
         return ['flagError' => false, 'grand_total' => number_format($grand_total,2), 'html' => $invoice_details];
         // return response($questionHtml);
         
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function generatePDF(Request $request, $id)
+    {
+        $grand_total            = 0 ;
+        $user                   = Auth::user();
+        $billing                = Billing::findOrFail($id);
+        $store                  = Shop::with('billing')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
+                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
+                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
+                                    ->find($user->shop_id); 
+
+        
+        if($billing){
+            $billing_items_array        = $billing->items->toArray();
+            $item_type                  = $billing_items_array[0]['item_type'];
+            foreach($billing_items_array as $row)
+            {
+                $item_ids[] = $row['item_id']; 
+            }
+
+            
+
+            if($item_type == 'services')
+            {
+                $billing_items = Service::select('services.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
+                                    ->join('billing_items', 'billing_items.item_id', '=', 'services.id')
+                                    ->where('services.shop_id', SHOP_ID)
+                                    ->where('billing_items.billing_id', $id)
+                                    ->whereIn('services.id', $item_ids)
+                                    ->orderBy('services.id', 'desc')->get();
+            }
+            else            
+            {
+                $billing_items = Package::select('packages.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
+                                    ->join('billing_items', 'billing_items.item_id', '=', 'packages.id')
+                                    ->where('packages.shop_id', SHOP_ID)
+                                    ->where('billing_items.billing_id', $id)
+                                    ->whereIn('packages.id', $item_ids)
+                                    ->orderBy('packages.id', 'desc')->get();
+            }      
+            
+            // echo "<pre>"; print_r($billing_items); exit;
+            foreach($billing_items as $key => $row){
+                $tax_array          = TaxHelper::simpleTaxCalculation($row);
+                $billing_items[$key]['tax_array'] = $tax_array;
+                $grand_total            = ($grand_total + $billing_items[$key]['tax_array']['total_amount']); 
+                if($billing_items[$key]['tax_array']['discount_applied'] == 1){
+                    $grand_total            = ($grand_total - $billing_items[$key]['tax_array']['discount_amount']); 
+                }
+            }
+        }              
+
+        $data = [
+            'billing' => $billing,
+            'store' => $store,
+            'billing_items' => $billing_items,
+            'grand_total' => $grand_total,
+        ];
+
+        $pdf = PDF::loadView($this->viewPath . '.invoice-pdf', $data);
+    
+        return $pdf->download('invoice.pdf');
+
+
+
+        // $pdf = PDF::loadView($this->viewPath . '.invoice-pdf', $data);
+    
+        // return $pdf->download('abc-invoice.pdf');
+
+    }
+    public function manageItem(Request $request)
+    {
+
     }
 
     /**
