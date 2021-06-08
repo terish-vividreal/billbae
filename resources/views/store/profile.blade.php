@@ -1,6 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
+@push('page-css')
+<style>
+.profile-pic {
+	position: relative;
+	display: inline-block;
+}
+
+.profile-pic:hover .edit {
+	display: block;
+}
+
+.edit {
+	padding-top: 7px;	
+	padding-right: 7px;
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: none;
+}
+
+.edit a {
+	color: #000;
+}
+</style>
+@endpush
 
 @section('breadcrumb')
   <li class="nav-item">
@@ -44,10 +69,13 @@
             <div class="card card-primary card-outline">
               <div class="card-body box-profile">
                 <div class="text-center">
-                  <img class="profile-user-img img-fluid img-circle"
-                       src=" {{ asset('admin/img/avatar5.png') }}"
+                <!-- asset('storage/store/logo/0502b856ec0bd08f9d6b19a11cc264ccjpg') -->
+                  <img class="profile-user-img img-fluid img-circle profile-pic" id="store_logo"
+                       src="{{ $store->show_image }}" 
                        alt="User profile picture">
-                </div>
+                       <div class=""><a href="javascript:" data-id="1" id="updateProfile">Change Logo<i class="fa fa-pencil"></i></a></div>
+                      
+                </div> 
 
                 <h3 class="profile-username text-center">{{ $store->name ?? '' }}</h3>
 
@@ -288,12 +316,69 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+@include('store.image-manage') 
 @endsection
 @push('page-scripts')
 
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
 <script type="text/javascript">
+
+$(document).ready(function(){
+    $("#updateProfile").on("click", function(){
+      profilrvalidator.resetForm();
+      $("#profileForm .form-control").removeClass("error");
+      $("#imgPreviewDiv").hide();
+      $("#profile-modal").modal("show");
+        
+    });
+});
+
+image.onchange = evt => {
+  const [file] = image.files
+  if (file) {
+    imgPreview.src = URL.createObjectURL(file)
+    $("#imgPreviewDiv").show();
+  }
+}
+
+
+if ($("#profileForm").length > 0) {
+    var profilrvalidator = $("#profileForm").validate({ 
+        rules: {
+          image: {
+                    required: true,
+                    extension: "jpeg|jpg|png",
+            },
+        },
+        messages: { 
+          image: {
+                required: "Please choose image",
+                extension: "Invalid format",
+                },
+        },
+        submitHandler: function (form) {
+            var forms   = $("#profileForm");
+            let formData = new FormData(form);
+
+            $.ajax({ url: "{{ url('/store/update-logo') }}", type: "post", processData: false, contentType: false,
+            data: formData,
+            }).done(function (data) {
+                // var data = JSON.parse(a);
+                if(data.flagError == false){
+                    showSuccessToaster(data.message);                 
+                    $("#store_logo").attr("src", data.logo);
+                    $("#profile-modal").modal("hide");
+                }else{
+                  showErrorToaster(data.message);
+                  printErrorMsg(data.error);
+                }
+            });
+        }
+    })
+} 
+
 
 if ($("#storeProfileForm").length > 0) {
     var validator = $("#storeProfileForm").validate({ 
@@ -401,6 +486,7 @@ $(document).on('change', '#state_id', function () {
         $("#district_block").html(data);
       })
 });
+
 $(document).on('change', '#billing_state_id', function () {
     $.ajax({
           url: "{{ url(ROUTE_PREFIX.'/common/get-shop-districts') }}/",

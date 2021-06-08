@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $store_link = 'store';
     Route::get($store_link . '/profile', [Store::class, 'index']);
     Route::post($store_link . '/unique', [Store::class, 'isUnique']);
+    Route::post($store_link . '/update-logo', [Store::class, 'updateLogo']);
     Route::put($store_link . '/update/{id}', [Store::class, 'update']);
     Route::put($store_link . '/update/billing/{id}', [Store::class, 'storeBilling']);
 
@@ -64,15 +65,15 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post( 'users/unique', [UserController::class, 'isUnique']);
 
     // Business type Routes
-    $business_type = 'business-types';
-    Route::resource($business_type, AdminBusinessType::class)->except(['show']);
-    Route::get($business_type . '/lists', [AdminBusinessType::class, 'lists']);
+    // $business_type = 'business-types';
+    // Route::resource($business_type, AdminBusinessType::class)->except(['show']);
+    // Route::get($business_type . '/lists', [AdminBusinessType::class, 'lists']);
 
     Route::get('change-password', [ProfileController::class, 'index']);
     Route::post('change-password', [ProfileController::class, 'update']);
 
     // Roles Routes
-    Route::resource('roles', RoleController::class);
+    // Route::resource('roles', RoleController::class);
 
     // Serice category Routes
     $service_category = 'service-category';
@@ -116,14 +117,19 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($additionaltax, AdditionaltaxController::class)->except(['show']);
     Route::get($additionaltax . '/lists', [AdditionaltaxController::class, 'lists']);
 
-    // Billing Routes
+    // Billing Routes 
     $billing = 'billings';
-    Route::resource($billing, BillingController::class)->except(['show']);;
+    Route::resource($billing, BillingController::class)->except(['show']);
     Route::get($billing . '/lists', [BillingController::class, 'lists']);
+    Route::get($billing . '/show/{id}', [BillingController::class, 'show']);
     Route::post($billing . '/manage-discount', [BillingController::class, 'manageDiscount']);
     Route::post($billing . '/get-invoice-data', [BillingController::class, 'getInvoiceData']);
     Route::get($billing . '/invoice/{id}', [BillingController::class, 'invoice']);
+    Route::put($billing . '/invoice/update/{id}', [BillingController::class, 'updateInvoice']);
+    Route::get($billing . '/invoice/edit/{id}', [BillingController::class, 'editInvoice']);
     Route::get($billing .'/invoice-data/generate-pdf/{id}', [BillingController::class, 'generatePDF']);
+    Route::post($billing . '/add-new-customer', [BillingController::class, 'storeCustomer']);
+    Route::post($billing . '/store-payment', [BillingController::class, 'storePayment']);
 
     $link = 'common';
     Route::get($link . '/get-states', [CommonController::class, 'getStates']);    

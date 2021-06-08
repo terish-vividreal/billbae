@@ -6,8 +6,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use App\Helpers\FunctionHelper;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\ShopBilling;
+use Image;
 use DB;
 use Validator;
 use Auth;
@@ -15,12 +18,14 @@ use Hash;
 use DataTables;
 use Illuminate\Support\Arr;
 use App\Models\Shop;
+use Illuminate\Support\Facades\Storage;
 
 class StoreController extends Controller
 {
-    protected $title    = 'Profile';
-    protected $viewPath = '/store';
-    protected $link     = 'store';
+    protected $title        = 'Profile';
+    protected $viewPath     = '/store';
+    protected $link         = 'store';
+    protected $uploadPath   = 'store/';
 
     /**
      * Display a listing of the resource.
@@ -127,6 +132,42 @@ class StoreController extends Controller
         }
         return ['flagError' => true, 'message' => "Errors Occured. Please check!",  'error'=>$validator->errors()->all()];
 
+    }
+
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateLogo(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->passes()) {
+            $shop               = Shop::find($request->store_id);
+
+            $old_store_logo = $shop->image;
+
+            if ($old_store_logo != '') {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/logo/' . $old_store_logo);
+            }
+            
+            $image              = $request->file('image');
+            $store_logo         = FunctionHelper::cropAndStore($image, $this->uploadPath.'/logo', Str::slug('abcspa'));
+
+            $shop->image        = $store_logo;
+            $shop->save();
+    
+            return ['flagError' => false, 'logo' => $shop->show_image,  'message' => "Logo updated successfully"];
+        }
+
+        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+    
+  
+        
     }
 
     public function isUnique(Request $request){ 

@@ -26,15 +26,6 @@
           <div class="col-sm-6">
             <h1 class="m-0">{{ $page->title ?? ''}}</h1>
           </div><!-- /.col -->
-            <div class="col-sm-6">
-              <ol class="breadcrumb float-sm-right">
-                <div class="text-right">
-                  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice/edit/'.$billing->id) }}" class="btn btn-sm btn-primary">
-                    <i class="fa fa-backward" aria-hidden="true"></i> Edit Bill
-                  </a>
-                </div>
-              </ol>
-            </div>
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
     </div>
@@ -58,7 +49,7 @@
                 <div class="col-12">
                   <h4>
                     <i class="fas fa-globe"></i> {{ $variants->store->billing->company_name ?? '' }}
-                    <small class="float-right">Date: {{ date('d-m-Y')}}</small>
+                    <small class="float-right">Paid Date: {{ date('d-m-Y')}}</small>
                   </h4>
                 </div>
                 <!-- /.col -->
@@ -114,6 +105,81 @@
               <div class="row">
                 <div class="col-12 table-responsive" id="invoiceTable">
                  
+  @php //exit; @endphp
+                 
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>No</th>
+      <th>Items</th>
+      <th>HSN Code #</th>
+      <th>Tax Details</th>
+      <th>Subtotal</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if($billing_items)
+
+      @foreach($billing_items as $key => $item)
+        <tr id="{{$item['id'] }}">
+          <td>{{$loop->index + 1}}</td>
+          <td>{{ $item->name }} </td>
+          <td>{{ $item->hsn_code }}</td>
+          <td>
+            Amount (Without Tax) - <br>
+            {{ $item->cgst_percentage }} % CGST - <br> 
+            {{$item->sgst_percentage }} % SGST - <br> 
+
+            @php if(count($item->additionalTax) > 0) { @endphp
+              @foreach($item->additionalTax as $key => $additional)
+                  {{ $additional->percentage }} % {{ $additional->tax_name }} - <br> 
+              @endforeach
+            @php } @endphp
+
+            @if($item->is_discount_used == 1)
+              Discount @if($item->discount_type == 'percentage') {{$item->discount_value }} '%' @endif- <br>
+            @endif
+
+            <br><b> Total - <b>
+
+          </td>
+          <td>
+
+          ₹ @php echo number_format($item->tax_amount ,2)  @endphp<br> 
+          ₹ {{ $item->cgst_amount }}<br> 
+          ₹ {{ $item->sgst_amount }}<br> 
+
+          @php if(count($item->additionalTax) > 0) { @endphp
+            @foreach($item->additionalTax as $key => $additional)
+              ₹ @php echo number_format($additional->amount,2)  @endphp<br>
+            @endforeach
+          @php } @endphp
+
+            @if($item->is_discount_used == 1)
+              ₹ @php echo number_format($item->discount_value,2)  @endphp  <br>
+
+              <br><b>₹ @php echo number_format(($item->grand_total - $item->discount_value),2) @endphp</b><br>
+                    @php $grand_total = $grand_total- $item->discount_value @endphp
+
+            @else
+
+            <br><b> ₹ @php echo number_format($item->grand_total,2)  @endphp<br> 
+
+            @endif
+
+          </td>
+        </tr>
+        @php 
+
+        @endphp
+      @endforeach
+
+    @endif
+
+    </tbody>
+  </table>
+
+                
                 </div>
                 <!-- /.col -->
               </div>
@@ -126,20 +192,22 @@
                 <div class="col-6">
                 <div class="alert alert-danger print-error-msg" style="display:none"><ul></ul></div>
                   <p class="lead">Payment Details:</p>
-                  <form id="paymentForm" name="paymentForm" role="form" method="POST" action="" class="ajax-submit">
-                    {{ csrf_field() }}
-                    {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'billing_id'] ); !!}
-                    {!! Form::hidden('grand_total', $billing->amount ?? '' , ['id' => 'grand_total'] ); !!}
-                      <table class="table table-bordered" id="dynamic_field"> 
-                        <tr>  
-                            <td><select id="payment_type" class="form-control" name="payment_type[]"><option value="1">Cash</option><option value="2">Card</option></select></td>
-                            <td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td>  
-                            <td><button type="button" name="add" id="add" class="btn btn-success">Add Row</button></td>  
-                        </tr>  
-                      </table>
-                  </form>
-
-                  
+                    @if($billing->paymentMethods)
+                      <div class="table-responsive">
+                        <table class="table">
+                          @foreach($billing->paymentMethods as $row)
+                          <tr>
+                            <td style="width:50%">{{ $row->paymentype->name }}</td>
+                            <td style="align:right">₹ @php echo number_format($row->amount,2) @endphp</td>
+                          </tr>
+                          @endforeach
+                          <tr>
+                            <th>Grand Total:</th>
+                            <th><h4>₹ @php echo number_format($grand_total,2) @endphp<h4></th>
+                          </tr>
+                        </table>
+                      </div>
+                    @endif
  
                 </div>
                 <!-- /.col -->
@@ -149,7 +217,7 @@
                     <table class="table">
                       <tr>
                         <th style="width:50%">Subtotal:</th>
-                        <td style="text-align:right;"><h3>₹ <span id="grandtTotal"> </span></h3></td>
+                        <td align="right"><h4>₹ <span id="grandtTotal"> @php echo number_format($grand_total,2) @endphp</span></h4></td>
                         <td ></td>
                       </tr>
                     </table>
@@ -160,15 +228,7 @@
               <!-- /.row -->
 
               <!-- this row will not appear when printing -->
-              <div class="row no-print">
-                <div class="col-12">
-                  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice-data/generate-pdf/'.$billing->id) }}" rel="noopener" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
-                  <button class="btn btn-success float-right" id="submitPayment"><i class="far fa-credit-card"></i> Submit
-                    Payment</button>
-                  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice-data/generate-pdf/'.$billing->id) }}" class="btn btn-primary float-right" style="margin-right: 5px;"><i class="fas fa-download"></i> Generate PDF</a>
-                  
-                </div>
-              </div>
+  
             </div>
             <!-- /.invoice -->
           </div><!-- /.col -->
@@ -189,141 +249,139 @@
 <script src="{{ asset('admin/plugins/datetimepicker/js/bootstrap-datetimepicker.js') }}"></script>
 
 <script type="text/javascript">
-var bill_id   = {!! json_encode($variants->bill_id) !!};
-var i=1;  
+// var i=1;  
 
-$('#add').click(function(){  
-  i++;  
-  $('#dynamic_field').append('<tr id="row'+i+'" class="dynamic-added"><td><select id="payment_type" class="form-control" name="payment_type[]"><option value="1">Cash</option><option value="2">Card</option></select></td><td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td><td><button type="button" name="remove" id="'+i+'" class="btn btn-danger btn_remove">X</button></td></tr>');  
-});
+// $('#add').click(function(){  
+//   i++;  
+//   $('#dynamic_field').append('<tr id="row'+i+'" class="dynamic-added"><td><select id="payment_type" class="form-control" name="payment_type[]"><option value="1">Cash</option><option value="2">Card</option></select></td><td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td><td><button type="button" name="remove" id="'+i+'" class="btn btn-danger btn_remove">X</button></td></tr>');  
+// });
 
-$(document).on('click', '.btn_remove', function(){  
-  var button_id = $(this).attr("id");   
-  $('#row'+button_id+'').remove();  
-});
+// $(document).on('click', '.btn_remove', function(){  
+//   var button_id = $(this).attr("id");   
+//   $('#row'+button_id+'').remove();  
+// });
 
 
-$('#submitPayment').click(function(){            
-  var forms = $("#paymentForm");
-  $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/store-payment') }}", type: "POST", processData: false, 
-  data: forms.serialize(), dataType: "html",
-  }).done(function (a) {
-      var data = JSON.parse(a);
-      if(data.flagError == false){
-          showSuccessToaster(data.message);
-          setTimeout(function () { 
-            window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-          }, 2000);
+// $('#submitPayment').click(function(){            
+//   var forms = $("#paymentForm");
+//   $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/store-payment') }}", type: "POST", processData: false, 
+//   data: forms.serialize(), dataType: "html",
+//   }).done(function (a) {
+//       var data = JSON.parse(a);
+//       if(data.flagError == false){
+//           showSuccessToaster(data.message);
+//           setTimeout(function () { 
+//             window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+//           }, 2000);
 
-      }else{
-        showErrorToaster(data.message);
-        printErrorMsg(data.error);
-      }
-  });
-});
-
+//       }else{
+//         showErrorToaster(data.message);
+//         printErrorMsg(data.error);
+//       }
+//   });
+// });
 
 
 
-$(document).ready(function(){
-  getInvoiceDetails();
-});
+
+// $(document).ready(function(){
+//   getInvoiceDetails();
+// });
 
 
 
-function getInvoiceDetails(discount = null){
-  var item_ids = {!! json_encode($variants->item_ids) !!};
-  // var discount = discount;
+// function getInvoiceDetails(discount = null){
+//   // var discount = discount;
 
-  // var discount = {item_id:"1", discount_type: "amount", value:100 };
+//   // var discount = {item_id:"1", discount_type: "amount", value:100 };
 
-  $.ajax({
-      type: 'post',
-      url: "{{ url(ROUTE_PREFIX.'/billings/get-invoice-data') }}",
-      dataType: 'json',data: { bill_id:bill_id, item_ids:item_ids} , delay: 250,
-      success: function(data) {
-        if(data.flagError == false){
-          $('#invoiceTable').html(data.html);
-          $('#grandtTotal').html(data.grand_total.toFixed(2));
-          $('#grand_total').val(data.grand_total);
+//   $.ajax({
+//       type: 'post',
+//       url: "{{ url(ROUTE_PREFIX.'/billings/get-invoice-data') }}",
+//       dataType: 'json',data: { bill_id:bill_id, item_ids:item_ids} , delay: 250,
+//       success: function(data) {
+//         if(data.flagError == false){
+//           $('#invoiceTable').html(data.html);
+//           $('#grandtTotal').html(data.grand_total.toFixed(2));
+//           $('#grand_total').val(data.grand_total);
           
           
-        }else{
-          showErrorToaster(data.message);
-          printErrorMsg(data.error);
-        }
-      }
-    });
-}
+//         }else{
+//           showErrorToaster(data.message);
+//           printErrorMsg(data.error);
+//         }
+//       }
+//     });
+// }
 
-function manageDiscount(e){
-  var id      = $(e).data("id");
-  var action  = $(e).data("action");
-    $('#billing_item_id').val(id);
-    $('#discount_action').val(action);
-    alert(id)
-  if(action == 'add'){
-    $('#discount_value').val('');
-    $("#discount-modal").modal("show");
-  }else{
+// function manageDiscount(e){
+//   var id      = $(e).data("id");
+//   var action  = $(e).data("action");
+//     $('#billing_item_id').val(id);
+//     $('#discount_action').val(action);
+//     alert(id)
+//   if(action == 'add'){
+//     $('#discount_value').val('');
+//     $("#discount-modal").modal("show");
+//   }else{
 
-    Swal.fire({
-      title: 'Are you sure want to remove added tax ?',
-      type: 'warning', showCancelButton: true,   confirmButtonText: 'Yes, remove it!'
-      }).then(function(result) {
-          if (result.value) {
-            var forms       = $("#discountForm");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    getInvoiceDetails();
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
-          }
-      });
+//     Swal.fire({
+//       title: 'Are you sure want to remove added tax ?',
+//       type: 'warning', showCancelButton: true,   confirmButtonText: 'Yes, remove it!'
+//       }).then(function(result) {
+//           if (result.value) {
+//             var forms       = $("#discountForm");
+//             $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, 
+//             data: forms.serialize(), dataType: "html",
+//             }).done(function (a) {
+//                 var data = JSON.parse(a);
+//                 if(data.flagError == false){
+//                     getInvoiceDetails();
+//                 }else{
+//                   showErrorToaster(data.message);
+//                   printErrorMsg(data.error);
+//                 }
+//             });
+//           }
+//       });
 
 
 
       
-  }
+//   }
 
-}
+// }
   
 
-if ($("#discountForm").length > 0) {
-    var validator = $("#discountForm").validate({ 
-        rules: {
-            discount_value: {
-                    required: true,
-            },
-        },
-        messages: { 
-            discount_value: {
-                required: "Please enter discount value",
-            }
-        },
-        submitHandler: function (form) {
-            var forms       = $("#discountForm");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    getInvoiceDetails();
-                    $("#discount-modal").modal("hide");
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
-        }
-    })
-}
+// if ($("#discountForm").length > 0) {
+//     var validator = $("#discountForm").validate({ 
+//         rules: {
+//             discount_value: {
+//                     required: true,
+//             },
+//         },
+//         messages: { 
+//             discount_value: {
+//                 required: "Please enter discount value",
+//             }
+//         },
+//         submitHandler: function (form) {
+//             var forms       = $("#discountForm");
+//             $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, 
+//             data: forms.serialize(), dataType: "html",
+//             }).done(function (a) {
+//                 var data = JSON.parse(a);
+//                 if(data.flagError == false){
+//                     getInvoiceDetails();
+//                     $("#discount-modal").modal("hide");
+//                 }else{
+//                   showErrorToaster(data.message);
+//                   printErrorMsg(data.error);
+//                 }
+//             });
+//         }
+//     })
+// }
 
 // $('.service-type').select2({ placeholder: "Please choose packages", allowClear: false }).on('select2:select select2:unselect', function (e) { 
 //   var type = $(this).data("type");

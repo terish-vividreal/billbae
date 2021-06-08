@@ -3,32 +3,17 @@
 @section('content')
 @push('page-css')
 <!-- daterange picker -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="{{ asset('admin/plugins/datetimepicker/css/bootstrap-datetimepicker.min.css') }}">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
 
 <style>
 
-.btn {
-  svg {
-    vertical-align: inherit;
-    margin-bottom: -0.15em;
-  }
-  rect {
-    fill: currentcolor;
-  }
-}
-
-
-/* .datepicker.dropdown-menu {
-	z-index: 10002 !important;
-} */
-
-/* .dropdown-menu {
+.dropdown-menu {
 	position:relative;
 	width:100%;
 	top: 0px !important;
   left: 0px !important;
-} */
+}
 
 </style>
 
@@ -79,31 +64,26 @@
             <!-- /.card-header -->
             <div class="card-body">
 
-            <div class="alert alert-danger print-error-msg" style="display:none"><ul></ul></div>
+            <div class="alert alert-danger print-error-msg" style="display:none">
+
+            <ul></ul>
+
+            </div>
             
-              <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="post" action="{{ url(ROUTE_PREFIX.'/'.$page->route) }}">
+
+
+              <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="post" action="{{ url(ROUTE_PREFIX.'/billings/invoice/update/'.$billing->id) }}">
                 {{ csrf_field() }}
+                @method('PUT')
                 {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'billing_id'] ); !!}
                 {!! Form::hidden('customer_id', $billing->customer_id ?? '' , ['id' => 'customer_id'] ); !!}
                 <div class=""> 
-
-                    <!-- <div class="form-group ">
-                      <label class="col-form-label font-weight-bolder">Customer DOB</label>
-                      <div class='input-group date' id='customerdob'>
-                          <input type='text' name="dob" id="dob" onkeydown="return false" class="form-control" autocomplete="off" />
-                          <div class="input-group-append">
-                              <span class="input-group-text">
-                                  <i class="fa fa-calendar"></i>
-                              </span>
-                          </div>
-                      </div>
-                    </div> -->
 
                     <div class="form-group">
                         <div class="input-group input-group-lg">
                             <input type="text" name="search_customer" id="search_customer" class="typeahead form-control form-control-lg" placeholder="Enter Customer name" autocomplete="off" value="">
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-lg btn-default" onClick="addNewCustomer()">
+                                <button type="submit" class="btn btn-lg btn-default">
                                     <i class="fa fa-plus"> New Customer</i>
                                 </button>
                             </div>
@@ -125,7 +105,7 @@
                           <div class="form-group">
                             {!! Form::label('customer_name', 'Customer Name*', ['class' => 'col-form-label']) !!}
                             {!! Form::text('customer_name', $billing->name ?? '' , array('placeholder' => 'Customer Name', 'id' => 'customer_name' ,'class' => 'form-control', 'disabled' => 'disabled')) !!}
-                          </div>                           
+                          </div>
 
                           <div class="form-group" style="margin-top: 45px;">                                                 
                               <div class="custom-control custom-checkbox">
@@ -139,30 +119,45 @@
 
                             <div class="form-group billing-address-section">
                                 {!! Form::label('customer_billing_name', 'Billing Name/ Company Name*', ['class' => 'col-form-label']) !!}
-                                {!! Form::text('customer_billing_name', $billing->customer_billing_name ?? '' , array('placeholder' => 'Billing Name', 'id' => 'customer_billing_name' ,'class' => 'form-control')) !!}
+                                {!! Form::text('customer_billing_name', $billing->customer->billingaddress->billing_name ?? '' , array('placeholder' => 'Billing Name', 'id' => 'customer_billing_name' ,'class' => 'form-control')) !!}
                             </div>
 
                             <div class="form-group ">
                                 {!! Form::label('customer_gst', 'GST No. ', ['class' => 'col-form-label text-alert']) !!}
-                                {!! Form::text('customer_gst', $billing->gst ?? '' , array('placeholder' => 'GST No.','class' => 'form-control')) !!}                        
+                                {!! Form::text('customer_gst', $billing->customer->billingaddress->gst ?? '' , array('placeholder' => 'GST No.','class' => 'form-control')) !!}                        
                             </div>
 
                             <div class="form-group" >
                               {!! Form::label('country_id', 'country*', ['class' => '']) !!} <br>
-                              {!! Form::select('country_id', $variants->country , $billing->country_id ?? '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
+
+                              @if(isset($billing->customer->billingaddress->country_id))
+                                {!! Form::select('country_id', $variants->country , $billing->customer->billingaddress->country_id ?? '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
+                              @else
+                                {!! Form::select('country_id', $variants->country , '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
+                              @endif
+                            
                             </div>
 
                             <div class="form-group">
                               {!! Form::label('state_id', 'State*', ['class' => '']) !!} <br>
                               <div id="state_block">
-                                  {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                                @if(isset($billing->customer->billingaddress->state_id))
+                                  {!! Form::select('state_id', $variants->states , $billing->customer->billingaddress->state_id ?? '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                                @else
+                                  {!! Form::select('state_id', [], '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                                @endif                              
                               </div>
                             </div>
 
                             <div class="form-group">
                               {!! Form::label('state_id', 'District*', ['class' => '']) !!} <br>
                               <div id="district_block"> 
-                                {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
+                                @if(isset($billing->customer->billingaddress->district_id))
+                                  {!! Form::select('district_id', $variants->districts , $billing->customer->billingaddress->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
+                                @else
+                                  {!! Form::select('district_id', $variants->districts , $billing->customer->billingaddress->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
+                                @endif                              
+                              
                               </div>
                             </div>
 
@@ -185,12 +180,12 @@
 
                             <div class="form-group ">
                                 {!! Form::label('pincode', 'Pincode ', ['class' => 'col-form-label text-alert']) !!}
-                                {!! Form::text('pincode', $billing->pincode ?? '' , array('placeholder' => 'Pincode','class' => 'form-control check_numeric')) !!}                        
+                                {!! Form::text('pincode', $billing->customer->billingaddress->pincode ?? '' , array('placeholder' => 'Pincode','class' => 'form-control check_numeric')) !!}                        
                             </div>
 
                             <div class="form-group ">
                                 {!! Form::label('address', 'Address. ', ['class' => 'col-form-label text-alert']) !!}
-                                {!! Form::textarea('address', $billing->address ?? '', ['class' => 'form-control','placeholder'=>'Address','rows'=>3]) !!}                       
+                                {!! Form::textarea('address', $billing->customer->billingaddress->address ?? '', ['class' => 'form-control','placeholder'=>'Address','rows'=>3]) !!}                       
                             </div>
 
                           </div>
@@ -285,7 +280,7 @@
                 <div class="row">
                     <div class="col-12">
                     <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success "> Continue </button>
+                    <button class="btn btn-success"> Update and Continue </button>
                     </div>
                 </div>
               </form>              
@@ -300,7 +295,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-@include('billing.new-customer-manage')
+@include('billing.discount-manage')
 @endsection
 @push('page-scripts')
 
@@ -308,31 +303,50 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
+<script src="{{ asset('admin/plugins/datetimepicker/js/bootstrap-datetimepicker.js') }}"></script>
 
-<!-- date-time-picker -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
 <script type="text/javascript">
 
-$('#customerdob').datepicker({
-  format: 'dd-mm-yyyy',
-  todayHighlight: true,
-  autoclose: true
-});
+var bill_id                 = {!! json_encode($billing->id) !!};
+var customer_id             = {!! json_encode($billing->customer->id) !!};
+var service_type            = {!! json_encode($service_type) !!};
+var item_type               = {!! json_encode($item_type) !!};
+var item_ids                = {!! json_encode($variants->item_ids) !!};
+var billing_address_type    = {!! json_encode($billing->address_type) !!};
 
-function addNewCustomer(){
-  customervalidator.resetForm();
-  $("#newCustomerForm .form-control").removeClass("error");
-  $('#newCustomerForm').trigger("reset");
-  $('#newCustomerForm').find("input[type=text], textarea").val("");
-  $("#new-customer-modal").modal("show");
+
+// Load Customer details
+getCustomerDetails(customer_id);
+
+// Customer billing address section
+if(billing_address_type == 'customer'){
+
 }
 
-$('.service-type').select2({ placeholder: "Please select ", allowClear: false }).on('select2:select select2:unselect', function (e) { 
+// set service_type value and list items
+$("#service_type").val(service_type);
+if( service_type == 1 )
+{
+  $("#services_block").show();
+  $("#packages_block").hide();
+  getServices(item_ids);
+}else
+{
+  $("#services_block").hide();
+  $("#packages_block").show();
+  getPackages(item_ids);
+}
+
+
+
+$('.service-type').select2({ placeholder: "Please choose packages", allowClear: false }).on('select2:select select2:unselect', function (e) { 
   var type = $(this).data("type");
   listItemDetails(type) 
   $(this).valid()
 });
+
 
 function listItemDetails(type){
   var data_ids = $('#'+type).val();
@@ -355,6 +369,7 @@ function listItemDetails(type){
 }
 
 
+// Autocomplete customer details
 var path = "{{ route('billing.autocomplete') }}";
 $('input.typeahead').typeahead({
     autoSelect: true,
@@ -370,12 +385,19 @@ $('input.typeahead').typeahead({
     }
 });
 
- 
+
+
+if(billing_address_type == 'company'){
+  $('#billing_address_checkbox').prop('checked', false);
+  $('.billing-address-section').show();
+}
+
+
 $('#billing_address_checkbox').change(function() {
-    if($(this).is(":unchecked")) 
-        $('.billing-address-section').show();
-    else
-        $('.billing-address-section').hide();         
+  if($(this).is(":unchecked")) 
+    $('.billing-address-section').show();
+  else
+    $('.billing-address-section').hide();         
 });
 
 
@@ -386,49 +408,58 @@ function getCustomerDetails(customer_id){
       dataType: 'json', data: { customer_id:customer_id},
       delay: 250,
       success: function(data) {
+        $('#customer_id').val(data.data.id);
         $("#search_customer").val(data.data.name + ' - ' + data.data.mobile);
         $("#customer_name").val(data.data.name);
         $("#customer_mobile").val(data.data.mobile);
         $("#customer_email").val(data.data.email);
-        $("#customer_id").val(customer_id);
         $("#customer_details_div").show();
       }
   });
 }   
 
+
 $(document).on('change', '#service_type', function () {
-  if( this.value == 1 ){
-    
+  if( this.value == 1 )
+  {
     $("#services_block").show();
     $("#packages_block").hide();
-    getServices();
-  }else{
-    
+    getServices(null);
+  }else
+  {
     $("#services_block").hide();
     $("#packages_block").show();
-    getPackages();
+    getPackages(null);
   }
 });
 
-function getServices(){
+function getServices(item_ids = null){
   $.ajax({
       type: 'GET',
       url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}",
       dataType: 'json',
       delay: 250,
       success: function(data) {
+          
           var selectTerms = '<option value="">Please choose services</option>';
           $.each(data.data, function(key, value) {
-            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+            selected = '';
+            if ( (item_ids != null) && (item_ids.length != 0) ){
+                if(jQuery.inArray(value.id, item_ids) !== -1 ){
+                  selected = 'selected';
+                }
+            }
+            selectTerms += '<option value="' + value.id + '" '+selected+'>' + value.name + '</option>';
           });
 
           var select = $('#services');
           select.empty().append(selectTerms);
+          listItemDetails(item_type)
       }
   });
 }
 
-function getPackages(){
+function getPackages(item_ids = null){
   $.ajax({
       type: 'GET',
       url: "{{ url(ROUTE_PREFIX.'/common/get-all-packages') }}",
@@ -437,58 +468,22 @@ function getPackages(){
       success: function(data) {
           var selectTerms = '<option value="">Please choose packages</option>';
           $.each(data.data, function(key, value) {
-            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+            selected = '';
+            if ( (item_ids != null) && (item_ids.length != 0) ){
+                if(jQuery.inArray(value.id, item_ids) !== -1 ){
+                  selected = 'selected';
+                }
+            }
+            selectTerms += '<option value="' + value.id + '" '+selected+'>' + value.name + '</option>';
           });
 
           var select = $('#packages');
           select.empty().append(selectTerms);
+          listItemDetails(item_type)
       }
   });
 }
 
-
-if ($("#newCustomerForm").length > 0) {
-    var customervalidator = $("#newCustomerForm").validate({ 
-        rules: {
-            qnew_customer_name: {
-                    required: true,
-                    maxlength: 200,
-                    lettersonly: true,
-            },
-            qnew_customer_mobile:{
-                  required:true,
-                  minlength:10,
-                  maxlength:10
-            },
-        },
-        messages: { 
-            new_customer_name: {
-                required: "Please enter customer name",
-                maxlength: "Length cannot be more than 200 characters",
-                },
-            new_customer_mobile: {
-                required: "Please enter mobile number",
-                maxlength: "Length cannot be more than 10 numbers",
-                minlength: "Length must be 10 numbers",
-                },
-        },
-        submitHandler: function (form) {
-            var forms = $("#newCustomerForm");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/add-new-customer') }}", type: "POST", processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    getCustomerDetails(data.customer_id)
-                    $("#new-customer-modal").modal("hide");
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
-        }
-    })
-}
 
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 

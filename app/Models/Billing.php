@@ -18,4 +18,9 @@ class Billing extends Model
     {
         return $this->hasMany(BillingItem::class, 'billing_id', 'id');
     }
+
+    public function paymentMethods()
+    {
+        return $this->hasMany(BillAmount::class, 'bill_id', 'id');
+    }
 }

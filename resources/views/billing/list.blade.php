@@ -43,10 +43,13 @@
                                data-url="{{ $page->link.'/lists' }}" data-form="page" data-length="20">
                                <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>Name</th>
-                                    <th>Mobile</th>
-                                    <th width="100px">Action</th>
+                                  <th>No</th>
+                                  <th>Code </th>
+                                  <th>Customer Name</th>
+                                  <th>Payment Status</th>
+                                  <th>Paid on </th>
+                                  <th width="280px">Action</th>
+                                </tr>
                                 </tr>
                             </thead>
                         </table>
@@ -88,8 +91,10 @@
             },
         columns: [
             {data: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'name', name: 'name'},            
-            {data: 'mobile', name: 'name'},               
+            {data: 'billing_code', name: 'name'},            
+            {data: 'customer_id', name: 'name'},            
+            {data: 'payment_status', name: 'name'},                   
+            {data: 'updated_date', name: 'name'},                   
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
     });

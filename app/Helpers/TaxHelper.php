@@ -115,6 +115,7 @@ class TaxHelper
                             'tax_method' => $included, 
                             'hsn_code' => $row->hsn_code, 
                             'amount' => $gross_value,
+                            'total_tax_percentage' => $row->gst_tax,
                             'cgst_percentage' => ($row->gst_tax/2),
                             'sgst_percentage' => ($row->gst_tax/2),
                             'cgst' => number_format($total_cgst_amount,2),

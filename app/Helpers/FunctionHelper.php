@@ -5,8 +5,10 @@ namespace App\Helpers;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Keygen\Keygen;
+use Image;
 
 class FunctionHelper
 {
@@ -49,6 +51,41 @@ class FunctionHelper
             Storage::deleteDirectory($temp);
             Session::forget('temp_url');
         }
+        return $image_name;
+    }
+
+    public static function cropAndStore($image, $path, $slug)
+    {
+        $image_name = '';
+
+        if ($image != '') {
+
+            $input['imagename'] = $slug . '-' . time().'.'.$image->extension();         
+            $destinationPath    = public_path('/thumbnail');
+
+            // Create storage folder
+            $store_path = 'public/' . $path;
+            Storage::makeDirectory($store_path);
+
+
+
+            // $img = Image::make($image->path());
+            // $img->resize(100, 100, function ($constraint) {
+            //     $constraint->aspectRatio();
+            // })->save($destinationPath.'/'.$input['imagename']);
+
+
+                $resize = Image::make($image)->resize(215, 215, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->encode('jpg');
+
+
+                $hash           = md5($resize->__toString());
+                $image_name     = $hash."jpg";
+                $save           = Storage::put($store_path.'/'.$image_name, $resize->__toString());
+                return $image_name;
+        }
+
         return $image_name;
     }
 }

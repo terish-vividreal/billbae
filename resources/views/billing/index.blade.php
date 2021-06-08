@@ -24,9 +24,10 @@
 <table class="table table-bordered">
  <tr>
    <th>No</th>
-   <th>Name</th>
-   <th>Email</th>
-   <th>Roles</th>
+   <th>Code </th>
+   <th>Customer Name</th>
+   <th>Payment Status</th>
+   <th>Amount</th>
    <th width="280px">Action</th>
  </tr>
  @foreach ($data as $key => $user)

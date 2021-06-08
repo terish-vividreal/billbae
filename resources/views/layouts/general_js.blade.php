@@ -38,4 +38,14 @@
     $("body").on("submit", ".ajax-submit", function (e) {
         e.preventDefault();         
     });
+
+    // spinner version without timeout
+    $('.submit-form').on('click', function () {
+        var $this = $(this);
+        $this.data("ohtml", $this.html());
+        var nhtml = "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Loading ...";
+        $this.html(nhtml);
+        $this.attr("disabled", true);
+    });
+
 </script>

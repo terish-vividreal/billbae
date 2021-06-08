@@ -9,6 +9,11 @@ class Shop extends Model
 {
     use HasFactory;
 
+    public function getShowImageAttribute()
+    {
+        return ($this->image != '') ? asset('storage/store/logo/' . $this->image) : asset('admin/img/dummy-logo.jpg');
+    }
+
     public function users()
     {
         return $this->hasMany('App\Models\User');

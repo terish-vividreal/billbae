@@ -107,24 +107,24 @@
 
                     </td>
                     <td>
-                        &#8377; @php echo number_format($item['tax_array']['amount'],2)  @endphp <br>                              
-                        &#8377; {{ $item['tax_array']['cgst'] }} <br>
-                        &#8377; {{ $item['tax_array']['sgst'] }} <br>
+                    <span style="font-family: DejaVu Sans; sans-serif;">&#8377;</span> @php echo number_format($item['tax_array']['amount'],2)  @endphp <br>                              
+                    <span style="font-family: DejaVu Sans; sans-serif;">&#8377;</span> {{ $item['tax_array']['cgst'] }} <br>
+                    <span style="font-family: DejaVu Sans; sans-serif;">&#8377;</span> {{ $item['tax_array']['sgst'] }} <br>
                         
 
                           @php if(count($item['tax_array']['additiona_array']) > 0) { @endphp
                             @foreach($item['tax_array']['additiona_array'] as $key => $additional)
-                              &#8377; @php echo number_format($additional['amount'],2)  @endphp<br>
+                            <span style="font-family: DejaVu Sans; sans-serif;">&#8377;</span> @php echo number_format($additional['amount'],2)  @endphp<br>
                             @endforeach
                           @php } @endphp
                           
                           @if($item['tax_array']['discount_applied'] == 1)
-                              &#8377; @php echo number_format($item['tax_array']['discount_amount'],2) @endphp <br>
+                          <span style="font-family: DejaVu Sans; sans-serif;">&#8377;</span> @php echo number_format($item['tax_array']['discount_amount'],2) @endphp <br>
 
-                              <br><b>&#8377; @php echo number_format(($item['tax_array']['total_amount'] - $item['tax_array']['discount_amount']),2) @endphp</b><br>
+                              <br><b><span style="font-family: DejaVu Sans; sans-serif;">&#8377;</span> @php echo number_format(($item['tax_array']['total_amount'] - $item['tax_array']['discount_amount']),2) @endphp</b><br>
                           
                           @else
-                            <br><b> &#8377; @php echo number_format($item['tax_array']['total_amount'],2)  @endphp </b><br>
+                            <br><b> <span style="font-family: DejaVu Sans; sans-serif;">&#8377;</span> @php echo number_format($item['tax_array']['total_amount'],2)  @endphp </b><br>
                           @endif
                     </td>
                   </tr>
@@ -150,7 +150,7 @@
               <table class="table">
                 <tr>
                   <th style="width:50%">Subtotal:</th>
-                  <td style="text-align:right;"><h3>&#8377; <span id="grandtTotal"> @php echo number_format($grand_total,2) @endphp </span></h3></td>
+                  <td style="text-align:right;"><h3><span style="font-family: DejaVu Sans; sans-serif;">&#8377;</span> <span id="grandtTotal"> @php echo number_format($grand_total,2) @endphp </span></h3></td>
                   <td ></td>
                 </tr>
               </table>

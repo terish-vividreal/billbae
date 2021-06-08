@@ -12,7 +12,8 @@
                 <div class="alert alert-danger alert-messages print-error-msg" style="display:none;"><ul></ul></div>
                 <div class="alert alert-success fade alert-messages print-success-msg" style="display:none;"></div>
                 <form id="discountForm" name="discountForm" role="form" method="POST" action="" class="ajax-submit">
-                    {!! Form::hidden('billing_id', '' , ['id' => 'billing_id'] ); !!}
+                    {!! Form::hidden('billing_id', $billing->id , ['id' => 'billing_id'] ); !!}
+                    {!! Form::hidden('billing_item_id', '' , ['id' => 'billing_item_id'] ); !!}
                     {!! Form::hidden('discount_action', '' , ['id' => 'discount_action'] ); !!}
 
                     {{ csrf_field() }}
