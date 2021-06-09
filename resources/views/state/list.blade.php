@@ -54,7 +54,6 @@
                                     <th>No</th>
                                     <th>Country</th>
                                     <th>State</th>
-                                    <th>Name</th>
                                     <th width="100px">Action</th>
                                 </tr>
                             </thead>

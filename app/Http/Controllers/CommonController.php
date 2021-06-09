@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use Form;
 use Illuminate\Http\Request;
+use App\Helpers\TaxHelper;
+use App\Models\Customer;
+use App\Models\Service;
 use App\Models\Country;
 use App\Models\State;
+use App\Models\District;
+use App\Models\Package;
 use DB;
 use Session;
 use Auth;
@@ -19,6 +24,154 @@ class CommonController extends Controller
         $form     = Form::select('state_id', $states , '', ['class' => 'form-control', 'placeholder' => 'Select a state' , 'id'=>'state_id' ]);
         return response($form);
     }
+
+    public function getDistricts(Request $request)
+    {
+        $districts  = District::where('state_id',$request->state_id)->pluck('name','id');
+        $form       = Form::select('district_id', $districts , '', ['class' => 'form-control', 'placeholder' => 'Select a district' , 'id'=>'district_id' ]);
+        return response($form);
+    }
+
+    public function getShopDistricts(Request $request)
+    {
+        $districts  = DB::table('shop_districts')->where('state_id',$request->state_id)->pluck('name','id');
+        $form       = Form::select('district_id', $districts , '', ['class' => 'form-control', 'placeholder' => 'Select a district' , 'id'=>'district_id' ]);
+        return response($form);
+    }
+    
+    public function getAllServices(Request $request)
+    {
+        // if($request->category_id)
+        // whereIn('service_category_id', $request->category_id)->
+
+        $services   = Service::select('name','id')->get();
+        if($services)
+            return response()->json(['flagError' => false, 'data' => $services]);
+    }
+    
+    public function getAllPackages(Request $request)
+    {
+
+        $packages   = Package::select('name','id')->get();
+        if($packages)
+            return response()->json(['flagError' => false, 'data' => $packages]);
+    }
+    
+    public function getServices(Request $request)
+    {
+        $query   = Service::with('hours')->where('shop_id', SHOP_ID)->orderBy('id', 'desc');
+
+        if($request->data_ids)
+            $query   = $query->whereIn('id', $request->data_ids);
+
+        $services   = $query->get();   
+
+        if($services)
+            return response()->json(['flagError' => false, 'data' => $services, 'totalPrice' => $services->sum('price')]);
+    }
+    
+    public function getPackages(Request $request)
+    {
+        $query   = Package::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
+
+        if($request->data_ids)
+            $query   = $query->whereIn('id', $request->data_ids);
+
+        $ackages   = $query->get();   
+
+        if($ackages)
+            return response()->json(['flagError' => false, 'data' => $ackages, 'totalPrice' => $ackages->sum('price')]);
+    }
+
+    public function getCustomerDetails(Request $request)
+    {
+        $customer   = Customer::where('id', $request->customer_id)->where('shop_id', SHOP_ID)->first();
+        if($customer)
+            return response()->json(['flagError' => false,'data'=>$customer]);
+        else
+          return response()->json(['flagError' => true,'message'=>'Customer not fount']);
+    }
+    
+    public function calculateTax(Request $request)
+    {
+        
+        $type = $request->type;
+        if($type == 'services'){
+            $result = Service::with('additionaltax')->where('shop_id', SHOP_ID)->whereIn('id', $request->data_ids)->orderBy('id', 'desc')->get();
+        }else{
+            $result = Package::with('additionaltax')->where('shop_id', SHOP_ID)->whereIn('id', $request->data_ids)->orderBy('id', 'desc')->get();
+        }
+
+        if($result){
+
+            $html                   = '';
+            $index                  = 1 ;
+            $total_percentage       = 0 ;
+            $total_service_tax      = 0 ;
+            $gross_charge           = 0 ;
+            $gross_value            = 0 ;
+            $grand_total            = 0 ;
+            $additional_tax_array   = array();
+
+            foreach($result as $row){
+
+                // $tax_data       = TaxHelper::simpleTaxCalculation($row);
+
+
+                $total_percentage = $row->gst_tax ;                
+                if(count($row->additionaltax) > 0){
+                    foreach($row->additionaltax as $additional){
+                        $total_percentage = $total_percentage+$additional->percentage;
+                    } 
+                }
+
+                $total_service_tax          = ($row->price/100) * $total_percentage ;        
+                $tax_onepercentage          = $total_service_tax/$total_percentage;
+                $total_gst_amount           = $tax_onepercentage*$row->gst_tax ;
+                $total_cgst_amount          = $tax_onepercentage*($row->gst_tax/2) ;
+                $total_sgst_amount          = $tax_onepercentage*($row->gst_tax/2) ;
+
+                if($row->tax_included == 1) {
+                    $included = 'Tax Included' ;
+                    $gross_charge   = $row->price ;
+                    $gross_value    = $row->price - $total_service_tax ;
+                }else{
+                    $included = 'Tax Excluded' ;
+                    $gross_charge   = $row->price + $total_service_tax  ;
+                    $gross_value    = $row->price ;
+                }
+
+
+                    $html.='<tr data-widget="expandable-table" aria-expanded="true"><td>'.$index.'</td><td>'.$row->name.' - HSN Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
+                    $html.='<tr class="expandable-body"> </tr>';
+                    $html.='<tr class="expandable-body" style="text-align:center;">';
+                    $html.='<td colspan="2">';
+
+
+                    $html.='<div id="cgst"> <span> '.($row->gst_tax/2).' % CGST -  </span> '.number_format($total_cgst_amount,2).' </div>';
+                    $html.='<div id="sgst"> <span> '.($row->gst_tax/2).' % SGST -  </span> '.number_format($total_sgst_amount,2).' </div>';
+                
+                    if(count($row->additionaltax) > 0){
+                        foreach($row->additionaltax as $additional){
+                            $html.='<div id="additionalTax" class="test gst"> <span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span> - '.number_format($tax_onepercentage*$additional->percentage,2). '</div>';
+                        }
+                    }
+
+                    $html.='</td></tr>';
+                    $html.='<tr data-widget="expandable-table" aria-expanded="false"><td colspan="2">';
+                    // $html.='<div style="text-align:left;"></div>';
+                    $html.='<div style="text-align:right;"><b>Total </b><br></td><td><b>'.number_format($gross_charge,2).'</b></div></td></tr>';
+
+                $grand_total = ($grand_total + $gross_charge); ;
+                $index++;
+            }
+            
+            // $table_footer='<tfoot><tr><td></td><td></td><td></td><td></td><td></td><td><b>Total - <h4>₹ '.$total_tax.'</h4></b></td><td><b>Total - <h4>₹ '.number_format($total_amount,2).'</h4></b></td></tr></tfoot>';
+        }
+
+        return response()->json(['flagError' => false, 'grand_total' => $grand_total, 'html' => $html]);
+    }
+    
 
     // public function getSubjects($curriculum_id)
     // {
@@ -55,6 +208,7 @@ class CommonController extends Controller
                    
     //     $form       = Form::select('topic_id', $topics , '', ['class' => 'form-control new-drop-section', 'placeholder' => 'Select Topic' , 'id'=>'topic_id' ]);
     //     return response($form);
+    //     
     // }
 
     // public function getUnits($chapter_id)
@@ -111,19 +265,6 @@ class CommonController extends Controller
 
     //     return response($form);
     // }
-    // public function setSyllabus($unit_id)
-    // {
-    //     $unit   = Unit::join('chapters','chapters.id','units.chapter_id')
-    //                   ->join('topics','chapters.topic_id','topics.id')
-    //                   ->join('curriculum','topics.curriculum_id','curriculum.id')
-    //                  ->select('chapters.id','chapters.topic_id','topics.country_id','topics.curriculum_id','topics.year_id','topics.paper_id','topics.subject_id','units.chapter_id','curriculum.component_type')
-    //                  ->first();
-    //     if($unit)
-    //         return response()->json(['flagError' => false,'data'=>$unit]);
-    //     else
-    //       return response()->json(['flagError' => true,'message'=>'Syllabus not fount']);
-    // }
-
     //  public function getStudents($class_id)
     // {
     //     $students     = Student::where('class_id',$class_id)->pluck('fname','id');

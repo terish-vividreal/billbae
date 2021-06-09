@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+@push('page-css')
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+@endpush
 
 @section('breadcrumb')
   <li class="nav-item">
@@ -35,67 +38,59 @@
         <div class="card card-primary">
           <div class="card-header">
             <h3 class="card-title">{{ $page->title ?? ''}} Form</h3>
-
-
-            
-            <div class="card-tools">
-              <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                <i class="fas fa-minus"></i>
-              </button>
-            </div>
           </div>
             <!-- /.card-header -->
             <div class="card-body">
-
-            <div class="alert alert-danger print-error-msg" style="display:none">
-
-            <ul></ul>
-
-            </div>
-
-
+              <div class="alert alert-danger print-error-msg" style="display:none"><ul></ul></div>
               <form id="userForm" name="userForm" role="form" method="" action="" class="ajax-submit">
                 {{ csrf_field() }}
                 {!! Form::hidden('user_id', $user->id ?? '' , ['id' => 'user_id'] ); !!}
-                <div class="col-md-8 ">  
-
-                    <div class="form-group">
-                        {!! Form::label('shop_name', 'Store Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('shop_name', $you->shop->name ?? '' , array('placeholder' => 'Store Name','class' => 'form-control', 'disabled')) !!}                        
-                        <div class="error" id="email_error"></div>
-                    </div>             
-                    <div class="form-group">
-                        {!! Form::label('name', 'User Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('name', $user->name ?? '', array('placeholder' => 'Admin Name','class' => 'form-control')) !!}
-                        <div class="error" id="name_error"></div>
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label('email', 'Email*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('email', $user->email ?? '' , array('placeholder' => 'Email','class' => 'form-control')) !!}
-                        <div class="error" id="email_error"></div>
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label('mobile', 'Mobile Number*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('mobile', $user->mobile ?? '', array('placeholder' => 'Mobile','class' => 'form-control check_numeric')) !!}
-                        <div class="error" id="name_error"></div>
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label('password', 'Password*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                          {!! Form::label('shop_name', 'Store Name*', ['class' => 'col-form-label text-alert']) !!}
+                          {!! Form::text('shop_name', $you->shop->name ?? '' , array('placeholder' => 'Store Name','class' => 'form-control', 'disabled')) !!}                        
+                          <div class="error" id="email_error"></div>
+                      </div>  
+                      <div class="form-group">
+                          {!! Form::label('email', 'Email*', ['class' => 'col-form-label text-alert']) !!}
+                          {!! Form::text('email', $user->email ?? '' , array('placeholder' => 'Email','class' => 'form-control')) !!}
+                          <div class="error" id="email_error"></div>
+                      </div>
+                      <div class="form-group">
+                        {!! Form::label('password', 'Password*', ['class' => 'col-form-label text-alert']) !!}
                         {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control')) !!}
                         <div class="error" id="password_error"></div>
                     </div>
                     <div class="form-group">
-                        {!! Form::label('confirm-password', 'Confirm Password*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
+                        {!! Form::label('confirm-password', 'Confirm Password*', ['class' => 'col-form-label text-alert']) !!}
                         {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
                         <div class="error" id="password_error"></div>
                     </div>
-                    <div class="form-group">
-                        {!! Form::label('roles', 'Role*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::select('roles[]', $roles, $userRole ??  [] , array('class' => 'form-control','multiple')) !!}
+                      
+
+
+                    </div>  
+                    <div class="col-md-6">                      
+                      <div class="form-group">
+                        {!! Form::label('name', 'User Name*', ['class' => 'col-form-label text-alert']) !!}
+                        {!! Form::text('name', $user->name ?? '', array('placeholder' => 'Admin Name','class' => 'form-control')) !!}
+                        <div class="error" id="name_error"></div>
+                      </div>
+                      <div class="form-group">
+                          {!! Form::label('mobile', 'Mobile Number*', ['class' => 'col-form-label text-alert']) !!}
+                          {!! Form::text('mobile', $user->mobile ?? '', array('placeholder' => 'Mobile','class' => 'form-control check_numeric')) !!}
+                          <div class="error" id="name_error"></div>
+                      </div>
+                      <div class="form-group">
+                        {!! Form::label('roles', 'Role*', ['class' => 'col-form-label text-alert']) !!}
+                        {!! Form::select('roles[]', $roles, $userRole ?? [] , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'form-control col-sm-12']) !!}
                         <div class="error" id="roles_error"></div>
-                    </div>                  
-                    
-                </div>
+                    </div>
+
+                    </div>            
+                  </div>
+                
                 <div class="row">
                     <div class="col-12">
                     <a href="#" class="btn btn-secondary">Cancel</a>
@@ -119,7 +114,9 @@
 
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <script type="text/javascript">
+$('#additional_tax').select2({ placeholder: "Please choose role", allowClear: false });
 
 if ($("#userForm").length > 0) {
     var validator = $("#userForm").validate({ 

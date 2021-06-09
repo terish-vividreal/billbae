@@ -16,11 +16,11 @@
 <script src="{{ asset('admin/plugins/toastr/toastr.min.js') }}"></script>
 
 <!-- OPTIONAL SCRIPTS -->
-<script src="{{ asset('admin/plugins/chart.js/Chart.min.js') }}"></script>
+
 <!-- AdminLTE for demo purposes -->
 <script src="{{ asset('admin/js/demo.js') }}"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="{{ asset('admin/js/pages/dashboard3.js') }}"></script>
+
 
 <!-- DataTables  & Plugins -->
 <script src="{{ asset('admin/plugins/datatables/jquery.dataTables.min.js') }}"></script>
@@ -38,4 +38,14 @@
     $("body").on("submit", ".ajax-submit", function (e) {
         e.preventDefault();         
     });
+
+    // spinner version without timeout
+    $('.submit-form').on('click', function () {
+        var $this = $(this);
+        $this.data("ohtml", $this.html());
+        var nhtml = "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Loading ...";
+        $this.html(nhtml);
+        $this.attr("disabled", true);
+    });
+
 </script>

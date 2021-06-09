@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\BusinessTypeController as AdminBusinessType;
 
 use App\Http\Controllers\StoreController as Store;
 use App\Http\Controllers\ServiceCategoryController as ServiceCategory;
+use App\Http\Controllers\AdditionaltaxController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
@@ -19,6 +20,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\PackageController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\BillingController;
+
 
 
 /*
@@ -49,7 +55,9 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $store_link = 'store';
     Route::get($store_link . '/profile', [Store::class, 'index']);
     Route::post($store_link . '/unique', [Store::class, 'isUnique']);
+    Route::post($store_link . '/update-logo', [Store::class, 'updateLogo']);
     Route::put($store_link . '/update/{id}', [Store::class, 'update']);
+    Route::put($store_link . '/update/billing/{id}', [Store::class, 'storeBilling']);
 
     // User Routes
     Route::resource('users', UserController::class)->except(['show']);
@@ -57,40 +65,83 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post( 'users/unique', [UserController::class, 'isUnique']);
 
     // Business type Routes
-    $business_type = 'business-types';
-    Route::resource($business_type, AdminBusinessType::class)->except(['show']);
-    Route::get($business_type . '/lists', [AdminBusinessType::class, 'lists']);
+    // $business_type = 'business-types';
+    // Route::resource($business_type, AdminBusinessType::class)->except(['show']);
+    // Route::get($business_type . '/lists', [AdminBusinessType::class, 'lists']);
 
     Route::get('change-password', [ProfileController::class, 'index']);
     Route::post('change-password', [ProfileController::class, 'update']);
 
     // Roles Routes
-    Route::resource('roles', RoleController::class);
+    // Route::resource('roles', RoleController::class);
 
     // Serice category Routes
     $service_category = 'service-category';
-    Route::resource($service_category, ServiceCategory::class)->except(['show']);;
+    Route::resource($service_category, ServiceCategory::class)->except(['show']);
     Route::get($service_category . '/lists', [ServiceCategory::class, 'lists']);
 
     // Country Routes
     $country = 'country';
-    Route::resource($country, CountryController::class)->except(['show']);;
+    Route::resource($country, CountryController::class)->except(['show']);
     Route::get($country . '/lists', [CountryController::class, 'lists']);
 
     // State Routes
     $state = 'states';
-    Route::resource($state, StateController::class)->except(['show']);;
+    Route::resource($state, StateController::class)->except(['show']);
     Route::get($state . '/lists', [StateController::class, 'lists']);
 
     // District Routes
     $district = 'districts';
-    Route::resource($district, DistrictController::class)->except(['show']);;
+    Route::resource($district, DistrictController::class)->except(['show']);
     Route::get($district . '/lists', [DistrictController::class, 'lists']);
 
+    // Services Routes
+    $services = 'services';
+    Route::resource($services, ServiceController::class)->except(['show']);
+    Route::get($services . '/lists', [ServiceController::class, 'lists']);
+    Route::get($services . '/select-list', [ServiceController::class, 'lists']);
+
+    // Packages Routes
+    $packages = 'packages';
+    Route::resource($packages, PackageController::class)->except(['show']);
+    Route::get($packages . '/lists', [PackageController::class, 'lists']);
+
+    // Customer Routes
+    $customer = 'customers';
+    Route::resource($customer, CustomerController::class)->except(['show']);
+    Route::get($customer . '/lists', [CustomerController::class, 'lists']);
+    Route::get($customer . 'autocomplete', [CustomerController::class, 'autocomplete'])->name('billing.autocomplete');
+
+    // Additionaltax Routes
+    $additionaltax = 'additional-tax';
+    Route::resource($additionaltax, AdditionaltaxController::class)->except(['show']);
+    Route::get($additionaltax . '/lists', [AdditionaltaxController::class, 'lists']);
+
+    // Billing Routes 
+    $billing = 'billings';
+    Route::resource($billing, BillingController::class)->except(['show']);
+    Route::get($billing . '/lists', [BillingController::class, 'lists']);
+    Route::get($billing . '/show/{id}', [BillingController::class, 'show']);
+    Route::post($billing . '/manage-discount', [BillingController::class, 'manageDiscount']);
+    Route::post($billing . '/get-invoice-data', [BillingController::class, 'getInvoiceData']);
+    Route::get($billing . '/invoice/{id}', [BillingController::class, 'invoice']);
+    Route::put($billing . '/invoice/update/{id}', [BillingController::class, 'updateInvoice']);
+    Route::get($billing . '/invoice/edit/{id}', [BillingController::class, 'editInvoice']);
+    Route::get($billing .'/invoice-data/generate-pdf/{id}', [BillingController::class, 'generatePDF']);
+    Route::post($billing . '/add-new-customer', [BillingController::class, 'storeCustomer']);
+    Route::post($billing . '/store-payment', [BillingController::class, 'storePayment']);
 
     $link = 'common';
     Route::get($link . '/get-states', [CommonController::class, 'getStates']);    
-
+    Route::get($link . '/get-districts', [CommonController::class, 'getDistricts']);    
+    Route::get($link . '/get-all-services', [CommonController::class, 'getAllServices']);    
+    Route::post($link . '/get-services', [CommonController::class, 'getServices']);    
+    Route::post($link . '/get-packages', [CommonController::class, 'getPackages']);    
+    Route::get($link . '/get-all-packages', [CommonController::class, 'getAllPackages']);    
+    Route::get($link . '/get-districts', [CommonController::class, 'getDistricts']);    
+    Route::post($link . '/get-shop-districts', [CommonController::class, 'getShopDistricts']);    
+    Route::post($link . '/get-customer-details', [CommonController::class, 'getCustomerDetails']);   
+    Route::post($link . '/get-taxdetails', [CommonController::class, 'calculateTax']);   
 });
 
 // Super Admin Routes

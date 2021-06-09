@@ -171,7 +171,7 @@ class StateController extends Controller
                 $data->country_id   = $request->country_id;
                 $data->shop_id      = SHOP_ID;
                 $data->save();
-                return ['flagError' => false, 'message' => $this->title. " Updated successfully"];
+                return ['flagError' => false, 'message' => $this->title. " updated successfully"];
             }else{
                 return ['flagError' => true, 'message' => "Data not found, Try again!"];
             }

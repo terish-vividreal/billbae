@@ -132,3 +132,7 @@
   </div>
   <!-- /.content-wrapper -->
 @endsection
+@push('page-scripts')
+<script src="{{ asset('admin/plugins/chart.js/Chart.min.js') }}"></script>
+<script src="{{ asset('admin/js/pages/dashboard3.js') }}"></script>
+@endpush

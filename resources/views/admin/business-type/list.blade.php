@@ -87,7 +87,7 @@
   var role = '{{ROUTE_PREFIX}}';
   var link    = '{{ $page->link }}';
   var entity  = '{{ strtolower(str_replace(' ', '', $page->title)) }}';
-  alert(role)
+
   $(function () {
     table = $('.data-tables').DataTable({
         bSearchable: true,

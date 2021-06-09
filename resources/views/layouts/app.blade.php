@@ -4,7 +4,7 @@
     <base href="{{ url('/') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}"/>
+    <!-- <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }}"/> -->
     <title>{{ config('app.name') }}
     @if(!Request::is('/'))
      | @yield('seo_title', '')
