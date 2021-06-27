@@ -24,6 +24,9 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\CashbookController;
+
 
 
 
@@ -110,7 +113,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $customer = 'customers';
     Route::resource($customer, CustomerController::class)->except(['show']);
     Route::get($customer . '/lists', [CustomerController::class, 'lists']);
-    Route::get($customer . 'autocomplete', [CustomerController::class, 'autocomplete'])->name('billing.autocomplete');
+    Route::get($customer . '/autocomplete', [CustomerController::class, 'autocomplete'])->name('billing.autocomplete');
 
     // Additionaltax Routes
     $additionaltax = 'additional-tax';
@@ -130,6 +133,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($billing .'/invoice-data/generate-pdf/{id}', [BillingController::class, 'generatePDF']);
     Route::post($billing . '/add-new-customer', [BillingController::class, 'storeCustomer']);
     Route::post($billing . '/store-payment', [BillingController::class, 'storePayment']);
+    Route::post($billing . '/cancel/{billing}', [BillingController::class, 'cancelBill']);
 
     $link = 'common';
     Route::get($link . '/get-states', [CommonController::class, 'getStates']);    
@@ -141,7 +145,20 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($link . '/get-districts', [CommonController::class, 'getDistricts']);    
     Route::post($link . '/get-shop-districts', [CommonController::class, 'getShopDistricts']);    
     Route::post($link . '/get-customer-details', [CommonController::class, 'getCustomerDetails']);   
-    Route::post($link . '/get-taxdetails', [CommonController::class, 'calculateTax']);   
+    Route::post($link . '/get-taxdetails', [CommonController::class, 'calculateTax']);  
+    
+    // Report Routes 
+    $reports = 'reports';
+    Route::get($reports . '/sales-report', [ReportController::class, 'salesReport']);
+    Route::post($reports . '/get-sales-chart-data', [ReportController::class, 'getSalesReportChartData']);
+    Route::get($reports . '/get-sales-table-data', [ReportController::class, 'getSalesReportTableData']);
+
+    // Cashbook Routes 
+    $cashbook = 'cashbook';
+    Route::resource($cashbook, CashbookController::class)->except(['show']);
+    Route::get($cashbook . '/lists', [CashbookController::class, 'lists']);
+    Route::post($cashbook . '/withdraw', [CashbookController::class, 'withdraw']);
+    
 });
 
 // Super Admin Routes

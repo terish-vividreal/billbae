@@ -269,8 +269,9 @@ class ServiceController extends Controller
      * @param  \App\Models\State  $state
      * @return \Illuminate\Http\Response
      */
-    public function destroy(State $state)
+    public function destroy(Service $service)
     {
-        //
+        $error = array('message' => 'Cant delete! Used in another modules.');
+        return ['flagError' => true, 'error'=> $error];
     }
 }

@@ -132,15 +132,13 @@
                     {!! Form::hidden('grand_total', $billing->amount ?? '' , ['id' => 'grand_total'] ); !!}
                       <table class="table table-bordered" id="dynamic_field"> 
                         <tr>  
-                            <td><select id="payment_type" class="form-control" name="payment_type[]"><option value="1">Cash</option><option value="2">Card</option></select></td>
+                            <td><select id="payment_type" class="form-control" name="payment_type[]">
+                            <option value="1">Cash</option><option value="2">Card</option><option value="3">G pay</option></select></td>
                             <td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td>  
                             <td><button type="button" name="add" id="add" class="btn btn-success">Add Row</button></td>  
                         </tr>  
                       </table>
                   </form>
-
-                  
- 
                 </div>
                 <!-- /.col -->
                 <div class="col-6">
@@ -163,8 +161,8 @@
               <div class="row no-print">
                 <div class="col-12">
                   <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice-data/generate-pdf/'.$billing->id) }}" rel="noopener" class="btn btn-default"><i class="fas fa-print"></i> Print</a>
-                  <button class="btn btn-success float-right" id="submitPayment"><i class="far fa-credit-card"></i> Submit
-                    Payment</button>
+                  <button class="btn btn-success float-right" id="submitPayment">
+                  <i class="far fa-credit-card"></i> Submit Payment</button>
                   <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice-data/generate-pdf/'.$billing->id) }}" class="btn btn-primary float-right" style="margin-right: 5px;"><i class="fas fa-download"></i> Generate PDF</a>
                   
                 </div>
@@ -194,7 +192,7 @@ var i=1;
 
 $('#add').click(function(){  
   i++;  
-  $('#dynamic_field').append('<tr id="row'+i+'" class="dynamic-added"><td><select id="payment_type" class="form-control" name="payment_type[]"><option value="1">Cash</option><option value="2">Card</option></select></td><td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td><td><button type="button" name="remove" id="'+i+'" class="btn btn-danger btn_remove">X</button></td></tr>');  
+  $('#dynamic_field').append('<tr id="row'+i+'" class="dynamic-added"><td><select id="payment_type" class="form-control" name="payment_type[]"><option value="1">Cash</option><option value="2">Card</option><option value="3">G pay</option></select></td><td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td><td><button type="button" name="remove" id="'+i+'" class="btn btn-danger btn_remove">X</button></td></tr>');  
 });
 
 $(document).on('click', '.btn_remove', function(){  
@@ -203,7 +201,9 @@ $(document).on('click', '.btn_remove', function(){
 });
 
 
-$('#submitPayment').click(function(){            
+$('#submitPayment').click(function(){ 
+    $('#submitPayment').html('Please Wait...');
+    $("#submitPayment"). attr("disabled", true);           
   var forms = $("#paymentForm");
   $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/store-payment') }}", type: "POST", processData: false, 
   data: forms.serialize(), dataType: "html",
@@ -216,6 +216,8 @@ $('#submitPayment').click(function(){
           }, 2000);
 
       }else{
+        $('#submitPayment').html('<i class="far fa-credit-card"></i> Submit Payment');
+        $("#submitPayment"). attr("disabled", false);
         showErrorToaster(data.message);
         printErrorMsg(data.error);
       }
@@ -261,7 +263,6 @@ function manageDiscount(e){
   var action  = $(e).data("action");
     $('#billing_item_id').val(id);
     $('#discount_action').val(action);
-    alert(id)
   if(action == 'add'){
     $('#discount_value').val('');
     $("#discount-modal").modal("show");

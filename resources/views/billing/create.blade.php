@@ -3,32 +3,23 @@
 @section('content')
 @push('page-css')
 <!-- daterange picker -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw==" crossorigin="anonymous" />
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
 
+
+
+
+
 <style>
-
-.btn {
-  svg {
-    vertical-align: inherit;
-    margin-bottom: -0.15em;
+  .btn {
+    svg {
+      vertical-align: inherit;
+      margin-bottom: -0.15em;
+    }
+    rect {
+      fill: currentcolor;
+    }
   }
-  rect {
-    fill: currentcolor;
-  }
-}
-
-
-/* .datepicker.dropdown-menu {
-	z-index: 10002 !important;
-} */
-
-/* .dropdown-menu {
-	position:relative;
-	width:100%;
-	top: 0px !important;
-  left: 0px !important;
-} */
 
 </style>
 
@@ -111,8 +102,8 @@
                     </div>
                     
                 </div>
-                <!--  -->
-                <div class="container-fluid" id="customer_details_div" style="display:none;">
+                <!-- style="display:none;" -->
+                <div class="container-fluid" id="customer_details_div" style="display:none">
                   <!-- SELECT2 EXAMPLE -->
                   <div class="card card-default">
                     <div class="card-header">
@@ -125,7 +116,26 @@
                           <div class="form-group">
                             {!! Form::label('customer_name', 'Customer Name*', ['class' => 'col-form-label']) !!}
                             {!! Form::text('customer_name', $billing->name ?? '' , array('placeholder' => 'Customer Name', 'id' => 'customer_name' ,'class' => 'form-control', 'disabled' => 'disabled')) !!}
-                          </div>                           
+                          </div> 
+                          <div class="form-group">
+                            {!! Form::label('billed_date', 'Bill Date', ['class' => 'col-form-label']) !!}
+                            <input type="text" name="billed_date" id="billed_date" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                          </div> 
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                {!! Form::label('checkin_time', 'Checkin time', ['class' => 'col-form-label']) !!}
+                                <input type="text" name="checkin_time" id="checkin_time" class="form-control" onkeydown="return false" autocomplete="off" value="17-06-2021 09:15 AM" />
+                              </div> 
+                            </div> 
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                {!! Form::label('checkout_time', 'Checkout time', ['class' => 'col-form-label']) !!}
+                                <input type="text" name="checkout_time" id="checkout_time" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                              </div> 
+                            </div> 
+                          </div> 
+                                                    
 
                           <div class="form-group" style="margin-top: 45px;">                                                 
                               <div class="custom-control custom-checkbox">
@@ -170,6 +180,7 @@
                           
 
                         </div>
+
                         <div class="col-md-6">
                           <div class="form-group">
                             {!! Form::label('customer_mobile', 'Customer Mobile*', ['class' => 'col-form-label']) !!}
@@ -197,6 +208,7 @@
 
                         </div>
                       </div>
+
                     </div>
                     <!-- /.card-body -->
                   </div>
@@ -285,7 +297,7 @@
                 <div class="row">
                     <div class="col-12">
                     <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success "> Continue </button>
+                    <button class="btn btn-success" id="continue"> Continue </button>
                     </div>
                 </div>
               </form>              
@@ -310,15 +322,80 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 
 <!-- date-time-picker -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+
 
 <script type="text/javascript">
 
-$('#customerdob').datepicker({
-  format: 'dd-mm-yyyy',
-  todayHighlight: true,
-  autoclose: true
+$(function() {
+  $('input[name="billed_date"]').daterangepicker({
+    singleDatePicker: true,
+    autoApply: true,
+    locale: {
+        format: 'DD-MM-YYYY'
+      },
+    }, function(ev, picker) {
+      console.log(picker.format('DD-MM-YYYY'));
+  });
+  
+  $('input[name="checkin_time"]').daterangepicker({
+    singleDatePicker: true,
+    startDate: moment().startOf('hour'),
+    endDate: moment().startOf('hour').add(32, 'hour'),
+    timePickerIncrement: 5,
+    autoApply: true,
+    timePicker: true,
+      locale: {
+        format: 'DD-MM-YYYY hh:mm A'
+      },
+      }, function(start, end, label) {
+        console.log(end.format('DD-MM-YYYY hh:mm A'));
+      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+  });
+
+  $('input[name="checkout_time"]').daterangepicker({
+    singleDatePicker: true,
+    startDate: moment().startOf('hour'),
+    endDate: moment().startOf('hour').add(32, 'hour'),
+    timePickerIncrement: 5,
+    autoApply: true,
+    timePicker: true,
+    locale: {
+        format: 'DD-MM-YYYY hh:mm A'
+      },
+      }, function(start, end, label) {
+        console.log(end.format('DD-MM-YYYY hh:mm A'));
+      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+  });
+  
+
+
+  $('input[name="dob"]').daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    minYear: 1901,
+    drops: "up",
+    maxYear: parseInt(moment().format('YYYY'),10),
+    autoApply: true,
+
+    }, function(ev, picker) {
+      console.log(picker.format('DD-MM-YYYY'));
+
+  });
+  
+  // $('input[name="dob"]').data('daterangepicker').setStartDate('15-06-2021');
+
+
 });
+
+
+// $('#customerdob').datepicker({
+//   format: 'dd-mm-yyyy',
+//   todayHighlight: true,
+//   autoclose: true
+// });
 
 function addNewCustomer(){
   customervalidator.resetForm();
@@ -473,6 +550,7 @@ if ($("#newCustomerForm").length > 0) {
                 },
         },
         submitHandler: function (form) {
+            
             var forms = $("#newCustomerForm");
             $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/add-new-customer') }}", type: "POST", processData: false, 
             data: forms.serialize(), dataType: "html",
@@ -531,6 +609,8 @@ if ($("#{{$page->entity}}Form").length > 0) {
             //       printErrorMsg(data.error);
             //     }
             // });
+            $('#continue').html('Please Wait...');
+            $("#continue"). attr("disabled", true);
             form.submit();
         },
         errorPlacement: function(error, element) {

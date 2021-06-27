@@ -134,6 +134,23 @@
             <li class="nav-item"> <a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="nav-link {{ Request::is('service-category') ? 'active' : '' }}"><i class="nav-icon fa fa-forward"></i><p>Service category</p></a></li>
             @endcan
 
+            <li class="nav-item {{ Request::is(ROUTE_PREFIX.'reports*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is(ROUTE_PREFIX.'reports*') ? 'active' : '' }}"><i class="nav-icon fas fa-file"></i><p>Reports <i class="fas fa-angle-left right"></i></p></a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/reports/sales-report') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'reports/sales-report*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>Sales Report </p></a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item {{ Request::is(ROUTE_PREFIX.'cashbook*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is(ROUTE_PREFIX.'cashbook*') ? 'active' : '' }}"><i class="nav-icon fa fa-book"></i><p>Cash book <i class="fas fa-angle-left right"></i></p></a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/cashbook') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'cashbook*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List </p></a>
+                    </li>
+                </ul>
+            </li>
+
             @can('manage-location')
               <li class="nav-item @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) menu-open @endif">
                   <a href="#" class="nav-link @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) active @endif"><i class="nav-icon fa fa-globe" ></i><p>Location <i class="fas fa-angle-left right"></i></p></a>
@@ -149,9 +166,7 @@
                       </li>
                   </ul>                  
               </li>
-            @endcan
-
-            
+            @endcan           
 
             @can('role-list')
               <li class="nav-item {{ Request::is(ROUTE_PREFIX.'/roles*') ? 'menu-open' : '' }}">

@@ -3,7 +3,7 @@
 @section('content')
 @push('page-css')
 <!-- daterange picker -->
-<link rel="stylesheet" href="{{ asset('admin/plugins/datetimepicker/css/bootstrap-datetimepicker.min.css') }}">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
 
 <style>
@@ -106,6 +106,38 @@
                             {!! Form::label('customer_name', 'Customer Name*', ['class' => 'col-form-label']) !!}
                             {!! Form::text('customer_name', $billing->name ?? '' , array('placeholder' => 'Customer Name', 'id' => 'customer_name' ,'class' => 'form-control', 'disabled' => 'disabled')) !!}
                           </div>
+                          <div class="form-group">
+                            {!! Form::label('billed_date', 'Bill Date', ['class' => 'col-form-label']) !!}
+                            @php                             
+                              $billed_date = ($billing->billed_date != '') ? date('d-m-Y', strtotime($billing->billed_date)) : Carbon\Carbon::now()->format('d-m-Y');
+                            @endphp
+                            <input type="text" name="billed_date" id="billed_date" class="form-control" onkeydown="return false" autocomplete="off" value="{{$billed_date}}"/>
+                          </div> 
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                @php                             
+                                    $checkin_time = ($billing->checkin_time != '') ? $billing->checkin_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
+                                @endphp
+                                {!! Form::label('checkin_time', 'Checkin time', ['class' => 'col-form-label']) !!}                                
+                               <input type="text" name="checkin_time" id="checkin_time" class="form-control" onkeydown="return false" autocomplete="off" value="{{$checkin_time}}" />
+                              
+                              
+                              
+                              
+                              </div> 
+                            </div> 
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                @php                             
+                                    $checkout_time = ($billing->checkout_time != '') ? $billing->checkout_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
+                                @endphp
+
+                                {!! Form::label('checkout_time', 'Checkout time', ['class' => 'col-form-label']) !!}
+                                <input type="text" name="checkout_time" id="checkout_time" class="form-control" onkeydown="return false" autocomplete="off" value="{{$checkout_time}}" />
+                              </div> 
+                            </div> 
+                          </div> 
 
                           <div class="form-group" style="margin-top: 45px;">                                                 
                               <div class="custom-control custom-checkbox">
@@ -304,10 +336,78 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
-<script src="{{ asset('admin/plugins/datetimepicker/js/bootstrap-datetimepicker.js') }}"></script>
+
+
+<!-- date-time-picker -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
 
 <script type="text/javascript">
+
+
+$(function() {
+  $('input[name="billed_date"]').daterangepicker({
+    singleDatePicker: true,
+    autoApply: true,
+    locale: {
+        format: 'DD-MM-YYYY'
+      },
+    }, function(ev, picker) {
+      console.log(picker.format('DD-MM-YYYY'));
+  });
+  
+  $('input[name="checkin_time"]').daterangepicker({
+    singleDatePicker: true,
+    // startDate: moment().startOf('hour'),
+    // endDate: moment().startOf('hour').add(32, 'hour'),
+    timePickerIncrement: 5,
+    autoApply: true,
+    timePicker: true,
+      locale: {
+        format: 'DD-MM-YYYY hh:mm A'
+      },
+      }, function(start, end, label) {
+        console.log(end.format('DD-MM-YYYY hh:mm A'));
+      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+  });
+
+  $('input[name="checkout_time"]').daterangepicker({
+    singleDatePicker: true,
+    // startDate: moment().startOf('hour'),
+    // endDate: moment().startOf('hour').add(32, 'hour'),
+    timePickerIncrement: 5,
+    autoApply: true,
+    timePicker: true,
+    locale: {
+        format: 'DD-MM-YYYY hh:mm A'
+      },
+      }, function(start, end, label) {
+        console.log(end.format('DD-MM-YYYY hh:mm A'));
+      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+  });
+  
+
+
+  $('input[name="dob"]').daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    minYear: 1901,
+    drops: "up",
+    maxYear: parseInt(moment().format('YYYY'),10),
+    autoApply: true,
+
+    }, function(ev, picker) {
+      console.log(picker.format('DD-MM-YYYY'));
+
+  });
+  
+  // $('input[name="dob"]').data('daterangepicker').setStartDate('15-06-2021');
+
+
+});
+
+
 
 var bill_id                 = {!! json_encode($billing->id) !!};
 var customer_id             = {!! json_encode($billing->customer->id) !!};

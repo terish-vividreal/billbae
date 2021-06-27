@@ -156,14 +156,22 @@
           @php } @endphp
 
             @if($item->is_discount_used == 1)
-              ₹ @php echo number_format($item->discount_value,2)  @endphp  <br>
 
-              <br><b>₹ @php echo number_format(($item->grand_total - $item->discount_value),2) @endphp</b><br>
-                    @php $grand_total = $grand_total- $item->discount_value @endphp
+                @if($item->discount_type == 'percentage') 
+                  @php $discount_value = $item->grand_total * (($item->discount_value/100)) @endphp
+                @else 
+                  @php $discount_value = $item->discount_value; @endphp                
+                @endif
+
+                          ₹ @php echo number_format($discount_value,2)  @endphp  <br>
+
+                          <br><b>₹ @php echo number_format(($item->grand_total - $discount_value),2) @endphp</b><br>
+
+                          @php $grand_total = $grand_total- $discount_value @endphp
 
             @else
 
-            <br><b> ₹ @php echo number_format($item->grand_total,2)  @endphp<br> 
+                <br><b> ₹ @php echo number_format($item->grand_total,2)  @endphp<br> 
 
             @endif
 
