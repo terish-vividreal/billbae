@@ -96,7 +96,6 @@ class UserController extends Controller
      */
     public function create()
     {
-        
         $page               = collect();
         $you                = Auth::user();
         $page->title        = $this->title;
@@ -173,6 +172,7 @@ class UserController extends Controller
     {
         $user               = User::find($id);
         $page               = collect();
+        $you                = Auth::user();
         $page->title        = $this->title;
         $page->link         = url($this->link);
         $page->form_url = url($this->link . '/' . $user->id);
@@ -181,7 +181,7 @@ class UserController extends Controller
         $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
         $userRole = $user->roles->pluck('name','name')->all();
     
-        return view($this->viewPath . '.create',compact('user','roles','userRole', 'page'));
+        return view($this->viewPath . '.create',compact('user','roles', 'you' ,'userRole', 'page'));
     }
     
     /**

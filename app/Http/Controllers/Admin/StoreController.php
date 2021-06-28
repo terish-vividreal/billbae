@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\ShopBilling;
 use Spatie\Permission\Models\Role;
 use App\Models\BusinessType;
 use DB;
@@ -145,8 +146,8 @@ class StoreController extends Controller
                 $shop->name             = $input['shop_name'];
                 $shop->business_type_id = $input['business_type'];
                 $shop->user_id          = $user->id;
-                $shop->save();
-    
+                $shop->save();  
+
                 $user->shop_id = $shop->id;
             
             }else{
@@ -154,6 +155,10 @@ class StoreController extends Controller
             }
             
             $user->save();
+
+            $billing = new ShopBilling();
+            $billing->shop_id = $shop->id;
+            $billing->save();
 
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }

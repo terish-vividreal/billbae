@@ -62,7 +62,11 @@
                 <!-- /.d-flex -->
 
                 <div class="position-relative mb-4">
+
+                
                   <canvas id="visitors-chart" height="200"></canvas>
+
+
                 </div>
 
                 <div class="d-flex flex-row justify-content-end">
@@ -132,3 +136,7 @@
   </div>
   <!-- /.content-wrapper -->
 @endsection
+@push('page-scripts')
+<script src="{{ asset('admin/plugins/chart.js/Chart.min.js') }}"></script>
+<script src="{{ asset('admin/js/pages/dashboard3.js') }}"></script>
+@endpush
