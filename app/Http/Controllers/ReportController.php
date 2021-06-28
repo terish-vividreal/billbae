@@ -128,8 +128,12 @@ class ReportController extends Controller
                                     'id', 'payment_status', 'billing_code', 'billed_date',
                                     'checkin_time', 'checkout_time',
                                     'customer_id')
-                                ->where('shop_id', SHOP_ID)->groupBy(DB::raw("day(created_at)"));
+                                ->where('shop_id', SHOP_ID)
+                                // ->groupBy(DB::raw("day(created_at)"));
+                                ->groupBy('billings.id');
        
+                                // echo "<pre>"; print_r($detail); exit;
+
 
         if( ($from != '') && ($to != '') ){
             $detail->Where(function ($query) use ($from, $to) {
