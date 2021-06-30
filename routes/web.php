@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\HomeController as AdminHome;
 use App\Http\Controllers\Admin\StoreController as AdminStore;
 use App\Http\Controllers\Admin\BusinessTypeController as AdminBusinessType;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 
 
@@ -46,6 +47,11 @@ Route::get('/', function () {
 });
 
 Auth::routes();
+
+Route::get('forget-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');
+Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('forget.password.post'); 
+Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('reset.password.get');
+Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
 
 
 // User Routes
@@ -158,6 +164,18 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($cashbook, CashbookController::class)->except(['show']);
     Route::get($cashbook . '/lists', [CashbookController::class, 'lists']);
     Route::post($cashbook . '/withdraw', [CashbookController::class, 'withdraw']);
+
+    Route::get('send-mail', function () {
+   
+        $details = [
+            'title' => 'Mail from Billbae',
+            'body' => 'This is for testing email using smtp'
+        ];
+       
+        \Mail::to('ajesh.ks@vividreal.com')->send(new \App\Mail\MyTestMail($details));
+       
+        dd("Email is Sent...");
+    });
     
 });
 
