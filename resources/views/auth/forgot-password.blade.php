@@ -36,7 +36,7 @@
             <div class="row">
 
             <div class="col-8">
-            <button type="submit" class="btn btn-primary" id="submit-btn">Send Password Reset Link </button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">Send Password Reset Link Changed New</button>
             </div>
             </div>
         </form>
