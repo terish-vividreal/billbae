@@ -25,7 +25,7 @@ class ForgotPasswordController extends Controller
     |
     */
 
-    use SendsPasswordResetEmails;
+    // use SendsPasswordResetEmails;
 
     /**
        * Write code on Method
@@ -34,8 +34,7 @@ class ForgotPasswordController extends Controller
        */
       public function showForgetPasswordForm()
       {
-        //   echo "here"; exit;
-         return view('auth.forgetpassword');
+        return view('auth.forgot-password');
       }
   
       /**
@@ -92,7 +91,6 @@ class ForgotPasswordController extends Controller
                                 'token' => $request->token
                               ])
                               ->first();
-  
           if(!$updatePassword){
               return back()->withInput()->with('error', 'Invalid token!');
           }
