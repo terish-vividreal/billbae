@@ -26,6 +26,15 @@
           <div class="col-sm-6">
             <h1 class="m-0">{{ $page->title ?? ''}}</h1>
           </div><!-- /.col -->
+            <div class="col-sm-6">
+              <ol class="breadcrumb float-sm-right">
+                <div class="text-right">
+                  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn btn-sm btn-primary">
+                    <i class="fa fa-list" aria-hidden="true"></i> List  {{ $page->title ?? ''}}
+                  </a>
+                </div>
+              </ol>
+            </div>
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
     </div>
@@ -117,7 +126,7 @@
                     <div class="row">
                       <div class="col-12">
                         <a href="#" class="btn btn-secondary">Cancel</a>
-                        <button class="btn btn-success ajax-submit">Submit</button>
+                        <button class="btn btn-success ajax-submit-btn" id="submit">Submit</button>
                       </div>
                     </div>
                 </form>
@@ -150,6 +159,22 @@ $('#additional_tax').select2({ placeholder: "Please choose services", allowClear
 
 //   getServices();
 // });
+
+// $('.ajax-submit-btn').on('click', function () {
+//         // var $this = $(this);
+//         // $this.html('Please Wait...');
+//         // $this.attr("disabled", true);
+
+//         $('#submit').html('Please Wait...');
+//           $("#submit"). attr("disabled", true);
+
+// });
+
+getInactivate = (element) => {
+  console.log(element)
+  $("#submit").html('Please Wait...');
+    $("#submit"). attr("disabled", true);
+}
 
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
@@ -184,25 +209,29 @@ if ($("#{{$page->entity}}Form").length > 0) {
             }
         },
         submitHandler: function (form) {
+
+          getInactivate(submit)
+
+
           id = $("#service_id").val();
           service_id   = "" == id ? "" : "/" + id;
           formMethod  = "" == id ? "POST" : "PUT";
           var forms = $("#{{$page->entity}}Form");
-          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + service_id, type: formMethod, processData: false, 
-          data: forms.serialize(), dataType: "html",
-          }).done(function (a) {
-            var data = JSON.parse(a);
-            if(data.flagError == false){
-                showSuccessToaster(data.message);          
-                setTimeout(function () {
-                  window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";
-                  }, 2000);
+          // $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + service_id, type: formMethod, processData: false, 
+          // data: forms.serialize(), dataType: "html",
+          // }).done(function (a) {
+          //   var data = JSON.parse(a);
+          //   if(data.flagError == false){
+          //       showSuccessToaster(data.message);          
+          //       setTimeout(function () {
+          //         window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";
+          //         }, 2000);
 
-            }else{
-              showErrorToaster(data.message);
-              printErrorMsg(data.error);
-            }
-          });
+          //   }else{
+          //     showErrorToaster(data.message);
+          //     printErrorMsg(data.error);
+          //   }
+          // });
       }
     })
   }

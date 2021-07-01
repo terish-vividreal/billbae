@@ -16,7 +16,7 @@
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
+    <!-- Conte/nt Header (Page header) -->
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
@@ -46,6 +46,7 @@
                                   <th>No</th>
                                   <th>Code </th>
                                   <th>Customer Name</th>
+                                  <th>Status</th>
                                   <th>Payment Status</th>
                                   <th>Paid on </th>
                                   <th width="280px">Action</th>
@@ -72,6 +73,7 @@
   <!-- /.content-wrapper -->
 @endsection
 @push('page-scripts')
+<script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script>
 
   var link = '{{ $page->link }}';
@@ -93,7 +95,8 @@
             {data: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'billing_code', name: 'name'},            
             {data: 'customer_id', name: 'name'},            
-            {data: 'payment_status', name: 'name'},                   
+            {data: 'bill_status', name: 'name'},    
+            {data: 'payment_status', name: 'name'},            
             {data: 'updated_date', name: 'name'},                   
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
@@ -105,39 +108,69 @@
     value.name = $('input[type=search]').val();
   }
 
+  function cancelBill(b) {
 
+      Swal.fire({
+        title: 'Are you sure want to cancel ?',
+        text: "You won't be able to revert this!",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, cancel it!'
+      }).then(function(result) {
+          if (result.value) {
+              $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/cancel/') }}/" + b, type: "post", dataType: "html"})
+                  .done(function (a) {
+                      var data = JSON.parse(a);
+                      if(data.flagError == false){
+                        showSuccessToaster(data.message);          
+                        setTimeout(function () {
+                          table.ajax.reload();
+                          }, 2000);
 
-  function softDelete(b) {
-           
-           Swal.fire({
-             title: 'Are you sure want to delete ?',
-             text: "You won't be able to revert this!",
-             type: 'warning',
-             showCancelButton: true,
-             confirmButtonColor: '#3085d6',
-             cancelButtonColor: '#d33',
-             confirmButtonText: 'Yes, delete it!'
-             }).then(function(result) {
-                 if (result.value) {
-                     $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-                         .done(function (a) {
-                             var data = JSON.parse(a);
-                             if(data.flagError == false){
-                               showSuccessToaster(data.message);          
-                               setTimeout(function () {
-                                 table.ajax.reload();
-                                 }, 2000);
-       
-                           }else{
-                             showErrorToaster(data.message);
-                             printErrorMsg(data.error);
-                           }   
-                         }).fail(function () {
-                                 showErrorToaster("Somthing went wrong!");
-                         });
-                 }
-             });
-         }
+                    }else{
+                      showErrorToaster(data.message);
+                      printErrorMsg(data.error);
+                    }   
+                  }).fail(function () {
+                          showErrorToaster("Somthing went wrong!");
+                  });
+          }
+      });
+  }
+
+  function deleteBill(b) {
+
+      Swal.fire({
+        title: 'Are you sure want to delete ?',
+        text: "You won't be able to revert this!",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then(function(result) {
+          if (result.value) {
+              $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+                  .done(function (a) {
+                      var data = JSON.parse(a);
+                      if(data.flagError == false){
+                        showSuccessToaster(data.message);          
+                        setTimeout(function () {
+                          table.ajax.reload();
+                          }, 2000);
+
+                    }else{
+                      showErrorToaster(data.message);
+                      printErrorMsg(data.error);
+                    }   
+                  }).fail(function () {
+                          showErrorToaster("Somthing went wrong!");
+                  });
+          }
+      });
+  }
 
 
 

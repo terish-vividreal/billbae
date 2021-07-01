@@ -217,9 +217,9 @@ class CustomerController extends Controller
     public function autocomplete(Request $request)
     {
         $data = Customer::select("customers.id", DB::raw("CONCAT(customers.name,' - ',customers.mobile) as name"))
-                ->where("name","LIKE","%{$request->search}%")
-                ->orWhere("mobile","LIKE","%{$request->search}%")
                 ->where('shop_id', SHOP_ID)
+                ->where("name","LIKE","%{$request->search}%")
+                ->orWhere("mobile","LIKE","%{$request->search}%")                
                 ->get();
    
         return response()->json($data);

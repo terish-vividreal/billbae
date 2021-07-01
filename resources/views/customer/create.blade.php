@@ -37,6 +37,15 @@
           <div class="col-sm-6">
             <h1 class="m-0">{{ $page->title ?? ''}}</h1>
           </div><!-- /.col -->
+            <div class="col-sm-6">
+              <ol class="breadcrumb float-sm-right">
+                <div class="text-right">
+                  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn btn-sm btn-primary">
+                    <i class="fa fa-list" aria-hidden="true"></i> List  {{ $page->title ?? ''}}
+                  </a>
+                </div>
+              </ol>
+            </div>
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
     </div>

@@ -27,6 +27,8 @@ use App\Helpers\FunctionHelper;
 use App\Models\Customer;
 use App\Models\Billing;
 use PDF;
+use Event;
+use App\Events\SalesCompleted;
 
 class BillingController extends Controller
 {
@@ -43,12 +45,13 @@ class BillingController extends Controller
      */
     public function index()
     {
+                
         $page                   = collect();
         $variants               = collect();
         $page->title            = $this->title;
         $page->link             = url($this->link);
         $page->route            = $this->route;
-        $page->entity           = $this->entity;       
+        $page->entity           = $this->entity;      
         return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 
@@ -93,16 +96,20 @@ class BillingController extends Controller
             ->addColumn('action', function($detail){
                 $action = '';
 
-                if($detail->payment_status == 0)
-                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/' . $detail->id ) . '"" class="btn btn-info btn-sm btn-icon mr-2" title="Update Payment"> <i class="icon-1x fas fa-inr"></i> Update Payment</a>';
+                if($detail->payment_status == 0){
+                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/' . $detail->id ) . '"" class="btn btn-info btn-sm btn-icon mr-2" title="Update Payment"> <i class="fa fa-inr" aria-hidden="true"></i> Update Payment</a>';
+                }
+                    
                 
                 if($detail->status == 0){
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/edit/' . $detail->id) . '"" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i> Edit details</a>';
+                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="deleteBill(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
                 }else{
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/show/' . $detail->id) . '"" class="btn btn-secondary btn-sm btn-icon mr-2" title="View details"> <i class="icon-1x fas fa-eye"></i> View details</a>';
+                    $action .= ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="cancelBill(this.id)" class="btn btn-warning btn-sm btn-icon mr-2" title="Cancel"> <i class="fa fa-ban"></i> Cancel </a>';
                 }   
 
-                // $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                
                 return $action;
 
             })
@@ -129,6 +136,18 @@ class BillingController extends Controller
                 if($detail->payment_status == 1){
                     return $updated_date;
                 }
+                
+            })
+            ->addColumn('bill_status', function($detail){
+                $status = '';
+                if($detail->status == 0){
+                    $status = '<span class="badge badge-warning">Open</span>';
+                }else if($detail->status == 1){  
+                    $status = '<span class="badge badge-success">Completed</span>';                                
+                }else{
+                    $status = '<span class="badge badge-danger">Cancelled</span>';             
+                }
+                return $status;
                 
             })
             ->removeColumn('id')
@@ -178,11 +197,19 @@ class BillingController extends Controller
      */
     public function store(Request $request)
     {
-        // echo "<pre>"; print_r($request->all()); exit ;
+        // echo "<pre>"; print_r($request->all());  exit ;
+
+        
+
+
         $billing                    = new Billing();
         $billing->shop_id           = SHOP_ID;
         $billing->customer_id       = $request->customer_id;
+        $billing->customer_type     = Customer::isExisting($request->customer_id);        
         $billing->amount            = $request->grand_total;
+        $billing->billed_date       = date('Y-m-d', strtotime($request->billed_date));
+        $billing->checkin_time      = $request->checkin_time;
+        $billing->checkout_time     = $request->checkout_time;
         $billing->payment_status    = 0 ;
         $billing->billing_code      = FunctionHelper::generateCode(8, 'BB', SHOP_ID.Auth::user()->id);
         $billing->address_type      = ($request->billing_address_checkbox == 0) ? 'company' : 'customer' ;
@@ -248,6 +275,7 @@ class BillingController extends Controller
                 
                 $billing                    = Billing::findOrFail($request->billing_id);
                 $billing->payment_status    = 1;
+                $billing->amount            = $request->grand_total;
                 $billing->status            = 1;
                 $billing->save();
                 
@@ -315,7 +343,8 @@ class BillingController extends Controller
                         }
                     }
                 }
-
+                
+                Event::dispatch(new SalesCompleted($request->billing_id));
                 return ['flagError' => false, 'message' => "Payment submitted successfully !"];
                 
             }
@@ -331,11 +360,19 @@ class BillingController extends Controller
 
     public function updateInvoice(Request $request, $id)
     {
-        $billing                    = Billing::findOrFail($id);
+        // echo "<pre>"; print_r($request->all());  
+        
+        // echo date('Y-m-d', strtotime($request->billed_date));
+        
+        // exit ;
 
-         
+
+        $billing                    = Billing::findOrFail($id);
         $billing->customer_id       = $request->customer_id;
         $billing->amount            = $request->grand_total;
+        $billing->billed_date       = date('Y-m-d', strtotime($request->billed_date));
+        $billing->checkin_time      = $request->checkin_time;
+        $billing->checkout_time     = $request->checkout_time;
 
         $address                    = BillingAddres::where('bill_id', $id)->where('customer_id', $request->customer_id)->first();
         
@@ -783,13 +820,10 @@ class BillingController extends Controller
                 } 
                 
             
-                // echo "<pre>"; print_r($billing->paymentMethods); 
-                
-                // exit;
-                return view($this->viewPath . '.invoice-view', compact('page', 'billing', 'billing_items', 'grand_total', 'item_type' ,'variants'));
-        
-            }
+                // echo "<pre>"; print_r($billing_items); exit;
 
+                return view($this->viewPath . '.invoice-view', compact('page', 'billing', 'billing_items', 'grand_total', 'item_type' ,'variants'));
+            }
             abort(404);
         }
         abort(404); 
@@ -826,6 +860,26 @@ class BillingController extends Controller
      */
     public function destroy(Billing $billing)
     {
-        //
+        if($billing->address_type== "company")
+            $billing_addres = BillingAddres::where('bill_id', $billing->id)->delete() ;
+
+        $billing_items      = BillingItem::where('billing_id', $billing->id)->delete() ;
+        $billing            = $billing->delete();  
+
+        return ['flagError' => false, 'message' => $this->title. " details deleted successfully"];
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Billing  $billing
+     * @return \Illuminate\Http\Response
+     */
+    public function cancelBill($billing)
+    {
+        $billing                = Billing::findOrFail($billing);
+        $billing->status = 2;
+        $billing->save();
+        return ['flagError' => false, 'message' => " Bill cancelled successfully"];
     }
 }

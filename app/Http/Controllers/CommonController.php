@@ -44,7 +44,7 @@ class CommonController extends Controller
         // if($request->category_id)
         // whereIn('service_category_id', $request->category_id)->
 
-        $services   = Service::select('name','id')->get();
+        $services   = Service::select('name','id')->where('shop_id', SHOP_ID)->get();
         if($services)
             return response()->json(['flagError' => false, 'data' => $services]);
     }
@@ -52,7 +52,7 @@ class CommonController extends Controller
     public function getAllPackages(Request $request)
     {
 
-        $packages   = Package::select('name','id')->get();
+        $packages   = Package::select('name','id')->where('shop_id', SHOP_ID)->get();
         if($packages)
             return response()->json(['flagError' => false, 'data' => $packages]);
     }
