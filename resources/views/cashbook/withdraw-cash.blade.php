@@ -26,7 +26,7 @@
             </div>
             <div class="modal-footer">					
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button class="btn btn-success ajax-submit" id="withdraw_submit">Submit</button>
+                <button class="btn btn-success ajax-submit" id="withdraw-submit-btn">Submit</button>
             </div>
           </form>
         </div>

@@ -43,7 +43,7 @@
                 </div>
             </div>
             </div>
-            @if ($errors->has('password'))
+                                    @if ($errors->has('password'))
                                       <span class="text-danger">{{ $errors->first('password') }}</span>
                                   @endif
 

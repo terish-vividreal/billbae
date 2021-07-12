@@ -4,7 +4,10 @@
     <base href="{{ url('/') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <!-- <link rel="shortcut icon" href="{{ asset('admin/images/favicon.png') }}"/> -->
+    <link rel="shortcut icon" href="{{ asset('admin/img/favicon.ico') }}"/>
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon"> -->
+
     <title>{{ config('app.name') }}
     @if(!Request::is('/'))
      | @yield('seo_title', '')

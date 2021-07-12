@@ -77,10 +77,10 @@ class CommonController extends Controller
         if($request->data_ids)
             $query   = $query->whereIn('id', $request->data_ids);
 
-        $ackages   = $query->get();   
+        $packages   = $query->get();   
 
-        if($ackages)
-            return response()->json(['flagError' => false, 'data' => $ackages, 'totalPrice' => $ackages->sum('price')]);
+        if($packages)
+            return response()->json(['flagError' => false, 'data' => $packages, 'totalPrice' => $packages->sum('price')]);
     }
 
     public function getCustomerDetails(Request $request)

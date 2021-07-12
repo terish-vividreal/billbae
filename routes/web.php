@@ -8,7 +8,6 @@ use App\Http\Controllers\Admin\BusinessTypeController as AdminBusinessType;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 
 
-use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\StoreController as Store;
 use App\Http\Controllers\ServiceCategoryController as ServiceCategory;
 use App\Http\Controllers\AdditionaltaxController;
@@ -91,7 +90,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // Roles Routes
     // Route::resource('roles', RoleController::class);
 
-    // Serice category Routes
+    // Service category Routes
     $service_category = 'service-category';
     Route::resource($service_category, ServiceCategory::class)->except(['show']);
     Route::get($service_category . '/lists', [ServiceCategory::class, 'lists']);

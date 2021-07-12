@@ -108,12 +108,14 @@ class CashbookController extends Controller
                 $cash_from          = '';
 
                 if($detail->transaction == 1){
-                    $transaction_type = '<span class="badge badge-success">Credit</span>';
+                    $transaction_type = '<span class="badge badge-success"> Credit</span>';
 
                         if($detail->cash_from == 0){
-                            $cash_from = '<span class="badge badge-info">Cash Deposit</span>';
+                            $cash_from .= '<span class="badge badge-info"> Cash Added</span>';
                         }else{  
-                            $cash_from = '<span class="badge badge-primary">From Sales</span>';                                
+                            $cash_from .= '<span class="badge badge-primary"> Sales</span>'; 
+
+                            $cash_from .= '&nbsp; <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '"><span class="badge badge-secondary"> BB1009</span></a>';                              
                         }
                     
 
@@ -275,7 +277,7 @@ class CashbookController extends Controller
                 $obj->transaction_amount    = $request->amount;
                 $obj->balance_amount        = ($current_balance - $request->amount);
                 $obj->transaction           = 2;
-                $obj->message               = $request->details;
+                $obj->message               = $request->withdraw_details;
                 $obj->done_by               = Auth::user()->id;            
                 $obj->save();
 

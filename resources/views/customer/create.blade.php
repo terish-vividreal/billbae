@@ -141,7 +141,7 @@
                 <div class="row">
                     <div class="col-12">
                     <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success ajax-submit">Submit</button>
+                    <button class="btn btn-success ajax-submit" id="submit-btn">Submit</button>
                     </div>
                 </div>
               </form>              
@@ -203,6 +203,8 @@ if ($("#{{$page->entity}}Form").length > 0) {
                 },
         },
         submitHandler: function (form) {
+            $('#submit-btn').html('Please Wait...');
+            $("#submit-btn"). attr("disabled", true);
             id = $("#customer_id").val();
             customer_id      = "" == id ? "" : "/" + id;
             formMethod  = "" == id ? "POST" : "PUT";
@@ -210,6 +212,8 @@ if ($("#{{$page->entity}}Form").length > 0) {
             $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
             data: forms.serialize(), dataType: "html",
             }).done(function (a) {
+              $('#submit-btn').html('Submit');
+              $("#submit-btn"). attr("disabled", false);
                 var data = JSON.parse(a);
                 if(data.flagError == false){
                     showSuccessToaster(data.message);

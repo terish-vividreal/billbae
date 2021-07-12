@@ -81,7 +81,7 @@ class FunctionHelper
 
 
                 $hash           = md5($resize->__toString());
-                $image_name     = $hash."jpg";
+                $image_name     = $hash.".jpg";
                 $save           = Storage::put($store_path.'/'.$image_name, $resize->__toString());
                 return $image_name;
         }

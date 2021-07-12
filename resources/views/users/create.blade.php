@@ -94,7 +94,7 @@
                 <div class="row">
                     <div class="col-12">
                     <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success ajax-submit">Submit</button>
+                    <button class="btn btn-success ajax-submit" id="submit-btn">Submit</button>
                     </div>
                 </div>
               </form>              
@@ -155,7 +155,7 @@ if ($("#userForm").length > 0) {
                 email: "Please enter a valid email address.",
                 remote: "Email already existing"
             },
-            passworda: {
+            password: {
                 required: "Please enter password",
                 minlength: "Passwords must be at least 6 characters in length",
                 maxlength: "Length cannot be more than 10 characters",
@@ -165,13 +165,17 @@ if ($("#userForm").length > 0) {
             },
         },
         submitHandler: function (form) {
+          $('#submit-btn').html('Please Wait...');
+          $("#submit-btn"). attr("disabled", true);
             id = $("#user_id").val();
             userId      = "" == id ? "" : "/" + id;
             formMethod  = "" == id ? "POST" : "PUT";
             var forms   = $("#userForm");
             $.ajax({ url: "{{ url(ROUTE_PREFIX.'/users') }}" + userId, type: formMethod, processData: false, 
             data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
+            }).done(function (a) {              
+                $('#submit-btn').html('Submit');
+                $("#submit-btn"). attr("disabled", false); 
                 var data = JSON.parse(a);
                 if(data.flagError == false){
                     showSuccessToaster(data.message);
