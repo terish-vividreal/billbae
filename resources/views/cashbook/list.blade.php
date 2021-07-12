@@ -19,7 +19,7 @@
     <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
   </li>
   <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link">Users</a>
+    <a href="{{ url(ROUTE_PREFIX.'/cashbook') }}" class="nav-link">Cashbook</a>
   </li>
 @endsection
 
@@ -82,6 +82,35 @@
               </div>
             </div>
           </div>
+
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3 id="petty_cash">{{ number_format($variants->petty_cash, 2) ?? ''}}</h3>
+
+                <p>Petty Cash - Closing balance on </p>
+              </div>
+              <div class="icon">
+                <i class="far fa-money-bill-alt"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3 id="petty_cash">{{ number_format($variants->petty_cash, 2) ?? ''}}</h3>
+
+                <p>Petty Cash - Closing balance on </p>
+              </div>
+              <div class="icon">
+                <i class="far fa-money-bill-alt"></i>
+              </div>
+            </div>
+          </div>
+
         </div>
       
       <div class="row">
@@ -365,15 +394,15 @@ $('.select2').select2({ placeholder: "Please select ", allowClear: false }).on('
         },
         submitHandler: function (form) {
           var forms = $("#withdrawCashForm");
-          $('#submit').html('Please Wait...');
-          $("#submit"). attr("disabled", true);
+          $('#withdraw-submit-btn').html('Please Wait...');
+          $("#withdraw-submit-btn"). attr("disabled", true);
           $.ajax({
               url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/withdraw') }}",
               type: "POST",
               data: forms.serialize(),
               success: function( response ) {
-                $('#withdraw_submit').html('Submit');
-                $("#withdraw_submit"). attr("disabled", false);
+                $('#withdraw-submit-btn').html('Submit');
+                $("#withdraw-submit-btn"). attr("disabled", false);
                   if(response.flagError == false){
                       showSuccessToaster(response.message);                
                       

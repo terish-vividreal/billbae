@@ -36,7 +36,7 @@
             <div class="row">
 
             <div class="col-8">
-            <button type="submit" class="btn btn-primary" id="submit-btn">Send Password Reset Link Changed New</button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">Send Password Reset Link </button>
             </div>
             </div>
         </form>
@@ -50,11 +50,11 @@
             <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
             </a>
         </div> -->
-
-        <!-- <p class="mb-1">
-            <a href="forgot-password.html">I forgot my password</a>
+            <br>
+         <p class="mb-1">
+            <a href="{{url('login')}}">Login</a>
         </p>
-        <p class="mb-0">
+       <!-- <p class="mb-0">
             <a href="register.html" class="text-center">Register a new membership</a>
         </p> -->
         </div>

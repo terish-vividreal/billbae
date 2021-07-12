@@ -184,8 +184,8 @@ class BillingController extends Controller
             return response()->json(['flagError' => false]);
         }
             
-        $errors = array('Errors Occured. Please check !');
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=> $errors];
+        $errors = array('Errors Occurred. Please check !');
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=> $errors];
         
     }
 
@@ -330,15 +330,15 @@ class BillingController extends Controller
                         if( count($tax_array['additiona_array']) > 0){
                             foreach($tax_array['additiona_array'] as $additional){
 
-                                $additiaonl_obj                 = new BillingItemAdditionalTax();
-                                $additiaonl_obj->bill_id        = $billing->id;
-                                $additiaonl_obj->bill_item_id   = $row->billingItemsId;
-                                $additiaonl_obj->item_id        = $row->id;
-                                $additiaonl_obj->tax_name       = $additional['name'];
-                                $additiaonl_obj->percentage     = $additional['percentage'];
-                                $additiaonl_obj->percentage     = $additional['percentage'];
-                                $additiaonl_obj->amount         = $additional['amount'];
-                                $additiaonl_obj->save();
+                                $additional_obj                 = new BillingItemAdditionalTax();
+                                $additional_obj->bill_id        = $billing->id;
+                                $additional_obj->bill_item_id   = $row->billingItemsId;
+                                $additional_obj->item_id        = $row->id;
+                                $additional_obj->tax_name       = $additional['name'];
+                                $additional_obj->percentage     = $additional['percentage'];
+                                $additional_obj->percentage     = $additional['percentage'];
+                                $additional_obj->amount         = $additional['amount'];
+                                $additional_obj->save();
                             }
                         }
                     }
