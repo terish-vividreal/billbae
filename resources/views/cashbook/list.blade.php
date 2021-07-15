@@ -83,8 +83,7 @@
             </div>
           </div>
 
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
+          <!-- <div class="col-lg-3 col-6">
             <div class="small-box bg-info">
               <div class="inner">
                 <h3 id="petty_cash">{{ number_format($variants->petty_cash, 2) ?? ''}}</h3>
@@ -98,7 +97,6 @@
           </div>
 
           <div class="col-lg-3 col-6">
-            <!-- small box -->
             <div class="small-box bg-info">
               <div class="inner">
                 <h3 id="petty_cash">{{ number_format($variants->petty_cash, 2) ?? ''}}</h3>
@@ -109,7 +107,7 @@
                 <i class="far fa-money-bill-alt"></i>
               </div>
             </div>
-          </div>
+          </div> -->
 
         </div>
       

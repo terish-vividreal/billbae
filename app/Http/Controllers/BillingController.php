@@ -339,6 +339,7 @@ class BillingController extends Controller
                                 $additional_obj->percentage     = $additional['percentage'];
                                 $additional_obj->amount         = $additional['amount'];
                                 $additional_obj->save();
+
                             }
                         }
                     }
@@ -350,22 +351,19 @@ class BillingController extends Controller
             }
             else
             {
-                $errors = array('Sub total and the entered amounts are not equel');
+                $errors = array('Sub total and the entered amounts are not equal');
                 return ['flagError' => true, 'message' => "Total amount is not matching !",  'error'=> $errors];
             }
         }
     
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     public function updateInvoice(Request $request, $id)
     {
         // echo "<pre>"; print_r($request->all());  
-        
         // echo date('Y-m-d', strtotime($request->billed_date));
-        
         // exit ;
-
 
         $billing                    = Billing::findOrFail($id);
         $billing->customer_id       = $request->customer_id;
@@ -415,7 +413,6 @@ class BillingController extends Controller
                 $address->delete();
                 $billing->address_type      = 'customer' ;
             }
-
         }
 
         $billing->save();
@@ -451,6 +448,7 @@ class BillingController extends Controller
         ]);
 
         if ($validator->passes()) {
+
             $data                   = new Customer();
             $data->shop_id          = SHOP_ID;
             $data->name             = $request->new_customer_name;
@@ -462,7 +460,8 @@ class BillingController extends Controller
 
             return ['flagError' => false, 'customer_id' => $data->id,  'message' => $this->title. " added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=> $validator->errors()->all()];
     }
     /**
      * Display the specified resource.
@@ -482,14 +481,16 @@ class BillingController extends Controller
         $billing                    = Billing::findOrFail($id);
         $variants->payment_types    = PaymentType::pluck('name', 'id'); 
         $variants->store            = Shop::with('billing')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
-                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
-                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
-                                    ->find($user->shop_id); 
+                                        ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
+                                        ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
+                                        ->find($user->shop_id); 
            
         if($billing->status === 0){
             if($billing->items){
+
                 $billing_items_array        = $billing->items->toArray();
                 $item_type                  = $billing_items_array[0]['item_type'];
+
                 // $variants->billing_items    = array();
 
                 foreach($billing_items_array as $row)
