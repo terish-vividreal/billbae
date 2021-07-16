@@ -70,7 +70,9 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $store_link = 'store';
     Route::get($store_link . '/profile', [Store::class, 'index']);
     Route::post($store_link . '/unique', [Store::class, 'isUnique']);
-    Route::post($store_link . '/update-logo', [Store::class, 'updateLogo']);
+    // Route::post($store_link . '/update-logo', [Store::class, 'updateLogo']);
+    Route::post($store_link . '/crop-image-upload', [Store::class, 'updateLogo']);
+
     Route::put($store_link . '/update/{id}', [Store::class, 'update']);
     Route::put($store_link . '/update/billing/{id}', [Store::class, 'storeBilling']);
 
