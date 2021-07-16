@@ -198,10 +198,6 @@ class BillingController extends Controller
     public function store(Request $request)
     {
         // echo "<pre>"; print_r($request->all());  exit ;
-
-        
-
-
         $billing                    = new Billing();
         $billing->shop_id           = SHOP_ID;
         $billing->customer_id       = $request->customer_id;
@@ -416,9 +412,7 @@ class BillingController extends Controller
         }
 
         $billing->save();
-
         $old_bill_items = BillingItem::where('billing_id', $id)->where('customer_id', $request->customer_id)->delete();
-
 
         if($request->bill_item){
             foreach($request->bill_item as $row){
@@ -465,6 +459,8 @@ class BillingController extends Controller
     }
     /**
      * Display the specified resource.
+     
+     
      *
      * @param  \App\Models\Billing  $billing
      * @return \Illuminate\Http\Response

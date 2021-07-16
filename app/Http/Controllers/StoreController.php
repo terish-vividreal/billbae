@@ -98,7 +98,7 @@ class StoreController extends Controller
             $shop->save();
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check!",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
 
     }
 
@@ -130,7 +130,7 @@ class StoreController extends Controller
             $billing->save();
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check!",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
 
     }
 
@@ -142,11 +142,16 @@ class StoreController extends Controller
      */
     public function updateLogo(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
 
-        if ($validator->passes()) {
+        
+
+        // echo "<pre>"; print_r($request->all()); exit;
+        // $validator = Validator::make($request->all(), [
+        //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        // ]);
+
+        // if ($validator->passes()) {
+
             $shop               = Shop::find($request->store_id);
 
             $old_store_logo = $shop->image;
@@ -155,17 +160,35 @@ class StoreController extends Controller
                 \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/logo/' . $old_store_logo);
             }
             
-            $image              = $request->file('image');
-            $store_logo         = FunctionHelper::cropAndStore($image, $this->uploadPath.'/logo', Str::slug('abcspa'));
+            
 
-            $shop->image        = $store_logo;
+            // Create storage folder
+            $store_path = 'public/' . $this->uploadPath. '/logo/';
+            Storage::makeDirectory($store_path);
+
+            $image_64 = $request->image; //your base64 encoded data
+            $extension = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
+            $replace = substr($image_64, 0, strpos($image_64, ',')+1); 
+
+            $image = str_replace($replace, '', $image_64); 
+            $image = str_replace(' ', '+', $image); 
+            $imageName = Str::random(20).'.'.$extension;
+            Storage::put($store_path.'/'.$imageName, base64_decode($image));
+   
+
+            $shop->image        = $imageName;
             $shop->save();
     
             return ['flagError' => false, 'logo' => $shop->show_image,  'message' => "Logo updated successfully"];
-        }
 
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+
+
+        // }
+
+        // return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+
     
+        
   
         
     }

@@ -128,6 +128,7 @@
                 <form id="reportForm" name="reportForm" role="form" method="" action="" class="ajax-submit">
                   {{ csrf_field() }}
                   {!! Form::hidden('start_range', '' , ['id' => 'start_range'] ); !!}
+
                   {!! Form::hidden('end_range', '' , ['id' => 'end_range'] ); !!}
                   {!! Form::hidden('range_sort', '0' , ['id' => 'range_sort'] ); !!}
                     <div class="row">
@@ -326,7 +327,7 @@ $('.select2').select2({ placeholder: "Please select ", allowClear: false }).on('
     var addvalidator = $("#addCashForm").validate({ 
         rules: {
           cash_book: {
-                  required: true,
+              required: true,
           },
           amount: {
             required: true,
@@ -335,11 +336,10 @@ $('.select2').select2({ placeholder: "Please select ", allowClear: false }).on('
         messages: { 
           cash_book: {
             required: "Please select cash book",
-            },
+          },
           amount: {
             required: "Please enter amount",
-
-            }
+          }
         },
         submitHandler: function (form) {
           var forms = $("#addCashForm");
@@ -353,8 +353,7 @@ $('.select2').select2({ placeholder: "Please select ", allowClear: false }).on('
                     $('#submit').html('Submit');
                     $("#submit"). attr("disabled", false); 
                   if(response.flagError == false){
-                      showSuccessToaster(response.message);                
-                      
+                      showSuccessToaster(response.message);                      
                       $("#add-cash-modal").modal("hide");
                       $("#business_cash").text(response.business_cash);
                       $("#petty_cash").text(response.petty_cash);
@@ -403,7 +402,6 @@ $('.select2').select2({ placeholder: "Please select ", allowClear: false }).on('
                 $("#withdraw-submit-btn"). attr("disabled", false);
                   if(response.flagError == false){
                       showSuccessToaster(response.message);                
-                      
                       $("#withdraw-cash-modal").modal("hide");
                       $("#business_cash").text(response.business_cash);
                       $("#petty_cash").text(response.petty_cash);
@@ -421,7 +419,7 @@ $('.select2').select2({ placeholder: "Please select ", allowClear: false }).on('
   }
 
 
-  
+
   showMessage = function(message) {
     $("#fullMessage").text(message)
     $("#full-message-modal").modal("show");
@@ -431,7 +429,6 @@ $('.select2').select2({ placeholder: "Please select ", allowClear: false }).on('
 
 
   // jQuery.validator.addMethod("lettersonly", function (value, element) {
-
   //   console.log(value)
   //   // console.log(element)
   //   // return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
