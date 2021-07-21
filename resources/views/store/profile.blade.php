@@ -630,7 +630,7 @@ if ($("#storeBillingForm").length > 0) {
 
 $(document).on('change', '#country_id', function () {
     $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-states') }}/",
+          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-states') }}",
           type: "POST",
           data:{'country_id':this.value },
           dataType: "html"
@@ -640,7 +640,7 @@ $(document).on('change', '#country_id', function () {
       });
 
       $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-timezone') }}/",
+          url: "{{ url(ROUTE_PREFIX.'/common/get-timezone') }}",
           type: "POST",
           data:{'country_id':this.value },
           dataType: "html"
@@ -666,7 +666,7 @@ $(document).on('change', '#state_id', function () {
 
 $(document).on('change', '#billing_country_id', function () {
     $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-states') }}/",
+          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-states') }}",
           type: "POST",
           data:{'country_id':this.value },
           dataType: "html"
@@ -678,7 +678,7 @@ $(document).on('change', '#billing_country_id', function () {
 
 $(document).on('change', '#billing_state_id', function () {
     $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-districts') }}/",
+          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-districts') }}",
           type: "POST",
           data:{'state_id':this.value },
           dataType: "html"
