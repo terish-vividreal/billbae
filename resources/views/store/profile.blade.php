@@ -654,7 +654,7 @@ $(document).on('change', '#country_id', function () {
 
 $(document).on('change', '#state_id', function () {
     $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-districts') }}/",
+          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-districts') }}",
           type: "POST",
           data:{'state_id':this.value },
           dataType: "html"
