@@ -158,10 +158,10 @@ class BillingController extends Controller
                 if($detail->payment_status == 1){
 
 
-                    $dt = Carbon\Carbon::parse($updated_at)->timezone($this->timezone)->format('d-M-Y h:i:s a');
+                    $timezone = Carbon\Carbon::parse($updated_at)->timezone($this->timezone)->format('d-M-Y h:i:s a');
 
 
-                    return 'UTC'. $updated_date. ' <br> IN' .  $dt;
+                    return  $timezone;
                 }
 
                 
