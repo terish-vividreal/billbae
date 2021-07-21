@@ -70,8 +70,8 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $store_link = 'store';
     Route::get($store_link . '/profile', [Store::class, 'index']);
     Route::post($store_link . '/unique', [Store::class, 'isUnique']);
-    // Route::post($store_link . '/update-logo', [Store::class, 'updateLogo']);
-    Route::post($store_link . '/crop-image-upload', [Store::class, 'updateLogo']);
+    Route::post($store_link . '/update-logo', [Store::class, 'updateLogo']);
+    // Route::post($store_link . '/crop-image-upload', [Store::class, 'updateLogo']);
 
     Route::put($store_link . '/update/{id}', [Store::class, 'update']);
     Route::put($store_link . '/update/billing/{id}', [Store::class, 'storeBilling']);
@@ -158,8 +158,12 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($link . '/get-all-packages', [CommonController::class, 'getAllPackages']);    
     Route::get($link . '/get-districts', [CommonController::class, 'getDistricts']);    
     Route::post($link . '/get-shop-districts', [CommonController::class, 'getShopDistricts']);    
+    Route::post($link . '/get-shop-states', [CommonController::class, 'getShopStates']);    
     Route::post($link . '/get-customer-details', [CommonController::class, 'getCustomerDetails']);   
     Route::post($link . '/get-taxdetails', [CommonController::class, 'calculateTax']);  
+    Route::post($link . '/get-timezone', [CommonController::class, 'getTimezone']);    
+
+    
     
     // Report Routes 
     $reports = 'reports';
