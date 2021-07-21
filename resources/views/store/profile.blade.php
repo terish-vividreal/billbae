@@ -4,50 +4,47 @@
 @push('page-css')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.css"/>
 <style>
-.profile-pic {
-	position: relative;
-	display: inline-block;
-}
+  .profile-pic {
+    position: relative;
+    display: inline-block;
+  }
 
-.profile-pic:hover .edit {
-	display: block;
-}
+  .profile-pic:hover .edit {
+    display: block;
+  }
 
-.edit {
-	padding-top: 7px;	
-	padding-right: 7px;
-	position: absolute;
-	right: 0;
-	top: 0;
-	display: none;
-}
+  .edit {
+    padding-top: 7px;	
+    padding-right: 7px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: none;
+  }
 
-.edit a {
-	color: #000;
-}
+  .edit a {
+    color: #000;
+  }
 
-img {
-display: block;
-max-width: 100%;
-}
-.preview {
-overflow: hidden;
-width: 160px; 
-height: 160px;
-margin: 10px;
-border: 1px solid red;
-}
-.modal-lg{
-max-width: 1000px !important;
-}
+  img {
+  display: block;
+  max-width: 100%;
+  }
+  .preview {
+  overflow: hidden;
+  width: 160px; 
+  height: 160px;
+  margin: 10px;
+  border: 1px solid red;
+  }
+
+  .modal-lg{
+  max-width: 1000px !important;
+  }
 
 
 </style>
 @endpush
-
-
-
-
 
 @section('breadcrumb')
   <li class="nav-item">
@@ -60,17 +57,6 @@ max-width: 1000px !important;
     <a href="#" class="nav-link">Contact</a>
   </li> -->
 @endsection
-
-
-
-
-              
-
-
-
-
-
-
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -154,35 +140,15 @@ max-width: 1000px !important;
                 <p class="text-muted">
                 {{ $store->email ?? '' }}
                 </p>
-
                 <hr>
-
                 <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
-
                 <p class="text-muted">{{ $store->state ?? '' }} {{ $store->district ?? '' }} , {{ $store->location ?? '' }}</p>
-
                 <hr>
-
-                <!-- <strong><i class="fas fa-pencil-alt mr-1"></i> Skills</strong>
-
-                <p class="text-muted">
-                  <span class="tag tag-danger">UI Design</span>
-                  <span class="tag tag-success">Coding</span>
-                  <span class="tag tag-info">Javascript</span>
-                  <span class="tag tag-warning">PHP</span>
-                  <span class="tag tag-primary">Node.js</span>
-                </p>
-
-                <hr> -->
-
                 <strong><i class="far fa-file-alt mr-1"></i> Address </strong>
-
                 <p class="text-muted">{{ $store->address ?? '' }}</p>
                 <p class="text-muted">{{ $store->pincode ?? '' }}</p>
               </div>
-              <!-- /.card-body -->
             </div>
-            <!-- /.card -->
 
             @endif
           </div>
@@ -200,7 +166,7 @@ max-width: 1000px !important;
                 <div class="tab-content">
                   <div class="active tab-pane" id="profile">
                     <h3>Store Profile Form</h3><br>
-
+                    
                     <form id="storeProfileForm" name="storeProfileForm" role="form" method="" action="" class="ajax-submit">
                       {{ csrf_field() }}
                       {!! Form::hidden('store_id', $store->id ?? '' , ['id' => 'store_id'] ); !!}
@@ -218,21 +184,44 @@ max-width: 1000px !important;
                           </div>
 
                           <div class="form-group">
+                            {!! Form::label('country_id', 'Country *', ['class' => '']) !!}
+                            {!! Form::select('country_id', $variants->countries , $store->country_id ?? '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select a country']) !!}
+                          </div>
+
+                          <div class="form-group">
                             {!! Form::label('state_id', 'State *', ['class' => '']) !!}
-                            {!! Form::select('state_id', $variants->states , $store->state_id ?? '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                            <div id="state_block">
+                            @if(isset($variants->states))
+                              {!! Form::select('state_id', $variants->states , $store->state_id ?? '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                            @else  
+                              {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a State']) !!}
+                            @endif
+                             </div>
                           </div>
 
                           <div class="form-group">
                             {!! Form::label('district_id', 'District*', ['class' => '']) !!}
                             <div id="district_block">
-                            @if($store->district_id)
+                            @if(isset($variants->districts))
                               {!! Form::select('district_id', $variants->districts , $store->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
                             @else  
                               {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
                             @endif
-
                              </div>
                           </div>
+
+                          <div class="form-group">
+                            {!! Form::label('district_id', 'Timezone *', ['class' => '']) !!}
+                            <div id="timezone_block">
+                            @if(isset($variants->timezone))
+                              {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'form-control','placeholder'=>'Select a timezone']) !!}
+                            @else  
+                              {!! Form::select('timezone', [] , '' , ['id' => 'timezone' ,'class' => 'form-control','placeholder'=>'Select a timezone']) !!}
+                            @endif
+                             </div>
+                          </div>
+
+                          
 
                           <div class="form-group">
                               {!! Form::label('pincode', 'Pincode ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
@@ -302,21 +291,31 @@ max-width: 1000px !important;
                           </div>
 
                           <div class="form-group">
+                            {!! Form::label('billing_country_id', 'Country *', ['class' => '']) !!}
+                            {!! Form::select('billing_country_id', $variants->countries , $billing->country_id ?? '' , ['id' => 'billing_country_id' ,'class' => 'form-control','placeholder'=>'Select a country']) !!}
+                          </div>
+
+                          <div class="form-group">
                             {!! Form::label('billing_state_id', 'State *', ['class' => '']) !!}
-                            {!! Form::select('billing_state_id', $variants->states , $billing->state_id ?? '' , ['id' => 'billing_state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                            <div id="billing_state_block">
+                            @if(isset($variants->billing_states))
+                              {!! Form::select('billing_state_id', $variants->billing_states , $billing->state_id ?? '' , ['id' => 'billing_state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
+                            @else  
+                              {!! Form::select('billing_state_id', [] , '' , ['id' => 'billing_state_id' ,'class' => 'form-control','placeholder'=>'Select a State']) !!}
+                            @endif
+                             </div>
                           </div>
 
                           <div class="form-group">
                             {!! Form::label('billing_district_id', 'District*', ['class' => '']) !!}
                             <div id="billing_district_block">
-                            @if($billing->district_id)
+                            @if(isset($variants->billing_districts))
                               {!! Form::select('billing_district_id', $variants->billing_districts , $billing->district_id ?? '' , ['id' => 'billing_district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
                             @else  
                               {!! Form::select('billing_district_id', [] , '' , ['id' => 'billing_district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
                             @endif
-
                              </div>
-                          </div>                          
+                          </div>
 
                           <div class="form-group">
                               {!! Form::label('in', 'PIN ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
@@ -469,24 +468,6 @@ $("#crop").click(function(){
   });
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 $(document).ready(function(){
     $("#updateProfile").on("click", function(){
       profilrvalidator.resetForm();
@@ -549,6 +530,12 @@ if ($("#storeProfileForm").length > 0) {
                     required: true,
                     maxlength: 200,
             }, 
+            country_id: {
+                  required: true,
+            },
+            timezone: {
+                  required: true,
+            },
             email: {
                 email: true,
                 remote: { url: "{{ url('/store/unique') }}", type: "POST",
@@ -561,10 +548,16 @@ if ($("#storeProfileForm").length > 0) {
             },
         },
         messages: { 
-            shop_name: {
+            name: {
                 required: "Please enter store name",
                 maxlength: "Length cannot be more than 200 characters",
                 },
+          country_id: {
+            required: "Please choose country",
+          },
+          timezone: {
+                required: "Please choose timezone",
+          },
             email: {
                 email: "Please enter a valid email address.",
                 remote: "Email already existing"
@@ -635,7 +628,29 @@ if ($("#storeBillingForm").length > 0) {
     })
 } 
 
+$(document).on('change', '#country_id', function () {
+    $.ajax({
+          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-states') }}/",
+          type: "POST",
+          data:{'country_id':this.value },
+          dataType: "html"
+      }).done(function (data) {
+      console.log(data);
+        $("#state_block").html(data);
+      });
 
+      $.ajax({
+          url: "{{ url(ROUTE_PREFIX.'/common/get-timezone') }}/",
+          type: "POST",
+          data:{'country_id':this.value },
+          dataType: "html"
+      }).done(function (data) {
+      console.log(data);
+        $("#timezone_block").html(data);
+      })
+
+
+});
 
 $(document).on('change', '#state_id', function () {
     $.ajax({
@@ -646,6 +661,18 @@ $(document).on('change', '#state_id', function () {
       }).done(function (data) {
       console.log(data);
         $("#district_block").html(data);
+      })
+});
+
+$(document).on('change', '#billing_country_id', function () {
+    $.ajax({
+          url: "{{ url(ROUTE_PREFIX.'/common/get-shop-states') }}/",
+          type: "POST",
+          data:{'country_id':this.value },
+          dataType: "html"
+      }).done(function (data) {
+      console.log(data);
+        $("#billing_state_block").html(data);
       })
 });
 

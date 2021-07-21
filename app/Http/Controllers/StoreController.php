@@ -53,17 +53,31 @@ class StoreController extends Controller
                                     ->find($user->shop_id);        
         $page->title                = $this->title;
         $page->link                 = url($this->link);
-        $variants->states           = DB::table('shop_states')->pluck('name', 'id');  
-        
+
+  
+        $variants->countries        = DB::table('shop_countries')->pluck('name', 'id');  
+
+        if($store->country_id){
+            $variants->states       = DB::table('shop_states')->where('country_id',$store->country_id)->pluck('name', 'id'); 
+
+            $country_code           = DB::table('shop_countries')->where('id',$store->country_id)->value('sortname');
+            $variants->timezone     = DB::table('timezone')->where('country_code',$country_code)->pluck('zone_name', 'zone_name');
+        }        
         if($store->state_id){
             $variants->districts    = DB::table('shop_districts')->where('state_id',$store->state_id)->pluck('name', 'id'); 
         }   
         
         $billing                = ShopBilling::where('shop_id', SHOP_ID)->first();
 
+        if($billing->country_id){
+            $variants->billing_states    = DB::table('shop_states')->where('country_id',$billing->country_id)->pluck('name', 'id'); 
+        }
+
         if($billing->state_id){
             $variants->billing_districts    = DB::table('shop_districts')->where('state_id',$billing->state_id)->pluck('name', 'id'); 
         } 
+
+        
 
         return view($this->viewPath . '.profile', compact('page', 'user', 'store', 'variants', 'billing'));
     }
@@ -93,6 +107,8 @@ class StoreController extends Controller
             $shop->address      = $request->address;
             $shop->pincode      = $request->pincode;
             $shop->pin          = $request->pin;
+            $shop->timezone     = $request->timezone;
+            $shop->country_id   = $request->country_id;
             $shop->state_id     = $request->state_id;
             $shop->district_id  = $request->district_id;
             $shop->save();
@@ -125,8 +141,9 @@ class StoreController extends Controller
             $billing->pincode           = $request->pincode;
             $billing->pin               = $request->pin;
             $billing->gst               = $request->gst;
-            $billing->state_id             = $request->billing_state_id;
-            $billing->district_id          = $request->billing_district_id;
+            $billing->country_id        = $request->billing_country_id;
+            $billing->state_id          = $request->billing_state_id;
+            $billing->district_id       = $request->billing_district_id;
             $billing->save();
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }

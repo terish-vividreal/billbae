@@ -32,11 +32,29 @@ use App\Events\SalesCompleted;
 
 class BillingController extends Controller
 {
+    
+
     protected $title    = 'Billing';
     protected $viewPath = 'billing';
     protected $link     = 'billings';
     protected $route    = 'billings';
     protected $entity   = 'Billing';
+    protected $timezone = '';
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->timezone = Shop::where('user_id', Auth::user()->id)->value('timezone');
+            return $next($request);
+        });
+
+    }
+     
 
     /**
      * Display a listing of the resource.
@@ -53,6 +71,8 @@ class BillingController extends Controller
         $page->route            = $this->route;
         $page->entity           = $this->entity;      
         return view($this->viewPath . '.list', compact('page', 'variants'));
+
+
     }
 
     /**
@@ -72,7 +92,7 @@ class BillingController extends Controller
         $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');          
         $variants->services     = Service::where('shop_id', SHOP_ID)->pluck('name', 'id');          
         $variants->packages     = Package::where('shop_id', SHOP_ID)->pluck('name', 'id');   
-        
+
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
 
@@ -132,10 +152,20 @@ class BillingController extends Controller
             })
             ->addColumn('updated_date', function($detail){
                 $updated_at     = Carbon\Carbon::parse($detail->updated_at);
+                
                 $updated_date = $updated_at->format('d-M-Y h:i:s a');
+
                 if($detail->payment_status == 1){
-                    return $updated_date;
+
+
+                    $dt = Carbon\Carbon::parse($updated_at)->timezone($this->timezone)->format('d-M-Y h:i:s a');
+
+
+                    return 'UTC'. $updated_date. ' <br> IN' .  $dt;
                 }
+
+                
+
                 
             })
             ->addColumn('bill_status', function($detail){
@@ -301,7 +331,7 @@ class BillingController extends Controller
                     else            
                     {
                         $billing_items = Package::select('packages.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
-                                            ->join('billing_items', 'billing_items.item_id', '=', 'packages.id')->where('packages.shop_id', SHOP_ID)->where('billing_items.billing_id', $request->bill_id)->whereIn('packages.id', $item_ids)->orderBy('packages.id', 'desc')->get();
+                                            ->join('billing_items', 'billing_items.item_id', '=', 'packages.id')->where('packages.shop_id', SHOP_ID)->where('billing_items.billing_id', $request->billing_id)->whereIn('packages.id', $item_ids)->orderBy('packages.id', 'desc')->get();
                     }
         
                     $discount = array();
@@ -741,6 +771,29 @@ class BillingController extends Controller
     public function show(Request $request, $id)
     {
 
+        // Asia/Kolkata, Asia/Dubai, Europe/London
+
+
+        $dt = Carbon\Carbon::parse('2021-07-20 10:00:00')->timezone('Asia/Dubai');
+        $toDay = $dt->format('d');
+        $toMonth = $dt->format('m');
+        $toYear = $dt->format('Y');
+        $dateUTC = Carbon\Carbon::createFromDate($toYear, $toMonth, $toDay, 'UTC');
+        $datePST = Carbon\Carbon::createFromDate($toYear, $toMonth, $toDay, 'Asia/Dubai');
+        $difference = $dateUTC->diffInHours($datePST);
+        $date = $dt->addHours($difference);
+
+
+        // echo 'Server Time- 2021-07-20 10:00:00'. '<br><br>'; 
+        // echo 'dt- '.$dt . '<br>'; 
+        // // echo 'dateUTC- '.$dateUTC . '<br>';  
+        // // echo 'datePST- '.$datePST. '<br>'; 
+        // echo 'difference-  '.$difference. '<br>'; 
+        // // echo 'date-  '.$dateUTC. '<br>'; 
+        // exit;
+
+
+
         $page                   = collect();
         $variants               = collect();
         $page->title            = $this->title;
@@ -756,10 +809,11 @@ class BillingController extends Controller
                 $user                   = Auth::user();
                 $billing                = Billing::findOrFail($id);
                 $variants->store        = Shop::with('billing')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
-                                        ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
-                                        ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
-                                        ->find($user->shop_id); 
+                                            ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
+                                            ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
+                                            ->find($user->shop_id); 
             
+                
 
                 if($billing->items){
                     $billing_items_array        = $billing->items->toArray();
@@ -812,6 +866,19 @@ class BillingController extends Controller
                         //                     ->where('billing_items.billing_id', $id)
                         //                     ->whereIn('packages.id', $ids)
                         //                     ->orderBy('packages.id', 'desc')->get();
+
+                        $billing_items  = BillingItem::select('packages.name',  'packages.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 
+                                            'billing_items.discount_type', 'billing_items.discount_value',
+                                            'billing_item_taxes.cgst_percentage', 'billing_item_taxes.sgst_percentage',
+                                            'billing_item_taxes.tax_amount', 'billing_item_taxes.sgst_amount','billing_item_taxes.grand_total', 'billing_item_taxes.cgst_amount',
+                                            )
+                                            ->join('packages', 'packages.id', '=', 'billing_items.item_id')
+                                            ->join('billing_item_taxes', 'billing_item_taxes.bill_item_id', '=', 'billing_items.id')                                        
+                                            ->where('packages.shop_id', SHOP_ID)
+                                            ->where('billing_items.billing_id', $id)
+                                            ->whereIn('packages.id', $ids)
+                                            ->orderBy('packages.id', 'desc')->get();
+
                     }
                     $grand_total                =  $billing_items->sum('grand_total');
                 } 

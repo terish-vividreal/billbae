@@ -38,6 +38,23 @@ class CommonController extends Controller
         $form       = Form::select('district_id', $districts , '', ['class' => 'form-control', 'placeholder' => 'Select a district' , 'id'=>'district_id' ]);
         return response($form);
     }
+
+    public function getShopStates(Request $request)
+    {
+        $states     = DB::table('shop_states')->where('country_id',$request->country_id)->pluck('name','id');
+        $form       = Form::select('state_id', $states , '', ['class' => 'form-control', 'placeholder' => 'Select a State' , 'id'=>'state_id' ]);
+        return response($form);
+    }
+
+    public function getTimezone(Request $request)
+    {
+        $country_code    = DB::table('shop_countries')->where('id',$request->country_id)->value('sortname');
+        $timezone        = DB::table('timezone')->where('country_code',$country_code)->pluck('zone_name', 'zone_name');
+
+
+        $form           = Form::select('timezone', $timezone , '', ['class' => 'form-control', 'placeholder' => 'Select a timezone' , 'id'=>'timezone' ]);
+        return response($form);
+    }
     
     public function getAllServices(Request $request)
     {
