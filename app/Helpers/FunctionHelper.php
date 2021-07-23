@@ -7,11 +7,15 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\Shop;
 use Keygen\Keygen;
+use Carbon;
 use Image;
+use Auth;
 
 class FunctionHelper
 {
+
 
     public static function generateCode($length, $prefix, $user_id = null)
     {
@@ -26,6 +30,25 @@ class FunctionHelper
         // while ($data->count() > 0);
 
     }
+
+    public static function getTimezone()
+    {
+        return Shop::where('user_id', Auth::user()->id)->value('timezone');
+    }
+
+    public static function dateToUTC($date)
+    {
+        $timezone = self::getTimezone();
+        return Carbon\Carbon::parse($date, $timezone)->setTimezone('UTC')->format('Y-m-d h:i:s');
+    }
+
+    public static function dateToTimeZone($date)
+    {
+        $formatted_date     = Carbon\Carbon::parse($date);
+        $timezone           = self::getTimezone();
+        return Carbon\Carbon::parse($date)->timezone($timezone);
+    }
+
     public static function storeImage($file, $path, $slug)
     {
         $path = 'public/' . $path;

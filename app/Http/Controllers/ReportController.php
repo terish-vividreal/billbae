@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Helpers\FunctionHelper;
 use App\Models\Billing;
+use App\Models\Shop;
 use DataTables;
+use Auth;
 use Carbon;
 use DB;
 
@@ -14,6 +17,7 @@ class ReportController extends Controller
     protected $viewPath = 'report';
     protected $link     = 'reports';
     protected $route    = 'reports';
+    protected $timezone = '';
 
     /**
      * Display a listing of the resource.
@@ -23,6 +27,10 @@ class ReportController extends Controller
     function __construct()
     {
         // $this->middleware('permission:store-profile-update', ['only' => ['index','update']]);
+        $this->middleware(function ($request, $next) {
+            $this->timezone = Shop::where('user_id', Auth::user()->id)->value('timezone');
+            return $next($request);
+        });
     }
 
     public function salesReport(Request $request)
@@ -145,8 +153,7 @@ class ReportController extends Controller
         return Datatables::of($detail)
             ->addIndexColumn()
             ->editColumn('billed_date', function($detail){
-                $billed_date = new Carbon\Carbon($detail->billed_date);
-                return $billed_date->toFormattedDateString();
+                return FunctionHelper::dateToTimeZone($detail->billed_date)->format('d-M-Y H:i:s');
             })
             ->editColumn('customer_id', function($detail){
                 $customer = $detail->customer->name;
@@ -166,7 +173,11 @@ class ReportController extends Controller
                 return $status;
             })
             ->addColumn('in_out_time', function($detail){
-                $in_out_time = date('h:m A', strtotime($detail->checkin_time)) . ' - ' . date('h:m A', strtotime($detail->checkout_time));
+
+                $checkin_time   =  FunctionHelper::dateToTimeZone($detail->checkin_time)->format('h:m A');
+                $checkout_time  =  FunctionHelper::dateToTimeZone($detail->checkout_time)->format('h:m A');
+                
+                $in_out_time = $checkin_time . ' - ' . $checkout_time;
                 return $in_out_time;
             })
             ->addColumn('payment_method', function($detail){

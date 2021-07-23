@@ -351,7 +351,7 @@ $(function() {
     singleDatePicker: true,
     autoApply: true,
     locale: {
-        format: 'DD-MM-YYYY'
+        format: 'DD-MM-YYYY hh:mm A'
       },
     }, function(ev, picker) {
       console.log(picker.format('DD-MM-YYYY'));

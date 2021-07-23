@@ -103,7 +103,7 @@
                     
                 </div>
                 <!-- style="display:none;" -->
-                <div class="container-fluid" id="customer_details_div" style="display:none">
+                <div class="container-fluid" id="customer_details_div">
                   <!-- SELECT2 EXAMPLE -->
                   <div class="card card-default">
                     <div class="card-header">
@@ -330,45 +330,76 @@
 <script type="text/javascript">
 
 $(function() {
+  // $('input[name="billed_date"]').daterangepicker({
+  //   singleDatePicker: true,
+  //   autoApply: true,
+  //   timePicker: true,
+  //     locale: {
+  //       format: 'DD-MM-YYYY hh:mm A'
+  //     },
+  //   locale: {
+  //       format: 'DD-MM-YYYY hh:mm A'
+  //     },
+  //   }, function(ev, picker) {
+  //     console.log(picker.format('DD-MM-YYYY'));
+  // });
+
+  // $('input[name="billed_date"]').daterangepicker({
+  //   singleDatePicker: true,
+  //   startDate: moment().startOf('hour'),
+  //   endDate: moment().startOf('hour').add(32, 'hour'),
+  //   timePickerIncrement: 5,
+  //   autoApply: true,
+  //   timePicker: true,
+  //   locale: { format: 'DD-MM-YYYY hh:mm'}
+  // });
+
   $('input[name="billed_date"]').daterangepicker({
-    singleDatePicker: true,
-    autoApply: true,
-    locale: {
-        format: 'DD-MM-YYYY'
-      },
-    }, function(ev, picker) {
-      console.log(picker.format('DD-MM-YYYY'));
-  });
+  singleDatePicker: true,
+  startDate: new Date(),
+  showDropdowns: true,
+  timePicker: true,
+  timePicker24Hour: true,
+  timePickerIncrement: 10,
+  autoUpdateInput: true,
+  locale: {
+    format: 'DD-MM-YYYY hh:mm'
+  },
+});
+
+  // function(start, end, label) {
+  //   // console.log(end.format('DD-MM-YYYY hh:mm A'));
+  // }
+  
+  
   
   $('input[name="checkin_time"]').daterangepicker({
     singleDatePicker: true,
-    startDate: moment().startOf('hour'),
-    endDate: moment().startOf('hour').add(32, 'hour'),
+    startDate: new Date(),
     timePickerIncrement: 5,
     autoApply: true,
     timePicker: true,
-      locale: {
-        format: 'DD-MM-YYYY hh:mm A'
-      },
-      }, function(start, end, label) {
-        console.log(end.format('DD-MM-YYYY hh:mm A'));
-      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    locale: { format: 'DD-MM-YYYY hh:mm A'}
+  }, function(start, end, label) {
+    console.log(end.format('DD-MM-YYYY hh:mm A'));
   });
+  
 
   $('input[name="checkout_time"]').daterangepicker({
     singleDatePicker: true,
-    startDate: moment().startOf('hour'),
-    endDate: moment().startOf('hour').add(32, 'hour'),
+    startDate: new Date(),
+    // endDate: moment().startOf('hour').add(32, 'hour'),
     timePickerIncrement: 5,
     autoApply: true,
     timePicker: true,
     locale: {
-        format: 'DD-MM-YYYY hh:mm A'
-      },
-      }, function(start, end, label) {
-        console.log(end.format('DD-MM-YYYY hh:mm A'));
-      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-  });
+      format: 'DD-MM-YYYY hh:mm A' }
+    });
+      // }, function(start, end, label) {
+      //   console.log(end.format('DD-MM-YYYY hh:mm A'));
+      // // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+      // }
+  
   
 
 
