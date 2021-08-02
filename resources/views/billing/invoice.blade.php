@@ -131,9 +131,10 @@
                     {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'billing_id'] ); !!}
                     {!! Form::hidden('grand_total', $billing->amount ?? '' , ['id' => 'grand_total'] ); !!}
                       <table class="table table-bordered" id="dynamic_field"> 
-                        <tr>  
-                            <td><select id="payment_type" class="form-control" name="payment_type[]">
-                            <option value="1">Cash</option><option value="2">Card</option><option value="3">G pay</option></select></td>
+                        <tr> 
+                            <td>
+                            {!! Form::select('payment_type[]', $variants->payment_types , '' , ['id' => 'payment_type' ,'class' => 'form-control']) !!}  
+                            </td>
                             <td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td>  
                             <td><button type="button" name="add" id="add" class="btn btn-success">Add Row</button></td>  
                         </tr>  
@@ -187,12 +188,23 @@
 <script src="{{ asset('admin/plugins/datetimepicker/js/bootstrap-datetimepicker.js') }}"></script>
 
 <script type="text/javascript">
-var bill_id   = {!! json_encode($variants->bill_id) !!};
+var bill_id       = {!! json_encode($variants->bill_id) !!};
+var paymentTypes  = {!! json_encode($variants->payment_types) !!};
 var i=1;  
 
+
+console.log(paymentTypes)
+
 $('#add').click(function(){  
+  let html = '';
   i++;  
-  $('#dynamic_field').append('<tr id="row'+i+'" class="dynamic-added"><td><select id="payment_type" class="form-control" name="payment_type[]"><option value="1">Cash</option><option value="2">Card</option><option value="3">G pay</option></select></td><td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td><td><button type="button" name="remove" id="'+i+'" class="btn btn-danger btn_remove">X</button></td></tr>');  
+  html += '<tr id="row'+i+'" class="dynamic-added"><td><select id="payment_type" class="form-control" name="payment_type[]">'
+  $.each( paymentTypes, function( key, value ) {
+    html += '<option value="'+key+'">'+value+'</option>'
+  });
+  html += '</select></td><td><input name="payment_amount[]" type="text" placeholder="Amount" class="form-control check_numeric" value=""></td><td><button type="button" name="remove" id="'+i+'" class="btn btn-danger btn_remove">X</button></td></tr>';
+  $('#dynamic_field').append(html);  
+
 });
 
 $(document).on('click', '.btn_remove', function(){  
@@ -202,8 +214,8 @@ $(document).on('click', '.btn_remove', function(){
 
 
 $('#submitPayment').click(function(){ 
-    $('#submitPayment').html('Please Wait...');
-    $("#submitPayment"). attr("disabled", true);           
+    // $('#submitPayment').html('Please Wait...');
+    // $("#submitPayment"). attr("disabled", true);           
   var forms = $("#paymentForm");
   $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/store-payment') }}", type: "POST", processData: false, 
   data: forms.serialize(), dataType: "html",

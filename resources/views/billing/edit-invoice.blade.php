@@ -45,6 +45,7 @@
     </div>
     <!-- /.content-header -->
 
+
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
@@ -52,9 +53,6 @@
         <div class="card card-primary">
           <div class="card-header">
             <h3 class="card-title">{{ $page->title ?? ''}} Form</h3>
-
-
-            
             <div class="card-tools">
               <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
@@ -65,20 +63,14 @@
             <div class="card-body">
 
             <div class="alert alert-danger print-error-msg" style="display:none">
-
-            <ul></ul>
-
-            </div>
-            
-
-
+              <ul></ul>
+            </div>           
               <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="post" action="{{ url(ROUTE_PREFIX.'/billings/invoice/update/'.$billing->id) }}">
                 {{ csrf_field() }}
                 @method('PUT')
                 {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'billing_id'] ); !!}
                 {!! Form::hidden('customer_id', $billing->customer_id ?? '' , ['id' => 'customer_id'] ); !!}
                 <div class=""> 
-
                     <div class="form-group">
                         <div class="input-group input-group-lg">
                             <input type="text" name="search_customer" id="search_customer" class="typeahead form-control form-control-lg" placeholder="Enter Customer name" autocomplete="off" value="">
@@ -89,7 +81,6 @@
                             </div>
                         </div>
                     </div>
-                    
                 </div>
                 <!--  -->
                 <div class="container-fluid" id="customer_details_div" style="display:none;">
@@ -107,30 +98,28 @@
                             {!! Form::text('customer_name', $billing->name ?? '' , array('placeholder' => 'Customer Name', 'id' => 'customer_name' ,'class' => 'form-control', 'disabled' => 'disabled')) !!}
                           </div>
                           <div class="form-group">
+                            
                             {!! Form::label('billed_date', 'Bill Date', ['class' => 'col-form-label']) !!}
                             @php                             
-                              $billed_date = ($billing->billed_date != '') ? date('d-m-Y', strtotime($billing->billed_date)) : Carbon\Carbon::now()->format('d-m-Y');
+                              $billed_date = ($billing->date_range_billed_date != '') ? $billing->date_range_billed_date : Carbon\Carbon::now()->format('d-m-Y');
                             @endphp
+            
                             <input type="text" name="billed_date" id="billed_date" class="form-control" onkeydown="return false" autocomplete="off" value="{{$billed_date}}"/>
                           </div> 
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
                                 @php                             
-                                    $checkin_time = ($billing->checkin_time != '') ? $billing->checkin_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
+                                    $checkin_time = ($billing->date_range_checkin_time != '') ? $billing->date_range_checkin_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
                                 @endphp
                                 {!! Form::label('checkin_time', 'Checkin time', ['class' => 'col-form-label']) !!}                                
                                <input type="text" name="checkin_time" id="checkin_time" class="form-control" onkeydown="return false" autocomplete="off" value="{{$checkin_time}}" />
-                              
-                              
-                              
-                              
                               </div> 
                             </div> 
                             <div class="col-md-6">
                               <div class="form-group">
-                                @php                             
-                                    $checkout_time = ($billing->checkout_time != '') ? $billing->checkout_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
+                                @php                                                                                                                        
+                                    $checkout_time = ($billing->date_range_checkout_time != '') ? $billing->date_range_checkout_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
                                 @endphp
 
                                 {!! Form::label('checkout_time', 'Checkout time', ['class' => 'col-form-label']) !!}
@@ -148,7 +137,6 @@
                           </div>
 
                           <div class="billing-address-section" style="display:none;">
-
                             <div class="form-group billing-address-section">
                                 {!! Form::label('customer_billing_name', 'Billing Name/ Company Name*', ['class' => 'col-form-label']) !!}
                                 {!! Form::text('customer_billing_name', $billing->customer->billingaddress->billing_name ?? '' , array('placeholder' => 'Billing Name', 'id' => 'customer_billing_name' ,'class' => 'form-control')) !!}
@@ -194,7 +182,6 @@
                             </div>
 
                           </div>
-                          
 
                         </div>
                         <div class="col-md-6">
@@ -219,9 +206,7 @@
                                 {!! Form::label('address', 'Address. ', ['class' => 'col-form-label text-alert']) !!}
                                 {!! Form::textarea('address', $billing->customer->billingaddress->address ?? '', ['class' => 'form-control','placeholder'=>'Address','rows'=>3]) !!}                       
                             </div>
-
                           </div>
-
                         </div>
                       </div>
                     </div>
@@ -316,7 +301,6 @@
                     </div>
                 </div>
               </form>              
-
             </div>
           <!-- /.card-body -->
         </div>
@@ -345,46 +329,46 @@
 
 <script type="text/javascript">
 
+var timePicker = {!! json_encode($variants->time_picker) !!};
+var timeFormat = {!! json_encode($variants->time_format) !!};
 
 $(function() {
+
   $('input[name="billed_date"]').daterangepicker({
     singleDatePicker: true,
+    showDropdowns: true,
     autoApply: true,
-    locale: {
-        format: 'DD-MM-YYYY hh:mm A'
-      },
-    }, function(ev, picker) {
-      console.log(picker.format('DD-MM-YYYY'));
+    timePicker: true,
+    autoUpdateInput: true,
+    timePicker24Hour: timePicker,
+    locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
+  }, function(ev, picker) {
+      // console.log(picker.format('DD-MM-YYYY'));
   });
+
   
   $('input[name="checkin_time"]').daterangepicker({
     singleDatePicker: true,
-    // startDate: moment().startOf('hour'),
-    // endDate: moment().startOf('hour').add(32, 'hour'),
-    timePickerIncrement: 5,
+    showDropdowns: true,
     autoApply: true,
     timePicker: true,
-      locale: {
-        format: 'DD-MM-YYYY hh:mm A'
-      },
-      }, function(start, end, label) {
-        console.log(end.format('DD-MM-YYYY hh:mm A'));
-      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    autoUpdateInput: true,
+    timePicker24Hour: timePicker,
+    locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
+  }, function(ev, picker) {
+        // console.log(end.format('DD-MM-YYYY hh:mm A'));
   });
 
   $('input[name="checkout_time"]').daterangepicker({
     singleDatePicker: true,
-    // startDate: moment().startOf('hour'),
-    // endDate: moment().startOf('hour').add(32, 'hour'),
-    timePickerIncrement: 5,
+    showDropdowns: true,
     autoApply: true,
     timePicker: true,
-    locale: {
-        format: 'DD-MM-YYYY hh:mm A'
-      },
-      }, function(start, end, label) {
-        console.log(end.format('DD-MM-YYYY hh:mm A'));
-      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    autoUpdateInput: true,
+    timePicker24Hour: timePicker,
+    locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
+  }, function(start, end, label) {
+        // console.log(end.format('DD-MM-YYYY hh:mm A'));
   });
   
 

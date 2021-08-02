@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Helpers\FunctionHelper;
 
 class Billing extends Model
 {
@@ -22,5 +23,19 @@ class Billing extends Model
     public function paymentMethods()
     {
         return $this->hasMany(BillAmount::class, 'bill_id', 'id');
+    }
+
+    public function getDateRangeBilledDateAttribute($date)
+    {
+        return FunctionHelper::dateToTimeZone($this->billed_date, 'd-m-Y h:i A');
+    }
+
+    public function getDateRangeCheckinTimeAttribute($date)
+    {
+        return FunctionHelper::dateToTimeZone($this->checkin_time, 'd-m-Y h:i A');
+    }
+    public function getDateRangeCheckoutTimeAttribute($date)
+    {
+        return FunctionHelper::dateToTimeZone($this->checkout_time, 'd-m-Y h:i A');
     }
 }

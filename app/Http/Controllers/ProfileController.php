@@ -9,15 +9,14 @@ use App\Models\Page;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-
 /**
  * Class PageController
  */
 class ProfileController extends Controller
 {
-    protected $title = 'Change Password';
+    protected $title    = 'Change Password';
     protected $viewPath = 'auth/change_password';
-    protected $link = 'change-password';
+    protected $link     = 'change-password';
 
     /**
      * Display listing page.
@@ -29,7 +28,6 @@ class ProfileController extends Controller
         $page->link = url($this->link);
         $page->form_url = url($this->link);
         $page->form_method = 'POSt';
-
         return view($this->viewPath, compact('page'));
     }
 
@@ -40,10 +38,8 @@ class ProfileController extends Controller
     {
         // Auth::user()->shop->name;
         // Auth::user()->name ;
-
         // $user = Auth::user();
         // $user->update(['password' => bcrypt($request->new_password)]);
-
         // $url = url($this->link);
         // $error = false;
         // $message = Str::singular(Str::title($this->title)) . ' saved successfully';

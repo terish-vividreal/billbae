@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Helpers\FunctionHelper;
+use App\Models\BillingFormat;
+use App\Models\PaymentType;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\ShopBilling;
@@ -53,31 +55,38 @@ class StoreController extends Controller
                                     ->find($user->shop_id);        
         $page->title                = $this->title;
         $page->link                 = url($this->link);
-
-  
         $variants->countries        = DB::table('shop_countries')->pluck('name', 'id');  
 
         if($store->country_id){
-            $variants->states       = DB::table('shop_states')->where('country_id',$store->country_id)->pluck('name', 'id'); 
-
-            $country_code           = DB::table('shop_countries')->where('id',$store->country_id)->value('sortname');
-            $variants->timezone     = DB::table('timezone')->where('country_code',$country_code)->pluck('zone_name', 'zone_name');
+            $variants->states           = DB::table('shop_states')->where('country_id',$store->country_id)->pluck('name', 'id'); 
+            $country_code               = DB::table('shop_countries')->where('id',$store->country_id)->value('sortname');
+            $variants->timezone         = DB::table('timezone')->where('country_code',$country_code)->pluck('zone_name', 'zone_name');
         }        
         if($store->state_id){
-            $variants->districts    = DB::table('shop_districts')->where('state_id',$store->state_id)->pluck('name', 'id'); 
+            $variants->districts            = DB::table('shop_districts')->where('state_id',$store->state_id)->pluck('name', 'id'); 
         }   
         
-        $billing                = ShopBilling::where('shop_id', SHOP_ID)->first();
-
+        $billing                            = ShopBilling::where('shop_id', SHOP_ID)->first();
         if($billing->country_id){
-            $variants->billing_states    = DB::table('shop_states')->where('country_id',$billing->country_id)->pluck('name', 'id'); 
+            $variants->billing_states       = DB::table('shop_states')->where('country_id',$billing->country_id)->pluck('name', 'id'); 
         }
 
         if($billing->state_id){
             $variants->billing_districts    = DB::table('shop_districts')->where('state_id',$billing->state_id)->pluck('name', 'id'); 
         } 
 
+        // Billing ID formats
+        $variants->billing_formats          = BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', 0)->first();
+        $variants->billing_formats_all = collect(BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', '!=', 0)->get());
         
+        
+        // echo $variants->billing_formats_all->where('payment_type', 4)->pluck('prefix')->first();
+        // // ->pluck('prefix');
+
+        
+        // exit;
+
+        $variants->payment_types            = PaymentType::select('name', 'id')->where('shop_id', SHOP_ID)->get();         
 
         return view($this->viewPath . '.profile', compact('page', 'user', 'store', 'variants', 'billing'));
     }
@@ -108,6 +117,7 @@ class StoreController extends Controller
             $shop->pincode      = $request->pincode;
             $shop->pin          = $request->pin;
             $shop->timezone     = $request->timezone;
+            $shop->time_format  = $request->time_format;
             $shop->country_id   = $request->country_id;
             $shop->state_id     = $request->state_id;
             $shop->district_id  = $request->district_id;
@@ -219,6 +229,31 @@ class StoreController extends Controller
             echo ($count > 0 ? 'false' : 'true');
         }
         
+    }
+
+
+    public function updateBillFormat(Request $request)
+    {
+        $billing_format             = BillingFormat::find($request->bill_format_id);
+        $billing_format->shop_id    = SHOP_ID;
+        $billing_format->prefix     = Str::upper($request->bill_prefix);
+        $billing_format->suffix     = $request->bill_suffix;
+        $billing_format->save();
+
+        if(!$request->has('applied_to_all') )
+        {
+            if(count($request->payment_types) > 0 ){
+                foreach($request->payment_types as $key => $type){
+                    $format = BillingFormat::updateOrCreate(
+                        ['shop_id' => SHOP_ID, 'payment_type' => $type],
+                        ['prefix' => Str::upper($request->bill_prefix_type[$type]), 'suffix' => ($request->bill_suffix_type[$type] != '') ? $request->bill_suffix_type[$type] : $request->bill_suffix, 'applied_to_all' => 1]
+                    );
+                }
+                $billing_format->applied_to_all = 1;
+                $billing_format->save();
+            }
+        }
+        return ['flagError' => false, 'bill_format' => $billing_format->bill_format,  'message' => "Updated successfully"];    
     }
 
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\BillingFormat;
 use App\Models\Shop;
 use Keygen\Keygen;
 use Carbon;
@@ -17,9 +18,9 @@ class FunctionHelper
 {
 
 
-    public static function generateCode($length, $prefix, $user_id = null)
+    public static function generateCode($payment_type, $length, $prefix, $user_id = null)
     {
-			
+        // BillingFormat
         $code 		= Keygen::numeric($length)->prefix($prefix, false)->suffix($user_id)->generate();
         return $code;		
         // do {
@@ -36,19 +37,40 @@ class FunctionHelper
         return Shop::where('user_id', Auth::user()->id)->value('timezone');
     }
 
-    public static function dateToUTC($date)
+    public static function getTimeFormat()
     {
+        return (Shop::where('user_id', Auth::user()->id)->value('time_format') == 1)? 'h' : 'H';
+    }
+
+    public static function dateToUTC($date, $format = null)
+    {
+        $format = ($format != null)? $format : 'Y-m-d h:i:s';
         $timezone = self::getTimezone();
-        return Carbon\Carbon::parse($date, $timezone)->setTimezone('UTC')->format('Y-m-d h:i:s');
+        return Carbon\Carbon::parse($date, $timezone)->setTimezone('UTC')->format($format);
     }
 
-    public static function dateToTimeZone($date)
+    public static function dateToTimeZone($date, $format)
     {
-        $formatted_date     = Carbon\Carbon::parse($date);
+        $format = ($format != null)? $format : 'Y-m-d h:i:s';
         $timezone           = self::getTimezone();
-        return Carbon\Carbon::parse($date)->timezone($timezone);
+        return Carbon\Carbon::parse($date)->timezone($timezone)->format($format);
     }
 
+    public static function dateToTimeFormat($date)
+    {
+        $time_format           = self::getTimeFormat();
+        if($time_format === 'h'){
+            return date("d-m-Y H:i:s", strtotime($date));
+        }else{
+            $date =  str_replace(" AM","",$date);
+            $date =  str_replace(" PM","",$date);
+            return $date;
+        } 
+    }
+
+    
+    
+    
     public static function storeImage($file, $path, $slug)
     {
         $path = 'public/' . $path;
