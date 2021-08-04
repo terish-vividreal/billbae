@@ -77,7 +77,7 @@ class StoreController extends Controller
 
         // Billing ID formats
         $variants->billing_formats          = BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', 0)->first();
-        $variants->billing_formats_all = collect(BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', '!=', 0)->get());
+        $variants->billing_formats_all      = collect(BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', '!=', 0)->get());
         
         
         // echo $variants->billing_formats_all->where('payment_type', 4)->pluck('prefix')->first();

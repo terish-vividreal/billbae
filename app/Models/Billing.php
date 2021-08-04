@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Helpers\FunctionHelper;
+use App\Models\BillingFormat;
 
 class Billing extends Model
 {
@@ -37,5 +38,10 @@ class Billing extends Model
     public function getDateRangeCheckoutTimeAttribute($date)
     {
         return FunctionHelper::dateToTimeZone($this->checkout_time, 'd-m-Y h:i A');
+    }
+
+    public static function getDefaultFormat()
+    {
+        return BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', 0)->first();
     }
 }

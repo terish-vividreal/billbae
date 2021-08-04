@@ -13,6 +13,7 @@ use App\Models\Country;
 use App\Models\BillingAddres;
 use App\Models\BillingItemTax;
 use App\Models\BillingItem;
+use App\Models\BillingFormat;
 use App\Models\District;
 use App\Models\PaymentType;
 use App\Models\BillAmount;
@@ -272,25 +273,38 @@ class BillingController extends Controller
             if($request->grand_total == array_sum($request->payment_amount))
             {
                 
-                // $billing                    = Billing::findOrFail($request->billing_id);
-                // $billing->payment_status    = 1;
-                // $billing->amount            = $request->grand_total;
-                // $billing->status            = 1;
-                // $billing->save();
                 
-                // Store payment type details
+                // Store default billing format
+                $default_format     = Billing::getDefaultFormat();
 
-                // print_r($request->input('payment_amount')); 
-                // echo "<br>"; 
-                print_r($request->input('payment_type')); exit; 
+                if(count($request->input('payment_type')) == 1 )
+                {
+                    // Step 1 - Checking payment type has billing format
+                    $format         = BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', $request->input('payment_type')[0])->first();
+                    $format_id      = (isset($format))?$format->id:$default_format->id;
 
+                    $billing_code   = FunctionHelper::getBillingCode($format_id);
 
+                }else{
+                    $format_id      = $default_format->id;
+                    $billing_code   = FunctionHelper::getBillingCode($default_format->id);
+                }
+                
+                $billing                    = Billing::findOrFail($request->billing_id);
+                $billing->payment_status    = 1;
+                $billing->amount            = $request->grand_total;
+                $billing->status            = 1;
+                $billing->billing_code      = $billing_code;
+                $billing->save();
+
+                 
 
                 foreach($request->input('payment_amount') as $key => $value) {
-                    $bill_amount                = new BillAmount();
-                    $bill_amount->bill_id       = $billing->id;
-                    $bill_amount->payment_type  = $request->payment_type[$key];
-                    $bill_amount->amount        = $request->payment_amount[$key];
+                    $bill_amount                    = new BillAmount();
+                    $bill_amount->bill_id           = $billing->id;
+                    $bill_amount->payment_type      = $request->payment_type[$key];
+                    $bill_amount->amount            = $request->payment_amount[$key];
+                    $bill_amount->billing_format_id = $format_id;
                     $bill_amount->save();
                 }
 
@@ -887,6 +901,9 @@ class BillingController extends Controller
      * @param  \App\Models\Billing  $billing
      * @return \Illuminate\Http\Response
      */
+
+
+     
     public function destroy(Billing $billing)
     {
         if($billing->address_type== "company")

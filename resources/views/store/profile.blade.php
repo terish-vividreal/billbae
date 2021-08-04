@@ -412,7 +412,7 @@
                                                 <td style="width:20%">
   
                                                 
-                                                {{$type->name}} {{$checked}}</td>
+                                                {{$type->name}} </td>
                                                 <td style="align:right">
                                                   <input placeholder="{{$type->name}} Prefix starts with" id="bill_prefix_{{$type->id}}" class="form-control"  name="bill_prefix_type[{{$type->id}}]"  type="text" value="{{$prefix}}" >
                                                   <label id="bill_prefix-error_{{$type->id}}" class="error"></label>
@@ -700,7 +700,7 @@ if ($("#billFormatForm").length > 0) {
         rules: {
             bill_prefix: {
                     required: true,
-                    maxlength: 3,
+                    maxlength: 5,
                     lettersonly:true,
             }, 
             bill_suffix: {
@@ -720,7 +720,7 @@ if ($("#billFormatForm").length > 0) {
         messages: { 
           bill_prefix: {
               required: "Please enter bill prefix",
-              maxlength: "Length cannot be more than 3 characters",
+              maxlength: "Length cannot be more than 5 characters",
           },
           bill_suffix: {
             required: "Please enter bill suffix",
@@ -740,14 +740,24 @@ if ($("#billFormatForm").length > 0) {
             formMethod    = "POST";
             var forms     = $("#billFormatForm");
             var isSubmit  = true;
+            var regex     = /^[A-Za-z]+$/;
 
             if($("#applied_to_all").is(":not(:checked)")){
                 $('input:checkbox.payment-types').each(function () {
                   if(this.checked){
                       typeId = $(this).data("type");
-                      if($('#bill_prefix_'+typeId).val() == '')
-                      {
+                      if($('#bill_prefix_'+typeId).val() == ''){
                         $("#bill_prefix-error_"+typeId).text("Please enter bill prefix");
+                        $("#bill_prefix-error_"+typeId).addClass("error");
+                        $("#bill_prefix-error_"+typeId).attr("style", "display:block");
+                        isSubmit = false;
+                      }else if($('#bill_prefix_'+typeId).val().length > 5){
+                        $("#bill_prefix-error_"+typeId).text("Length cannot be more than 5 characters");
+                        $("#bill_prefix-error_"+typeId).addClass("error");
+                        $("#bill_prefix-error_"+typeId).attr("style", "display:block");
+                        isSubmit = false;
+                      }else if(!$('#bill_prefix_'+typeId).val().match(regex)){
+                        $("#bill_prefix-error_"+typeId).text("Letters only please");
                         $("#bill_prefix-error_"+typeId).addClass("error");
                         $("#bill_prefix-error_"+typeId).attr("style", "display:block");
                         isSubmit = false;
@@ -757,6 +767,7 @@ if ($("#billFormatForm").length > 0) {
             } 
 
             if(isSubmit === true){
+
               $.ajax({ url: "{{ url('/store/update/bill-format') }}", type: formMethod, processData: false, 
                 data: forms.serialize(), dataType: "html",
               }).done(function (a) {
