@@ -78,6 +78,7 @@
     </section>
 
     <!-- Main content -->
+
     <section class="content">
       <div class="container-fluid">
         <div class="row">
@@ -92,22 +93,16 @@
                   <img class="profile-user-img img-fluid img-circle profile-pic" id="store_logo"
                        src="{{ $store->show_image }}" 
                        alt="User profile picture">
-                        
-
                       <div class="form-group">
-                        <div class="custom-file">
-                          
+                        <div class="custom-file">                        
                           <!-- <a href="javascript:" data-id="1" id="updateProfile">Change Logo<i class="fa fa-pencil"></i></a> -->
                           <label class="custom-file-label" for="customFile">Choose Logo</label>
                           <input type="file" name="image" accept="image/png, image/gif, image/jpeg" class="image custom-file-input">
                         </div>
                         <!-- <label for="customFile">Custom File</label> -->
                       </div>
-                      
                 </div> 
-
                 <h3 class="profile-username text-center">{{ $store->name ?? '' }}</h3>
-
                 <p class="text-muted text-center">{{ $store->business_types->name ?? '' }}</p>
 
                 <ul class="list-group list-group-unbordered mb-3">
@@ -159,7 +154,7 @@
                 <ul class="nav nav-pills">
                   <li class="nav-item"><a class="nav-link active" href="#profile" data-toggle="tab">Store Profile</a></li>
                   <li class="nav-item"><a class="nav-link" href="#billingtab" data-toggle="tab">Billing Details</a></li>
-                  <!-- <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Settings</a></li> -->
+                  <li class="nav-item"><a class="nav-link" href="#billformat" data-toggle="tab">Billing Format</a></li>
                 </ul>
               </div><!-- /.card-header -->
               <div class="card-body">
@@ -221,7 +216,11 @@
                              </div>
                           </div>
 
-                          
+                          <div class="form-group">
+                              {!! Form::label('time_format', 'Time Format ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
+                              {!! Form::select('time_format', [1 => '12 Format', 2 => '24 Format'] , $store->time_format ?? '' , ['id' => 'time_format' ,'class' => 'form-control']) !!}
+                              <div class="error" id="time_format"></div>
+                          </div>
 
                           <div class="form-group">
                               {!! Form::label('pincode', 'Pincode ', ['class' => 'col-sm-4 col-form-label text-alert']) !!}
@@ -340,9 +339,114 @@
                   </div>
                   <!-- /.tab-pane -->
 
-                  <!-- <div class="tab-pane" id="settings">
-                    
-                  </div> -->
+                  <div class="tab-pane" id="billformat">
+                    <div class="card-body">
+                      <form id="billFormatForm" name="billFormatForm" role="form" method="" action="" class="ajax-submit">
+                        {{ csrf_field() }}
+                        {!! Form::hidden('bill_format_id', $variants->billing_formats->id , ['id' => 'bill_format_id'] ); !!}
+
+                        <!-- style="display:none;" -->
+                        <div class="container-fluid" id="customer_details_div">
+                          <!-- SELECT2 EXAMPLE -->
+                          <div class="card card-default">
+                            <div class="card-header">
+                              <h3 class="card-title">Billing Formats</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+
+                              <div class="row">
+                                <div class="col-md-12">
+                                <div class="callout callout-info">
+                                  Auto generated Billing ID format : <span id="mainFormatID" style="font-weight: bold;"> {{$variants->billing_formats->bill_format}} </span>
+                                </div>
+                                </div>
+                              </div>
+            
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="bill_prefix" class="col-form-label">Starts with *</label>
+                                    {!! Form::text('bill_prefix', $variants->billing_formats->prefix ?? '' , array('class' => 'form-control')) !!}
+                                    <small class="col-sm-2 ">3 Alphabetic characters only.</small>
+                                  </div> 
+                      
+                                  <div class="form-group" style="margin-top: 1px;">                                                 
+                                      <div class="custom-control custom-checkbox">
+                                        <input class="custom-control-input" type="checkbox" name="applied_to_all" id="applied_to_all" @if($variants->billing_formats->applied_to_all == 0) checked="checked" @endif >
+                                        <label for="applied_to_all" class="custom-control-label">Use same format for all bills.</label>
+                                      </div>
+                                  </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="bill_suffix" class="col-form-label">Starts From *</label>
+                                    {!! Form::text('bill_suffix', $variants->billing_formats->suffix ?? '' , array('class' => 'form-control')) !!}
+                                    <small class="col-sm-2">Starting from number</small>
+                                  </div>
+                                </div>
+
+                              </div>
+                              <div class="payment-types-section" @if($variants->billing_formats->applied_to_all == 0) style="display:none;" @endif>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p class="lead">Payment Details:</p>
+                                        <div class="table-responsive">
+                                            <table class="table"><tbody>
+                                              @foreach($variants->payment_types as $type)
+                                              @php $checked='';  $prefix=''; $suffix='';   
+                                              
+                                                if($variants->billing_formats_all->contains('payment_type', $type->id))
+                                                {
+                                                  $checked="checked";
+                                                  $prefix= $variants->billing_formats_all->where('payment_type', $type->id)->pluck('prefix')->first();
+                                                  $suffix= $variants->billing_formats_all->where('payment_type', $type->id)->pluck('suffix')->first();
+                                                }
+
+                                              @endphp 
+                                              <tr>
+                                                <td style="align:right"><input class="payment-types" type="checkbox" name="payment_types[]" data-type="{{$type->id}}" id="payment_types_{{$type->id}}" {{$checked}} value="{{$type->id}}"></td>
+                                                <td style="width:20%">
+  
+                                                
+                                                {{$type->name}} </td>
+                                                <td style="align:right">
+                                                  <input placeholder="{{$type->name}} Prefix starts with" id="bill_prefix_{{$type->id}}" class="form-control"  name="bill_prefix_type[{{$type->id}}]"  type="text" value="{{$prefix}}" >
+                                                  <label id="bill_prefix-error_{{$type->id}}" class="error"></label>
+                                                </td>
+                                                <td style="align:right"><input placeholder="{{$type->name}} Starts from" id="bill_suffix_{{$type->id}}" class="form-control check_numeric" name="bill_suffix_type[{{$type->id}}]" type="text" value="{{$suffix}}" ></td>
+                                              <tr>
+                                              @endforeach
+                                            </tbody>
+                                            </table>
+                                        </div>
+                                            
+                                    </div>
+                                </div>
+
+
+                              </div>
+
+
+                            </div>
+                            <!-- +/.card-body -->
+                          </div>
+                          <!-- /.card -->
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                            <a href="#" class="btn btn-secondary">Cancel</a>
+                            <button class="btn btn-success" id="continue"> Continue </button>
+                            </div>
+                        </div>
+                      </form>              
+                    </div>
+            
+                  </div>
                   <!-- /.tab-pane -->
                 </div>
                 <!-- /.tab-content -->
@@ -363,7 +467,6 @@
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalLabel">Laravel Cropper Js - Crop Image Before Upload - Tutsmake.com</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
@@ -401,6 +504,11 @@
 var $modal = $('#modal');
 var image = document.getElementById('image');
 var cropper;
+var isFormValid = false;
+var typeId  = '';
+
+
+
 $("body").on("change", ".image", function(e){
   var files = e.target.files;
   var done = function (url) {
@@ -587,9 +695,109 @@ if ($("#storeProfileForm").length > 0) {
     })
 } 
 
+if ($("#billFormatForm").length > 0) {
+    var validator = $("#billFormatForm").validate({ 
+        rules: {
+            bill_prefix: {
+                    required: true,
+                    maxlength: 5,
+                    lettersonly:true,
+            }, 
+            bill_suffix: {
+                  required: true,
+                  maxlength: 5,
+                  number: true,
+            },
+            "bill_prefix_type[]": {
+                maxlength: 3,
+                lettersonly:true,
+            },
+            "bill_suffix_type[]": {
+                maxlength: 3,
+                number: true,
+            },
+        },
+        messages: { 
+          bill_prefix: {
+              required: "Please enter bill prefix",
+              maxlength: "Length cannot be more than 5 characters",
+          },
+          bill_suffix: {
+            required: "Please enter bill suffix",
+            maxlength: "Length cannot be more than 5 digits",
+            number: "Accept only numeric values",
+          },
+          "bill_prefix_type[]": {
+            maxlength: "Length cannot be more than 3 characters",
+          },
+          "bill_suffix_type[]": {
+            maxlength: "Length cannot be more than 5 characters",
+            number: "Accept only numeric values",
+          },
+        },
+        submitHandler: function (form) {
+
+            formMethod    = "POST";
+            var forms     = $("#billFormatForm");
+            var isSubmit  = true;
+            var regex     = /^[A-Za-z]+$/;
+
+            if($("#applied_to_all").is(":not(:checked)")){
+                $('input:checkbox.payment-types').each(function () {
+                  if(this.checked){
+                      typeId = $(this).data("type");
+                      if($('#bill_prefix_'+typeId).val() == ''){
+                        $("#bill_prefix-error_"+typeId).text("Please enter bill prefix");
+                        $("#bill_prefix-error_"+typeId).addClass("error");
+                        $("#bill_prefix-error_"+typeId).attr("style", "display:block");
+                        isSubmit = false;
+                      }else if($('#bill_prefix_'+typeId).val().length > 5){
+                        $("#bill_prefix-error_"+typeId).text("Length cannot be more than 5 characters");
+                        $("#bill_prefix-error_"+typeId).addClass("error");
+                        $("#bill_prefix-error_"+typeId).attr("style", "display:block");
+                        isSubmit = false;
+                      }else if(!$('#bill_prefix_'+typeId).val().match(regex)){
+                        $("#bill_prefix-error_"+typeId).text("Letters only please");
+                        $("#bill_prefix-error_"+typeId).addClass("error");
+                        $("#bill_prefix-error_"+typeId).attr("style", "display:block");
+                        isSubmit = false;
+                      }
+                  }
+                });
+            } 
+
+            if(isSubmit === true){
+
+              $.ajax({ url: "{{ url('/store/update/bill-format') }}", type: formMethod, processData: false, 
+                data: forms.serialize(), dataType: "html",
+              }).done(function (a) {
+                  var data = JSON.parse(a);
+                  if(data.flagError == false){
+                      showSuccessToaster(data.message);
+                      $("#mainFormatID").html(data.bill_format);
+                      // $("#bill_prefix").val('');
+                      // $("#bill_suffix").val('');
+                  }else{
+                    showErrorToaster(data.message);
+                    printErrorMsg(data.error);
+                  }
+              });
+            }
+        }
+    })
+}
+
 jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
+
+
+$('#applied_to_all').change(function() {
+    if($(this).is(":unchecked")) 
+        $('.payment-types-section').show();
+    else
+        $('.payment-types-section').hide();         
+});
 
 
 if ($("#storeBillingForm").length > 0) {

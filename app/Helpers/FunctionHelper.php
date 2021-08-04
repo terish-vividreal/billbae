@@ -7,15 +7,22 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\BillingFormat;
+use App\Models\BillAmount;
+use App\Models\Billing;
+use App\Models\Shop;
 use Keygen\Keygen;
+use Carbon;
 use Image;
+use Auth;
 
 class FunctionHelper
 {
 
+
     public static function generateCode($length, $prefix, $user_id = null)
     {
-			
+        // BillingFormat
         $code 		= Keygen::numeric($length)->prefix($prefix, false)->suffix($user_id)->generate();
         return $code;		
         // do {
@@ -26,6 +33,67 @@ class FunctionHelper
         // while ($data->count() > 0);
 
     }
+
+    public static function getBillingCode($payment_type)
+    {   
+            // Default format 
+            $store_default_format     = BillingFormat::find($payment_type)->first();
+            $payment_type_format      = BillingFormat::where('shop_id', SHOP_ID)->where('id', $payment_type)->first();
+
+            // Previous bill id checking
+            $last_bill_id   = Billing::select('billing_code')
+                                ->leftjoin('bill_amounts', 'bill_amounts.bill_id', '=', 'billings.id')
+                                ->whereNotNull('billing_code')->where('billing_format_id', $payment_type)->orderBy('billings.id', 'DESC')->first();
+
+            if(isset($last_bill_id)){
+                // If prefix already used - get last count 
+                $suffix     = preg_replace("/[^0-9]+/", "", $last_bill_id->billing_code);
+            }else{
+                $suffix     = (isset($payment_type_format))?$payment_type_format->suffix:$store_default_format->suffix;
+            }   
+            $prefix         = (isset($payment_type_format))?$payment_type_format->prefix:$store_default_format->prefix;
+            return $prefix.($suffix+1);
+    }
+
+    public static function getTimezone()
+    {
+        return Shop::where('user_id', Auth::user()->id)->value('timezone');
+    }
+
+    public static function getTimeFormat()
+    {
+        return (Shop::where('user_id', Auth::user()->id)->value('time_format') == 1)? 'h' : 'H';
+    }
+
+    public static function dateToUTC($date, $format = null)
+    {
+        $format = ($format != null)? $format : 'Y-m-d h:i:s';
+        $timezone = self::getTimezone();
+        return Carbon\Carbon::parse($date, $timezone)->setTimezone('UTC')->format($format);
+    }
+
+    public static function dateToTimeZone($date, $format)
+    {
+        $format = ($format != null)? $format : 'Y-m-d h:i:s';
+        $timezone           = self::getTimezone();
+        return Carbon\Carbon::parse($date)->timezone($timezone)->format($format);
+    }
+
+    public static function dateToTimeFormat($date)
+    {
+        $time_format           = self::getTimeFormat();
+        if($time_format === 'h'){
+            return date("d-m-Y H:i:s", strtotime($date));
+        }else{
+            $date =  str_replace(" AM","",$date);
+            $date =  str_replace(" PM","",$date);
+            return $date;
+        } 
+    }
+
+    
+    
+    
     public static function storeImage($file, $path, $slug)
     {
         $path = 'public/' . $path;

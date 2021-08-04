@@ -26,6 +26,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CashbookController;
+use App\Http\Controllers\PaymentTypeController;
+
 
 
 
@@ -75,6 +77,8 @@ Route::group(['middleware' => ['auth', 'store']], function () {
 
     Route::put($store_link . '/update/{id}', [Store::class, 'update']);
     Route::put($store_link . '/update/billing/{id}', [Store::class, 'storeBilling']);
+
+    Route::post($store_link . '/update/bill-format/', [Store::class, 'updateBillFormat']);
 
     // User Routes
     Route::resource('users', UserController::class)->except(['show']);
@@ -133,6 +137,12 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $additionaltax = 'additional-tax';
     Route::resource($additionaltax, AdditionaltaxController::class)->except(['show']);
     Route::get($additionaltax . '/lists', [AdditionaltaxController::class, 'lists']);
+
+    // Payment Type Routes
+    $paymentTypes = 'payment-types';
+    Route::resource($paymentTypes, PaymentTypeController::class)->except(['show']);
+    Route::get($paymentTypes . '/lists', [PaymentTypeController::class, 'lists']);
+    Route::get($paymentTypes . '/select-list', [PaymentTypeController::class, 'lists']);
 
     // Billing Routes 
     $billing = 'billings';

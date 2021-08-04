@@ -103,7 +103,7 @@
                     
                 </div>
                 <!-- style="display:none;" -->
-                <div class="container-fluid" id="customer_details_div" style="display:none">
+                <div class="container-fluid" id="customer_details_div">
                   <!-- SELECT2 EXAMPLE -->
                   <div class="card card-default">
                     <div class="card-header">
@@ -329,46 +329,102 @@
 
 <script type="text/javascript">
 
+var timePicker = {!! json_encode($variants->time_picker) !!};
+var timeFormat = {!! json_encode($variants->time_format) !!};
+
+
 $(function() {
   $('input[name="billed_date"]').daterangepicker({
     singleDatePicker: true,
-    autoApply: true,
-    locale: {
-        format: 'DD-MM-YYYY'
-      },
-    }, function(ev, picker) {
-      console.log(picker.format('DD-MM-YYYY'));
-  });
-  
-  $('input[name="checkin_time"]').daterangepicker({
-    singleDatePicker: true,
-    startDate: moment().startOf('hour'),
-    endDate: moment().startOf('hour').add(32, 'hour'),
-    timePickerIncrement: 5,
+    startDate: new Date(),
+    showDropdowns: true,
     autoApply: true,
     timePicker: true,
-      locale: {
-        format: 'DD-MM-YYYY hh:mm A'
-      },
-      }, function(start, end, label) {
-        console.log(end.format('DD-MM-YYYY hh:mm A'));
-      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    timePicker24Hour: timePicker,
+    locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
+  }, function(ev, picker) {
+      // console.log(picker.format('DD-MM-YYYY'));
+  });
+
+  $('input[name="checkin_time"]').daterangepicker({
+    singleDatePicker: true,
+    startDate: new Date(),
+    showDropdowns: true,
+    autoApply: true,
+    timePicker: true,
+    timePicker24Hour: timePicker,
+    locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
+  }, function(ev, picker) {
+    // console.log(picker.format('DD-MM-YYYY'));
   });
 
   $('input[name="checkout_time"]').daterangepicker({
     singleDatePicker: true,
-    startDate: moment().startOf('hour'),
-    endDate: moment().startOf('hour').add(32, 'hour'),
-    timePickerIncrement: 5,
+    startDate: new Date(),
+    showDropdowns: true,
     autoApply: true,
     timePicker: true,
-    locale: {
-        format: 'DD-MM-YYYY hh:mm A'
-      },
-      }, function(start, end, label) {
-        console.log(end.format('DD-MM-YYYY hh:mm A'));
-      // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    timePicker24Hour: timePicker,
+    locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
+  }, function(ev, picker) {
+    // console.log(picker.format('DD-MM-YYYY'));
   });
+
+  // $('input[name="billed_date"]').daterangepicker({
+  //   singleDatePicker: true,
+  //   startDate: moment().startOf('hour'),
+  //   endDate: moment().startOf('hour').add(32, 'hour'),
+  //   timePickerIncrement: 5,
+  //   autoApply: true,
+  //   timePicker: true,
+  //   locale: { format: 'DD-MM-YYYY hh:mm'}
+  // });
+
+// $('input[name="billed_date"]').daterangepicker({
+//   singleDatePicker: true,
+//   startDate: new Date(),
+//   showDropdowns: true,
+//   timePicker: true,
+//   timePicker24Hour: true,
+//   timePickerIncrement: 10,
+//   autoUpdateInput: true,
+//   locale: {
+//     format: 'DD-MM-YYYY hh:mm A'
+//   },
+// });
+
+  // function(start, end, label) {
+  //   // console.log(end.format('DD-MM-YYYY hh:mm A'));
+  // }
+
+  
+  // $('input[name="checkin_time"]').daterangepicker({
+  //   singleDatePicker: true,
+  //   startDate: new Date(),
+  //   timePickerIncrement: 5,
+  //   autoApply: true,
+  //   timePicker: true,
+  //   locale: { format: 'DD-MM-YYYY hh:mm A'}
+  // }, function(start, end, label) {
+  //   console.log(end.format('DD-MM-YYYY hh:mm A'));
+  // });
+  
+
+  // $('input[name="checkout_time"]').daterangepicker({
+  //   singleDatePicker: true,
+  //   startDate: new Date(),
+  //   // endDate: moment().startOf('hour').add(32, 'hour'),
+  //   timePickerIncrement: 5,
+  //   autoApply: true,
+  //   timePicker: true,
+  //   locale: {
+  //     format: 'DD-MM-YYYY hh:mm A' }
+  //   });
+      // }, function(start, end, label) {
+      //   console.log(end.format('DD-MM-YYYY hh:mm A'));
+      // // console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+      // }
+  
   
 
 
@@ -386,7 +442,6 @@ $(function() {
   });
   
   // $('input[name="dob"]').data('daterangepicker').setStartDate('15-06-2021');
-
 
 });
 

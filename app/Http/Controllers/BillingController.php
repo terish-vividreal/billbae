@@ -13,6 +13,7 @@ use App\Models\Country;
 use App\Models\BillingAddres;
 use App\Models\BillingItemTax;
 use App\Models\BillingItem;
+use App\Models\BillingFormat;
 use App\Models\District;
 use App\Models\PaymentType;
 use App\Models\BillAmount;
@@ -34,12 +35,13 @@ class BillingController extends Controller
 {
     
 
-    protected $title    = 'Billing';
-    protected $viewPath = 'billing';
-    protected $link     = 'billings';
-    protected $route    = 'billings';
-    protected $entity   = 'Billing';
-    protected $timezone = '';
+    protected $title        = 'Billing';
+    protected $viewPath     = 'billing';
+    protected $link         = 'billings';
+    protected $route        = 'billings';
+    protected $entity       = 'Billing';
+    protected $timezone     = '';
+    protected $time_format  = '';
 
     /**
      * Display a listing of the resource.
@@ -49,13 +51,12 @@ class BillingController extends Controller
     function __construct()
     {
         $this->middleware(function ($request, $next) {
-            $this->timezone = Shop::where('user_id', Auth::user()->id)->value('timezone');
+            $this->timezone     = Shop::where('user_id', Auth::user()->id)->value('timezone');
+            $this->time_format  = (Shop::where('user_id', Auth::user()->id)->value('time_format') == 1)?'h':'H';
             return $next($request);
         });
-
     }
      
-
     /**
      * Display a listing of the resource.
      *
@@ -63,16 +64,12 @@ class BillingController extends Controller
      */
     public function index()
     {
-                
         $page                   = collect();
-        $variants               = collect();
         $page->title            = $this->title;
         $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity;      
-        return view($this->viewPath . '.list', compact('page', 'variants'));
-
-
+        return view($this->viewPath . '.list', compact('page'));
     }
 
     /**
@@ -82,16 +79,18 @@ class BillingController extends Controller
      */
     public function create()
     {
-        $page                   = collect();
-        $variants               = collect();
-        $page->title            = $this->title;
-        $page->link             = url($this->link);
-        $page->route            = $this->route;
-        $page->entity           = $this->entity; 
-        
-        $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');          
-        $variants->services     = Service::where('shop_id', SHOP_ID)->pluck('name', 'id');          
-        $variants->packages     = Package::where('shop_id', SHOP_ID)->pluck('name', 'id');   
+        $page                       = collect();
+        $variants                   = collect();
+        $page->title                = $this->title;
+        $page->link                 = url($this->link);
+        $page->route                = $this->route;
+        $page->entity               = $this->entity;                                                                                                                             
+        $variants->country          = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');          
+        $variants->services         = Service::where('shop_id', SHOP_ID)->pluck('name', 'id');          
+        $variants->packages         = Package::where('shop_id', SHOP_ID)->pluck('name', 'id');
+        $variants->payment_types    = PaymentType::where('shop_id', SHOP_ID)->pluck('name', 'id');         
+        $variants->time_picker      = ($this->time_format === 'h')?false:true;
+        $variants->time_format      = $this->time_format;
 
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
@@ -103,24 +102,19 @@ class BillingController extends Controller
     public function lists(Request $request)
     {
         $detail =  Billing::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
-
         // if($request['service_category'] != '') {
         //     $service_category = $request['service_category'];
         //     $detail->Where(function ($query) use ($service_category) {
         //         $query->where('service_category_id', $service_category);
         //     });
         // }
-            
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
                 $action = '';
-
                 if($detail->payment_status == 0){
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/' . $detail->id ) . '"" class="btn btn-info btn-sm btn-icon mr-2" title="Update Payment"> <i class="fa fa-inr" aria-hidden="true"></i> Update Payment</a>';
-                }
-                    
-                
+                } 
                 if($detail->status == 0){
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/edit/' . $detail->id) . '"" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i> Edit details</a>';
                     $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="deleteBill(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
@@ -128,10 +122,7 @@ class BillingController extends Controller
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/show/' . $detail->id) . '"" class="btn btn-secondary btn-sm btn-icon mr-2" title="View details"> <i class="icon-1x fas fa-eye"></i> View details</a>';
                     $action .= ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="cancelBill(this.id)" class="btn btn-warning btn-sm btn-icon mr-2" title="Cancel"> <i class="fa fa-ban"></i> Cancel </a>';
                 }   
-
-                
                 return $action;
-
             })
             ->editColumn('customer_id', function($detail){
                 $customer = $detail->customer->name;
@@ -151,22 +142,9 @@ class BillingController extends Controller
                 return $status;
             })
             ->addColumn('updated_date', function($detail){
-                $updated_at     = Carbon\Carbon::parse($detail->updated_at);
-                
-                $updated_date = $updated_at->format('d-M-Y h:i:s a');
-
                 if($detail->payment_status == 1){
-
-
-                    $timezone = Carbon\Carbon::parse($updated_at)->timezone($this->timezone)->format('d-M-Y h:i:s a');
-
-
-                    return  $timezone;
-                }
-
-                
-
-                
+                    return FunctionHelper::dateToTimeZone($detail->billed_date, 'd-M-Y '.$this->time_format.':i a');
+                }  
             })
             ->addColumn('bill_status', function($detail){
                 $status = '';
@@ -178,7 +156,6 @@ class BillingController extends Controller
                     $status = '<span class="badge badge-danger">Cancelled</span>';             
                 }
                 return $status;
-                
             })
             ->removeColumn('id')
             ->escapeColumns([])
@@ -192,11 +169,7 @@ class BillingController extends Controller
      */
     public function manageDiscount(Request $request) 
     {
-
-        // print_r($request->all()); exit; 
-
         $billing_item       = BillingItem::findOrFail($request->billing_item_id);
-        // echo "<pre>"; print_r($billing_item); exit; 
         if($billing_item)
         {
             if($request->discount_action == 'add')
@@ -213,10 +186,8 @@ class BillingController extends Controller
             $billing_item->save();
             return response()->json(['flagError' => false]);
         }
-            
         $errors = array('Errors Occurred. Please check !');
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=> $errors];
-        
     }
 
     /**
@@ -226,18 +197,25 @@ class BillingController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        // echo "<pre>"; print_r($request->all());  exit ;
+    {   
+
+        // Formatting time 
+        $billed_date    = FunctionHelper::dateToTimeFormat($request->billed_date);
+        $checkin_time   = FunctionHelper::dateToTimeFormat($request->checkin_time);
+        $checkout_time  = FunctionHelper::dateToTimeFormat($request->checkout_time);
+
+
         $billing                    = new Billing();
         $billing->shop_id           = SHOP_ID;
         $billing->customer_id       = $request->customer_id;
         $billing->customer_type     = Customer::isExisting($request->customer_id);        
         $billing->amount            = $request->grand_total;
-        $billing->billed_date       = date('Y-m-d', strtotime($request->billed_date));
-        $billing->checkin_time      = $request->checkin_time;
-        $billing->checkout_time     = $request->checkout_time;
+        $billing->billed_date       = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s A');
+        $billing->checkin_time      = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s A'); 
+        $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
+
         $billing->payment_status    = 0 ;
-        $billing->billing_code      = FunctionHelper::generateCode(8, 'BB', SHOP_ID.Auth::user()->id);
+        // $billing->billing_code      = FunctionHelper::generateCode(0, 8, 'BB', SHOP_ID.Auth::user()->id);
         $billing->address_type      = ($request->billing_address_checkbox == 0) ? 'company' : 'customer' ;
         $billing->save();
         
@@ -280,11 +258,7 @@ class BillingController extends Controller
      */
     public function storePayment(Request $request)
     {
-        
         $data = [];
-
-        // echo "<pre>"; print_r($request->all()); exit;
-
         foreach($request->input('payment_amount') as $key => $value) {
             $data["payment_amount.{$key}"] = 'required';
         }
@@ -299,20 +273,42 @@ class BillingController extends Controller
             if($request->grand_total == array_sum($request->payment_amount))
             {
                 
+                
+                // Store default billing format
+                $default_format     = Billing::getDefaultFormat();
+
+                if(count($request->input('payment_type')) == 1 )
+                {
+                    // Step 1 - Checking payment type has billing format
+                    $format         = BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', $request->input('payment_type')[0])->first();
+                    $format_id      = (isset($format))?$format->id:$default_format->id;
+
+                    $billing_code   = FunctionHelper::getBillingCode($format_id);
+
+                }else{
+                    $format_id      = $default_format->id;
+                    $billing_code   = FunctionHelper::getBillingCode($default_format->id);
+                }
+                
                 $billing                    = Billing::findOrFail($request->billing_id);
                 $billing->payment_status    = 1;
                 $billing->amount            = $request->grand_total;
                 $billing->status            = 1;
+                $billing->billing_code      = $billing_code;
                 $billing->save();
-                
-                // store payment type details
+
+                 
+
                 foreach($request->input('payment_amount') as $key => $value) {
-                    $bill_amount                = new BillAmount();
-                    $bill_amount->bill_id       = $billing->id;
-                    $bill_amount->payment_type  = $request->payment_type[$key];
-                    $bill_amount->amount        = $request->payment_amount[$key];
+                    $bill_amount                    = new BillAmount();
+                    $bill_amount->bill_id           = $billing->id;
+                    $bill_amount->payment_type      = $request->payment_type[$key];
+                    $bill_amount->amount            = $request->payment_amount[$key];
+                    $bill_amount->billing_format_id = $format_id;
                     $bill_amount->save();
                 }
+
+
                     
                 if($billing->items){
                     $item_ids                   = [];
@@ -387,17 +383,18 @@ class BillingController extends Controller
 
     public function updateInvoice(Request $request, $id)
     {
-        // echo "<pre>"; print_r($request->all());  
-        // echo date('Y-m-d', strtotime($request->billed_date));
-        // exit ;
+        // Formatting time 
+        $billed_date    = FunctionHelper::dateToTimeFormat($request->billed_date);
+        $checkin_time   = FunctionHelper::dateToTimeFormat($request->checkin_time);
+        $checkout_time  = FunctionHelper::dateToTimeFormat($request->checkout_time);
+
 
         $billing                    = Billing::findOrFail($id);
         $billing->customer_id       = $request->customer_id;
         $billing->amount            = $request->grand_total;
-        $billing->billed_date       = date('Y-m-d', strtotime($request->billed_date));
-        $billing->checkin_time      = $request->checkin_time;
-        $billing->checkout_time     = $request->checkout_time;
-
+        $billing->billed_date       = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s A');
+        $billing->checkin_time      = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s A'); 
+        $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
         $address                    = BillingAddres::where('bill_id', $id)->where('customer_id', $request->customer_id)->first();
         
         if($request->billing_address_checkbox == 0)
@@ -414,7 +411,6 @@ class BillingController extends Controller
                 $address->address           = $request->address;
                 $address->updated_by        = Auth::user()->id;
                 $address->save();
-
                 $billing->address_type      = 'company' ;
 
             }else{
@@ -456,6 +452,7 @@ class BillingController extends Controller
         }
 
         return redirect($this->route.'/invoice/'.$id);
+   
     }
 
     /**
@@ -545,8 +542,6 @@ class BillingController extends Controller
                 // echo "<pre>"; print_r($variants->store->billing); exit; 
                 $variants->item_ids = $ids ;
                 $variants->bill_id  = $id ;
-
-
                 return view($this->viewPath . '.invoice', compact('page', 'billing' ,'variants'));
             }
         }
@@ -714,6 +709,7 @@ class BillingController extends Controller
         $variants->packages     = Package::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
 
         $billing                = Billing::findOrFail($id);
+
         if($billing->status === 0){
 
             $user                   = Auth::user();
@@ -754,7 +750,8 @@ class BillingController extends Controller
             if($billing){
                 $variants->item_ids = $ids ;
                 $variants->bill_id  = $id ;
-
+                $variants->time_picker  = ($this->time_format === 'h')?false:true;
+                $variants->time_format  = $this->time_format;
 
                 return view($this->viewPath . '.edit-invoice', compact('page', 'billing', 'service_type', 'item_type' ,'variants'));
             }
@@ -771,28 +768,14 @@ class BillingController extends Controller
     public function show(Request $request, $id)
     {
 
-        // Asia/Kolkata, Asia/Dubai, Europe/London
-
-
-        $dt = Carbon\Carbon::parse('2021-07-20 10:00:00')->timezone('Asia/Dubai');
-        $toDay = $dt->format('d');
-        $toMonth = $dt->format('m');
-        $toYear = $dt->format('Y');
-        $dateUTC = Carbon\Carbon::createFromDate($toYear, $toMonth, $toDay, 'UTC');
-        $datePST = Carbon\Carbon::createFromDate($toYear, $toMonth, $toDay, 'Asia/Dubai');
-        $difference = $dateUTC->diffInHours($datePST);
-        $date = $dt->addHours($difference);
-
-
-        // echo 'Server Time- 2021-07-20 10:00:00'. '<br><br>'; 
-        // echo 'dt- '.$dt . '<br>'; 
-        // // echo 'dateUTC- '.$dateUTC . '<br>';  
-        // // echo 'datePST- '.$datePST. '<br>'; 
-        // echo 'difference-  '.$difference. '<br>'; 
-        // // echo 'date-  '.$dateUTC. '<br>'; 
-        // exit;
-
-
+        // $dt = Carbon\Carbon::parse('2021-07-20 10:00:00')->timezone('Asia/Dubai');
+        // $toDay = $dt->format('d');
+        // $toMonth = $dt->format('m');
+        // $toYear = $dt->format('Y');
+        // $dateUTC = Carbon\Carbon::createFromDate($toYear, $toMonth, $toDay, 'UTC');
+        // $datePST = Carbon\Carbon::createFromDate($toYear, $toMonth, $toDay, 'Asia/Dubai');
+        // $difference = $dateUTC->diffInHours($datePST);
+        // $date = $dt->addHours($difference);
 
         $page                   = collect();
         $variants               = collect();
@@ -800,8 +783,8 @@ class BillingController extends Controller
         $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity;
-
         $billing                = Billing::findOrFail($id);
+       
 
         if($billing){
             if($billing->status === 1){
@@ -812,13 +795,9 @@ class BillingController extends Controller
                                             ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
                                             ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
                                             ->find($user->shop_id); 
-            
-                
-
                 if($billing->items){
                     $billing_items_array        = $billing->items->toArray();
                     $item_type                  = $billing_items_array[0]['item_type'];
-                    
 
                     foreach($billing_items_array as $row)
                     {
@@ -922,6 +901,9 @@ class BillingController extends Controller
      * @param  \App\Models\Billing  $billing
      * @return \Illuminate\Http\Response
      */
+
+
+     
     public function destroy(Billing $billing)
     {
         if($billing->address_type== "company")
@@ -947,3 +929,4 @@ class BillingController extends Controller
         return ['flagError' => false, 'message' => " Bill cancelled successfully"];
     }
 }
+

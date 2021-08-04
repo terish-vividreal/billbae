@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\ShopBilling;
+use App\Models\BillingFormat;
 use Spatie\Permission\Models\Role;
 use App\Models\BusinessType;
 use DB;
@@ -159,6 +160,13 @@ class StoreController extends Controller
             $billing = new ShopBilling();
             $billing->shop_id = $shop->id;
             $billing->save();
+
+
+            $billing_format             = new BillingFormat();
+            $billing_format->shop_id    = $shop->id;
+            $billing_format->prefix     = 'BBY';
+            $billing_format->suffix     = 100;
+            $billing_format->save();
 
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }

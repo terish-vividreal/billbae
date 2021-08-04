@@ -89,7 +89,9 @@
                 </ul>
             </li>
 
-            <li class="nav-item {{ Request::is(ROUTE_PREFIX.'billings*') ? 'menu-open' : '' }}">
+            <li class="nav-item @if ( Request::is(ROUTE_PREFIX.'billings*')) ||  Request::is(Request::is(ROUTE_PREFIX.'payment-types')) ) menu-open @endif">
+                        
+                
                 <a href="#" class="nav-link {{ Request::is(ROUTE_PREFIX.'billings*') ? 'active' : '' }}"><i class="nav-icon fas fa fa-book"></i><p>Billing <i class="fas fa-angle-left right"></i></p></a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
@@ -97,6 +99,9 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{ url(ROUTE_PREFIX.'/billings') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'billings') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i><p>List All</p></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url(ROUTE_PREFIX.'/payment-types') }}" class="nav-link {{ Request::is(ROUTE_PREFIX.'payment-types') ? 'active' : '' }}"><i class="far fa-plus-square nav-icon"></i><p>Payment Types</p></a>
                     </li>
                 </ul>
             </li>
