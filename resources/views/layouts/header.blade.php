@@ -70,7 +70,7 @@ if(!empty($themeSettings)){
                       <li><a href="{{ url(ROUTE_PREFIX.'/users') }}" class="@if (Request::is(ROUTE_PREFIX.'users') ||  Request::is(ROUTE_PREFIX.'users/create') ||  Request::is(ROUTE_PREFIX.'users/*')) active @endif">User management </a></li>
                       <li><a href="{{ url('store/user-profile') }}" class="@if(Request::is(ROUTE_PREFIX.'store/user-profile')) active @endif">Personal profile</a></li>
                       <li><a href="{{ url(ROUTE_PREFIX.'/packages') }}" class="@if(Request::is(ROUTE_PREFIX.'packages') || Request::is(ROUTE_PREFIX.'packages/create') || Request::is(ROUTE_PREFIX.'packages/*')) active @endif">Packages</a></li>
-                      <li><a href="{{ url(ROUTE_PREFIX.'/staffs') }}" class="@if(Request::is(ROUTE_PREFIX.'staffs') || Request::is(ROUTE_PREFIX.'packages/*')) active @endif">Staffs</a></li>
+                      <li><a href="{{ url(ROUTE_PREFIX.'/staffs') }}" class="@if(Request::is(ROUTE_PREFIX.'staffs') || Request::is(ROUTE_PREFIX.'staffs/*')) active @endif">Staffs</a></li>
                       <li><a href="#">Schedule</a></li>
                     </ul>
                   </div>
