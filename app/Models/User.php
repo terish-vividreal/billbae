@@ -46,4 +46,9 @@ class User extends Authenticatable
         return $this->hasOne(Shop::class);
     }
 
+    public function staffProfile()
+    {
+        return $this->hasOne(StaffProfile::class);
+    }
+
 }

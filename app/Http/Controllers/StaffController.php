@@ -241,7 +241,7 @@ class StaffController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
-            'roles' => 'required'
+            // 'roles' => 'required'
         ]);
 
         if ($validator->passes()) {

@@ -92,7 +92,7 @@
               {!! Form::hidden('user_id', $staff->id ?? '' , ['id' => 'user_id'] ); !!}
               <div class="row">
                 <div class="input-field col m6 s12">
-                    {!! Form::select('designation', $page->designations , $staff->designation ?? '' , ['id' => 'designation' ,'class' => 'select2 browser-default','placeholder'=>'Please select designation']) !!}
+                    {!! Form::select('designation', $page->designations , $staff->staffProfile->designation ?? '' , ['id' => 'designation' ,'class' => 'select2 browser-default','placeholder'=>'Please select designation']) !!}
                 </div>
                 <div class="input-field col m6 s12">
                     {!! Form::text('name', $staff->name ?? '',  ['id' => 'name']) !!}  
