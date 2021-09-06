@@ -30,7 +30,7 @@
       dismissible: true,
       onOpenEnd: function(modal, trigger) { 
         cropper = new Cropper(image, {
-        aspectRatio: 16 / 10,
+        aspectRatio: 15 / 12,
         viewMode: 3,
         preview: '.preview'
       });

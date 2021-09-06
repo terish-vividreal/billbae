@@ -20,10 +20,10 @@
 @endsection
 @section('page-css')
 <style type="text/css">
-img {
+/* img {
   display: block;
   max-width: 100%;
-}
+} */
 .preview {
   overflow: hidden;
   width: 160px; 
@@ -153,17 +153,10 @@ img {
 
               <div class="row">
                 <div class="input-field col m6 s12">
-                  @if(!empty($variants->states))
-                    {!! Form::select('state_id', $variants->states , $store->state_id ?? '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
-                  @else
-                    {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
-                  @endif
+                {!! Form::text('location', $store->location ?? '', array('placeholder' => 'Store location','id' => 'location')) !!}
                 <label for="location" class="label-placeholder">Location</label> 
                 </div>
-                <div class="input-field col m6 s12">
-                  {!! Form::text('pincode', $store->pincode ?? '' , array('id' => 'pincode', 'placeholder' => 'Pincode','class' => 'check_numeric')) !!}
-                  <label for="pincode" class="label-placeholder">Pincode</label> 
-                </div>
+
               </div>
 
               <div class="row">
