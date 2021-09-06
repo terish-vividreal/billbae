@@ -18,10 +18,10 @@
 @endsection
 @section('page-css')
 <style type="text/css">
-img {
+/* img {
   display: block;
   max-width: 100%;
-}
+} */
 .preview {
   overflow: hidden;
   width: 160px; 
@@ -58,7 +58,7 @@ img {
 <div class="section users-edit section-data-tables">
   <div class="card">
     <div class="card-content">
-      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsume is used for the ...</p>
+      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsum is used for the ...</p>
     </div>
   </div>
   <div class="card">

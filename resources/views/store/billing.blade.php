@@ -399,6 +399,7 @@
         $("#additionalTaxForm")[0].reset();
         $('#additionalTaxForm').find("input[type=text]").val("");
         $("#additionaltax_id").val('');
+        $("#additionaltaxFields .label-placeholder").show();
         $("#additionaltax-modal").modal("open");
     } else {
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/additional-tax') }}/" + additionaltax_id + "/edit", type: "GET", dataType: "html"})
@@ -409,6 +410,7 @@
                     $("#additionalTaxForm input[name=name]").val(data.data.name);
                     $("#additionalTaxForm input[name=percentage]").val(data.data.percentage);
                     $("#information").val(data.data.information);
+                    $("#additionaltaxFields .label-placeholder").hide();
                     $("#additionaltax-modal").modal("open");
                 }
             }).fail(function () {
@@ -420,11 +422,11 @@
   function managePaymentType(paymentType_id){
     validator.resetForm();
     $('input').removeClass('error');
-
     if (paymentType_id === null) {
         $("#paymentTypeForm")[0].reset();
         $('#paymentTypeForm').find("input[type=text]").val("");
         $("#paymentType_id").val('');
+        $("#paymentTypeFields .label-placeholder").show();
         $('#paymentType-modal').modal('open');
     } else {
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/payment-types') }}/" + paymentType_id + "/edit", type: "GET", dataType: "html"})
@@ -433,6 +435,8 @@
                 if(data.flagError == false){
                     $("#paymentType_id").val(data.data.id);
                     $("#paymentTypeForm input[name=name]").val(data.data.name);
+
+                    $("#paymentTypeFields .label-placeholder").hide();
                     $("#paymentType-modal").modal("open");
                 }
             }).fail(function () {
