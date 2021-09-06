@@ -79,12 +79,11 @@ class ServiceController extends Controller
                 $query->where('service_category_id', $service_category);
             });
         }
-            
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
-                $action = ' <a  href="' . url(ROUTE_PREFIX.'/services/' . $detail->id . '/edit') . '"" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                $action = ' <a  href="' . url(ROUTE_PREFIX.'/services/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                // $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
                 return $action;
             })
             ->addColumn('service_category', function($detail){
@@ -118,9 +117,9 @@ class ServiceController extends Controller
         $page->route            = $this->route;
         $page->entity           = $this->entity; 
         $variants->hours        = Hours::pluck('name', 'id'); 
-        $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');  
-        $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
+        $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');   
         $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+        $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'id'); 
         $variants->additional_tax_ids   = [];
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
@@ -190,7 +189,12 @@ class ServiceController extends Controller
      */
     public function edit($id)
     {
-        $service = Service::find($id);    
+        $service = Service::with('gsttax')->find($id);   
+        
+        // echo "<pre>"; print_r($service); exit;
+
+
+
         if($service){
             $page                   = collect();
             $variants               = collect();
@@ -200,7 +204,7 @@ class ServiceController extends Controller
             $page->entity           = $this->entity; 
             $variants->hours        = Hours::pluck('name', 'id'); 
             $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
-            $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
+            $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'id');  
             $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
             
             if($service->additionaltax){
@@ -209,6 +213,7 @@ class ServiceController extends Controller
                     $variants->additional_tax_ids[] = $row->id;
                 }
             }
+
             return view($this->viewPath . '.create', compact('page', 'variants', 'service'));
         }else{
             return redirect('services')->with('error', $this->title.' not found');

@@ -1,184 +1,188 @@
 @extends('layouts.app')
 
+{{-- page title --}}
+@section('seo_title', Str::plural($page->title) ?? '') 
+@section('search-title') {{ $page->title ?? ''}} @endsection
+
+
+{{-- vendor styles --}}
+@section('vendor-style')
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/select2/select2-materialize.css')}}">
+@endsection
+
+@section('page-style')
+<link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/form-select2.css')}}">
+@endsection
+
+
 @section('content')
-@push('page-css')
-<!-- daterange picker -->
-<!-- <link rel="stylesheet" href="{{ asset('admin/plugins/datetimepicker/css/bootstrap-datetimepicker.min.css') }}"> -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw==" crossorigin="anonymous" />
-<style>
-
-.row {
-  margin:15px 0;
-}
-
-</style>
-
-@endpush
 
 @section('breadcrumb')
-  <li class="nav-item">
-    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link">{{ $page->title ?? ''}}</a>
-  </li>
+  <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
+  <ol class="breadcrumbs mb-0">
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/customers') }}">{{ Str::plural($page->title) ?? ''}}</a></li>
+    <li class="breadcrumb-item active">Edit</li>
+  </ol>
 @endsection
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">{{ $page->title ?? ''}}</h1>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+@section('page-action')
+  <a href="{{ url(ROUTE_PREFIX.'/customers') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">List<i class="material-icons right">list</i></a>
+@endsection
+
+
+<div class="seaction">
+  <div class="card">
+    <div class="card-content">
+      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsume is used for the ...</p>
     </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
-    <section class="content">
-      <div class="container-fluid">
-        <!-- SELECT2 EXAMPLE -->
-        <div class="card card-primary">
-          <div class="card-header">
-            <h3 class="card-title">{{ $page->title ?? ''}} Form</h3>
-          </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-              <div class="alert alert-danger print-error-msg" style="display:none"><ul></ul></div>        
-
-                <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
-                  {{ csrf_field() }}
-                  {!! Form::hidden('customer_id', $customer->id ?? '' , ['id' => 'customer_id'] ); !!}
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group ">
-                          {!! Form::label('name', 'Customer Name*', ['class' => 'col-form-label text-alert']) !!}
-                          {!! Form::text('name', $customer->name ?? '' , array('placeholder' => 'Customer Name','class' => 'form-control')) !!}                        
-                        </div>
-                        <div class="form-group ">
-                          {!! Form::label('mobile', 'Mobile', ['class' => 'col-form-label text-alert']) !!}
-                          {!! Form::text('mobile', $customer->mobile ?? '' , array('placeholder' => 'Mobile','class' => 'form-control check_numeric')) !!}                        
-                        </div>
-                        <div class="form-group ">
-                          <label class="col-form-label font-weight-bolder">Customer DOB</label>
-                          <div class='input-group date' id='customerdob'>
-                              <input type='text' name="dob" id="dob" onkeydown="return false" class="form-control" autocomplete="off" />
-                              <div class="input-group-append">
-                                  <span class="input-group-text">
-                                      <i class="fa fa-calendar"></i>
-                                  </span>
-                              </div>
-                          </div>
-                        </div>
-                        <div class="form-group ">
-                            {!! Form::label('pincode', 'Pincode ', ['class' => 'col-form-label text-alert']) !!}
-                            {!! Form::text('pincode', $customer->pincode ?? '' , array('placeholder' => 'Pincode','class' => 'form-control check_numeric')) !!}                        
-                        </div>
-
-                        <div class="form-group ">
-                            {!! Form::label('gst', 'GST No. ', ['class' => 'col-form-label text-alert']) !!}
-                            {!! Form::text('gst', $customer->gst ?? '' , array('placeholder' => 'GST No.','class' => 'form-control')) !!}                        
-                        </div>
-                        <div class="form-group ">
-                            {!! Form::label('address', 'Address. ', ['class' => 'col-form-label text-alert']) !!}
-                            {!! Form::textarea('address', $customer->address ?? '', ['class' => 'form-control','placeholder'=>'Address','rows'=>3]) !!}                       
-                        </div>
-
-
-
-                      </div>  
-                      <div class="col-md-6">                      
-                        <div class="form-group ">
-                          {!! Form::label('email', 'E mail ', ['class' => 'col-form-label text-alert']) !!}
-                          {!! Form::text('email', $customer->email ?? '' , array('placeholder' => 'E mail','class' => 'form-control')) !!}                        
-                        </div>
-                        <div class="form-group">
-                          {!! Form::label('name', 'Gender', ['class' => 'col-form-label text-alert']) !!} <br><br>
-                          <input type="radio" value="1" id="male" name="gender" @if($customer->gender == 1) checked @endif>
-                          <label for="male">Male</label>
-                          <input type="radio" value="2" id="female" name="gender" @if($customer->gender == 2) checked @endif>
-                          <label for="female">Female</label>
-                          <input type="radio" value="3" id="others" name="gender" @if($customer->gender == 3) checked @endif>
-                          <label for="others">Others</label>
-                        </div>
-                        <div class="form-group" >
-                          {!! Form::label('country_id', 'country*', ['class' => '']) !!} <br>
-                          {!! Form::select('country_id', $variants->country , $variants->country_id ?? '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
-                        </div>
-                        <div class="form-group" style="margin-left:10px">
-                          {!! Form::label('state_id', 'State*', ['class' => '']) !!} <br>
-                          <div id="state_block">
-                            @if($customer->district_id)
-                              {!! Form::select('state_id', $variants->states , $variants->state_id ?? '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
-                            @else
-                              {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
-                            @endif
-                          </div>
-                        </div>
-                        <div class="form-group" style="margin-left:10px">
-                          {!! Form::label('state_id', 'District*', ['class' => '']) !!} <br>
-                          <div id="district_block">
-                          @if($customer->district_id)
-                            {!! Form::select('district_id', $variants->districts , $customer->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
-                          @else  
-                            {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
-                          @endif
-                          </div>
-                        </div>
-
-                      </div>            
-                    </div>
-                
-                  <div class="row">
-                      <div class="col-12">
-                      <a href="#" class="btn btn-secondary">Cancel</a>
-                      <button class="btn btn-success ajax-submit">Submit</button>
-                      </div>
-                  </div>
-              </form>              
-
-            </div>
-          <!-- /.card-body -->
-        </div>
-        <!-- /.card -->
-      </div>
-      <!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
-@endsection
-@push('page-scripts')
+  <!--Basic Form-->
+  <div class="row">
+    <!-- Form Advance -->
+    <div class="col s12 m12 l12">
+      <div id="Form-advance" class="card card card-default scrollspy">
+        <div class="card-content">
+          <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
+            <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
+                {{ csrf_field() }}
+                {!! Form::hidden('customer_id', $customer->id ?? '' , ['id' => 'customer_id'] ); !!}
 
+
+
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  {!! Form::text('name', $customer->name ?? '', array('id' => 'name')) !!}  
+                  <label for="name" class="label-placeholder">Customer Name <span class="red-text">*</span></label>
+                </div>
+                <div class="input-field col m6 s12">
+                  {!! Form::text('email', $customer->email ?? '', array('autocomplete' => 'off', 'id' => 'email')) !!}
+                  <label for="email" class="label-placeholder">Email </label>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  {!! Form::text('mobile', $customer->mobile ?? '', array('id' => 'mobile')) !!}  
+                  <label for="mobile" class="label-placeholder">Mobile <span class="red-text">*</span></label>
+                </div>              
+                <div class="input-field col m6 s12">                
+                  <p>
+                    <label>
+                      <input value="1" id="male" name="gender" type="radio"  @if($customer->gender == 1) checked @endif/>
+                      <span> Male </span>
+                    </label>             
+                    <label>
+                      <input value="2" id="female" name="gender" type="radio"  @if($customer->gender == 2) checked @endif/>
+                      <span> Female </span>
+                    </label>     
+                    <label>
+                      <input value="3" id="others" name="gender" type="radio" @if($customer->gender == 3) checked @endif />
+                      <span> Others </span>
+                    </label>
+                  </p>
+                </div>             
+              </div>
+
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  @php                             
+                    $dob = ($customer->dob != '') ? $customer->dob->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y');
+                  @endphp
+                  <input type='text' name="dob" id="dob" onkeydown="return false" class="" value="{{$dob}}" autocomplete="off" />
+                </div>
+                <div class="input-field col m6 s12">
+                  {!! Form::select('country_id', $variants->countries , $customer->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  {!! Form::text('pincode', $customer->pincode ?? '' , array('placeholder' => 'Pincode', 'class' => 'check_numeric')) !!}    
+                </div>
+                <div class="input-field col m6 s12">
+                  <div id="state_block">
+                    @if(!empty($variants->states))
+                      {!! Form::select('state_id', $variants->states , $customer->state_id ?? '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                    @else
+                      {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                    @endif
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="row">
+                <div class="input-field col m6 s12">  
+                  {!! Form::text('gst', $customer->gst ?? '' , array('placeholder' => 'GST No.')) !!} 
+                </div>
+                <div class="input-field col m6 s12">
+                  <div id="state_block">
+                    @if(!empty($variants->districts))
+                      {!! Form::select('district_id', $variants->districts , $customer->district_id ?? '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                    @else
+                      {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                    @endif
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col s6">
+                  {!! Form::textarea('address', $customer->address ?? '', ['class' => 'materialize-textarea', 'placeholder'=>'Address','rows'=>3]) !!}
+                </div>
+
+              </div>
+
+              <div class="row">
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
+                </div>
+              </div>
+
+              
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@endsection
+
+{{-- vendor scripts --}}
+@section('vendor-script')
+
+@endsection
+
+
+@push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <!-- date-time-picker -->
-<!-- <script src="{{ asset('admin/plugins/datetimepicker/js/bootstrap-datetimepicker.js') }}"></script> -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script type="text/javascript" src="{{asset('admin/js/scripts/form-select2.js')}}"></script>
+<script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-<script type="text/javascript">
 
-$('#customerdob').datepicker({
-  format: 'dd-mm-yyyy',
-  todayHighlight: true,
-  autoclose: true
+$(document).ready(function(){
+
+  $('#country_id').select2({ placeholder: "Please select country", allowClear: false });
+  $('#state_id').select2({ placeholder: "Please select state", allowClear: true });
+  $('#district_id').select2({ placeholder: "Please select district", allowClear: true });
+
+  $('input[name="dob"]').daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    maxYear: parseInt(moment().format('YYYY'),10)
+  }, function(start, end, label) {
+    var years = moment().diff(start, 'years');
+  });
+
 });
-
-var dob = "{{ date('d-m-yy', strtotime($customer->dob)) }}";                   
-
-
-$('#customerdob').datepicker('setDate', dob).datepicker('fill');
-
-
 
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
@@ -206,6 +210,8 @@ if ($("#{{$page->entity}}Form").length > 0) {
                 },
         },
         submitHandler: function (form) {
+            $('#submit-btn').html('Please Wait...');
+            $("#submit-btn"). attr("disabled", true);
             id = $("#customer_id").val();
             customer_id      = "" == id ? "" : "/" + id;
             formMethod  = "" == id ? "POST" : "PUT";
@@ -213,13 +219,14 @@ if ($("#{{$page->entity}}Form").length > 0) {
             $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
             data: forms.serialize(), dataType: "html",
             }).done(function (a) {
+              $('#submit-btn').html('Submit');
+              $("#submit-btn"). attr("disabled", false);
                 var data = JSON.parse(a);
                 if(data.flagError == false){
                     showSuccessToaster(data.message);
                     setTimeout(function () { 
                       window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
                     }, 2000);
-
                 }else{
                   showErrorToaster(data.message);
                   printErrorMsg(data.error);
@@ -227,41 +234,42 @@ if ($("#{{$page->entity}}Form").length > 0) {
             });
         },
     })
-} 
+}
 
 jQuery.validator.addMethod("lettersonly", function (value, element) {
-  return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
+    return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
 
-$("body").on("submit", ".ajax-submit", function (e) {
-    e.preventDefault();         
-});
 
 $(document).on('change', '#country_id', function () {
-    $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-states') }}/",
-          type: "GET",
-          data:{'country_id':this.value },
-          dataType: "html"
-      }).done(function (data) {
-      console.log(data);
-        $("#state_block").html(data);
-      })
+  $.ajax({
+      type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
+      success: function(data) {
+          var selectTerms = '<option value="">Please select state</option>';
+          $.each(data.data, function(key, value) {
+            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+          });
+          var select = $('#state_id');
+          select.empty().append(selectTerms);
+          $('#district_id').empty().trigger("change");
+      }
+  });
 });
 
 $(document).on('change', '#state_id', function () {
-    $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-districts') }}/",
-          type: "GET",
-          data:{'state_id':this.value },
-          dataType: "html"
-      }).done(function (data) {
-      console.log(data);
-        $("#district_block").html(data);
-      })
+  $.ajax({
+      type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-districts-of-state') }}", data:{'state_id':this.value }, dataType: 'json',
+      success: function(data) {
+          var selectTerms = '<option value="">Please select district</option>';
+          $.each(data.data, function(key, value) {
+            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+          });
+          var select = $('#district_id');
+          select.empty().append(selectTerms);
+      }
+  });
 });
-
-
 
 </script>
 @endpush
+

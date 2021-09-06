@@ -1,86 +1,82 @@
 @extends('layouts.app')
 
+{{-- page title --}}
+@section('seo_title', Str::plural($page->title) ?? '') 
+@section('search-title') {{ $page->title ?? ''}} @endsection
+
+
+{{-- vendor styles --}}
+@section('vendor-style')
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/flag-icon/css/flag-icon.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/jquery.dataTables.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/extensions/responsive/css/responsive.dataTables.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/select.dataTables.min.css')}}">
+@endsection
+
+{{-- page style --}}
+@section('page-style')
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/data-tables.css')}}">
+@endsection
+
 @section('content')
 
 @section('breadcrumb')
-  <li class="nav-item">
-    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="nav-link">{{ $page->title ?? ''}} </a>
-  </li>
+  <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
+  <ol class="breadcrumbs mb-0">
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{{ $page->link }}">{{ Str::plural($page->title) ?? ''}}</a></li>
+    <li class="breadcrumb-item active">List</li>
+  </ol>
 @endsection
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">{{ $page->title ?? ''}}</h1>
-          </div><!-- /.col -->
+@section('page-action')
+  <a href="javascript:" onclick="managePaymentType(null)" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">payment</i></a>
+@endsection
 
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-            <button class="btn btn-success ajax-submit" onclick="managePaymentType(null)">Add {{ $page->title ?? ''}}</button>
 
-            </ol>
-          </div>
-
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+<div class="section section-data-tables">
+  <div class="card">
+    <div class="card-content">
+      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsume is used for the ...</p>
     </div>
-    <!-- /.content-header -->
-
-     <!-- Main content -->
-     <section class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">{{ $page->title ?? ''}} Table</h3>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                        <table class="table table-hover table-striped table-bordered data-tables"
-                               data-url="{{ $page->link.'/lists' }}" data-form="page" data-length="20">
-                               <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Name</th>
-                                    <th width="100px">Action</th>
-                                </tr>
-                            </thead>
-                        </table>
-
-                        
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-
-          </div>
-          <!-- /.col -->
-        </div>
-        <!-- /.row -->
-      </div>
-      <!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
-      
+    <!-- DataTables example -->
+    <div class="row">
+      <div class="col s12 m12 l12">
+          <div id="button-trigger" class="card card card-default scrollspy">
+            <div class="card-content">
+                <h4 class="card-title">{{ Str::plural($page->title) ?? ''}} Table</h4>
+                <div class="row">
+                  <div class="col s12">
+                      <table id="page-length-option" class="display">
+                        <thead>
+                            <tr>
+                              <th>No</th>
+                              <th>Name</th>
+                              <th>Action</th>
+                            </tr>
+                        </thead>
+                      </table>
+                  </div>
+                </div>
+            </div>
+          </div>
+      </div>
+    </div>
 
+</div>
 @include('payment-type.manage')
 @endsection
+
+{{-- vendor scripts --}}
+@section('vendor-script')
+<script src="{{asset('admin/vendors/data-tables/js/jquery.dataTables.min.js')}}"></script>
+<script src="{{asset('admin/vendors/data-tables/extensions/responsive/js/dataTables.responsive.min.js')}}"></script>
+<script src="{{asset('admin/vendors/data-tables/js/dataTables.select.min.js')}}"></script>
+@endsection
+
 @push('page-scripts')
-<script src="{{ asset('admin/js/common-script.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+
 <script>
 
   var table;
@@ -89,7 +85,7 @@
   var entity      = '{{$page->entity}}';
 
   $(function () {
-    table = $('.data-tables').DataTable({
+    table = $('#page-length-option').DataTable({
         bSearchable: true,
         pagination: true,
         pageLength: 10,
@@ -106,7 +102,6 @@
     });
   });
   
-
   function managePaymentType(paymentType_id){
     validator.resetForm();
     $('input').removeClass('error');
@@ -115,7 +110,7 @@
         $("#{{$page->entity}}Form")[0].reset();
         $('#{{$page->entity}}Form').find("input[type=text]").val("");
         $("#paymentType_id").val('');
-        $("#paymentType-types-modal").modal("show");
+        $('#paymentType-types-modal').modal('open');
     } else {
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + paymentType_id + "/edit", type: "GET", dataType: "html"})
             .done(function (a) {
@@ -123,15 +118,13 @@
                 if(data.flagError == false){
                     $("#paymentType_id").val(data.data.id);
                     $("#{{$page->entity}}Form input[name=name]").val(data.data.name);
-                    $("#paymentType-types-modal").modal("show");
+                    $("#paymentType-types-modal").modal("open");
                 }
             }).fail(function () {
                 printErrorMsg("Please try again...", "error");
         });
     }
   }
-
-
 
   if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
@@ -148,8 +141,8 @@
           },
         },
         submitHandler: function (form) {
-          $('#continue').html('Please Wait...');
-          $("#continue"). attr("disabled", true);
+          $('#submit-btn').html('Please Wait...');
+          $("#submit-btn"). attr("disabled", true);
           id = $("#paymentType_id").val();
           paymentType_id   = "" == id ? "" : "/" + id;
           formMethod  = "" == id ? "POST" : "PUT";
@@ -157,12 +150,12 @@
           $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + paymentType_id, type: formMethod, processData: false, 
           data: forms.serialize(), dataType: "html",
           }).done(function (a) {
-            $('#continue').html('Submit');
-            $("#continue"). attr("disabled", false);
+            $('#submit-btn').html('Submit <i class="material-icons right">send</i>');
+            $("#submit-btn"). attr("disabled", false);
             var data = JSON.parse(a);
             if(data.flagError == false){
                 showSuccessToaster(data.message);                
-                $("#paymentType-types-modal").modal("hide");
+                $("#paymentType-types-modal").modal("close");
                 setTimeout(function () {
                   table.ajax.reload();
                 }, 1000);
@@ -176,40 +169,33 @@
     })
   }
 
-
   function softDelete(b) {
-           
-    Swal.fire({
-      title: 'Are you sure want to delete ?',
-      text: "You won't be able to revert this!",
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-      }).then(function(result) {
-          if (result.value) {
-              $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-                  .done(function (a) {
-                      var data = JSON.parse(a);
-                      if(data.flagError == false){
-                        showSuccessToaster(data.message);          
-                        setTimeout(function () {
-                          table.ajax.reload();
-                          }, 1000);
-
-                    }else{
-                      showErrorToaster(data.message);
-                      printErrorMsg(data.error);
-                    }   
-                  }).fail(function () {
-                          showErrorToaster("Somthing went wrong!");
-                  });
-          }
-      });
+		swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
+			buttons: {
+				cancel: 'No, Please!',
+				delete: 'Yes, Delete It'
+			}
+		}).then(function (willDelete) {
+			if (willDelete) {
+			  $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+            .done(function (a) {
+              var data = JSON.parse(a);
+              if(data.flagError == false){
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                  }, 1000);
+              }else{
+                showErrorToaster(data.message);
+                printErrorMsg(data.error);
+              }   
+            }).fail(function () {
+                    showErrorToaster("Something went wrong!");
+            });
+			} 
+		});
   }
 
 </script>
 @endpush
-
 

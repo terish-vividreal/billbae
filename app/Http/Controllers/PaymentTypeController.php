@@ -41,8 +41,8 @@ class PaymentTypeController extends Controller
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
-                $action = ' <a  href="javascript:" onclick="managePaymentType(' . $detail->id . ')" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                $action = ' <a  href="javascript:" onclick="managePaymentType(' . $detail->id . ')" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="deletePaymentTypes(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
                 return $action;
             })
             ->removeColumn('id')

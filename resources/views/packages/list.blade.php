@@ -1,91 +1,90 @@
 @extends('layouts.app')
 
+{{-- page title --}}
+@section('seo_title', Str::plural($page->title) ?? '') 
+@section('search-title') {{ $page->title ?? ''}} @endsection
+
+
+{{-- vendor styles --}}
+@section('vendor-style')
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/flag-icon/css/flag-icon.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/jquery.dataTables.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/extensions/responsive/css/responsive.dataTables.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/select.dataTables.min.css')}}">
+@endsection
+
+{{-- page style --}}
+@section('page-style')
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/data-tables.css')}}">
+@endsection
+
 @section('content')
 
 @section('breadcrumb')
-  <li class="nav-item">
-    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link">Users</a>
-  </li>
+  <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
+  <ol class="breadcrumbs mb-0">
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/services') }}">{{ Str::plural($page->title) ?? ''}}</a></li>
+    <li class="breadcrumb-item active">List</li>
+  </ol>
 @endsection
 
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">{{ $page->title ?? ''}}</h1>
-          </div><!-- /.col -->
-            <div class="col-sm-6">
-              <ol class="breadcrumb float-sm-right">
-                <div class="text-right">
-                  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn btn-sm btn-primary">
-                    <i class="fa fa-plus" aria-hidden="true"></i> Add  {{ $page->title ?? ''}}
-                  </a>
-                </div>
-              </ol>
-            </div>
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
+@section('page-action')
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">add</i></a>
+  <!-- <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right" href="#!" data-target="dropdown1"><i class="material-icons hide-on-med-and-up">settings</i><span class="hide-on-small-onl">Settings</span><i class="material-icons right">arrow_drop_down</i></a> -->
+@endsection
 
-     <!-- Main content -->
-     <section class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">{{ $page->title ?? ''}} Table</h3>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                        <table class="table table-hover table-striped table-bordered data-tables"
-                               data-url="{{ $page->link.'/lists' }}" data-form="page" data-length="20">
-                               <thead>
+<div class="section section-data-tables">
+  <div class="card">
+    <div class="card-content">
+      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsume is used for the ...</p>
+    </div>
+  </div>
+    <!-- DataTables example -->
+    <div class="row">
+      <div class="col s12 m12 l12">
+          <div id="button-trigger" class="card card card-default scrollspy">
+            <div class="card-content">
+                <h4 class="card-title">{{ Str::plural($page->title) ?? ''}} Table</h4>
+                <div class="row">
+                  <div class="col s12">
+                      <table id="data-table-simple-packages" class="display data-tables">
+                        <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Name</th>
                                     <th>Price</th>
                                     <th>Services</th>
-                                    <th width="100px">Action</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
-                            </thead>
-                        </table>
-
-                        
-              </div>
-              <!-- /.card-body -->
+                        </thead>
+                      </table>
+                  </div>
+                </div>
             </div>
-            <!-- /.card -->
-
           </div>
-          <!-- /.col -->
-        </div>
-        <!-- /.row -->
       </div>
-      <!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-@endsection
-@push('page-scripts')
-<script>
+    </div>
+</div>
 
-  var link = '{{ $page->link }}';
+@endsection
+
+{{-- vendor scripts --}}
+@section('vendor-script')
+<script src="{{asset('admin/vendors/data-tables/js/jquery.dataTables.min.js')}}"></script>
+<script src="{{asset('admin/vendors/data-tables/extensions/responsive/js/dataTables.responsive.min.js')}}"></script>
+<script src="{{asset('admin/vendors/data-tables/js/dataTables.select.min.js')}}"></script>
+@endsection
+
+
+@push('page-scripts')
+<script src="{{asset('admin/js/scripts/data-tables.js')}}"></script>
+
+<script>
   $(function () {
 
-    table = $('.data-tables').DataTable({
-        bSearchable: true,
+    table = $('#data-table-simple-packages').DataTable({
         pagination: true,
         pageLength: 10,
         responsive: true,
@@ -95,12 +94,13 @@
         ajax: {
                 url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
                 data: search
-            },
+              },
         columns: [
-            {data: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'name', name: 'name'},            
-            {data: 'price', name: 'name'},            
-            {data: 'services', name: 'name'},            
+            {data: 'DT_RowIndex', orderable: false, searchable: false, width:20},
+            {data: 'name', name: 'name', orderable: false},            
+            {data: 'price', name: 'name', orderable: false},            
+            {data: 'services', name: 'name', orderable: false},     
+            {data: 'activate', name: 'name', orderable: false},         
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
     });
@@ -109,6 +109,24 @@
 
   function search(value) {
     value.name = $('input[type=search]').val();
+  }
+
+  function updateStatus(id){
+    $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/update-status') }}", data:{'id':id }, type: 'POST', dataType: "html"})
+      .done(function (a) {
+        var data = JSON.parse(a);
+        if(data.flagError == false){
+          showSuccessToaster(data.message);          
+          setTimeout(function () {
+            table.ajax.reload();
+            }, 1000);
+        }else{
+          showErrorToaster(data.message);
+          printErrorMsg(data.error);
+        }   
+      }).fail(function () {
+              showErrorToaster("Something went wrong!");
+      });
   }
 
 

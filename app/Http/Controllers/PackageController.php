@@ -76,8 +76,8 @@ class PackageController extends Controller
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
-                $action = ' <a  href="' . url(ROUTE_PREFIX.'/packages/' . $detail->id . '/edit') . '"" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                $action = ' <a  href="' . url(ROUTE_PREFIX.'/packages/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                // $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="icon-1x fas fa-trash-alt"></i></a>';
                 return $action;
             })
             ->addColumn('price', function($detail){
@@ -90,6 +90,11 @@ class PackageController extends Controller
                     $services.=$data->name.',' ;
                 }
                 return rtrim($services, ',');
+            })
+            ->addColumn('activate', function($detail){
+                $checked = ($detail->status == 1) ? 'checked' : '';
+                $html = '<div class="switch"><label> <input type="checkbox" '.$checked.' id="' . $detail->id . '" class="activate-user" data-id="'.$detail->id.'" onclick="updateStatus(this.id)"> <span class="lever"></span> </label> </div>';
+                return $html;
             })
             ->removeColumn('id')
             ->escapeColumns([])
@@ -246,4 +251,19 @@ class PackageController extends Controller
     {
         //
     }
+
+    public function updateStatus(Request $request)
+    {
+        $data = Package::findOrFail($request->id);
+
+        if($data){
+            $status = ($data->status == 0)?1:0;
+            $data->status = $status;
+            $data->save();
+            return ['flagError' => false, 'message' => $this->title. " status updated successfully"];
+        }
+
+        return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
+    }
+    
 }

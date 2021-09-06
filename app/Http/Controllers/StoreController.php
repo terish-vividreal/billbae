@@ -12,6 +12,7 @@ use App\Models\PaymentType;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\ShopBilling;
+use App\Models\ThemeSetting;
 use Image;
 use DB;
 use Validator;
@@ -55,7 +56,7 @@ class StoreController extends Controller
                                     ->find($user->shop_id);        
         $page->title                = $this->title;
         $page->link                 = url($this->link);
-        $variants->countries        = DB::table('shop_countries')->pluck('name', 'id');  
+        $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id');  
 
         if($store->country_id){
             $variants->states           = DB::table('shop_states')->where('country_id',$store->country_id)->pluck('name', 'id'); 
@@ -65,31 +66,100 @@ class StoreController extends Controller
         if($store->state_id){
             $variants->districts            = DB::table('shop_districts')->where('state_id',$store->state_id)->pluck('name', 'id'); 
         }   
-        
-        $billing                            = ShopBilling::where('shop_id', SHOP_ID)->first();
+        return view($this->viewPath . '.profile', compact('page', 'user', 'store', 'variants'));
+    }
+
+    public function billings(Request $request)
+    {
+        $page                   = collect();
+        $variants               = collect();
+        $user                   = Auth::user();
+        $store                  = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
+                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
+                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
+                                    ->find($user->shop_id);  
+        $billing                    = ShopBilling::where('shop_id', SHOP_ID)->first();      
+        $page->title                = 'Billing';
+        $page->link                 = url($this->link);
+        $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id'); 
+        $variants->tax_percentage   = DB::table('gst_tax_percentages')->pluck('percentage', 'id');  
+
         if($billing->country_id){
-            $variants->billing_states       = DB::table('shop_states')->where('country_id',$billing->country_id)->pluck('name', 'id'); 
+            $variants->states           = DB::table('shop_states')->where('country_id',$billing->country_id)->pluck('name', 'id'); 
+            $country_code               = DB::table('shop_countries')->where('id',$billing->country_id)->value('sortname');
+            $variants->timezone         = DB::table('timezone')->where('country_code',$country_code)->pluck('zone_name', 'zone_name');
+            $variants->currencies       = DB::table('currencies')->where('country_id', $billing->country_id)->pluck('symbol', 'id');
+
+        }        
+        if($billing->state_id){
+            $variants->districts            = DB::table('shop_districts')->where('state_id',$billing->state_id)->pluck('name', 'id'); 
         }
 
-        if($billing->state_id){
-            $variants->billing_districts    = DB::table('shop_districts')->where('state_id',$billing->state_id)->pluck('name', 'id'); 
-        } 
+        return view($this->viewPath . '.billing', compact('page', 'user', 'store', 'variants', 'billing'));
+    }
 
-        // Billing ID formats
+    public function billingSeries(Request $request)
+    {
+        $page                   = collect();
+        $variants               = collect();
+        $user                   = Auth::user();
+        $store                  = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
+                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
+                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
+                                    ->find($user->shop_id);  
+        $billing                    = ShopBilling::where('shop_id', SHOP_ID)->first();      
+        $page->title                = 'Billing Series';
+        $page->link                 = url($this->link);
+
         $variants->billing_formats          = BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', 0)->first();
         $variants->billing_formats_all      = collect(BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', '!=', 0)->get());
-        
-        
-        // echo $variants->billing_formats_all->where('payment_type', 4)->pluck('prefix')->first();
-        // // ->pluck('prefix');
-
-        
-        // exit;
-
-        $variants->payment_types            = PaymentType::select('name', 'id')->where('shop_id', SHOP_ID)->get();         
-
-        return view($this->viewPath . '.profile', compact('page', 'user', 'store', 'variants', 'billing'));
+        $variants->payment_types            = PaymentType::select('name', 'id')->where('shop_id', SHOP_ID)->get();     
+        return view($this->viewPath . '.billing-series', compact('page', 'user', 'store', 'variants', 'billing'));
     }
+
+    public function userProfile(Request $request)
+    {
+        $page                   = collect();
+        $variants               = collect();
+        $user                   = Auth::user();
+        $store                  = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
+                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
+                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
+                                    ->find($user->shop_id);        
+        $page->title            = $this->title;
+        $page->link             = url($this->link);
+        $page->form_url         = url($this->link);
+        $page->form_method      = 'POSt';
+
+        return view($this->viewPath . '.user-profile', compact('page', 'user', 'store', 'variants'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function postUserProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->passes()) {
+            $user               = Auth::user();
+            $user->name         = $request->name;
+            $user->email        = $request->email;
+            $user->mobile       = $request->mobile;
+            $user->save();
+            return ['flagError' => false, 'message' => "User details updated successfully"];
+        }
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
+
+    }
+
+    
 
     /**
      * Update the specified resource in storage.
@@ -135,6 +205,30 @@ class StoreController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function updateGst(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'gst_percentage' => 'required',
+        ]);
+
+        if ($validator->passes()) {
+            $billing                    = ShopBilling::find($request->gst_billing_id);
+            $billing->gst_percentage    = $request->gst_percentage;
+            $billing->save();
+            return ['flagError' => false, 'message' => "GST Updated successfully"];
+        }
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function storeBilling(Request $request, $id)
     {
 
@@ -154,13 +248,13 @@ class StoreController extends Controller
             $billing->country_id        = $request->billing_country_id;
             $billing->state_id          = $request->billing_state_id;
             $billing->district_id       = $request->billing_district_id;
+            $billing->currency          = $request->currency;
             $billing->save();
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
 
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -169,15 +263,12 @@ class StoreController extends Controller
      */
     public function updateLogo(Request $request)
     {
+	        // echo "<pre>"; print_r($request->all()); exit;
+	        // $validator = Validator::make($request->all(), [
+	        //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+	        // ]);
 
-        
-
-        // echo "<pre>"; print_r($request->all()); exit;
-        // $validator = Validator::make($request->all(), [
-        //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        // ]);
-
-        // if ($validator->passes()) {
+	        // if ($validator->passes()) {
 
             $shop               = Shop::find($request->store_id);
 
@@ -188,7 +279,6 @@ class StoreController extends Controller
             }
             
             
-
             // Create storage folder
             $store_path = 'public/' . $this->uploadPath. '/logo/';
             Storage::makeDirectory($store_path);
@@ -209,18 +299,49 @@ class StoreController extends Controller
             return ['flagError' => false, 'logo' => $shop->show_image,  'message' => "Logo updated successfully"];
 
 
+	        // }
 
-        // }
-
-        // return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
-
-    
-        
-  
-        
+	        // return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
     }
 
-    public function isUnique(Request $request){ 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateUserImage(Request $request)
+    {
+
+        $user               = Auth::user();
+        $old_image          = $user->profile;
+
+        if ($old_image != '') {
+            \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/users/' . $old_image);
+        }
+        
+        
+        // Create storage folder
+        $store_path = 'public/' . $this->uploadPath. '/users/';
+        Storage::makeDirectory($store_path);
+
+        $image_64   = $request->image; //your base64 encoded data
+        $extension  = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
+        $replace    = substr($image_64, 0, strpos($image_64, ',')+1); 
+
+        $image      = str_replace($replace, '', $image_64); 
+        $image      = str_replace(' ', '+', $image); 
+        $imageName  = Str::random(20).'.'.$extension;
+        Storage::put($store_path.'/'.$imageName, base64_decode($image));
+
+
+        $user->profile        = $imageName;
+        $user->save();
+
+        return ['flagError' => false, 'logo' => asset('storage/store/users/' . $user->profile),  'message' => "Profile image updated successfully"];
+    }
+
+    public function isUnique(Request $request)
+    { 
         if($request->store_id == 0){
             $count = Shop::where('email', $request->email)->count();
             echo ($count > 0 ? 'false' : 'true');
@@ -228,7 +349,6 @@ class StoreController extends Controller
             $count = Shop::where('email', $request->email)->where('id', '!=' , $request->store_id)->count();
             echo ($count > 0 ? 'false' : 'true');
         }
-        
     }
 
 
@@ -256,4 +376,20 @@ class StoreController extends Controller
         return ['flagError' => false, 'bill_format' => $billing_format->bill_format,  'message' => "Updated successfully"];    
     }
 
+    public function themeSettings(Request $request)
+    {
+        // echo "<pre>"; print_r($request->all()); exit;
+        $theme_settings         = ThemeSetting::find($request->theme_settings_id);
+
+        
+        $theme_settings->activeMenuColor    = $request->activeMenuColor;
+        $theme_settings->navbarBgColor      = $request->navbarBgColor;
+        $theme_settings->isMenuDark         = ($request->has('isMenuDark'))?1:0;
+        $theme_settings->menuCollapsed      = ($request->has('menuCollapsed'))?1:0;
+        $theme_settings->footerFixed        = ($request->has('footerFixed'))?1:0;
+        $theme_settings->menuStyle          = $request->menuSelection;
+        $theme_settings->save();
+
+        return ['flagError' => false, 'message' => "Theme settings updated successfully"];    
+    }
 }

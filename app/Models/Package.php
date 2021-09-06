@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\GstTaxPercentage;
 
 class Package extends Model
 {
@@ -22,6 +23,11 @@ class Package extends Model
     public function additionaltax()
     {
         return $this->belongsToMany('App\Models\Additionaltax');
+    }
+
+    public function gsttax()
+    {
+        return $this->belongsTo('App\Models\GstTaxPercentage', 'gst_tax', 'id');
     }
 
 }

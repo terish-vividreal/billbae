@@ -1,336 +1,267 @@
 @extends('layouts.app')
 
-@section('content')
-@push('page-css')
-<!-- daterange picker -->
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+{{-- page title --}}
+@section('seo_title', Str::plural($page->title) ?? '') 
+@section('search-title') {{ $page->title ?? ''}} @endsection
 
-<style>
-
-.dropdown-menu {
-	position:relative;
-	width:100%;
-	top: 0px !important;
-  left: 0px !important;
-}
-
-</style>
-
-@endpush
-
-@section('breadcrumb')
-  <li class="nav-item">
-    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link">{{ $page->title ?? ''}}</a>
-  </li>
+{{-- page style --}}
+@section('page-style')
+  <!-- daterange picker -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
 @endsection
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">{{ $page->title ?? ''}}</h1>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+
+@section('content')
+
+@section('breadcrumb')
+  <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
+  <ol class="breadcrumbs mb-0">
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}">{{ Str::plural($page->title) ?? ''}}</a></li>
+    <li class="breadcrumb-item active">Create</li>
+  </ol>
+@endsection
+
+@section('page-action')
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">List<i class="material-icons right">list</i></a>
+@endsection
+
+<div class="section">
+  <div class="card">
+    <div class="card-content">
+      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsum is used for the ...</p>
     </div>
-    <!-- /.content-header -->
-
-
-    <!-- Main content -->
-    <section class="content">
-      <div class="container-fluid">
-        <!-- SELECT2 EXAMPLE -->
-        <div class="card card-primary">
-          <div class="card-header">
-            <h3 class="card-title">{{ $page->title ?? ''}} Form</h3>
-            <div class="card-tools">
-              <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                <i class="fas fa-minus"></i>
-              </button>
-            </div>
-          </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-
-            <div class="alert alert-danger print-error-msg" style="display:none">
-              <ul></ul>
-            </div>           
-              <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="post" action="{{ url(ROUTE_PREFIX.'/billings/invoice/update/'.$billing->id) }}">
+  </div>
+  
+  <!--Basic Form-->
+  <div class="row">
+    <!-- Form Advance -->
+    <div class="col s12 m12 l12">
+      <div id="Form-advance" class="card card card-default scrollspy">
+        <div class="card-content">
+            <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
+            <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
+            <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="post" action="{{ url(ROUTE_PREFIX.'/billings/invoice/update/'.$billing->id) }}">
                 {{ csrf_field() }}
                 @method('PUT')
                 {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'billing_id'] ); !!}
                 {!! Form::hidden('customer_id', $billing->customer_id ?? '' , ['id' => 'customer_id'] ); !!}
-                <div class=""> 
-                    <div class="form-group">
-                        <div class="input-group input-group-lg">
-                            <input type="text" name="search_customer" id="search_customer" class="typeahead form-control form-control-lg" placeholder="Enter Customer name" autocomplete="off" value="">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-lg btn-default">
-                                    <i class="fa fa-plus"> New Customer</i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--  -->
-                <div class="container-fluid" id="customer_details_div" style="display:none;">
-                  <!-- SELECT2 EXAMPLE -->
-                  <div class="card card-default">
-                    <div class="card-header">
-                      <h3 class="card-title">Customer Details</h3>
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            {!! Form::label('customer_name', 'Customer Name*', ['class' => 'col-form-label']) !!}
-                            {!! Form::text('customer_name', $billing->name ?? '' , array('placeholder' => 'Customer Name', 'id' => 'customer_name' ,'class' => 'form-control', 'disabled' => 'disabled')) !!}
-                          </div>
-                          <div class="form-group">
-                            
-                            {!! Form::label('billed_date', 'Bill Date', ['class' => 'col-form-label']) !!}
-                            @php                             
-                              $billed_date = ($billing->date_range_billed_date != '') ? $billing->date_range_billed_date : Carbon\Carbon::now()->format('d-m-Y');
-                            @endphp
-            
-                            <input type="text" name="billed_date" id="billed_date" class="form-control" onkeydown="return false" autocomplete="off" value="{{$billed_date}}"/>
-                          </div> 
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                @php                             
-                                    $checkin_time = ($billing->date_range_checkin_time != '') ? $billing->date_range_checkin_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
-                                @endphp
-                                {!! Form::label('checkin_time', 'Checkin time', ['class' => 'col-form-label']) !!}                                
-                               <input type="text" name="checkin_time" id="checkin_time" class="form-control" onkeydown="return false" autocomplete="off" value="{{$checkin_time}}" />
-                              </div> 
-                            </div> 
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                @php                                                                                                                        
-                                    $checkout_time = ($billing->date_range_checkout_time != '') ? $billing->date_range_checkout_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
-                                @endphp
 
-                                {!! Form::label('checkout_time', 'Checkout time', ['class' => 'col-form-label']) !!}
-                                <input type="text" name="checkout_time" id="checkout_time" class="form-control" onkeydown="return false" autocomplete="off" value="{{$checkout_time}}" />
-                              </div> 
-                            </div> 
-                          </div> 
-
-                          <div class="form-group" style="margin-top: 45px;">                                                 
-                              <div class="custom-control custom-checkbox">
-                                <input class="custom-control-input" type="checkbox" name="billing_address_checkbox" id="billing_address_checkbox" value="1" checked="checked">
-                                <label for="billing_address_checkbox" class="custom-control-label">Billing address and customer address is same.</label>
-                              </div>
-                              <small class="col-sm-2 ">Uncheck to add new billing address !</small>
-                          </div>
-
-                          <div class="billing-address-section" style="display:none;">
-                            <div class="form-group billing-address-section">
-                                {!! Form::label('customer_billing_name', 'Billing Name/ Company Name*', ['class' => 'col-form-label']) !!}
-                                {!! Form::text('customer_billing_name', $billing->customer->billingaddress->billing_name ?? '' , array('placeholder' => 'Billing Name', 'id' => 'customer_billing_name' ,'class' => 'form-control')) !!}
-                            </div>
-
-                            <div class="form-group ">
-                                {!! Form::label('customer_gst', 'GST No. ', ['class' => 'col-form-label text-alert']) !!}
-                                {!! Form::text('customer_gst', $billing->customer->billingaddress->gst ?? '' , array('placeholder' => 'GST No.','class' => 'form-control')) !!}                        
-                            </div>
-
-                            <div class="form-group" >
-                              {!! Form::label('country_id', 'country*', ['class' => '']) !!} <br>
-
-                              @if(isset($billing->customer->billingaddress->country_id))
-                                {!! Form::select('country_id', $variants->country , $billing->customer->billingaddress->country_id ?? '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
-                              @else
-                                {!! Form::select('country_id', $variants->country , '' , ['id' => 'country_id' ,'class' => 'form-control','placeholder'=>'Select A Country']) !!}
-                              @endif
-                            
-                            </div>
-
-                            <div class="form-group">
-                              {!! Form::label('state_id', 'State*', ['class' => '']) !!} <br>
-                              <div id="state_block">
-                                @if(isset($billing->customer->billingaddress->state_id))
-                                  {!! Form::select('state_id', $variants->states , $billing->customer->billingaddress->state_id ?? '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
-                                @else
-                                  {!! Form::select('state_id', [], '' , ['id' => 'state_id' ,'class' => 'form-control','placeholder'=>'Select a state']) !!}
-                                @endif                              
-                              </div>
-                            </div>
-
-                            <div class="form-group">
-                              {!! Form::label('state_id', 'District*', ['class' => '']) !!} <br>
-                              <div id="district_block"> 
-                                @if(isset($billing->customer->billingaddress->district_id))
-                                  {!! Form::select('district_id', $variants->districts , $billing->customer->billingaddress->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
-                                @else
-                                  {!! Form::select('district_id', $variants->districts , $billing->customer->billingaddress->district_id ?? '' , ['id' => 'district_id' ,'class' => 'form-control','placeholder'=>'Select a district']) !!}
-                                @endif                              
-                              
-                              </div>
-                            </div>
-
-                          </div>
-
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            {!! Form::label('customer_mobile', 'Customer Mobile*', ['class' => 'col-form-label']) !!}
-                            {!! Form::text('customer_mobile', $billing->name ?? '' , array('placeholder' => 'Customer Mobile', 'id' => 'customer_mobile' ,'class' => 'form-control', 'disabled' => 'disabled')) !!}
-                          </div>
-
-                          <div class="form-group">
-                            {!! Form::label('customer_email', 'Customer Email*', ['class' => 'col-form-label']) !!}
-                            {!! Form::text('customer_email', $billing->customer_email ?? '' , array('placeholder' => 'Customer Email', 'id' => 'customer_email' ,'class' => 'form-control', 'disabled' => 'disabled')) !!}
-                          </div>
-
-                          <div class="billing-address-section" style="display:none;">
-
-                            <div class="form-group ">
-                                {!! Form::label('pincode', 'Pincode ', ['class' => 'col-form-label text-alert']) !!}
-                                {!! Form::text('pincode', $billing->customer->billingaddress->pincode ?? '' , array('placeholder' => 'Pincode','class' => 'form-control check_numeric')) !!}                        
-                            </div>
-
-                            <div class="form-group ">
-                                {!! Form::label('address', 'Address. ', ['class' => 'col-form-label text-alert']) !!}
-                                {!! Form::textarea('address', $billing->customer->billingaddress->address ?? '', ['class' => 'form-control','placeholder'=>'Address','rows'=>3]) !!}                       
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- /.card-body -->
-                  </div>
-                  <!-- /.card -->
-                </div>
-
-                <div class="container-fluid">
-                  <!-- SELECT2 EXAMPLE -->
-                  <div class="card card-default">
-                    <div class="card-header">
-                      <h3 class="card-title">Service Details</h3>
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Select Type</label>
-                            <select class="form-control select2" name="service_type" id="service_type" onchange="$('#usedServicesDiv').hide();" style="width: 100%;">
-                              <option selected="selected">Select Type</option>
-                              <option value="1">Services</option>
-                              <option value="2">Packages</option>
-                            </select>
-                          </div>
-
-
-
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6">
-                          <!-- /.form-group -->
-                          <div class="form-group">
-                            <label>Select Details</label>
-                            
-                              <div id="services_block">
-                                <select class="form-control service-type" data-type="services" name="bill_item[]" id="services" multiple="multiple" style="width: 100%;"> </select>
-                              </div>
-
-                              <div id="packages_block" style="display:none;">
-                                <select class="form-control service-type" data-type="packages" name="bill_item[]" id="packages" multiple="multiple" style="width: 100%;"> </select>
-                              </div>
-                          </div>
-                          <!-- /.form-group  style="display:none;"-->
-
-                          
-                        </div>
-                        <!-- /.col -->
-                      </div>
-                      <div class="row">
-                        <div class="col-md-12">
-                          
-
-                          <div class="form-group" id="usedServicesDiv" style="display:none">         
-                            <table class="table table-bordered table-hover" id="servicesTable">
-                              <thead>
-                                <tr>
-                                  <th>#</th>
-                                  <th>Name</th>
-                                  <th>Amount</th>
-                                </tr>
-                              </thead>
-                              <tbody>                         
-                                
-                              </tbody>
-                            </table>
-
-                            <div class="float-right" id="total">
-                              {!! Form::hidden('grand_total', '' , ['id' => 'grand_total'] ); !!}
-                              
-                              <h4>Grand Total : <span id="grandTotal"></span></h4>
-                              <!-- <h3><span id="discountAmount"></span></h3>
-                              <h2><span id="afterdiscount"></span></h2> -->
-                              <!-- <div id="discountDiv"><button class="btn btn-sm btn-primary" id="discount_btn">Discount</button></div> -->
-
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- /.row -->
-
-                    </div>
-                    <!-- /.card-body -->
-                  </div>
-                  <!-- /.card -->
-                </div>
                 <div class="row">
-                    <div class="col-12">
-                    <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success"> Update and Continue </button>
+                  <div class="col s12">
+                    <div class="row">
+                      <div class="input-field col m10 s12" id="custom-templates">
+                          <i class="material-icons prefix">textsms</i>
+                          <input type="text" name="search_customer" id="search_customer" class="typeahead autocomplete" autocomplete="off" value="">
+                      </div>
+                      <div class="input-field col m2 s12">
+                        <button class="btn cyan waves-effect waves-light" type="button" name="action" onClick="addNewCustomer()">New Customer
+                          <i class="material-icons right">add</i>
+                        </button>
+                      </div>
                     </div>
+                  </div>
                 </div>
-              </form>              
-            </div>
-          <!-- /.card-body -->
+
+                <div class="row">
+                  <div class="input-field col m6 s12">
+                    {!! Form::text('customer_name', $billing->name ?? '' ,  ['id' => 'customer_name', 'placeholder' => 'Customer Name', 'disabled' => 'disabled']) !!}  
+                    <!-- <label for="customer_name" class="label-placeholder">Customer Name <span class="red-text">*</span></label> -->
+                  </div>
+                  <div class="input-field col m6 s12">
+                    {!! Form::text('customer_mobile', $billing->mobile ?? '', array('id' => 'customer_mobile', 'placeholder' => 'Customer Mobile', 'disabled' => 'disabled')) !!}  
+                    <!-- <label for="customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label>  -->
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col m6 s12">
+                      @php                             
+                        $billed_date = ($billing->date_range_billed_date != '') ? $billing->date_range_billed_date : Carbon\Carbon::now()->format('d-m-Y');
+                      @endphp
+                    <input type="text" name="billed_date" id="billed_date" class="form-control" onkeydown="return false" autocomplete="off" value="{{$billed_date}}" />
+                  </div>
+                  <div class="input-field col m6 s12">
+                    {!! Form::text('customer_email', $billing->customer_email ?? '' , array('id' => 'customer_email', 'placeholder' => 'Customer Email', 'disabled' => 'disabled')) !!}  
+                    <!-- <label for="customer_email" class="label-placeholder">Customer Email <span class="red-text">*</span></label>  -->
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col m6 s12">
+                      @php                             
+                        $checkin_time = ($billing->date_range_checkin_time != '') ? $billing->date_range_checkin_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
+                      @endphp
+                    <input type="text" name="checkin_time" id="checkin_time" class="form-control" onkeydown="return false" autocomplete="off" value="{{$checkin_time}}" />
+                  </div>
+                  <div class="input-field col m6 s12">
+                      @php                                                                                                                        
+                        $checkout_time = ($billing->date_range_checkout_time != '') ? $billing->date_range_checkout_time : Carbon\Carbon::now()->format('d-m-Y h:m A');
+                      @endphp
+                    <input type="text" name="checkout_time" id="checkout_time" class="form-control" onkeydown="return false" autocomplete="off" value="{{$checkout_time}}" />
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col m6 s12">
+                    <p><label for="billing_address_checkbox">
+                      <input type="checkbox" name="billing_address_checkbox" id="billing_address_checkbox" value="1" checked="checked" />
+                      <span>Billing address and customer address are same.</span>
+                    </label></p>
+                    <!-- <label  class="custom-control-label"></label> -->
+                    <small class="col-sm-2 ">Uncheck to add new billing address !</small>
+                  </div>
+                  
+                  <div class="input-field col m6 s12">
+                  </div>
+                </div>
+
+                <div class="row billing-address-section" style="display:none;">
+                  <div class="input-field col m6 s12">
+                    {!! Form::text('customer_billing_name', $billing->billingaddress->billing_name ?? '' , array('id' => 'customer_billing_name')) !!}  
+                    <label for="customer_billing_name" class="label-placeholder">Billing Name/Company Name <span class="red-text">*</span></label> 
+                  </div>
+                  <div class="input-field col m6 s12">
+                    {!! Form::text('pincode', $billing->billingaddress->pincode ?? '', array('id' => 'pincode', 'class' => 'check_numeric')) !!}  
+                    <label for="pincode" class="label-placeholder">Pincode</label> 
+                  </div>
+                </div>    
+                
+                <div class="row billing-address-section" style="display:none;">
+                  <div class="input-field col m6 s12">
+                    {!! Form::text('customer_gst', $billing->billingaddress->gst ?? '' , array('id' => 'customer_gst', 'style' => "text-transform:uppercase")) !!}  
+                    <label for="customer_gst" class="label-placeholder">GST No.</label> 
+                  </div>
+                  <div class="input-field col m6 s12">
+
+                    @if(isset($billing->billingaddress->country_id))
+                      {!! Form::select('country_id', $variants->country , $billing->billingaddress->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select country']) !!}
+                    @else
+                      {!! Form::select('country_id', $variants->country , '' , ['id' => 'country_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select country']) !!}
+                    @endif
+
+                  </div>
+                </div>
+
+                <div class="row billing-address-section" style="display:none;">
+                  <div class="input-field col m6 s12">
+
+                    @if(!empty($variants->states))
+                      {!! Form::select('state_id', $variants->states , $billing->billingaddress->state_id ?? '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                    @else
+                      {!! Form::select('state_id', [], '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                    @endif
+ 
+                  </div>
+                  <div class="input-field col m6 s12">
+
+                    @if(!empty($variants->districts))
+                      {!! Form::select('district_id', $variants->districts , $billing->billingaddress->district_id ?? '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                    @else
+                    {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                    @endif 
+
+                  </div>
+                </div>
+
+                <div class="row billing-address-section" style="display:none;">
+                  <div class="input-field col m12 s12">
+                  {!! Form::textarea('address', $billing->billingaddress->address ?? '' , ['class' => 'materialize-textarea', 'placeholder'=>'Address','rows'=>3]) !!}
+                  </div>
+                  <div class="input-field col m6 s12">
+                  </div>
+                </div> 
+
+                <div class="row">
+                  <div class="input-field col m6 s12">
+                      <select class="select2 browser-default" name="service_type" id="service_type" onchange="$('#usedServicesDiv').hide();">
+                        <option selected="selected">Please select type</option>
+                        <option value="1">Services</option>
+                        <option value="2">Packages</option>
+                      </select> 
+                  </div>
+                  <div class="input-field col m6 s12">
+                      <div id="services_block">
+                        <select class="select2 browser-default service-type" data-type="services" name="bill_item[]" id="services" multiple="multiple"> </select>
+                      </div>
+
+                      <div id="packages_block" style="display:none;">
+                        <select class="select2 browser-default service-type" data-type="packages" name="bill_item[]" id="packages" multiple="multiple"> </select>
+                      </div>
+                  </div>
+                </div>
+          
+                <div class="row" id="usedServicesDiv" style="display:none">
+                  <div class="input-field col s12">
+
+                    <table class="responsive-table" id="servicesTable">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Name</th>
+                          <th>Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>                         
+                        
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s12">
+                    <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn waves-effect waves-light" type="reset" name="reset">Cancel <i class="material-icons right">refresh</i></a>
+                    <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="continue-btn">Update and Continue <i class="material-icons right">keyboard_arrow_right</i></button>
+                  </div>
+                </div>
+
+            </form>
+            
         </div>
-        <!-- /.card -->
       </div>
-      <!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+    </div>
   </div>
-  <!-- /.content-wrapper -->
-@include('billing.discount-manage')
+
+
+</div>
+@include('billing.new-customer-manage')
 @endsection
+
+{{-- vendor scripts --}}
+@section('vendor-script')
+
+@endsection
+
+
 @push('page-scripts')
-
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<!-- typeahead -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
-
 
 <!-- date-time-picker -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script>
 
+$('#country_id').select2({ placeholder: "Please select country", allowClear: true });
+$('#state_id').select2({ placeholder: "Please select state", allowClear: true });
+$('#district_id').select2({ placeholder: "Please select district", allowClear: true });
+$('#service_type').select2({ placeholder: "Please select type"});
+$('#services').select2({ placeholder: "Please select service", allowClear: true });
+$('#packages').select2({ placeholder: "Please select package", allowClear: true });
 
-<script type="text/javascript">
-
-var timePicker = {!! json_encode($variants->time_picker) !!};
-var timeFormat = {!! json_encode($variants->time_format) !!};
+var timePicker              = {!! json_encode($variants->time_picker) !!};
+var timeFormat              = {!! json_encode($variants->time_format) !!};
+var bill_id                 = {!! json_encode($billing->id) !!};
+var customer_id             = {!! json_encode($billing->customer->id) !!};
+var service_type            = {!! json_encode($service_type) !!};
+var item_type               = {!! json_encode($item_type) !!};
+var item_ids                = {!! json_encode($variants->item_ids) !!};
+var billing_address_type    = {!! json_encode($billing->address_type) !!};
 
 $(function() {
 
@@ -371,8 +302,6 @@ $(function() {
         // console.log(end.format('DD-MM-YYYY hh:mm A'));
   });
   
-
-
   $('input[name="dob"]').daterangepicker({
     singleDatePicker: true,
     showDropdowns: true,
@@ -385,29 +314,13 @@ $(function() {
       console.log(picker.format('DD-MM-YYYY'));
 
   });
-  
-  // $('input[name="dob"]').data('daterangepicker').setStartDate('15-06-2021');
-
 
 });
-
-
-
-var bill_id                 = {!! json_encode($billing->id) !!};
-var customer_id             = {!! json_encode($billing->customer->id) !!};
-var service_type            = {!! json_encode($service_type) !!};
-var item_type               = {!! json_encode($item_type) !!};
-var item_ids                = {!! json_encode($variants->item_ids) !!};
-var billing_address_type    = {!! json_encode($billing->address_type) !!};
 
 
 // Load Customer details
 getCustomerDetails(customer_id);
 
-// Customer billing address section
-if(billing_address_type == 'customer'){
-
-}
 
 // set service_type value and list items
 $("#service_type").val(service_type);
@@ -626,32 +539,34 @@ jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
 
-$("body").on("submit", ".ajax-submit", function (e) {
-    e.preventDefault();         
-});
 
 $(document).on('change', '#country_id', function () {
-    $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-states') }}/",
-          type: "GET",
-          data:{'country_id':this.value },
-          dataType: "html"
-      }).done(function (data) {
-      console.log(data);
-        $("#state_block").html(data);
-      })
+  $.ajax({
+      type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
+      success: function(data) {
+          var selectTerms = '<option value="">Please select state</option>';
+          $.each(data.data, function(key, value) {
+            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+          });
+          var select = $('#state_id');
+          select.empty().append(selectTerms);
+          $('#district_id').empty().trigger("change");
+      }
+  });
 });
 
 $(document).on('change', '#state_id', function () {
-    $.ajax({
-          url: "{{ url(ROUTE_PREFIX.'/common/get-districts') }}/",
-          type: "GET",
-          data:{'state_id':this.value },
-          dataType: "html"
-      }).done(function (data) {
-      console.log(data);
-        $("#district_block").html(data);
-      })
+  $.ajax({
+      type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-districts-of-state') }}", data:{'state_id':this.value }, dataType: 'json',
+      success: function(data) {
+          var selectTerms = '<option value="">Please select district</option>';
+          $.each(data.data, function(key, value) {
+            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+          });
+          var select = $('#district_id');
+          select.empty().append(selectTerms);
+      }
+  });
 });
 
 $("#discount_btn").click(function(){
@@ -694,6 +609,6 @@ if ($("#discountForm").length > 0) {
 } 
 
 
-
 </script>
 @endpush
+

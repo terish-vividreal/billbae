@@ -1,86 +1,77 @@
 @extends('layouts.app')
 
+{{-- page title --}}
+@section('seo_title', Str::plural($page->title) ?? '') 
+@section('search-title') {{ $page->title ?? ''}} @endsection
+
+
+{{-- vendor styles --}}
+@section('vendor-style')
+
+@endsection
+
+{{-- page style --}}
+@section('page-style')
+  
+@endsection
+
 @section('content')
 
 @section('breadcrumb')
-  <li class="nav-item">
-    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="nav-link">{{ $page->title ?? ''}} </a>
-  </li>
+  <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
+  <ol class="breadcrumbs mb-0">
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{{ $page->link }}">{{ Str::plural($page->title) ?? ''}}</a></li>
+    <li class="breadcrumb-item active">List</li>
+  </ol>
 @endsection
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">{{ $page->title ?? ''}}</h1>
-          </div><!-- /.col -->
+@section('page-action')
+  <a href="javascript:" onclick="manageserviceCategory(null)" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">payment</i></a>
+@endsection
 
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-            <button class="btn btn-success ajax-submit" onclick="manageserviceCategory(null)">Add {{ $page->title ?? ''}}</button>
 
-            </ol>
-          </div>
-
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+<div class="section section-data-tables">
+  <div class="card">
+    <div class="card-content">
+      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsume is used for the ...</p>
     </div>
-    <!-- /.content-header -->
-
-     <!-- Main content -->
-     <section class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">{{ $page->title ?? ''}} Table</h3>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                        <table class="table table-hover table-striped table-bordered data-tables"
-                               data-url="{{ $page->link.'/lists' }}" data-form="page" data-length="20">
-                               <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Name</th>
-                                    <th width="100px">Action</th>
-                                </tr>
-                            </thead>
-                        </table>
-
-                        
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-
-          </div>
-          <!-- /.col -->
-        </div>
-        <!-- /.row -->
-      </div>
-      <!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
-      
+    <!-- DataTables example -->
+    <div class="row">
+      <div class="col s12 m12 l12">
+          <div id="button-trigger" class="card card card-default scrollspy">
+            <div class="card-content">
+                <h4 class="card-title">{{ Str::plural($page->title) ?? ''}} Table</h4>
+                <div class="row">
+                  <div class="col s12">
+                      <table id="{{$page->entity}}-data-table" class="display data-tables">
+                        <thead>
+                            <tr>
+                              <th>No</th>
+                              <th>Name</th>
+                              <th>Action</th>
+                            </tr>
+                        </thead>
+                      </table>
+                  </div>
+                </div>
+            </div>
+          </div>
+      </div>
+    </div>
 
+</div>
 @include('service-category.manage')
 @endsection
+
+{{-- vendor scripts --}}
+@section('vendor-script')
+<script src="{{asset('admin/vendors/data-tables/js/jquery.dataTables.min.js')}}"></script>
+<script src="{{asset('admin/vendors/data-tables/extensions/responsive/js/dataTables.responsive.min.js')}}"></script>
+<script src="{{asset('admin/vendors/data-tables/js/dataTables.select.min.js')}}"></script>
+@endsection
 @push('page-scripts')
-<script src="{{ asset('admin/js/common-script.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <script>
 
   var table;
@@ -89,8 +80,7 @@
   var entity      = '{{$page->entity}}';
 
   $(function () {
-    table = $('.data-tables').DataTable({
-        bSearchable: true,
+    table = $('#{{$page->entity}}-data-table').DataTable({
         pagination: true,
         pageLength: 10,
         responsive: true,
@@ -99,9 +89,9 @@
         serverSide: true,
         ajax: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
         columns: [
-            {data: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'DT_RowIndex', orderable: false, searchable: false, width:20},
             {data: 'name', name: 'name'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
+            {data: 'action', name: 'action', orderable: false, searchable: false, width:100},
         ]
     });
   });
@@ -115,7 +105,7 @@
         $("#{{$page->entity}}Form")[0].reset();
         $('#{{$page->entity}}Form').find("input[type=text]").val("");
         $("#serviceCategory_id").val('');
-        $("#business-types-modal").modal("show");
+        $("#serviceCategory-modal").modal("open");
     } else {
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + serviceCategory_id + "/edit", type: "GET", dataType: "html"})
             .done(function (a) {
@@ -123,7 +113,7 @@
                 if(data.flagError == false){
                     $("#serviceCategory_id").val(data.data.id);
                     $("#{{$page->entity}}Form input[name=name]").val(data.data.name);
-                    $("#business-types-modal").modal("show");
+                    $("#serviceCategory-modal").modal("open");
                 }
             }).fail(function () {
                 printErrorMsg("Please try again...", "error");
@@ -156,7 +146,7 @@
             var data = JSON.parse(a);
             if(data.flagError == false){
                 showSuccessToaster(data.message);                
-                $("#business-types-modal").modal("hide");
+                $("#serviceCategory-modal").modal("close");
                 setTimeout(function () {
                   table.ajax.reload();
                   }, 2000);
@@ -170,40 +160,33 @@
     })
   }
 
-
   function softDelete(b) {
-           
-    Swal.fire({
-      title: 'Are you sure want to delete ?',
-      text: "You won't be able to revert this!",
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-      }).then(function(result) {
-          if (result.value) {
-              $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-                  .done(function (a) {
-                      var data = JSON.parse(a);
-                      if(data.flagError == false){
-                        showSuccessToaster(data.message);          
-                        setTimeout(function () {
-                          table.ajax.reload();
-                          }, 2000);
-
-                    }else{
-                      showErrorToaster(data.message);
-                      printErrorMsg(data.error);
-                    }   
-                  }).fail(function () {
-                          showErrorToaster("Somthing went wrong!");
-                  });
-          }
-      });
+		swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
+			buttons: {
+				cancel: 'No, Please!',
+				delete: 'Yes, Delete It'
+			}
+		}).then(function (willDelete) {
+			if (willDelete) {
+			  $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+            .done(function (a) {
+              var data = JSON.parse(a);
+              if(data.flagError == false){
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                  }, 1000);
+              }else{
+                showErrorToaster(data.message);
+                printErrorMsg(data.error);
+              }   
+            }).fail(function () {
+                    showErrorToaster("Something went wrong!");
+            });
+			} 
+		});
   }
 
 </script>
 @endpush
-
 

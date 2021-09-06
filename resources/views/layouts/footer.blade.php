@@ -1,8 +1,31 @@
-<!-- Main Footer -->
-<footer class="main-footer">
-    <strong>Copyright &copy; 2021 <a href="https://vividreal.com/" target="_blank">Vividreal</a></strong>
-    All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-      <!-- <b>Version</b> 3.1.0 -->
+
+
+@php
+$navbarBgColor    = '';
+$footerFixed      = '';
+
+if(!empty($themeSettings)){
+  $navbarBgColor          = ($themeSettings->navbarBgColor != '')?$themeSettings->navbarBgColor:$configData['navbarLargeColor'];
+  $footerFixed            = ($themeSettings->footerFixed == 1)?'footer-fixed':'footer-static';
+  
+}else{
+  $navbarBgColor        = $configData['navbarLargeColor'];
+}
+
+@endphp
+
+<!-- BEGIN: Footer-->
+<footer class="page-footer footer {{$footerFixed}} footer-dark {{$navbarBgColor}} gradient-shadow navbar-border navbar-shadow">
+  <div class="footer-copyright">
+    <div class="container">
+      <span>&copy; 2021 <a href="https://vividreal.com/"
+          target="_blank">Billbae</a> All rights reserved.
+      </span>
+      <span class="right hide-on-small-only">
+        Design and Developed by <a href="https://vividreal.com/">Vividreal</a>
+      </span>
     </div>
-  </footer>
+  </div>
+</footer>
+
+<!-- END: Footer-->

@@ -8,28 +8,31 @@ use App\Helpers\TaxHelper;
 use Illuminate\Http\Request;
 use App\Models\ShopBilling;
 use App\Models\BillingItemAdditionalTax;
+use App\Helpers\FunctionHelper;
+use App\Models\BillingFormat;
+use App\Events\SalesCompleted;
+use App\Models\BillingItemTax;
+use App\Models\BillingAddres;
+use App\Models\PaymentType;
+use App\Models\BillingItem;
+use App\Models\BillAmount;
+use App\Models\Customer;
+use App\Models\Billing;
 use App\Models\Package;
 use App\Models\Country;
-use App\Models\BillingAddres;
-use App\Models\BillingItemTax;
-use App\Models\BillingItem;
-use App\Models\BillingFormat;
 use App\Models\District;
-use App\Models\PaymentType;
-use App\Models\BillAmount;
-use App\Models\State;
 use App\Models\Service;
+use App\Models\State;
 use App\Models\Shop;
 use DataTables;
 use Validator;
-use Auth;
 use Carbon;
-use App\Helpers\FunctionHelper;
-use App\Models\Customer;
-use App\Models\Billing;
-use PDF;
 use Event;
-use App\Events\SalesCompleted;
+use Auth;
+use DB;
+use PDF;
+
+
 
 class BillingController extends Controller
 {
@@ -69,6 +72,9 @@ class BillingController extends Controller
         $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity;      
+
+
+        
         return view($this->viewPath . '.list', compact('page'));
     }
 
@@ -81,18 +87,19 @@ class BillingController extends Controller
     {
         $page                       = collect();
         $variants                   = collect();
+        $user                       = Auth::user();
+        $store                      = Shop::find($user->shop_id);
         $page->title                = $this->title;
         $page->link                 = url($this->link);
         $page->route                = $this->route;
         $page->entity               = $this->entity;                                                                                                                             
-        $variants->country          = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');          
+        $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id');          
         $variants->services         = Service::where('shop_id', SHOP_ID)->pluck('name', 'id');          
         $variants->packages         = Package::where('shop_id', SHOP_ID)->pluck('name', 'id');
         $variants->payment_types    = PaymentType::where('shop_id', SHOP_ID)->pluck('name', 'id');         
         $variants->time_picker      = ($this->time_format === 'h')?false:true;
         $variants->time_format      = $this->time_format;
-
-        return view($this->viewPath . '.create', compact('page', 'variants'));
+        return view($this->viewPath . '.create', compact('page', 'variants', 'store'));
     }
 
     /**
@@ -113,14 +120,14 @@ class BillingController extends Controller
             ->addColumn('action', function($detail){
                 $action = '';
                 if($detail->payment_status == 0){
-                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/' . $detail->id ) . '"" class="btn btn-info btn-sm btn-icon mr-2" title="Update Payment"> <i class="fa fa-inr" aria-hidden="true"></i> Update Payment</a>';
+                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/' . $detail->id ) . '"" class="btn mr-2 green-teal tooltipped" title="Update Payment"> <i class="fa fa-inr" aria-hidden="true"></i> Update Payment</a>';
                 } 
                 if($detail->status == 0){
-                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/edit/' . $detail->id) . '"" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i> Edit details</a>';
-                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="deleteBill(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/edit/' . $detail->id) . '"" class="btn mr-2 cyan tooltipped" data-tooltip="Edit details"><i class="material-icons">mode_edit</i></a>';
+                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="deleteBill(this.id)"  class="btn red btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
                 }else{
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/show/' . $detail->id) . '"" class="btn btn-secondary btn-sm btn-icon mr-2" title="View details"> <i class="icon-1x fas fa-eye"></i> View details</a>';
-                    $action .= ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="cancelBill(this.id)" class="btn btn-warning btn-sm btn-icon mr-2" title="Cancel"> <i class="fa fa-ban"></i> Cancel </a>';
+                    $action .= ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="cancelBill(this.id)" class="btn orange btn-sm btn-icon mr-2" title="Cancel Bill"><i class="material-icons">cancel</i> </a>';
                 }   
                 return $action;
             })
@@ -135,9 +142,9 @@ class BillingController extends Controller
             ->editColumn('payment_status', function($detail){
                 $status = '';
                 if($detail->payment_status == 0){
-                    $status = '<span class="badge badge-warning">Pending</span>';
+                    $status = '<span class="badge orange">Pending</span>';
                 }else{  
-                    $status = '<span class="badge badge-success">Paid</span>';                                
+                    $status = '<span class="badge green">Paid</span>';                                
                 }
                 return $status;
             })
@@ -269,6 +276,15 @@ class BillingController extends Controller
 
         $validator = Validator::make($request->all(), $data, $messages);
 
+
+        // echo array_sum($request->payment_amount);
+
+        // echo "<pre>"; print_r($request->all()); 
+        
+
+        // exit;
+
+
         if ($validator->passes()) {
             if($request->grand_total == array_sum($request->payment_amount))
             {
@@ -383,6 +399,7 @@ class BillingController extends Controller
 
     public function updateInvoice(Request $request, $id)
     {
+
         // Formatting time 
         $billed_date    = FunctionHelper::dateToTimeFormat($request->billed_date);
         $checkin_time   = FunctionHelper::dateToTimeFormat($request->checkin_time);
@@ -397,10 +414,18 @@ class BillingController extends Controller
         $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
         $address                    = BillingAddres::where('bill_id', $id)->where('customer_id', $request->customer_id)->first();
         
-        if($request->billing_address_checkbox == 0)
+
+        $billing_address_checkbox = $request->has('billing_address_checkbox') ? 1 : 0;
+
+        // echo $checked; exit;
+
+        if($billing_address_checkbox == 0)
         {
             if($address){
                 // echo "update";
+
+                // echo "<pre>" ; print_r($request->all()); exit;
+
                 $address->customer_id       = $request->customer_id;
                 $address->billing_name      = $request->customer_billing_name;
                 $address->country_id        = $request->country_id;
@@ -431,6 +456,7 @@ class BillingController extends Controller
                 $billing->address_type      = 'company' ;
             }
         }else{
+
             if($address){
                 $address->delete();
                 $billing->address_type      = 'customer' ;
@@ -501,13 +527,13 @@ class BillingController extends Controller
         $page->route                = $this->route;
         $page->entity               = $this->entity; 
         $user                       = Auth::user();
-        $billing                    = Billing::findOrFail($id);
+        $billing                     = Billing::findOrFail($id);
         $variants->payment_types    = PaymentType::pluck('name', 'id'); 
         $variants->store            = Shop::with('billing')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
                                         ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
                                         ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
                                         ->find($user->shop_id); 
-           
+
         if($billing->status === 0){
             if($billing->items){
 
@@ -522,9 +548,9 @@ class BillingController extends Controller
                 }
 
                 if($item_type == 'services'){
-                    $variants->billing_items = Service::where('shop_id', SHOP_ID)->whereIn('id', $ids)->orderBy('id', 'desc')->get();
+                    $variants->billing_items = Service::with('gsttax')->where('shop_id', SHOP_ID)->whereIn('id', $ids)->orderBy('id', 'desc')->get();
                 }else{
-                    $variants->billing_items = Package::where('shop_id', SHOP_ID)->whereIn('id', $ids)->orderBy('id', 'desc')->get();
+                    $variants->billing_items = Package::with('gsttax')->where('shop_id', SHOP_ID)->whereIn('id', $ids)->orderBy('id', 'desc')->get();
                 }
 
                 foreach($variants->billing_items as $key => $row){
@@ -704,11 +730,18 @@ class BillingController extends Controller
         $page->entity           = $this->entity;
         $variants->states       = array();
         $variants->districts    = array();
-        $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');          
+        $variants->country      = DB::table('shop_countries')->where('status', 1)->pluck('name', 'id');         
         $variants->services     = Service::where('shop_id', SHOP_ID)->pluck('name', 'id');          
         $variants->packages     = Package::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
 
         $billing                = Billing::findOrFail($id);
+
+        // echo "<pre>"; print_r($billing);
+        // echo "<pre>"; print_r($billing->billingaddress);exit;
+
+        // echo $billing->customer->billingaddress->shopCountry->name; 
+        
+        
 
         if($billing->status === 0){
 
@@ -719,11 +752,11 @@ class BillingController extends Controller
                                         ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
                                         ->find($user->shop_id); 
 
-            if(isset($billing->customer->billingaddress->country_id )){
-                $variants->states        = State::where('shop_id', SHOP_ID)->where('country_id', $billing->customer->billingaddress->country_id)->pluck('name', 'id');     
+            if(isset($billing->billingaddress->country_id )){
+                $variants->states        = DB::table('shop_states')->where('country_id',$billing->billingaddress->country_id)->pluck('name', 'id'); 
             }
-            if(isset($billing->customer->billingaddress->state_id )){
-                $variants->districts     = District::where('shop_id', SHOP_ID)->where('state_id', $billing->customer->billingaddress->state_id)->pluck('name', 'id');     
+            if(isset($billing->billingaddress->state_id )){
+                $variants->districts     = DB::table('shop_districts')->where('state_id', $billing->billingaddress->state_id)->pluck('name', 'id');   
             }
 
             if($billing->items){
@@ -863,7 +896,7 @@ class BillingController extends Controller
                 } 
                 
             
-                // echo "<pre>"; print_r($billing_items); exit;
+                // echo "<pre>"; print_r($billing); exit;
 
                 return view($this->viewPath . '.invoice-view', compact('page', 'billing', 'billing_items', 'grand_total', 'item_type' ,'variants'));
             }

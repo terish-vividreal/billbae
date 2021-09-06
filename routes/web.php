@@ -15,6 +15,7 @@ use App\Http\Controllers\CommonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CountryController;
@@ -52,14 +53,15 @@ Auth::routes();
 Route::get('forget-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');
 Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('forget.password.post'); 
 Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('reset.password.get');
+Route::get('create-password/{token}', [ForgotPasswordController::class, 'showCreatePasswordForm'])->name('create.password.get');
 Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
-
+Route::post('create-password', [ForgotPasswordController::class, 'submitCreatePasswordForm'])->name('create.password.post');
 
 // Forgot password routes
-Route::get('forget-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');
-Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('forget.password.post'); 
-Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('reset.password.get');
-Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
+// Route::get('forget-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');
+// Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('forget.password.post'); 
+// Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('reset.password.get');
+// Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
 
 
 // User Routes
@@ -74,16 +76,41 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($store_link . '/unique', [Store::class, 'isUnique']);
     Route::post($store_link . '/update-logo', [Store::class, 'updateLogo']);
     // Route::post($store_link . '/crop-image-upload', [Store::class, 'updateLogo']);
-
+    Route::get($store_link . '/billings', [Store::class, 'billings']);
+    Route::post($store_link . '/update/gst-billing', [Store::class, 'updateGst']);
+    Route::get($store_link . '/billing-series', [Store::class, 'billingSeries']);
     Route::put($store_link . '/update/{id}', [Store::class, 'update']);
     Route::put($store_link . '/update/billing/{id}', [Store::class, 'storeBilling']);
-
     Route::post($store_link . '/update/bill-format/', [Store::class, 'updateBillFormat']);
+    Route::post($store_link . '/theme-settings', [Store::class, 'themeSettings']);
+   
+    // User profile routes
+    Route::get($store_link . '/user-profile', [Store::class, 'userProfile']);
+    Route::post($store_link . '/user-profile', [Store::class, 'postUserProfile']);
+    Route::post($store_link . '/update-user-image', [Store::class, 'updateUserImage']);
 
+    
     // User Routes
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('users/lists', [UserController::class, 'lists']);
     Route::post( 'users/unique', [UserController::class, 'isUnique']);
+    Route::post( 'users/manage-status', [UserController::class, 'manageStatus']);
+    Route::post('users/update-password', [UserController::class, 'updatePassword']);
+
+    //Staff Routes
+    $staff = 'staffs';
+    Route::resource($staff, StaffController::class)->except(['show']);
+    Route::get($staff.'/lists', [StaffController::class, 'lists']);
+    Route::get($staff.'/{id}/manage-document', [StaffController::class, 'manageDocument']);
+
+
+    Route::post($staff.'/update/user-image', [StaffController::class, 'updateUserImage']);
+    Route::post($staff.'/get-document', [StaffController::class, 'getDocument']);
+    Route::post($staff.'/upload-id-proof', [StaffController::class, 'uploadIdProofs']);
+    Route::post($staff.'/remove-id-proof', [StaffController::class, 'removeIdProofs']);
+    Route::post($staff.'/delete-id-proof', [StaffController::class, 'deleteIdProofs']);
+    Route::get($staff.'/download-files/{document}', [StaffController::class, 'downloadFile'])->name('download-files');
+    Route::post($staff.'/update/document-details', [StaffController::class, 'updateDocumentDetails']);
 
     // Business type Routes
     // $business_type = 'business-types';
@@ -126,6 +153,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $packages = 'packages';
     Route::resource($packages, PackageController::class)->except(['show']);
     Route::get($packages . '/lists', [PackageController::class, 'lists']);
+    Route::post($packages . '/update-status', [PackageController::class, 'updateStatus']);
 
     // Customer Routes
     $customer = 'customers';
@@ -171,7 +199,12 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($link . '/get-shop-states', [CommonController::class, 'getShopStates']);    
     Route::post($link . '/get-customer-details', [CommonController::class, 'getCustomerDetails']);   
     Route::post($link . '/get-taxdetails', [CommonController::class, 'calculateTax']);  
-    Route::post($link . '/get-timezone', [CommonController::class, 'getTimezone']);    
+    Route::post($link . '/list-service-with-tax', [CommonController::class, 'calculateTaxTable']);  
+    Route::post($link . '/get-timezone', [CommonController::class, 'getTimezone']);  
+    Route::post($link . '/get-states-of-country', [CommonController::class, 'getStatesOfCountry']);    
+    Route::post($link . '/get-districts-of-state', [CommonController::class, 'getDistrictsOfState']);    
+    Route::post($link . '/get-currencies', [CommonController::class, 'getCurrencies']);    
+
 
     
     

@@ -33,3 +33,20 @@ $(".check_numeric").keydown(function (event) {
     }
 
 });
+
+function getChildElements(parent_id = null, selected = null, element = null, route = null){
+    $.ajax({
+        type: 'GET',
+        url: route, data:{'parent_id': parent_id },
+        dataType: 'json',
+        delay: 250,
+        success: function(data) {
+            var selectTerms = '<option value="">Please select </option>';
+            $.each(data.data, function(key, value) {
+              selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+            });
+            var select = $('#'+element);
+            select.empty().append(selectTerms);
+        }
+    });
+  }

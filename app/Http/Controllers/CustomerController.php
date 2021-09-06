@@ -110,8 +110,10 @@ class CustomerController extends Controller
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
-                $action = ' <a  href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/edit') . '"" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+
+                
+                $action = ' <a  href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
                 return $action;
             })
             // ->addColumn('price', function($detail){
@@ -149,19 +151,19 @@ class CustomerController extends Controller
             $page->title            = $this->title;
             $page->link             = url($this->link);
             $page->route            = $this->route;
+
             $page->entity           = $this->entity; 
-            $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+            $variants->countries    = DB::table('shop_countries')->where('status', 1)->pluck('name', 'id');
 
-            if($customer->district_id){
-                $variants->state_id     = District::where('id', $customer->district_id)->pluck('state_id');
-                $variants->country_id   = State::where('id', $variants->state_id)->pluck('country_id');
 
-                $variants->states       = State::where('shop_id', SHOP_ID)->where('country_id', $variants->country_id)->pluck('name', 'id'); 
-                $variants->districts    = District::where('shop_id', SHOP_ID)->where('state_id', $variants->state_id)->pluck('name', 'id'); 
+            if($customer->country_id != null){
+                $variants->states       = DB::table('shop_states')->where('country_id', $customer->country_id)->pluck('name', 'id');
             }else{
                 $variants->country_id   = '';
-                $variants->state_id     = array();
-                $variants->states       = '';
+            }
+
+            if($customer->state_id != null){
+                $variants->districts   = DB::table('shop_districts')->where('state_id', $customer->state_id)->pluck('name', 'id');
             }
             
             return view($this->viewPath . '.edit', compact('page', 'customer' ,'variants'));
@@ -189,6 +191,8 @@ class CustomerController extends Controller
             $data->gender           = $request->gender;
             $data->dob              = date("Y-m-d", strtotime($request->dob));
             $data->mobile           = $request->mobile;
+            $data->country_id       = $request->country_id;
+            $data->state_id         = $request->state_id;
             $data->district_id      = $request->district_id;
             $data->pincode          = $request->pincode;
             $data->gst              = $request->gst;            
@@ -221,7 +225,6 @@ class CustomerController extends Controller
                 ->where("name","LIKE","%{$request->search}%")
                 ->orWhere("mobile","LIKE","%{$request->search}%")                
                 ->get();
-   
         return response()->json($data);
     }
 }
