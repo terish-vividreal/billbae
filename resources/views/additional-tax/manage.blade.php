@@ -4,7 +4,7 @@
             <div class="modal-header"><h4 class="modal-title">Additional Tax Form</h4> </div>
               {{ csrf_field() }}
               {!! Form::hidden('additionaltax_id', '' , ['id' => 'additionaltax_id'] ); !!}
-                <div class="card-body">
+                <div class="card-body" id="additionaltaxFields">
                     <div class="row">
                       <div class="input-field col s12">
                         {!! Form::text('name', '', ['id' => 'name']) !!}

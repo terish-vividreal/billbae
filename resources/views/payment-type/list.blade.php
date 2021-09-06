@@ -118,7 +118,10 @@
                 if(data.flagError == false){
                     $("#paymentType_id").val(data.data.id);
                     $("#{{$page->entity}}Form input[name=name]").val(data.data.name);
+                      $("#paymentTypeFields .label-placeholder").hide();
+                      $("#paymentTypeFields .label-placeholder").hide();
                     $("#paymentType-types-modal").modal("open");
+
                 }
             }).fail(function () {
                 printErrorMsg("Please try again...", "error");

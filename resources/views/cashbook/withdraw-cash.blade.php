@@ -4,7 +4,6 @@
         <div class="modal-content">
             <div class="modal-header"><h4 class="modal-title">Withdraw Cash Form</h4> </div>
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>            
-                {{ csrf_field() }}
                 <div class="card-body">
                       <div class="row">
                           <div class="input-field col m12 s12">
