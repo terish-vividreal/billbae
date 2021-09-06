@@ -49,11 +49,15 @@ class CommonController extends Controller
     public function getTimezone(Request $request)
     {
         $country_code    = DB::table('shop_countries')->where('id',$request->country_id)->value('sortname');
-        $timezone        = DB::table('timezone')->where('country_code',$country_code)->pluck('zone_name', 'zone_name');
+        $timezone        = DB::table('timezone')->where('country_code',$country_code)->get();
 
+        // For html
+        // $form           = Form::select('timezone', $timezone , '', ['class' => 'form-control', 'placeholder' => 'Select a timezone' , 'id'=>'timezone' ]);
+        // return response($form);
 
-        $form           = Form::select('timezone', $timezone , '', ['class' => 'form-control', 'placeholder' => 'Select a timezone' , 'id'=>'timezone' ]);
-        return response($form);
+        // Select 2
+        if($timezone)
+            return response()->json(['flagError' => false, 'data' => $timezone]);
     }
     
     public function getAllServices(Request $request)
@@ -68,10 +72,42 @@ class CommonController extends Controller
     
     public function getAllPackages(Request $request)
     {
-
         $packages   = Package::select('name','id')->where('shop_id', SHOP_ID)->get();
         if($packages)
             return response()->json(['flagError' => false, 'data' => $packages]);
+    }
+
+    public function getStatesOfCountry(Request $request)
+    {
+        // if($request->country_id == 101){
+
+        //     $errors = array('I am sorry, this service is currently not supported in your selected country. In case you wish to use this service in any country other than India, please leave a message in the contact us page, and we shall respond to you at the earliest.');
+        //     return ['flagError' => true, 'message' => "Currently not supported in your selected country!",  'error'=> $errors];
+        // }
+            $states   = DB::table('shop_states')->where('country_id', $request->country_id)->get();
+
+            if($states)
+                return response()->json(['flagError' => false, 'data' => $states]);
+            else
+                return response()->json(['flagError' => true, 'data' => null]);
+    }
+    
+    public function getDistrictsOfState(Request $request)
+    {
+        $districts   = DB::table('shop_districts')->where('state_id', $request->state_id)->get();
+        if($districts)
+            return response()->json(['flagError' => false, 'data' => $districts]);
+        else
+            return response()->json(['flagError' => true, 'data' => null]);
+    }
+
+    public function getCurrencies(Request $request)
+    {
+        $currencies     = DB::table('currencies')->where('country_id', $request->country_id)->get();
+        if($currencies)
+            return response()->json(['flagError' => false, 'data' => $currencies]);
+        else
+            return response()->json(['flagError' => true, 'data' => null]);
     }
     
     public function getServices(Request $request)
@@ -189,6 +225,91 @@ class CommonController extends Controller
         return response()->json(['flagError' => false, 'grand_total' => $grand_total, 'html' => $html]);
     }
     
+    public function calculateTaxTable(Request $request)
+    {
+        
+        $type = $request->type;
+        if($type == 'services'){
+            $result = Service::with('additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
+                        // ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'services.gst_tax')
+                        ->whereIn('services.id', $request->data_ids)->orderBy('services.id', 'desc')->get();
+        }else{
+            $result = Package::with('additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
+                        ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'packages.gst_tax')
+                        ->whereIn('packages.id', $request->data_ids)->orderBy('packages.id', 'desc')->get();
+        }
+
+        // echo "<pre>"; print_r($result); exit;
+
+        if($result){
+
+            $html                   = '';
+            $index                  = 1 ;
+            $total_percentage       = 0 ;
+            $total_service_tax      = 0 ;
+            $gross_charge           = 0 ;
+            $gross_value            = 0 ;
+            $grand_total            = 0 ;
+            $additional_tax_array   = array();
+
+            foreach($result as $row){
+
+                // $tax_data       = TaxHelper::simpleTaxCalculation($row);
+
+                // echo $row->gsttax->percentage; exit;
+
+
+                $total_percentage = $row->gsttax->percentage ;                
+                if(count($row->additionaltax) > 0){
+                    foreach($row->additionaltax as $additional){
+                        $total_percentage = $total_percentage+$additional->percentage;
+                    } 
+                }
+
+                // echo $total_percentage; exit;
+
+                $total_service_tax          = ($row->price/100) * $total_percentage ;        
+                $tax_onepercentage          = $total_service_tax/$total_percentage;
+                $total_gst_amount           = $tax_onepercentage*$row->gsttax->percentage ;
+                $total_cgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
+                $total_sgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
+
+                if($row->tax_included == 1) {
+                    $included = 'Tax Included' ;
+                    $gross_charge   = $row->price ;
+                    $gross_value    = $row->price - $total_service_tax ;
+                }else{
+                    $included = 'Tax Excluded' ;
+                    $gross_charge   = $row->price + $total_service_tax  ;
+                    $gross_value    = $row->price ;
+                }
+
+
+                    $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - HSN Codessss : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
+                    $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % CGST -  </span></td><td> '.number_format($total_cgst_amount,2).'</td></tr>';
+                    $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % SGST -  </span></td><td> '.number_format($total_sgst_amount,2).'</td></tr>';
+                
+                    if(count($row->additionaltax) > 0){
+                        foreach($row->additionaltax as $additional){
+                            $html.='<tr><td></td><td><span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span></td><td> '.number_format($tax_onepercentage*$additional->percentage,2).'</td></tr>';
+                            // $html.='<div id="additionalTax" class="test gst"> <span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span> - '.number_format($tax_onepercentage*$additional->percentage,2). '</div>';
+                        }
+                    }
+
+                    $html.='<tr data-widget="expandable-table" aria-expanded="false"><td></td>';
+                    // $html.='<div style="text-align:left;"></div>';
+                    $html.='<td style="text-align:right;"><b>Total</b></td><td><b>'.number_format($gross_charge,2).'</b></td></tr>';
+
+
+                $grand_total = ($grand_total + $gross_charge); ;
+                $index++;
+            }
+            
+            // $table_footer='<tfoot><tr><td></td><td></td><td></td><td></td><td></td><td><b>Total - <h4>₹ '.$total_tax.'</h4></b></td><td><b>Total - <h4>₹ '.number_format($total_amount,2).'</h4></b></td></tr></tfoot>';
+        }
+
+        return response()->json(['flagError' => false, 'grand_total' => $grand_total, 'html' => $html]);
+    }
 
     // public function getSubjects($curriculum_id)
     // {

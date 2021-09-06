@@ -1,41 +1,46 @@
 <!DOCTYPE html>
-<html lang=en>
+<html class="loading" lang="en" data-textdirection="ltr">
 <head>
     <base href="{{ url('/') }}">
-    <meta charset="utf-8"/>
-    <title>Login | {{ config('app.name') }} </title>
-    <meta name=description content="Login page config('app.name')"/>
-    <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <link rel="shortcut icon" href="{{ asset('admin/images/favicon.ico') }}"/>
+    <link rel="apple-touch-icon" href="{{asset('admin/images/favicon/apple-touch-icon-152x152.png')}}">
     <link rel=canonical href="{{ url('/') }}"/>
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
-    <link href="{{ asset('admin/plugins/fontawesome-free/css/all.min.css') }}" rel=stylesheet type="text/css"/>
+    <title>Login | {{ config('app.name') }} </title>
+    <meta name="description" content="@yield('seo_keyword', '')">
+    <meta name="keyword" content="@yield('seo_description', '')">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="{{ asset('admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
-  
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('admin/css/adminlte.min.css') }} ">
+    @include('layouts.general_css')
+    
+    <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/vendors.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/login.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/vendors/toastr/toastr.min.css') }}">
+    
+    @stack('page-css')
 
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-  <div class="login-logo">
-    <a href="{{ url('login') }}"><b>{{ config('app.name') }} </b> Admin </a>
+<body class="vertical-layout vertical-menu-collapsible page-header-dark vertical-modern-menu preload-transitions 1-column login-bg blank-page" data-open="click" data-menu="vertical-modern-menu" data-col="1-column">
+
+        <div class="row">
+          <div class="col s12">
+              <div class="container">
+              
+              @yield('content')
+
+              </div>
+              <div class="content-overlay"></div>
+
+
+      </div>
   </div>
-  <!-- /.login-logo -->
-  @yield('content')
+    <script src="{{asset('admin/js/vendors.min.js')}}"></script>
+    <script src="{{asset('admin/vendors/toastr/toastr.min.js')}}"></script>
+    <!-- <script src="{{ asset('js/ajax-crud.js') }}"></script> -->
+    @stack('page-scripts')
 
-</div>
-<!-- /.login-box -->
 
-<!-- jQuery -->
-<script src="{{ asset('admin/plugins/jquery/jquery.min.js') }}"></script>
-<!-- Bootstrap 4 -->
-<script src="{{ asset('admin/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<!-- AdminLTE App -->
-<!-- <script src="{{ asset('admin/dist/js/adminlte.min.js') }}"></script> -->
-@stack('page-scripts')
 </body>
 </html>

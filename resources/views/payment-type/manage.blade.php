@@ -1,36 +1,22 @@
-<div id="paymentType-types-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+
+  <div id="paymentType-modal" class="modal">
+    <form id="paymentTypeForm" name="paymentTypeForm" role="form" method="POST" action="" class="ajax-submit">
         <div class="modal-content">
-
-            <div class="modal-header">
-                <h4 class="modal-title">{{ $page->title ?? ''}} Form</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger alert-messages print-error-msg" style="display:none;"><ul></ul></div>
-                <div class="alert alert-success fade alert-messages print-success-msg" style="display:none;"></div>
-                <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="POST" action="" class="ajax-submit">
-                    {{ csrf_field() }}
-                    {!! Form::hidden('paymentType_id', '' , ['id' => 'paymentType_id'] ); !!}
-                    <div class="card-body">
-                      <div class="form-group">
-                        {!! Form::label('name', 'Payment Type *', ['class' => '']) !!}
-                        {!! Form::text('name', '', ['class' => 'form-control', 'id' => 'name', 'placeholder'=>'Enter Payment Type']) !!}
+            <div class="modal-header"><h4 class="modal-title">Payment Type Form</h4> </div>
+            {{ csrf_field() }}
+                {!! Form::hidden('paymentType_id', '' , ['id' => 'paymentType_id'] ); !!}
+                <div class="card-body">
+                    <div class="row">
+                      <div class="input-field col s12">
+                        {!! Form::text('name', '', ['id' => 'paymentTypename']) !!}
+                        <label for="paymentTypename" class="label-placeholder">Payment Type<span class="red-text">*</span></label>
                       </div>
-
                     </div>
-                    <!-- /.card-body -->
-
-                    <div class="modal-footer">					
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button class="btn btn-success ajax-submit" id="continue">Submit</button>
-                    </div>
-                </form>
-            </div>
-
-          </div>
-          <!-- /.modal-content -->
-    </div>
-</div>
+                </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn waves-effect waves-light modal-action modal-close" type="reset" id="paymentTypenameResetForm">Close</button>
+            <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="paymentTypename-submit-btn">Submit <i class="material-icons right">send</i></button>
+        </div>
+    </form>
+  </div>

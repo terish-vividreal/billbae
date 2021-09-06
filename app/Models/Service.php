@@ -7,6 +7,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ServiceCategory;
+use App\Models\GstTaxPercentage;
 use App\Models\Hours;
 
 class Service extends Model
@@ -34,7 +35,10 @@ class Service extends Model
         return $this->belongsToMany('App\Models\Additionaltax');
     }
     
-
+    public function gsttax()
+    {
+        return $this->belongsTo('App\Models\GstTaxPercentage', 'gst_tax', 'id');
+    }
 
     /**
      * Get the options for generating the slug.

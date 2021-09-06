@@ -63,8 +63,8 @@ class ServiceCategoryController extends Controller
             return Datatables::of($detail)
                     ->addIndexColumn()
                     ->addColumn('action', function($detail){
-                        $action = ' <a  href="javascript:" onclick="manageserviceCategory(' . $detail->id . ')" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                        $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                        $action = ' <a  href="javascript:" onclick="manageserviceCategory(' . $detail->id . ')" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                        $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
                         return $action;
                     })
                     ->removeColumn('id')
@@ -147,7 +147,7 @@ class ServiceCategoryController extends Controller
             if($data){
                 $data->name = $request->name;
                 $data->save();
-                return ['flagError' => false, 'message' => $this->title. " Updated successfully"];
+                return ['flagError' => false, 'message' => $this->title. " updated successfully"];
             }else{
                 return ['flagError' => true, 'message' => "Data not found, Try again!"];
             }
@@ -163,9 +163,13 @@ class ServiceCategoryController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $data = ServiceCategory::findOrFail($id);
-
+        $data = ServiceCategory::with('services')->findOrFail($id);
+        if(count($data->services) > 0 )
+        {
+            return ['flagError' => true, 'message' => "Please delete all services of item !"];
+        }
+        
         $data->delete();
-        return ['flagError' => false, 'message' => $this->title. " Deleted successfully"];
+        return ['flagError' => false, 'message' => $this->title. " deleted successfully"];
     }
 }

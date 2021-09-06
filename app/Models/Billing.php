@@ -16,6 +16,11 @@ class Billing extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function billingaddress()
+    {
+        return $this->belongsTo(BillingAddres::class,  'id', 'bill_id');
+    }
+
     public function items()
     {
         return $this->hasMany(BillingItem::class, 'billing_id', 'id');

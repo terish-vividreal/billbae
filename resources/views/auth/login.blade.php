@@ -1,80 +1,63 @@
 @extends('auth.auth_app')
 
 @section('content')
-
-<div class="card">
-        <div class="card-body login-card-body">
-        <p class="login-box-msg">Login in to start your session</p>
-
-
-            @if(session()->has('error'))
-                <div class="alert alert-danger">
-                    {{ session()->get('error') }}
-                </div>
-            @endif
-
-
-
-
-            
-        <form method="POST" action="{{ route('login') }}">
+    <div id="login-page" class="row">
+        
+        <div class="col s12 m6 l4 z-depth-4 card-panel border-radius-6 login-card bg-opacity-8">
+        
+        
+            <form method="POST" action="{{ route('login') }}">
             @csrf
-            <div class="input-group mb-3">
-            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-                
-            <div class="input-group-append">
-                <div class="input-group-text">
-                <span class="fas fa-envelope"></span>
+            <div class="row">
+                <div class="input-field col s12">
+                <h5 class="ml-4">Sign in</h5>
                 </div>
+
             </div>
+
+            @if(session()->has('error'))<div class="card-alert card red lighten-5 alert alert-danger"><div class="card-content red-text"><p>{{ session()->get('error') }}</p></div></div>@endif
+
+
             
-            </div>
-            <div class="input-group mb-3">
-            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-                @error('password')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            <div class="input-group-append">
-                <div class="input-group-text">
-                <span class="fas fa-lock"></span>
+            <div class="row margin">
+                <div class="input-field col s12">
+                <i class="material-icons prefix pt-2">person_outline</i>
+                <input id="email" type="email" name="email" value="{{ old('email') }}" class="validate" autocomplete="off" required>
+                <label for="email" class="label-placeholder">Email </label>
                 </div>
             </div>
+            <div class="row margin">
+                <div class="input-field col s12">
+                <i class="material-icons prefix pt-2">lock_outline</i>
+                <input id="password" type="password" name="password" class="validate" autocomplete="off" required>
+                <label for="password" class="label-placeholder">Password </label>
+                </div>
             </div>
             <div class="row">
-            <div class="col-8">
-                <div class="icheck-primary">
-                <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                <label for="remember">
-                    Remember Me
-                </label>
+                <div class="col s12 m12 l12 ml-2 mt-1">
+                <p>
+                    <label>
+                    <input type="checkbox" />
+                    <span>Remember Me</span>
+                    </label>
+                </p>
                 </div>
             </div>
-            <div class="col-4">
-                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            <div class="row">
+                <div class="input-field col s12">
+                <button class="btn waves-effect waves-light border-round gradient-45deg-purple-deep-orange col s12" type="submit" name="action">Login </button>
+                </div>
             </div>
+            <div class="row">
+                <div class="input-field col s6 m6 l6">
+                <p class="margin medium-small"><a href="javascript:">Register Now!</a></p>
+                </div>
+                <div class="input-field col s6 m6 l6">
+                <p class="margin right-align medium-small"><a href="{{ url('forget-password') }}">Forgot password ?</a></p>
+                </div>
             </div>
-        </form>
-
-        <div class="social-auth-links text-center mb-3">
-            <p>- OR -</p>
-            <a href="javascript:" class="btn btn-block btn-primary">
-            <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
-            </a>
-            <a href="javascript:" class="btn btn-block btn-danger">
-            <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
-            </a>
+            </form>
         </div>
-
-       <p class="mb-1">
-            <a href="{{ url('forget-password') }}">I forgot my password</a>
-        </p>
-        <!--  <p class="mb-0">
-            <a href="register.html" class="text-center">Register a new membership</a>
-        </p> -->
-        </div>
-
     </div>
 @endsection
 
