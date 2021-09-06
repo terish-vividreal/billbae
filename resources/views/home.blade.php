@@ -14,7 +14,7 @@
                <div class="current-balance-container">
                   <div id="current-balance-donut-chart" class="current-balance-shadow"></div>
                </div>
-               <h5 class="center-align">$ 50,150.00</h5>
+               <h5 class="center-align">₹ 50,150.00</h5>
                <p class="medium-small center-align">Used balance this billing cycle</p>
             </div>
          </div>
@@ -129,10 +129,10 @@
          </div>
          <div id="chartjs" class="card pt-0 pb-0 animate fadeLeft">
             <div class="dashboard-revenue-wrapper padding-2 ml-2">
-               <span class="new badge gradient-45deg-indigo-purple gradient-shadow mt-2 mr-2">+ $900</span>
+               <span class="new badge gradient-45deg-indigo-purple gradient-shadow mt-2 mr-2">+ ₹900</span>
                <p class="mt-2 mb-0 font-weight-600">Today's revenue</p>
-               <p class="no-margin grey-text lighten-3">$40,512 avg</p>
-               <h5>$ 22,300</h5>
+               <p class="no-margin grey-text lighten-3">₹40,512 avg</p>
+               <h5₹ 22,300</h5>
             </div>
             <div class="sample-chart-wrapper card-gradient-chart">
                <canvas id="custom-line-chart-sample-three" class="center"></canvas>
@@ -161,7 +161,7 @@
                      <td>ABC Fintech LTD.</td>
                      <td>Jan 1,2019</td>
                      <td><span class="badge pink lighten-5 pink-text text-accent-2">Close</span></td>
-                     <td>$ 1000.00</td>
+                     <td>₹ 1000.00</td>
                      <td class="center-align"><a href="#"><i class="material-icons pink-text">clear</i></a></td>
                   </tr>
                   <tr>
@@ -169,7 +169,7 @@
                      <td>ACME Pvt LTD.</td>
                      <td>Jan 10,2019</td>
                      <td><span class="badge green lighten-5 green-text text-accent-4">Open</span></td>
-                     <td>$ 3000.00</td>
+                     <td>₹ 3000.00</td>
                      <td class="center-align"><a href="#"><i class="material-icons pink-text">clear</i></a></td>
                   </tr>
                   <tr>
@@ -177,7 +177,7 @@
                      <td>Collboy Tech LTD.</td>
                      <td>Jan 12,2019</td>
                      <td><span class="badge green lighten-5 green-text text-accent-4">Open</span></td>
-                     <td>$ 2000.00</td>
+                     <td>₹ 2000.00</td>
                      <td class="center-align"><a href="#"><i class="material-icons pink-text">clear</i></a></td>
                   </tr>
                   <tr>
@@ -185,7 +185,7 @@
                      <td>My Fintech LTD.</td>
                      <td>Jan 14,2019</td>
                      <td><span class="badge pink lighten-5 pink-text text-accent-2">Close</span></td>
-                     <td>$ 1100.00</td>
+                     <td>₹ 1100.00</td>
                      <td class="center-align"><a href="#"><i class="material-icons pink-text">clear</i></a></td>
                   </tr>
                </tbody>
