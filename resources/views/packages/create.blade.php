@@ -85,7 +85,7 @@
 
               <div class="row">
                 <div class="input-field col m6 s12">                 
-                  <input class="form-control check_numeric" type="text" name="price" id="price" value="" disabled/> 
+                  <input class="form-control check_numeric" type="text" name="price" id="price" value="" /> 
                   <input class="form-control" type="hidden" name="totalPrice" id="totalPrice" value=""/>                     
                   <input class="form-control" type="hidden" name="discount" id="discount" value="" />
                   <label for="price" class="label-placeholder">Package Price <span class="red-text">*</span></label>
