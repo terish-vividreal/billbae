@@ -11,6 +11,8 @@ use App\Models\Country;
 use App\Models\State;
 use App\Models\District;
 use App\Models\Package;
+use App\Models\User;
+use Response;
 use DB;
 use Session;
 use Auth;
@@ -101,6 +103,23 @@ class CommonController extends Controller
             return response()->json(['flagError' => true, 'data' => null]);
     }
 
+    public function getTherapists()
+    {
+        $user_id        = Auth::user()->id;
+        $data           =  User::role('Staffs')
+                            ->leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')
+                            ->where('users.parent_id', $user_id)
+                            ->whereIn('staff_profiles.designation', [1, 2])
+                            ->where('users.is_active', '!=',  2)->get(['users.id', 'users.name as title', 'schedule_colour as eventColor']);
+
+        // return response()->json($data);
+
+        if($data)
+            return response()->json(['flagError' => false, 'data' => $data]);
+        else
+            return response()->json(['flagError' => true, 'data' => null]);
+    }
+
     public function getCurrencies(Request $request)
     {
         $currencies     = DB::table('currencies')->where('country_id', $request->country_id)->get();
@@ -169,8 +188,6 @@ class CommonController extends Controller
             foreach($result as $row){
 
                 // $tax_data       = TaxHelper::simpleTaxCalculation($row);
-
-
                 $total_percentage = $row->gst_tax ;                
                 if(count($row->additionaltax) > 0){
                     foreach($row->additionaltax as $additional){
@@ -195,25 +212,44 @@ class CommonController extends Controller
                 }
 
 
-                    $html.='<tr data-widget="expandable-table" aria-expanded="true"><td>'.$index.'</td><td>'.$row->name.' - HSN Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
-                    $html.='<tr class="expandable-body"> </tr>';
-                    $html.='<tr class="expandable-body" style="text-align:center;">';
-                    $html.='<td colspan="2">';
+                $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
+                $html.='<td>'.$row->name.  '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
+                $html.='<td class="right-align">';
 
-
-                    $html.='<div id="cgst"> <span> '.($row->gst_tax/2).' % CGST -  </span> '.number_format($total_cgst_amount,2).' </div>';
-                    $html.='<div id="sgst"> <span> '.($row->gst_tax/2).' % SGST -  </span> '.number_format($total_sgst_amount,2).' </div>';
+                $html.='<ul><li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Amount </span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_value,2).'</h6></li>';
                 
-                    if(count($row->additionaltax) > 0){
-                        foreach($row->additionaltax as $additional){
-                            $html.='<div id="additionalTax" class="test gst"> <span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span> - '.number_format($tax_onepercentage*$additional->percentage,2). '</div>';
-                        }
-                    }
+                $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % CGST </span>';
+                $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_cgst_amount,2).'</h6></li>';
 
-                    $html.='</td></tr>';
-                    $html.='<tr data-widget="expandable-table" aria-expanded="false"><td colspan="2">';
-                    // $html.='<div style="text-align:left;"></div>';
-                    $html.='<div style="text-align:right;"><b>Total </b><br></td><td><b>'.number_format($gross_charge,2).'</b></div></td></tr>';
+                $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % SGST</span>';
+                $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_sgst_amount,2).'</h6></li>';
+
+                if(count($row->additionaltax) > 0){
+                    $html.='<li class="divider mt-2 mb-2"></li>';
+                    foreach($row->additionaltax as $additional){
+                        $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">' . $additional->percentage . ' % ' . $additional->name. '</span>';
+                        $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($tax_onepercentage*$additional->percentage,2).'</h6></li>';
+                    }
+                }
+
+                $html.='<li class="divider mt-2 mb-2"></li>';
+
+                $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Total</span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_charge,2).'</h6></li>';
+
+                    // $html.='<tr data-widget="expandable-table" aria-expanded="true"><td>'.$index.'</td><td>'.$row->name.' - HSN Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
+                    // $html.='<tr class="expandable-body"> </tr>';
+                    // $html.='<tr class="expandable-body" style="text-align:center;">';
+                    // $html.='<td colspan="2">';
+                    // $html.='<div id="cgst"> <span> '.($row->gst_tax/2).' % CGST -  </span> '.number_format($total_cgst_amount,2).' </div>';
+                    // $html.='<div id="sgst"> <span> '.($row->gst_tax/2).' % SGST -  </span> '.number_format($total_sgst_amount,2).' </div>';
+                    // if(count($row->additionaltax) > 0){
+                    //     foreach($row->additionaltax as $additional){
+                    //         $html.='<div id="additionalTax" class="test gst"> <span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span> - '.number_format($tax_onepercentage*$additional->percentage,2). '</div>';
+                    //     }
+                    // }
+                    // $html.='</td></tr>';
+                    // $html.='<tr data-widget="expandable-table" aria-expanded="false"><td colspan="2">';
+                    // $html.='<div style="text-align:right;"><b>Total </b><br></td><td><b>'.number_format($gross_charge,2).'</b></div></td></tr>';
 
                 $grand_total = ($grand_total + $gross_charge); ;
                 $index++;
@@ -285,21 +321,44 @@ class CommonController extends Controller
                 }
 
 
-                    $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - HSN Codessss : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
-                    $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % CGST -  </span></td><td> '.number_format($total_cgst_amount,2).'</td></tr>';
-                    $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % SGST -  </span></td><td> '.number_format($total_sgst_amount,2).'</td></tr>';
-                
+                    $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
+                    $html.='<td>'.$row->name.  '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
+                    $html.='<td class="right-align">';
+
+                    $html.='<ul><li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Amount </span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_value,2).'</h6></li>';
+                  
+                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % CGST </span>';
+                    $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_cgst_amount,2).'</h6></li>';
+
+                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % SGST</span>';
+                    $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_sgst_amount,2).'</h6></li>';
+
                     if(count($row->additionaltax) > 0){
+                        $html.='<li class="divider mt-2 mb-2"></li>';
                         foreach($row->additionaltax as $additional){
-                            $html.='<tr><td></td><td><span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span></td><td> '.number_format($tax_onepercentage*$additional->percentage,2).'</td></tr>';
-                            // $html.='<div id="additionalTax" class="test gst"> <span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span> - '.number_format($tax_onepercentage*$additional->percentage,2). '</div>';
+                            $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">' . $additional->percentage . ' % ' . $additional->name. '</span>';
+                            $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($tax_onepercentage*$additional->percentage,2).'</h6></li>';
                         }
                     }
 
-                    $html.='<tr data-widget="expandable-table" aria-expanded="false"><td></td>';
-                    // $html.='<div style="text-align:left;"></div>';
-                    $html.='<td style="text-align:right;"><b>Total</b></td><td><b>'.number_format($gross_charge,2).'</b></td></tr>';
+                    $html.='<li class="divider mt-2 mb-2"></li>';
 
+                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Total</span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_charge,2).'</h6></li>';
+
+
+
+
+
+                    // $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - HSN Codessss : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
+                    // $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % CGSTaaaa -  </span></td><td> '.number_format($total_cgst_amount,2).'</td></tr>';
+                    // $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % SGST -  </span></td><td> '.number_format($total_sgst_amount,2).'</td></tr>';
+                    // if(count($row->additionaltax) > 0){
+                    //     foreach($row->additionaltax as $additional){
+                    //         $html.='<tr><td></td><td><span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span></td><td> '.number_format($tax_onepercentage*$additional->percentage,2).'</td></tr>';
+                    //     }
+                    // }
+                    // $html.='<tr data-widget="expandable-table" aria-expanded="false"><td></td>';
+                    // $html.='<td style="text-align:right;"><b>Total</b></td><td><b>'.number_format($gross_charge,2).'</b></td></tr>';
 
                 $grand_total = ($grand_total + $gross_charge); ;
                 $index++;

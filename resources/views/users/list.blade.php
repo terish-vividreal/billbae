@@ -86,14 +86,23 @@
   $(function () {
 
     table = $('#data-table-users').DataTable({
-        bSearchable: true,
-        pagination: true,
-        pageLength: 10,
-        responsive: true,
-        searchDelay: 500,
-        processing: true,
-        serverSide: true,
+        // bSearchable: true,
+        // pagination: true,
+        // pageLength: 10,
+        // responsive: true,
+        // searchDelay: 500,
+        // processing: true,
+        dom: 'Bfrtip',
+        select: true,
         ajax: { url: "{{ url(ROUTE_PREFIX.'/users/lists') }}",  data: search },
+        buttons: [
+            {
+                text: 'My button',
+                action: function ( e, dt, node, config ) {
+                    alert( 'Button activated' );
+                }
+            }
+        ],
         columns: [
           {data: 'DT_RowIndex', orderable: false, width:10},
             {data: 'name', name: 'name', orderable: false},            

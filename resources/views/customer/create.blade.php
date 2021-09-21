@@ -61,7 +61,7 @@
 
             <div class="row">
               <div class="input-field col m6 s12">
-                {!! Form::text('mobile', $customer->mobile ?? '', array('id' => 'mobile')) !!}  
+                {!! Form::text('mobile', $customer->mobile ?? '', array('id' => 'mobile', 'class' => 'check_numeric')) !!}  
                 <label for="mobile" class="label-placeholder">Mobile<span class="red-text">*</span></label>
               </div>              
               <div class="input-field col m6 s12">                

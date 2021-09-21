@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\StoreController as Store;
 use App\Http\Controllers\ServiceCategoryController as ServiceCategory;
 use App\Http\Controllers\AdditionaltaxController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
@@ -70,6 +71,13 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // Dashboard
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
+
+    //Schedule Routes
+    $schedule = 'schedules';
+    Route::resource($schedule, ScheduleController::class);
+    Route::get($schedule.'/lists', [ScheduleController::class, 'lists']);
+    Route::post($schedule.'/save-booking', [ScheduleController::class, 'storeSchedule']);
+
     // Store Routes
     $store_link = 'store';
     Route::get($store_link . '/profile', [Store::class, 'index']);
@@ -111,6 +119,8 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($staff.'/delete-id-proof', [StaffController::class, 'deleteIdProofs']);
     Route::get($staff.'/download-files/{document}', [StaffController::class, 'downloadFile'])->name('download-files');
     Route::post($staff.'/update/document-details', [StaffController::class, 'updateDocumentDetails']);
+    Route::post($staff.'/store-document', [StaffController::class, 'storeDocuments']);
+    Route::post($staff.'/remove-temp-document', [StaffController::class, 'removeTempDocuments']);
 
     // Business type Routes
     // $business_type = 'business-types';
@@ -204,6 +214,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($link . '/get-states-of-country', [CommonController::class, 'getStatesOfCountry']);    
     Route::post($link . '/get-districts-of-state', [CommonController::class, 'getDistrictsOfState']);    
     Route::post($link . '/get-currencies', [CommonController::class, 'getCurrencies']);    
+    Route::post($link . '/get-therapists', [CommonController::class, 'getTherapists']);    
 
 
     

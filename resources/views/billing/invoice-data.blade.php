@@ -52,7 +52,7 @@
                     @endphp
                     <li class="divider mt-2 mb-2"></li>
                     <li class="display-flex justify-content-between">
-                      <span class="invoice-subtotal-title">Discount </span>
+                      <span class="invoice-subtotal-title">Discount @if($item['tax_array']['discount_type'] == 'percentage') ({{$item['tax_array']['discount_value']}}%) @endif </span>
                       <h6 class="invoice-subtotal-value indigo-text">- ₹ @php echo number_format($item['tax_array']['discount_amount'],2) @endphp</h6>
                     </li>
                   @endif

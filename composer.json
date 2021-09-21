@@ -19,6 +19,7 @@
         "laravelcollective/html": "^6.2",
         "spatie/laravel-permission": "^4.0",
         "spatie/laravel-sluggable": "^2.2",
+        "yajra/laravel-datatables-buttons": "^4.13",
         "yajra/laravel-datatables-oracle": "^9.17"
     },
     "require-dev": {

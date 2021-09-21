@@ -159,8 +159,6 @@ class StoreController extends Controller
 
     }
 
-    
-
     /**
      * Update the specified resource in storage.
      *
@@ -170,13 +168,11 @@ class StoreController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required',
         ]);
 
         if ($validator->passes()) {
-       
             $shop               = Shop::find($id);
             $shop->name         = $request->name;
             $shop->email        = $request->email;
@@ -185,6 +181,7 @@ class StoreController extends Controller
             $shop->about        = $request->about;
             $shop->address      = $request->address;
             $shop->pincode      = $request->pincode;
+            $shop->map_location = $request->map_location;
             $shop->pin          = $request->pin;
             $shop->timezone     = $request->timezone;
             $shop->time_format  = $request->time_format;
@@ -207,7 +204,6 @@ class StoreController extends Controller
      */
     public function updateGst(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'gst_percentage' => 'required',
         ]);
@@ -231,7 +227,6 @@ class StoreController extends Controller
      */
     public function storeBilling(Request $request, $id)
     {
-
         $validator = Validator::make($request->all(), [
             'billing_id' => 'required',
         ]);
@@ -264,44 +259,46 @@ class StoreController extends Controller
     public function updateLogo(Request $request)
     {
 	        // echo "<pre>"; print_r($request->all()); exit;
-	        // $validator = Validator::make($request->all(), [
-	        //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-	        // ]);
 
-	        // if ($validator->passes()) {
+	        $validator = Validator::make($request->all(), [
+	            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+	        ]);
+            if ($validator->passes()) {
+                $shop               = Shop::find($request->store_id);
 
-            $shop               = Shop::find($request->store_id);
+                $old_store_logo = $shop->image;
 
-            $old_store_logo = $shop->image;
+                if ($old_store_logo != '') {
+                    \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/logo/' . $old_store_logo);
+                }
 
-            if ($old_store_logo != '') {
-                \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/logo/' . $old_store_logo);
+                // Create storage folder if not exist
+                $store_path     = 'public/' . $this->uploadPath. '/logo/';
+                Storage::makeDirectory($store_path);
+
+                $file           = $request->image;
+
+                $extension      = $file->getClientOriginalExtension();
+                $imageName      = Str::random(20).'.'.$extension;
+                Storage::putFileAs($store_path, $file, $imageName);
+
+                $shop->image        = $imageName;
+                $shop->save();
+                return ['flagError' => false, 'logo' => $shop->show_image,  'message' => "Logo updated successfully"];
+
             }
-            
-            
-            // Create storage folder
-            $store_path = 'public/' . $this->uploadPath. '/logo/';
-            Storage::makeDirectory($store_path);
 
-            $image_64 = $request->image; //your base64 encoded data
-            $extension = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
-            $replace = substr($image_64, 0, strpos($image_64, ',')+1); 
-
-            $image = str_replace($replace, '', $image_64); 
-            $image = str_replace(' ', '+', $image); 
-            $imageName = Str::random(20).'.'.$extension;
-            Storage::put($store_path.'/'.$imageName, base64_decode($image));
-   
-
-            $shop->image        = $imageName;
-            $shop->save();
-    
-            return ['flagError' => false, 'logo' => $shop->show_image,  'message' => "Logo updated successfully"];
+            return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
 
 
-	        // }
+            // $image_64 = $request->image; //your base64 encoded data
+            // $extension = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
+            // $replace = substr($image_64, 0, strpos($image_64, ',')+1); 
 
-	        // return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+            // $image = str_replace($replace, '', $image_64); 
+            // $image = str_replace(' ', '+', $image); 
+            // $imageName = Str::random(20).'.'.$extension;
+            // Storage::put($store_path.'/'.$imageName, base64_decode($image));
     }
 
     /**
@@ -311,14 +308,12 @@ class StoreController extends Controller
      */
     public function updateUserImage(Request $request)
     {
-
         $user               = Auth::user();
         $old_image          = $user->profile;
 
         if ($old_image != '') {
             \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/users/' . $old_image);
         }
-        
         
         // Create storage folder
         $store_path = 'public/' . $this->uploadPath. '/users/';
@@ -351,7 +346,6 @@ class StoreController extends Controller
         }
     }
 
-
     public function updateBillFormat(Request $request)
     {
         $billing_format             = BillingFormat::find($request->bill_format_id);
@@ -380,8 +374,6 @@ class StoreController extends Controller
     {
         // echo "<pre>"; print_r($request->all()); exit;
         $theme_settings         = ThemeSetting::find($request->theme_settings_id);
-
-        
         $theme_settings->activeMenuColor    = $request->activeMenuColor;
         $theme_settings->navbarBgColor      = $request->navbarBgColor;
         $theme_settings->isMenuDark         = ($request->has('isMenuDark'))?1:0;

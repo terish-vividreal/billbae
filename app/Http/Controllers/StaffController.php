@@ -255,9 +255,18 @@ class StaffController extends Controller
         
             $user = User::find($id);
             $user->update($input);
-            DB::table('model_has_roles')->where('model_id',$id)->delete();
+
+
+            // Staff Profile
+            $profile = StaffProfile::where('user_id', $id)->first();
+            $profile->designation   = $request->designation;
+            $profile->save();
+
+
+            
+            // DB::table('model_has_roles')->where('model_id',$id)->delete();
         
-            $user->assignRole($request->input('roles'));
+            // $user->assignRole($request->input('roles'));
 
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }
@@ -373,13 +382,12 @@ class StaffController extends Controller
     {   
         $user       = User::findOrFail($request->staff_id);
         if($user){
-            $documents  = StaffDocument::where('user_id', $user->id)->get();
+            $documents  = StaffDocument::where('user_id', $user->id)->where('status', 1)->get();
             if($documents){
                 $user_documents = view($this->viewPath . '.list-documents', compact('documents'))->render();  
                 return ['flagError' => false, 'html' => $user_documents];
             }
         }
-
         return ['flagError' => true, 'message' => "Errors occurred Please check !", 'error'=>$validator->errors()->all()];
     }
 
@@ -398,9 +406,22 @@ class StaffController extends Controller
         $document               = new StaffDocument();
         $document->user_id      = $request->staff_id;
         $document->name         = $imageName;
+        // $document->status       = 1;
         $document->uploaded_by  = Auth::user()->id;
         $document->save();
         return response()->json(['success'=>$imageName]);
+    }
+
+    public function storeDocuments(Request $request)
+    {
+        StaffDocument::where('user_id', $request->staff_id)->update(['status' => 1]);
+        return ['flagError' => false];
+    }
+
+    public function removeTempDocuments(Request $request)
+    {
+        StaffDocument::where('user_id', $request->staff_id)->where('status', 0)->delete();
+        return ['flagError' => false];
     }
 
     public function removeIdProofs(Request $request)
@@ -421,17 +442,8 @@ class StaffController extends Controller
 
     function downloadFile(Request $request, $document)
     {
-        // $file = Storage::disk('public')->get($document);
-        $file = asset('storage/store/users/documents/' . $document);
-  
-        return (new Response($file, 200))
-              ->header('Content-Type', 'image/jpeg');
-
-        // Method 1
-        // $download_path = asset('storage/store/users/documents/' . $document);
-        // return Storage::download($download_path);
-
-
+        $store_path = 'public/' . $this->uploadPath. '/users/documents/';
+        return Storage::download($store_path.'/'.$document);
     }
 
     function updateDocumentDetails(Request $request)

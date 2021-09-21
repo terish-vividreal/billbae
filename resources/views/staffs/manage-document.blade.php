@@ -52,6 +52,8 @@
   <!--Basic Form-->
   <div class="row">
     <!-- Form Advance -->
+ 
+ 
     <div class="col s12 m12 l12">
       <div id="Form-advance" class="card card card-default scrollspy">
         <div class="card-content">
@@ -86,6 +88,15 @@
       </div>
     </div>
   </div>
+
+  <div class="row">
+    <div class="input-field col s12">
+      <button class="btn waves-effect waves-light" type="reset" name="reset" onclick="resetForm()">Reset <i class="material-icons right">refresh</i></button>
+      <button class="btn cyan waves-effect waves-light" type="submit" onclick="storeDocument()" name="action" id="submit-btn">Upload Documents <i class="material-icons right">send</i></button>
+    </div>
+  </div>
+
+
 </div>
 
 @include('layouts.crop-modal')
@@ -108,6 +119,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/dropzone.js"></script>
 <script>
 
+  // function getValidation(maxVal, inputId){
+  //   var value = $("#num-"+inputId).val();
+  //   if(value > maxVal){
+  //     alert("Max value = " +value+ "Please choose lesser number");
+  //     $("#num-"+inputId).val(value-1);
+  //   }
+  // }
+
 var staff_id = $("#staff_id").val();
 
 
@@ -116,7 +135,8 @@ var staff_id = $("#staff_id").val();
   });
 
   Dropzone.autoDiscover = false;
-  $(".dropzone").dropzone({
+  var myDropzone = new Dropzone(".dropzone", {
+
         maxFilesize: 12,
         addRemoveLinks: true,
         acceptedFiles: ".jpeg,.jpg,.png,.pdf,.txt",
@@ -135,7 +155,7 @@ var staff_id = $("#staff_id").val();
             $.ajax({ type: 'POST', url: '{{ url(ROUTE_PREFIX.'/staffs/remove-id-proof') }}',
                 data: {filename: name, staff_id: staff_id},
                 success: function(data){
-                  getUserDocuments();
+                  // getUserDocuments();
                 }
             });
             var _ref;
@@ -144,13 +164,14 @@ var staff_id = $("#staff_id").val();
         },
         success: function(file, response) 
         {
-          getUserDocuments();
+          // getUserDocuments();
         },
         error: function(file, response)
         {
             return false;
         }
   });
+  
 
   function getUserDocuments(){
     $.ajax({ type: 'POST', url: '{{ url(ROUTE_PREFIX.'/staffs/get-document') }}', data: {staff_id: staff_id},
@@ -162,8 +183,9 @@ var staff_id = $("#staff_id").val();
     });
   }
 
-  function deleteDocument(filename){
+  
 
+  function deleteDocument(filename){
     var data_return_type = 'html';
 
     swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
@@ -178,12 +200,13 @@ var staff_id = $("#staff_id").val();
               if(data.flagError == false){
                 showSuccessToaster(data.message);          
                 getUserDocuments();
+                myDropzone.removeFile(filename);
               }else{
                 showErrorToaster(data.message);
                 printErrorMsg(data.error);
               }   
             }).fail(function () {
-                    showErrorToaster("Something went wrong!");
+                showErrorToaster("Something went wrong!");
             });
 			} 
 		});
@@ -212,54 +235,43 @@ var staff_id = $("#staff_id").val();
     }
   }
 
-  $('.detail-input').keyup(function(event){
-    $(".document-error").html("");
-    alert(1)
-  });
+  function storeDocument(){
+    $('#submit-btn').html('Please Wait...');
+    $("#submit-btn"). attr("disabled", true);
+    $.ajax({ type: 'POST', url: '{{ url(ROUTE_PREFIX.'/staffs/store-document') }}', data: {staff_id: staff_id},
+      success: function(data){
+        if(data.flagError == false){
+            showSuccessToaster("Documents uploaded successfully. ");
+            setTimeout(function () { 
+              location.reload();       
+            }, 2000);
+        }else{
 
 
-// Dropzone.options.dropzone =
-// {
-//     maxFilesize: 12,
-//     renameFile: function(file) {
-//         var dt = new Date();
-//         var time = dt.getTime();
-//         return time+file.name;
-//     },
-//     acceptedFiles: ".jpeg,.jpg,.png,.gif",
-//     addRemoveLinks: true,
-//     timeout: 50000,
-//     removedfile: function(file) 
-//     {
-//         var name = file.upload.filename;
-//         $.ajax({
-//             headers: {
-//                         'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
-//                     },
-//             type: 'POST',
-//             url: '{{ url("image/delete") }}',
-//             data: {filename: name},
-//             success: function (data){
-//                 console.log("File has been successfully removed!!");
-//             },
-//             error: function(e) {
-//                 console.log(e);
-//             }});
-//             var fileRef;
-//             return (fileRef = file.previewElement) != null ? 
-//             fileRef.parentNode.removeChild(file.previewElement) : void 0;
-//     },
 
-//     success: function(file, response) 
-//     {
-//         console.log(response);
-//     },
-//     error: function(file, response)
-//     {
-//         return false;
-//     }
-// };
+        }
+        // myDropzone.removeAllFiles();
+      }
+    });
+  }
 
+ 
+
+function resetForm(){
+  myDropzone.removeAllFiles(true);
+  $.ajax({ type: 'POST', url: '{{ url(ROUTE_PREFIX.'/staffs/remove-temp-document') }}', data: {staff_id: staff_id},
+    success: function(data){
+      if(data.flagError == false){
+        getUserDocuments();
+      }
+    }
+  })
+  
+}
+
+$('.detail-input').keyup(function(event){
+  $(".document-error").html("");
+});
 
 </script>
 @endpush

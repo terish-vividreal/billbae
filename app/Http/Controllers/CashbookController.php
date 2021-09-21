@@ -108,20 +108,22 @@ class CashbookController extends Controller
                 $cash_from          = '';
 
                 if($detail->transaction == 1){
-                    $transaction_type = '<span class="badge badge-success"> Credit</span>';
+                    $transaction_type .= '<span class="chip lighten-5 green green-text"> Credit</span>';
 
                         if($detail->cash_from == 0){
-                            $cash_from .= '<span class="badge badge-info"> Cash Added</span>';
+                            $cash_from .= '<span class="chip lighten-5 green green-text"> Cash Added</span>';
                         }else{  
-                            $cash_from .= '<span class="badge badge-primary"> Sales</span>'; 
+                            $cash_from .= '<span class="chip lighten-5 green green-text">From Sales</span>'; 
 
-                            $cash_from .= '&nbsp; <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '"><span class="badge badge-secondary"> BB1009</span></a>';                              
+                            // $cash_from .= '&nbsp; <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '"><span class="chip lighten-5 green green-text"> BB1009</span></a>';                              
                         }
                     
 
                 }else{  
-                    $transaction_type = '<span class="badge badge-warning">Debit</span>';                                
+                    $transaction_type .= '<span class="chip lighten-5 orange orange-text">Debit</span>';                                
                 }
+
+                
                 return $transaction_type. ' &nbsp; ' . $cash_from;
             })
             ->addColumn('transaction_from', function($detail){
