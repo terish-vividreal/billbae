@@ -143,7 +143,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<!-- Fullcalendar -->
+<!-- Full calendar -->
 <script src="{{asset('admin/js/custom/fullcalendar.js')}}"></script>
 <script src="{{asset('admin/js/custom/daypilot-all.min.js')}}"></script>
 <script>
@@ -156,7 +156,6 @@ var today       = '';
 
 $(function() {
  
-
   $('input[name="start"]').daterangepicker({
       singleDatePicker: true,
       startDate: new Date(),
@@ -189,20 +188,23 @@ $(document).on('change', '#service_type', function () {
   }
 });
 
-function getServices(){
-  $.ajax({
-      type: 'GET',
-      url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}",
-      dataType: 'json',
-      delay: 250,
+function getServices(itemIds = null){
+ 
+  $.ajax({ type: 'GET', url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}", dataType: 'json',  delay: 250,
       success: function(data) {
           var selectTerms = '<option value="">Please select service</option>';
           $.each(data.data, function(key, value) {
-            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+            selectTerms += '<option value="' + value.id + '" >' + value.name + ' </option>';
           });
-
           var select = $('#services');
           select.empty().append(selectTerms);
+
+
+          var values = $("input[name='item_ids[]']").map(function(){return $(this).val();}).get();
+          if(values != ''){
+              select.val(values).trigger('change');
+          }
+            
       }
   });
 }
@@ -270,8 +272,8 @@ function getCustomerDetails(customer_id){
 }
 
 function clearForm(){
-  // validator.resetForm();
-  // $('input').removeClass('error');
+  validator.resetForm();
+  $('input').removeClass('error');
   $("#manageScheduleForm .form-control").removeClass("error");
   $('select').removeClass('error');
   $('#manageScheduleForm').trigger("reset");
@@ -279,10 +281,20 @@ function clearForm(){
   $('#service_type').select2({ placeholder: "Please select type"});
   $('#services').select2({ placeholder: "Please select service", allowClear: true });
   $('#packages').select2({ placeholder: "Please select package" });
+  $("input[name='item_ids[]']").remove();
+  $("input.disabled").attr("disabled", false);
+  $('#manageScheduleForm').find("input[type=hidden]").val("");
+  $('#itemDetails').html();
+  $("#cancelSchedule").hide();
+  $('#itemDetailsDiv').hide();
 }
 
 $('.service-type').select2({ placeholder: "Please select ", allowClear: false }).on('select2:select select2:unselect', function (e) { 
-  var type = $(this).data("type");
+  var type      = $(this).data("type");
+  var data_ids  = $('#'+type).val();
+  if (data_ids == '') {
+    $('#itemDetailsDiv').hide();
+  }
   listItemDetails(type) 
   $(this).valid()
 });
@@ -296,13 +308,19 @@ function listItemDetails(type){
         dataType: 'json',data: { data_ids:data_ids, type : type},delay: 250,
         success: function(data) {
             $('#grand_total').val(data.grand_total);
-
+            $('#total_minutes').val(data.total_minutes);
+            var html = '';
+            var total_minutes = 0;
+            $.each( data.data, function( index, value ){
+                html +='<li class="collection-item">'+value.name +' ( '+value.minutes+ ' mns )</li>';
+            });
+            $('#itemDetails').html(html);
+            $('#itemDetailsDiv').show();
         }
     });
   }
 }
 // Form script ends
-
 
 
 $( document ).ready(function(){
@@ -313,7 +331,7 @@ $( document ).ready(function(){
 
 function getTherapists(){
   $.ajax({
-    type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-therapists') }}", delay: 250,
+    type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-all-therapists') }}", delay: 250,
     success: function(data) {
       if(data.flagError == false){
         therapists = data.data;
@@ -329,12 +347,13 @@ function loadCalendar(){
   var calendar = $('#calendar').fullCalendar({
       timeZone: timezone,
       defaultView: 'agendaDay',
-      slotDuration: '00:05:00', 
+      slotDuration: '00:10:00', 
       displayEventTime: false,
       editable: true,
       // timeFormat: timeFormat+':mm A',
+      eventDurationEditable :false,
       selectable: true,
-      minTime: '08:55:00',
+      minTime: '09:00:00',
       maxTime: '22:05:00',
       eventLimit: true, // allow "more" link when too many events
       header: {
@@ -353,107 +372,74 @@ function loadCalendar(){
           element.find('.fc-title').append("<br/><br/>" + event.description); 
       },
       select: function(start, end, jsEvent, view, resource) {
-
+          clearForm();
           $("#user_id").val(resource.id);
           $("#start").val(start.format(timeFormat+':mm A'));
           $("#start_time").val(start.format());
           $('#user_id').select2().trigger('change');
-          // alert(start.format(timeFormat+':mm A'));
           $('#manage-schedule-modal').modal('open');
-          
-
-        
-
-          // $('#sel_users').val(value);
-          // $('#sel_users').select2().trigger('change');
-
-
-          var forms   = $("#manageScheduleForm");
-
-            if ($("#manageScheduleForm").length > 0) {
-                var validator = $("#manageScheduleForm").validate({ 
-                    rules: {
-                      customer_name: {
-                              required: true,
-                              maxlength: 200,
-                              lettersonly: true,
-                      },
-                      mobile:{
-                            minlength:10,
-                            maxlength:10
-                      },
-                      email: {
-                        email: true,
-                      },
-                      "bill_item[]": {
-                              required: true,
-                      },
-                    },
-                    messages: { 
-                        customer_name: {
-                            required: "Please enter customer name",
-                            maxlength: "Length cannot be more than 200 characters",
-                            },
-                        mobile: {
-                            maxlength: "Length cannot be more than 10 numbers",
-                            minlength: "Length must be 10 numbers",
-                            },
-                        email: {
-                            email: "Please enter a valid email address.",
-                        },
-                        "bill_item[]": {
-                            required: "Please select an item",
-                        },
-                    },
-                    submitHandler: function (form) {
-                          $.ajax({
-                              url: "{{ url(ROUTE_PREFIX.'/schedules/save-booking') }}", data: forms.serialize(), type: "POST",
-                              success: function (data) {
-
-                                $('#manage-schedule-modal').modal('close');
-                                showSuccessToaster("Created successfully");
-                                  calendar.fullCalendar('renderEvent', {
-                                      id: data.id,
-                                      resourceId: data.user_id,
-                                      start: data.start,
-                                      end: data.end,
-                                      title: data.name,
-                                      description: data.description ,
-                                      // allDay: allDay
-                                  }, true);
-                                  calendar.fullCalendar('unselect');
-                                  clearForm();
-                              }
-                          });
-                          clearForm();
-                    },
-                    errorPlacement: function(error, element) {
-                      if (element.is("select")) {
-                          error.insertAfter(element.next('.select2'));
-                      }else {
-                          error.insertAfter(element);
-                      }
-                    },
-                })
-            }
-        // console.log( 'select',   start.format(),    end.format(),    resource ? resource.id : '(no resource)'   );
       },
       eventClick: function(event) {
+          clearForm();
           var event_id = event.id ;
-          console.log(event)
           $.ajax({
             type: 'GET', url: "{{ url(ROUTE_PREFIX.'/schedules') }}/"+event_id, delay: 250,
             success: function(data) {
               if(data.flagError == false){
-                $("#customer_name").val(data.data.name);
+                var $form = $('#manageScheduleForm');
+                $.each(data.item_ids, function( key, value ) {
+                  var $input = $('<input type="hidden" name="item_ids[]" value="' + value + '" />');
+                  $form.append($input);
+                });
+                $(".label-placeholder").addClass("active");
+                $("#customer_id").val(data.data.customer_id);                
+                $("#customer_name").val(data.customer_name);
                 $("#mobile").val(data.data.mobile);
-
-
+                $("#email").val(data.data.email);
+                $("#user_id").val(data.data.user_id);
+                $('#user_id').select2().trigger('change');
+                var service_type = (data.type == 'services') ? 1 : 2;
+                $("#service_type").val(service_type);
+                $('#service_type').select2().trigger('change');
+                $("#start").val(data.start_formatted);
+                $("#start_time").val(data.data.start);
+                $("#schedule_id").val(data.data.id);
+                $("#cancelSchedule").show();
+                $("input.disabled").attr("disabled", true);
+                $('#manage-schedule-modal').modal('open');
               }
-
             }
           });
 
+      },
+      eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
+        var therapist = '';
+        $.ajax({  type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-therapist') }}/"+event.resourceId, async : false,
+          success: function(data) {
+            if(data.flagError == false)
+              therapist = data.therapist;
+          }
+        });
+        swal({ title: "Are you sure about this change?", text: 'Start time : ' + event.start.format(timeFormat+':mm A') + ' & Therapist : ' + therapist.name + '!', icon: 'warning', dangerMode: true,
+          buttons: { cancel: 'No, Please!',  delete: 'Yes, Change It' }
+          }).then(function (willDelete) {
+            if (willDelete) {
+              $.ajax({url: "{{ url(ROUTE_PREFIX.'/schedules/re-schedule') }}", type: "POST", data:{schedule_id:event.id, start_time:event.start.format(), user_id:therapist.id},})
+                  .done(function (data) {
+                    if(data.flagError == false){
+                      showSuccessToaster(data.message); 
+                      $('#calendar').fullCalendar( 'refetchEvents' );         
+                    }else{
+                      showErrorToaster(data.message);
+                    }   
+                  }).fail(function () {
+                          showErrorToaster("Something went wrong!");
+                  });
+            } else{
+              $('#calendar').fullCalendar( 'refetchEvents' );
+            }
+        });
+        
       },
       dayClick: function(date, jsEvent, view) {
           //$('#modal1').modal('open');
@@ -462,6 +448,33 @@ function loadCalendar(){
   });
 }
 
+$("#cancelSchedule").click(function() {
+  
+  swal({ title: "Are you sure ?", icon: 'warning', dangerMode: true,
+    buttons: { cancel: 'No, Please!',  delete: 'Yes, Cancel It' }
+  }).then(function (willDelete) {
+    if (willDelete) {
+      var schedule_id = $('#schedule_id').val();
+      $.ajax({url: "{{ url(ROUTE_PREFIX.'/schedules') }}/" + schedule_id, type: "DELETE", dataType: "html"})
+        .done(function (a) {
+          var data = JSON.parse(a);
+          if(data.flagError == false){
+            showSuccessToaster(data.message); 
+            // calendar.refetchEvents();   
+            // calendar.render();   
+            // loadCalendar() 
+            $('#manage-schedule-modal').modal('close');  
+            $('#calendar').fullCalendar( 'refetchEvents' );
+          }else{
+            showErrorToaster(data.message);
+          }   
+        }).fail(function () {
+            showErrorToaster("Something went wrong!");
+        });
+    } 
+  });
+  
+})
 
 function getSchedule(id){
   $.ajax({
@@ -469,11 +482,72 @@ function getSchedule(id){
     success: function(data) {
       // if(data.flagError == false){
         return data;
-
       // }
-
     }
   });
+}
+
+var forms   = $("#manageScheduleForm");
+if ($("#manageScheduleForm").length > 0) {
+    var validator = $("#manageScheduleForm").validate({ 
+        rules: {
+          customer_name: {
+            required: true,
+            maxlength: 200,
+            lettersonly: true,
+          },
+          mobile:{
+            minlength:10,
+            maxlength:10
+          },
+          email: {
+            email: true,
+          },
+          "bill_item[]": {
+            required: true,
+          },
+        },
+        messages: { 
+          customer_name: {
+            required: "Please enter customer name",
+            maxlength: "Length cannot be more than 200 characters",
+          },
+          mobile: {
+            required: "Please enter customer mobile",
+            maxlength: "Length cannot be more than 10 numbers",
+            minlength: "Length must be 10 numbers",
+          },
+          email: {
+            email: "Please enter a valid email address.",
+          },
+          "bill_item[]": {
+            required: "Please select an item",
+          },
+        },
+        submitHandler: function (form) {
+            $.ajax({
+                url: "{{ url(ROUTE_PREFIX.'/schedules/save-booking') }}", data: forms.serialize(), type: "POST",
+                success: function (data) {
+                  if (data.flagError == true) {
+                    showErrorToaster(data.message);  
+                  } else {
+                      $('#manage-schedule-modal').modal('close');
+                      showSuccessToaster(data.message);
+                      $('#calendar').fullCalendar( 'refetchEvents' );
+                      clearForm();
+                  }
+                }
+            });
+            clearForm();
+        },
+        errorPlacement: function(error, element) {
+          if (element.is("select")) {
+              error.insertAfter(element.next('.select2'));
+          }else {
+              error.insertAfter(element);
+          }
+        },
+    })
 }
 
 jQuery.validator.addMethod("lettersonly", function (value, element) {

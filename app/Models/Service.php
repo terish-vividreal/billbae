@@ -88,7 +88,7 @@ class Service extends Model
 
             }
 
-            $description .= $data->name. ' ( ' . ($data->hours->value+$lead_before+$lead_after) . ' mns ) - ' . $store->billing->currencyCode->symbol. ' ' .$data->price .' <br>';
+            $description .= $data->name. ' ( ' . ($data->hours->value+$lead_before+$lead_after) . ' mns ) - ' . $store->billing->currencyCode->symbol. ' ' .number_format($data->price,2) .' <br>';
             $lead_before    = 0;
             $lead_after     = 0;
             
@@ -98,13 +98,4 @@ class Service extends Model
         return $result;
     }
 
-    // public static function getDescriptions($item_ids)
-    // {
-    //     $description = '';
-    //     foreach($item_ids as $item){
-    //         $data = self::find($item);
-    //         $description .= $data->name.', ';
-    //     }
-    //     return rtrim($description, ', ');
-    // }
 }

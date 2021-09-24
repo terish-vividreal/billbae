@@ -77,6 +77,8 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($schedule, ScheduleController::class);
     Route::get($schedule.'/lists', [ScheduleController::class, 'lists']);
     Route::post($schedule.'/save-booking', [ScheduleController::class, 'storeSchedule']);
+    Route::post($schedule.'/re-schedule', [ScheduleController::class, 'reSchedule']);
+    // Route::post($schedule.'/update/{id}', [ScheduleController::class, 'updateSchedule']);
 
     // Store Routes
     $store_link = 'store';
@@ -214,7 +216,8 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($link . '/get-states-of-country', [CommonController::class, 'getStatesOfCountry']);    
     Route::post($link . '/get-districts-of-state', [CommonController::class, 'getDistrictsOfState']);    
     Route::post($link . '/get-currencies', [CommonController::class, 'getCurrencies']);    
-    Route::post($link . '/get-therapists', [CommonController::class, 'getTherapists']);    
+    Route::post($link . '/get-all-therapists', [CommonController::class, 'getAllTherapists']);    
+    Route::post($link . '/get-therapist/{id}', [CommonController::class, 'getTherapist']);    
 
 
     

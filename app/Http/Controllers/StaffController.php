@@ -13,6 +13,7 @@ use App\Models\Designation;
 use App\Models\StaffProfile;
 use Illuminate\Support\Arr;
 use App\Models\StaffDocument;
+use App\Models\ScheduleColor;
 use App\Models\Shop;
 use DataTables;
 use Response;
@@ -186,7 +187,7 @@ class StaffController extends Controller
             //     $message->subject('Create New Password Email');
             // });
 
-            return ['flagError' => false, 'message' => "Account Added successfully"];
+            return ['flagError' => false, 'message' => "Staff account added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     
@@ -213,18 +214,19 @@ class StaffController extends Controller
      */
     public function edit($id)
     {
-        $staff              = User::find($id);
-        $page               = collect();
-        $you                = Auth::user();
-        $page->title        = $this->title;
-        $page->route        = $this->route;
-        $page->entity       = $this->entity;
-        $page->link         = url($this->link);
-        $page->form_url     = url($this->link . '/' . $staff->id);
-        $page->form_method  = 'PUT';
-        $page->designations = Designation::pluck('name', 'id'); 
-        $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
-        $userRole           = $staff->roles->pluck('name','name')->all();
+        $staff                  = User::find($id);
+        $page                   = collect();
+        $you                    = Auth::user();
+        $page->title            = $this->title;
+        $page->route            = $this->route;
+        $page->entity           = $this->entity;
+        $page->link             = url($this->link);
+        $page->form_url         = url($this->link . '/' . $staff->id);
+        $page->form_method      = 'PUT';
+        $page->designations     = Designation::pluck('name', 'id'); 
+        $roles                  = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
+        $page->schedule_colors  = ScheduleColor::pluck('name', 'id');
+        $userRole               = $staff->roles->pluck('name','name')->all();
         return view($this->viewPath . '.edit',compact('staff','roles', 'you' ,'userRole', 'page'));
     }
     
@@ -237,6 +239,7 @@ class StaffController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // echo "<pre>"; print_r($request->all()); exit;
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -259,16 +262,14 @@ class StaffController extends Controller
 
             // Staff Profile
             $profile = StaffProfile::where('user_id', $id)->first();
-            $profile->designation   = $request->designation;
+            $profile->designation       = $request->designation;
+            $profile->schedule_color    = $request->schedule_color;
             $profile->save();
 
-
-            
             // DB::table('model_has_roles')->where('model_id',$id)->delete();
-        
             // $user->assignRole($request->input('roles'));
 
-            return ['flagError' => false, 'message' => "Account Added successfully"];
+            return ['flagError' => false, 'message' => "Staff account updated successfully"];
         }
 
         return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];

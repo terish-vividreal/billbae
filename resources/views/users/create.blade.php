@@ -40,7 +40,6 @@
       <div id="Form-advance" class="card card card-default scrollspy">
         <div class="card-content">
             <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
-
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
               {{ csrf_field() }}
@@ -94,8 +93,6 @@
                       <span> Others </span>
                     </label>
                   @endif
-
-                  
                   </p>
                   <!-- <label for="gender" class="label-placeholder">Gender </label> -->
                 </div>      
@@ -114,24 +111,16 @@
     </div>
   </div>
 </div>
-
 @endsection
-
 {{-- vendor scripts --}}
 @section('vendor-script')
-
 @endsection
-
-
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <!-- date-time-picker -->
-
 <script>
-
 $('#roles').select2({ placeholder: "Please select role", allowClear: true });
-
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
         rules: {
@@ -197,7 +186,6 @@ if ($("#{{$page->entity}}Form").length > 0) {
                     setTimeout(function () { 
                       window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
                     }, 2000);
-
                 }else{
                   showErrorToaster(data.message);
                   printErrorMsg(data.error);
@@ -217,7 +205,6 @@ if ($("#{{$page->entity}}Form").length > 0) {
 jQuery.validator.addMethod("lettersonly", function (value, element) {
     return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
-
 </script>
 @endpush
 

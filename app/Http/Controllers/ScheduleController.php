@@ -17,7 +17,6 @@ use Validator;
 use Carbon;
 use Auth;
 
-
 class ScheduleController extends Controller
 {
     protected $title        = 'Schedule';
@@ -42,9 +41,6 @@ class ScheduleController extends Controller
         });
     }
 
-
-
-
     /**
      * Display a listing of the resource.
      *
@@ -67,22 +63,59 @@ class ScheduleController extends Controller
         return view($this->viewPath . '.list', compact('page'));
     }
 
-
     public function storeSchedule(Request $request)
     {
+        // echo "<pre>"; print_r($request->all()); 
+        $is_available  = Schedule::checkTimeAvailability($request->all()); 
+
+
         
-        // echo "<pre>"; print_r($request->all()); exit;
+
+
+        if (count($is_available) > 0) {
+            // echo "<pre>"; print_r($is_available); exit;
+            return ['flagError' => true, 'message' => "Slot is already booked. Please select another time slot !"];
+        }
+
+        $action = '';
+
+        if($request->customer_id == null){
+            $validator = Validator::make($request->all(), [
+                'customer_name' => 'required',
+            ]);
+
+            if ($validator->passes()) {
+                $customer                   = new Customer();
+                $customer->shop_id          = SHOP_ID;
+                $customer->name             = $request->customer_name;
+                $customer->mobile           = $request->mobile;
+                $customer->email            = $request->email;
+                $customer->save();
+                $request['customer_id']     = $customer->id;
+            } else {
+                return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
+            }
+        }
+
         // Generate Bill
-        $billing    = Billing::generateBill($request->all());
+        if($request->schedule_id == null) {
+            $billing    = Billing::generateBill($request->all());
+            $schedule   = new Schedule();
+            $action = 'created';
+        }else{
+            $schedule   = Schedule::find($request->schedule_id);
+            $billing    = Billing::updateBill($request->all(), $schedule->billing_id);
+            $action     = 'updated';
+        }
 
         // Calculate Total time for each packages
         $items_details  = array();
         $total_time     = 0;
-        if($request->service_type == 1){
+        if ($request->service_type == 1) {
             $items_details      = Service::totalTime($request->bill_item);
             $total_time         = $items_details['total_hours'];
             $description        = $items_details['description'];
-        }else{
+        } else {
             $total_time = Package::serviceTotalTime($request->bill_item);
         }
 
@@ -94,7 +127,6 @@ class ScheduleController extends Controller
 
 
         // Create Schedule
-        $schedule   = new Schedule();
         $schedule->name             = $billing->customer->name . ' : '. $start_date->format('h:i:s A') . ' - ' . $end_time->format('h:i:s A') ;
         $schedule->start            = $request->start_time;
         $schedule->end              = $end_time;
@@ -107,35 +139,8 @@ class ScheduleController extends Controller
         $schedule->save();
 
         if($schedule){
-            return response()->json($schedule);
+            return ['flagError' => false, 'message' => "Schedule " . $action . " successfully"];
         }
-        // switch ($request->type) {
-        //    case 'create':
-        //       $event = new Schedule();
-        //       $event->name      = $request->name;
-        //       $event->start     = $request->start;
-        //       $event->end       = $request->end;
-        //       $event->user_id   = $request->user_id;
-        //       $event->save();
- 
-        //       return response()->json($event);
-        //      break;
-        //    case 'edit':
-        //       $event = Schedule::find($request->id)->update([
-        //           'name' => $request->name,
-        //           'start' => $request->start,
-        //           'end' => $request->end,
-        //       ]);
-        //       return response()->json($event);
-        //      break;
-        //    case 'delete':
-        //       $event = Schedule::find($request->id)->delete();
-        //       return response()->json($event);
-        //      break;
-        //    default:
-        //      # ...
-        //      break;
-        // }
     }
 
     /**
@@ -181,10 +186,26 @@ class ScheduleController extends Controller
     {
         $schedule = Schedule::find($id);
 
-        if($schedule)
-            return response()->json(['flagError' => false, 'data' => $schedule]);
-        else
+        // echo "<pre>"; print_r($schedule->billing->customer->name); exit;
+        // echo $schedule->billing->customer->name; exit;
+
+        if($schedule){
+
+            $start_time     = new Carbon\Carbon($schedule->start);
+            $item_ids       = [];
+
+            foreach($schedule->billing->items as $item){
+                $item_ids[] = $item->item_id;
+            }
+            
+            // echo $item_ids; exit;
+
+
+            return response()->json(['flagError' => false, 'data' => $schedule, 'customer_name' => $schedule->billing->customer->name, 'type' => $schedule->billing->items[0]->item_type, 'start_formatted' => $start_time->format($this->time_format. ':m A'), 'item_ids' => $item_ids]);
+        }else{
             return response()->json(['flagError' => true, 'data' => null]);
+        }
+            
 
     }
 
@@ -197,6 +218,29 @@ class ScheduleController extends Controller
     public function edit(Schedule $schedule)
     {
         //
+    }
+
+    public function reSchedule(Request $request)
+    {
+        $schedule = Schedule::find($request->schedule_id);
+        $customer = Customer::find($schedule->customer_id);
+
+        // Calculating end time
+        $formatted_start_date       = new Carbon\Carbon($request->start_time);
+        $start_date                 = new Carbon\Carbon($request->start_time);
+        $end_time                   = $formatted_start_date->addMinutes($schedule->total_minutes);
+
+        $schedule->name             = $customer->name . ' : '. $start_date->format('h:i:s A') . ' - ' . $end_time->format('h:i:s A') ;
+        $schedule->start            = $request->start_time;
+        $schedule->end              = $end_time;
+        $schedule->user_id          = $request->user_id;
+        $schedule->save();
+
+        if($schedule){
+            return ['flagError' => false, 'message' => "Schedule updated successfully"];
+            // return response()->json($schedule);
+        }
+
     }
 
     /**
@@ -219,6 +263,13 @@ class ScheduleController extends Controller
      */
     public function destroy(Schedule $schedule)
     {
-        //
+        // Delete Bill details
+        $bill = Billing::deleteBill($schedule->billing_id);
+
+        if($bill){
+            if($schedule->delete())
+                return ['flagError' => false, 'message' => "Schedule deleted successfully"];
+        }
+            
     }
 }

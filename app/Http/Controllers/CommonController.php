@@ -103,19 +103,29 @@ class CommonController extends Controller
             return response()->json(['flagError' => true, 'data' => null]);
     }
 
-    public function getTherapists()
+    public function getAllTherapists()
     {
         $user_id        = Auth::user()->id;
         $data           =  User::role('Staffs')
                             ->leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')
+                            ->leftjoin('schedule_colors', 'staff_profiles.schedule_color', '=', 'schedule_colors.id')
                             ->where('users.parent_id', $user_id)
                             ->whereIn('staff_profiles.designation', [1, 2])
-                            ->where('users.is_active', '!=',  2)->get(['users.id', 'users.name as title', 'schedule_colour as eventColor']);
+                            ->where('users.is_active', '!=',  2)->get(['users.id', 'users.name as title', 'schedule_colors.name as eventColor']);
 
         // return response()->json($data);
 
         if($data)
             return response()->json(['flagError' => false, 'data' => $data]);
+        else
+            return response()->json(['flagError' => true, 'data' => null]);
+    }
+
+    public function getTherapist($id)
+    {
+        $data           =  User::find($id);
+        if($data)
+            return response()->json(['flagError' => false, 'therapist' => $data]);
         else
             return response()->json(['flagError' => true, 'data' => null]);
     }
@@ -263,19 +273,18 @@ class CommonController extends Controller
     
     public function calculateTaxTable(Request $request)
     {
-        
+        $data_array     = array();
         $type = $request->type;
         if($type == 'services'){
-            $result = Service::with('additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
+            $result = Service::with('additionaltax', 'gsttax', 'hours', 'leadBefore', 'leadAfter')->where('shop_id', SHOP_ID)
                         // ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'services.gst_tax')
                         ->whereIn('services.id', $request->data_ids)->orderBy('services.id', 'desc')->get();
         }else{
-            $result = Package::with('additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
+            $result = Package::with('additionaltax', 'gsttax', 'hours', 'leadBefore', 'leadAfter')->where('shop_id', SHOP_ID)
                         ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'packages.gst_tax')
                         ->whereIn('packages.id', $request->data_ids)->orderBy('packages.id', 'desc')->get();
         }
 
-        // echo "<pre>"; print_r($result); exit;
 
         if($result){
 
@@ -286,9 +295,33 @@ class CommonController extends Controller
             $gross_charge           = 0 ;
             $gross_value            = 0 ;
             $grand_total            = 0 ;
+            $total_minutes          = 0;
             $additional_tax_array   = array();
 
             foreach($result as $row){
+                $minutes        = 0;
+                $lead_before    = 0;
+                $lead_after     = 0;
+
+                $minutes        = ($minutes+$row->hours->value);
+                $total_minutes  = ($total_minutes+$row->hours->value);
+
+
+                if($row->lead_before != null){
+                    $minutes += $row->leadBefore->value;
+                    $total_minutes += $row->leadBefore->value;
+                    $lead_before = $row->leadBefore->value;
+                }
+
+                if($row->lead_after != null){
+                    $minutes += $row->leadAfter->value;
+                    $total_minutes += $row->leadAfter->value;
+                    $lead_after = $row->leadAfter->value;
+
+                }
+
+                $data_array[] = array('name' => $row->name, 'price' => $row->price, 'minutes' => $minutes); 
+
 
                 // $tax_data       = TaxHelper::simpleTaxCalculation($row);
 
@@ -367,8 +400,9 @@ class CommonController extends Controller
             // $table_footer='<tfoot><tr><td></td><td></td><td></td><td></td><td></td><td><b>Total - <h4>₹ '.$total_tax.'</h4></b></td><td><b>Total - <h4>₹ '.number_format($total_amount,2).'</h4></b></td></tr></tfoot>';
         }
 
-        return response()->json(['flagError' => false, 'grand_total' => $grand_total, 'html' => $html]);
+        return response()->json(['flagError' => false, 'grand_total' => $grand_total, 'html' => $html, 'data' => $data_array, 'total_minutes' => $total_minutes]);
     }
+    
 
     // public function getSubjects($curriculum_id)
     // {

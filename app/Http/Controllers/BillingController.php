@@ -21,6 +21,7 @@ use App\Models\Billing;
 use App\Models\Package;
 use App\Models\Country;
 use App\Models\District;
+use App\Models\Schedule;
 use App\Models\Service;
 use App\Models\State;
 use App\Models\Shop;
@@ -375,6 +376,7 @@ class BillingController extends Controller
         $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
         $address                    = BillingAddres::where('bill_id', $id)->where('customer_id', $request->customer_id)->first();
         $billing_address_checkbox = $request->has('billing_address_checkbox') ? 1 : 0;
+
         // echo $checked; exit;
         if($billing_address_checkbox == 0)
         {
@@ -420,13 +422,33 @@ class BillingController extends Controller
         $old_bill_items = BillingItem::where('billing_id', $id)->where('customer_id', $request->customer_id)->delete();
         if($request->bill_item){
             foreach($request->bill_item as $row){
+
                 $item                   = new BillingItem();
                 $item->billing_id       = $billing->id ;
                 $item->customer_id      = $request->customer_id ;
                 $item->item_type        = ($request->service_type == 1) ? 'services' : 'packages' ;
                 $item->item_id          = $row ;
                 $item->save();
-            }       
+            }  
+            
+            
+            if(!empty($billing->schedule)) {
+                $items_details      = Service::totalTime($request->bill_item);
+                $schedule                   = Schedule::find($billing->schedule->id);
+                $schedule->description      = $items_details['description'];
+                $schedule->total_minutes    = $items_details['total_hours'];
+
+                // Calculating end time
+                $formatted_start_date       = new Carbon\Carbon($schedule->start);
+                $start_date                 = new Carbon\Carbon($schedule->start);
+                $end_time                   = $formatted_start_date->addMinutes($items_details['total_hours']);
+                
+                $schedule->name             = $billing->customer->name . ' : '. $start_date->format('h:i:s A') . ' - ' . $end_time->format('h:i:s A') ;
+                $schedule->end              = $end_time;
+                $schedule->save();
+            }
+
+            
         }
         return redirect($this->route.'/invoice/'.$id);
     }
