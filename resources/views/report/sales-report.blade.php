@@ -32,7 +32,7 @@
 @endsection
 
 @section('page-action')
-  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">add</i></a>
+ 
 @endsection
 
 
@@ -121,7 +121,7 @@
         <div id="button-trigger" class="card card card-default scrollspy">
           <div class="card-content">
               <div class="row">
-                <div class="col s12">
+                <div class="col s3 right">
                 <form id="reportForm" name="reportForm" role="form" method="" action="" class="ajax-submit">
                     {{ csrf_field() }}
                     {!! Form::hidden('start_range', '' , ['id' => 'start_range'] ); !!}
@@ -195,6 +195,18 @@
                                 <th>Payment Status</th>       
                             </tr>
                           </thead>
+                          <tfoot align="right">
+                            <tr>
+                              <th></th>
+                              <th></th>
+                              <th></th>
+                              <th></th>
+                              <th></th>
+                              <th></th>
+                              <th></th>
+                              <th></th>
+                            </tr>
+                          </tfoot>
                       </table>
                   </div>
                 </div>
@@ -259,6 +271,67 @@ $(function() {
 
 });
 
+$(function () {
+    table = $('#data-table-reports').DataTable({
+        bSearchable: true,
+        pagination: true,
+        pageLength: 10,
+        responsive: true,
+        searchDelay: 500,
+        processing: true,
+        serverSide: true,
+        deferLoading: 0,
+        ajax: {
+                url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/get-sales-table-data') }}",
+                data: search
+            },
+        dom: 'Bfrtip',
+        buttons: [ 'excel','pdf'],
+        select: true,
+          columns: [
+              {data: 'DT_RowIndex', orderable: false, searchable: false},
+              {data: 'billed_date', name: 'name', orderable: false, searchable: false},            
+              {data: 'billing_code', name: 'name', orderable: false, searchable: false},            
+              {data: 'customer_id', name: 'name', orderable: false, searchable: false},            
+              {data: 'in_out_time', name: 'name', orderable: false, searchable: false},            
+              {data: 'amount', name: 'name', orderable: false, searchable: false},  
+              {data: 'payment_method', name: 'name', orderable: false, searchable: false},              
+              {data: 'payment_status', name: 'name', orderable: false, searchable: false}
+          ],
+          footerCallback: function ( row, data, start, end, display ) {
+
+            var api = this.api(), data;
+            // Remove the formatting to get integer data for summation
+            var intVal = function ( i ) {
+                return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+            };
+
+            // Total over all pages
+            total = api
+              .column( 5 )
+              .data()
+              .reduce( function (a, b) {
+                  return intVal(a) + intVal(b);
+              }, 0 );
+
+
+            // Update footer
+            $( api.column( 5 ).footer() ).html('<strong> ₹ '+ total + '</strong>');
+
+
+
+          }
+    });
+});
+
+function search(value) {
+  value.name        = $('input[type=search]').val();
+  value.start_range = $("#start_range").val();
+  value.end_range   = $("#end_range").val();
+}
 
 
 // Chart start
@@ -364,36 +437,7 @@ var getData = function() {
 };
 
 
-$(function () {
-    table = $('#data-table-reports').DataTable({
-        pagination: true,
-        pageLength: 10,
-        responsive: true,
-        searchDelay: 500,
-        processing: true,
-        serverSide: true,
-        ajax: {
-                url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/get-sales-table-data') }}",
-                data: search
-            },
-          columns: [
-              {data: 'DT_RowIndex', orderable: false, searchable: false},
-              {data: 'billed_date', name: 'name', orderable: false, searchable: false},            
-              {data: 'billing_code', name: 'name', orderable: false, searchable: false},            
-              {data: 'customer_id', name: 'name', orderable: false, searchable: false},            
-              {data: 'in_out_time', name: 'name', orderable: false, searchable: false},            
-              {data: 'amount', name: 'name', orderable: false, searchable: false},  
-              {data: 'payment_method', name: 'name', orderable: false, searchable: false},              
-              {data: 'payment_status', name: 'name', orderable: false, searchable: false}
-          ]
-    });
-});
 
-function search(value) {
-  value.name        = $('input[type=search]').val();
-  value.start_range = $("#start_range").val();
-  value.end_range   = $("#end_range").val();
-}
 
 
 

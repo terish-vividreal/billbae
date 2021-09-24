@@ -30,7 +30,7 @@ class AddCashToBusinessCashBook
     public function handle(SalesCompleted $event)
     {
         $billing        = Billing::findOrFail($event->billId);
-        $amount         = $billing->paymentMethods->where('payment_type', 1)->sum('amount');
+        $amount         = $billing->paymentMethods->sum('amount');
 
         $current_balance = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 1)->orderBy('created_at', 'desc')->value('balance_amount');
 

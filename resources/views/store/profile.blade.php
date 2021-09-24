@@ -61,23 +61,26 @@
         @if($store)
           <div class="col s12" id="account">
           <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
-
             <div class="media display-flex align-items-center mb-2">
               <a class="mr-2" href="#">
                 <img src="{{ $store->show_image }}" alt="users avatar" class="z-depth-4 circle" height="64" width="64" id="store_logo">
               </a>
               <div class="media-body">
-                <h5 class="media-heading mt-0">Logo</h5>
-                <div class="user-edit-btns display-flex">
-                  <button id="select-files" class="btn indigo mr-2">
-                    <span>Browse</span>
-                  </button>
-                  <a href="#" class="btn-small btn-light-pink">Remove</a>
-                </div>
-                <small>Allowed JPG, JPEG or PNG. Max size of 800kB</small>
-                <div class="upfilewrapper" style="display:none;">
-                  <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
-                </div>
+                <form id="storeLogoForm" name="storeLogoForm" action="" method="POST" enctype="multipart/form-data" class="ajax-submit">
+                    {{ csrf_field() }}
+                    {!! Form::hidden('store_id', $store->id ?? '' , ['id' => 'store_id'] ); !!}
+                    {!! Form::hidden('log_url', $store->show_image, ['id' => 'log_url'] ); !!}
+                    <h5 class="media-heading mt-0">Logo</h5>
+                    <div class="user-edit-btns display-flex">
+                      <a id="select-files" class="btn indigo mr-2"><span>Browse</span></a>
+                      <a href="#" class="btn-small btn-light-pink logo-action-btn" id="removeLogoDisplayBtn" style="display:none;">Remove</a>
+                      <button type="submit" class="btn btn-success logo-action-btn" id="uploadLogoBtn" style="display:none;">Upload</button>
+                    </div>
+                    <small>Allowed JPG, JPEG or PNG. Max size of 800kB</small>
+                    <div class="upfilewrapper" style="display:none;">
+                      <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
+                    </div>
+                </form>
               </div>
             </div>
             <!-- users edit media object ends -->
@@ -109,7 +112,7 @@
 
               <div class="row">
                 <div class="input-field col m6 s12">
-                  <div id="timezone_block">
+                  <div id="timezone_block"> 
                     @if(isset($variants->timezone))
                       {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'select2 browser-default']) !!}
                     @else  
@@ -156,7 +159,10 @@
                 {!! Form::text('location', $store->location ?? '', array('placeholder' => 'Store location','id' => 'location')) !!}
                 <label for="location" class="label-placeholder">Location</label> 
                 </div>
-
+                <div class="input-field col m6 s12">
+                {!! Form::text('map_location', $store->map_location ?? '', array('placeholder' => 'Map location','id' => 'map_location')) !!}
+                <label for="map_location" class="label-placeholder">Map location</label> 
+                </div>
               </div>
 
               <div class="row">
@@ -193,7 +199,6 @@
 <script src="{{asset('admin/vendors/select2/select2.full.min.js')}}"></script>
 @endsection
 
-
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
@@ -201,10 +206,51 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.js"></script>
-<script src="{{ asset('admin/js/cropper-script.js') }}"></script>
+<!-- <script src="{{ asset('admin/js/cropper-script.js') }}"></script> -->
 <script src="{{asset('admin/js/scripts/page-users.js')}}"></script>
 
 <script>
+
+  $('#profile').change(function(){   
+
+    var ext = $('#profile').val().split('.').pop().toLowerCase();
+    if($.inArray(ext, ['png','jpg','jpeg']) == -1) {
+        showErrorToaster("Invalid format. Allowed JPG, JPEG or PNG.");
+    }else{
+      let reader = new FileReader();
+      reader.onload = (e) => { 
+        $('#store_logo').attr('src', e.target.result); 
+        $(".logo-action-btn").show();
+      }
+      reader.readAsDataURL(this.files[0]); 
+    }    
+  });
+
+  $("#removeLogoDisplayBtn").click(function(event){
+      event.preventDefault();
+      var old_logo = $("#log_url").val();
+      $("#store_logo").attr("src", old_logo); 
+      $(".logo-action-btn").hide();
+  });
+
+  $('#storeLogoForm').submit(function(e) {
+
+      var formData = new FormData(this);
+      $.ajax({
+            type: "POST",url: "{{ url('/store/update-logo') }}", data: formData, cache:false, contentType: false, processData: false,
+            success: function(data){
+              if(data.flagError == false){
+                  showSuccessToaster(data.message);                 
+                  $("#store_logo").attr("src", data.logo);
+              }else{
+                showErrorToaster(data.message);
+                printErrorMsg(data.error);
+              }
+          }
+        });
+  });
+
+
   $('#country_id').select2({ placeholder: "Please select country", allowClear: true });
   $('#state_id').select2({ placeholder: "Please select state", allowClear: true });
   $('#district_id').select2({ placeholder: "Please select district", allowClear: true });
@@ -335,34 +381,37 @@
 
   $("#profileImageSubmitBtn").click(function(){
     canvas = cropper.getCroppedCanvas({
-  });
-  canvas.toBlob(function(blob) {
-    url = URL.createObjectURL(blob);
-    var reader = new FileReader();
-    reader.readAsDataURL(blob); 
-    reader.onloadend = function() {
-      var base64data = reader.result; 
-      id = $("#store_id").val();
-      $.ajax({
-          type: "POST",
-          dataType: "json",
-          url: "{{ url('/store/update-logo') }}",
-          data: {store_id : id , 'image': base64data},
-          success: function(data){
-            if(data.flagError == false){
-                showSuccessToaster(data.message);                 
-                $("#store_logo").attr("src", data.logo);
-                $modal.modal('close');
-            }else{
-              showErrorToaster(data.message);
-              printErrorMsg(data.error);
-            }
-        }
-      });
-    }
-  });
-})
+    });
+    canvas.toBlob(function(blob) {
+      url = URL.createObjectURL(blob);
+      var reader = new FileReader();
+      reader.readAsDataURL(blob); 
+      reader.onloadend = function() {
+        var base64data = reader.result; 
+        id = $("#store_id").val();
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "{{ url('/store/update-logo') }}",
+            data: {store_id : id , 'image': base64data},
+            success: function(data){
+              if(data.flagError == false){
+                  showSuccessToaster(data.message);                 
+                  $("#store_logo").attr("src", data.logo);
+                  $modal.modal('close');
+              }else{
+                showErrorToaster(data.message);
+                printErrorMsg(data.error);
+              }
+          }
+        });
+      }
+    });
+  })
+
+  $("#select-files").on("click", function () {
+    $("#profile").click();
+  })
 
 </script>
 @endpush
-

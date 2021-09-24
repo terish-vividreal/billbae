@@ -76,7 +76,7 @@ class ReportController extends Controller
                                                     'id as row_id', 'customer_id', 'payment_status')                                    
                                             ->where('shop_id', SHOP_ID)
                                             ->groupBy(DB::raw("day(created_at)"))
-                                            // ->whereDate('created_at', '=', $your_date)
+                                            //->whereDate('created_at', '=', $your_date)
                                             ->whereBetween('created_at', [$from,$to])
                                             ->orderBy('created_at', 'ASC')->get();                             
 
@@ -175,20 +175,26 @@ class ReportController extends Controller
             ->editColumn('billed_date', function($detail){
                 return FunctionHelper::dateToTimeZone($detail->billed_date, 'd-M-Y '.$this->time_format.':i a');
             })
+            ->editColumn('billing_code', function($detail){
+                $billing_code = '';
+                $billing_code .=' <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '" target="_blank">'.$detail->billing_code.'</a>';
+                return $billing_code;
+            })
             ->editColumn('customer_id', function($detail){
                 $customer = $detail->customer->name;
                 return $customer;
             })
             ->editColumn('amount', function($detail){
-                $amount = '₹ '. $detail->amount;
+                // $amount = '₹ '. $detail->amount;
+                $amount = $detail->amount;
                 return $amount;
             })
             ->editColumn('payment_status', function($detail){
                 $status = '';
                 if($detail->payment_status == 0){
-                    $status = '<span class="badge orange">Pending</span>';
+                    $status = '<span class="chip lighten-5 red red-text">UNPAID</span>';
                 }else{  
-                    $status = '<span class="badge green">Paid</span>';                                
+                    $status = '<span class="chip lighten-5 green green-text">PAID</span>';                                
                 }
                 return $status;
             })

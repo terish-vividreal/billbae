@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
@@ -159,6 +160,10 @@ class UserController extends Controller
             $user->password_create_token = $token;
             $user->save();
 
+            $profile = new StaffProfile();
+            $profile->user_id       = $user->id;
+            $profile->save();
+
             // Password create link
             // Mail::send('email.passwordCreate', ['token' => $token], function($message) use($request){
             //     $message->to($request->email);
@@ -267,7 +272,7 @@ class UserController extends Controller
 
         return ['flagError' => false, 'message' => $this->title. " deactivated successfully"];
 
-     }
+    }
 
     public function isUnique(Request $request){ 
         if($request->user_id == 0){

@@ -51,15 +51,15 @@
                 <div class="row">
                   <div class="col s12">
                     <div class="row">
-                      <div class="input-field col m10 s12" id="custom-templates">
+                      <div class="input-field col m12 s12" id="custom-templates">
                           <i class="material-icons prefix">textsms</i>
                           <input type="text" name="search_customer" id="search_customer" class="typeahead autocomplete" autocomplete="off" value="">
                       </div>
-                      <div class="input-field col m2 s12">
+                      <!-- <div class="input-field col m2 s12">
                         <button class="btn cyan waves-effect waves-light" type="button" name="action" onClick="addNewCustomer()">New Customer
                           <i class="material-icons right">add</i>
                         </button>
-                      </div>
+                      </div> -->
                     </div>
                   </div>
                 </div>

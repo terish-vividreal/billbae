@@ -2675,7 +2675,7 @@ a {
 }
 
 /* 2dp elevation modified*/
-.z-depth-1, .sidenav, .collapsible, .dropdown-content, .btn-floating, .btn, .btn-small, .btn-large, .toast, .card, .card-panel, nav {
+.z-depth-1, .sidenav, .collapsible, .dropdown-menu, .btn-floating, .btn, .btn-small, .btn-large, .toast, .card, .card-panel, nav {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
@@ -5163,7 +5163,7 @@ button.btn-floating {
   display: block;
 }
 
-.dropdown-content {
+.dropdown-menu {
   background-color: #fff;
   margin: 0;
   display: none;
@@ -5176,10 +5176,10 @@ button.btn-floating {
   z-index: 9999;
   transform-origin: 0 0;
 }
-.dropdown-content:focus {
+.dropdown-menu:focus {
   outline: 0;
 }
-.dropdown-content li {
+.dropdown-menu li {
   clear: both;
   color: rgba(0, 0, 0, 0.87);
   cursor: pointer;
@@ -5188,29 +5188,29 @@ button.btn-floating {
   width: 100%;
   text-align: left;
 }
-.dropdown-content li:hover, .dropdown-content li.active {
+.dropdown-menu li:hover, .dropdown-menu li.active {
   background-color: #eee;
 }
-.dropdown-content li:focus {
+.dropdown-menu li:focus {
   outline: none;
 }
-.dropdown-content li.divider {
+.dropdown-menu li.divider {
   min-height: 0;
   height: 1px;
 }
-.dropdown-content li > a, .dropdown-content li > span {
+.dropdown-menu li > a, .dropdown-menu li > span {
   font-size: 16px;
   color: #ff9100;
   display: block;
   line-height: 22px;
   padding: 14px 16px;
 }
-.dropdown-content li > span > label {
+.dropdown-menu li > span > label {
   top: 1px;
   left: 0;
   height: 18px;
 }
-.dropdown-content li > a > i {
+.dropdown-menu li > a > i {
   height: inherit;
   line-height: inherit;
   float: left;
@@ -5218,11 +5218,11 @@ button.btn-floating {
   width: 24px;
 }
 
-body.keyboard-focused .dropdown-content li:focus {
+body.keyboard-focused .dropdown-menu li:focus {
   background-color: #dadada;
 }
 
-.input-field.col .dropdown-content [type=checkbox] + label {
+.input-field.col .dropdown-menu [type=checkbox] + label {
   top: 1px;
   left: 0;
   height: 18px;
@@ -5577,7 +5577,7 @@ body.keyboard-focused .dropdown-content li:focus {
   border: 0 !important;
   box-shadow: none !important;
 }
-.chips .autocomplete-content {
+.chips .typeahead {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -6062,7 +6062,7 @@ textarea.materialize-textarea + label:after {
 .input-field .prefix ~ label,
 .input-field .prefix ~ .validate ~ label,
 .input-field .prefix ~ .helper-text,
-.input-field .prefix ~ .autocomplete-content {
+.input-field .prefix ~ .typeahead {
   margin-left: 3rem;
   width: 92%;
   width: calc(100% - 3rem);
@@ -6150,10 +6150,10 @@ textarea.materialize-textarea {
 }
 
 /* Autocomplete */
-.autocomplete-content li .highlight {
+.typeahead li .highlight {
   color: #444;
 }
-.autocomplete-content li img {
+.typeahead li img {
   height: 40px;
   width: 40px;
   margin: 5px 15px;
@@ -6633,14 +6633,14 @@ select:disabled {
   background-color: transparent;
 }
 
-body.keyboard-focused .select-dropdown.dropdown-content li:focus {
+body.keyboard-focused .select-dropdown.dropdown-menu li:focus {
   background-color: rgba(0, 0, 0, 0.08);
 }
 
-.select-dropdown.dropdown-content li:hover {
+.select-dropdown.dropdown-menu li:hover {
   background-color: rgba(0, 0, 0, 0.08);
 }
-.select-dropdown.dropdown-content li.selected {
+.select-dropdown.dropdown-menu li.selected {
   background-color: rgba(0, 0, 0, 0.03);
 }
 

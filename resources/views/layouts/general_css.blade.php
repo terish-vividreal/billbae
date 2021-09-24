@@ -22,4 +22,4 @@
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/data-tables.css')}}">
 <!-- END: Custom CSS-->
 
-@yield('page-css')
+@stack('page-css')

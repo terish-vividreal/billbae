@@ -11,6 +11,8 @@ use App\Models\Country;
 use App\Models\State;
 use App\Models\District;
 use App\Models\Package;
+use App\Models\User;
+use Response;
 use DB;
 use Session;
 use Auth;
@@ -101,6 +103,33 @@ class CommonController extends Controller
             return response()->json(['flagError' => true, 'data' => null]);
     }
 
+    public function getAllTherapists()
+    {
+        $user_id        = Auth::user()->id;
+        $data           =  User::role('Staffs')
+                            ->leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')
+                            ->leftjoin('schedule_colors', 'staff_profiles.schedule_color', '=', 'schedule_colors.id')
+                            ->where('users.parent_id', $user_id)
+                            ->whereIn('staff_profiles.designation', [1, 2])
+                            ->where('users.is_active', '!=',  2)->get(['users.id', 'users.name as title', 'schedule_colors.name as eventColor']);
+
+        // return response()->json($data);
+
+        if($data)
+            return response()->json(['flagError' => false, 'data' => $data]);
+        else
+            return response()->json(['flagError' => true, 'data' => null]);
+    }
+
+    public function getTherapist($id)
+    {
+        $data           =  User::find($id);
+        if($data)
+            return response()->json(['flagError' => false, 'therapist' => $data]);
+        else
+            return response()->json(['flagError' => true, 'data' => null]);
+    }
+
     public function getCurrencies(Request $request)
     {
         $currencies     = DB::table('currencies')->where('country_id', $request->country_id)->get();
@@ -169,8 +198,6 @@ class CommonController extends Controller
             foreach($result as $row){
 
                 // $tax_data       = TaxHelper::simpleTaxCalculation($row);
-
-
                 $total_percentage = $row->gst_tax ;                
                 if(count($row->additionaltax) > 0){
                     foreach($row->additionaltax as $additional){
@@ -195,25 +222,44 @@ class CommonController extends Controller
                 }
 
 
-                    $html.='<tr data-widget="expandable-table" aria-expanded="true"><td>'.$index.'</td><td>'.$row->name.' - HSN Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
-                    $html.='<tr class="expandable-body"> </tr>';
-                    $html.='<tr class="expandable-body" style="text-align:center;">';
-                    $html.='<td colspan="2">';
+                $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
+                $html.='<td>'.$row->name.  '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
+                $html.='<td class="right-align">';
 
-
-                    $html.='<div id="cgst"> <span> '.($row->gst_tax/2).' % CGST -  </span> '.number_format($total_cgst_amount,2).' </div>';
-                    $html.='<div id="sgst"> <span> '.($row->gst_tax/2).' % SGST -  </span> '.number_format($total_sgst_amount,2).' </div>';
+                $html.='<ul><li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Amount </span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_value,2).'</h6></li>';
                 
-                    if(count($row->additionaltax) > 0){
-                        foreach($row->additionaltax as $additional){
-                            $html.='<div id="additionalTax" class="test gst"> <span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span> - '.number_format($tax_onepercentage*$additional->percentage,2). '</div>';
-                        }
-                    }
+                $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % CGST </span>';
+                $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_cgst_amount,2).'</h6></li>';
 
-                    $html.='</td></tr>';
-                    $html.='<tr data-widget="expandable-table" aria-expanded="false"><td colspan="2">';
-                    // $html.='<div style="text-align:left;"></div>';
-                    $html.='<div style="text-align:right;"><b>Total </b><br></td><td><b>'.number_format($gross_charge,2).'</b></div></td></tr>';
+                $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % SGST</span>';
+                $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_sgst_amount,2).'</h6></li>';
+
+                if(count($row->additionaltax) > 0){
+                    $html.='<li class="divider mt-2 mb-2"></li>';
+                    foreach($row->additionaltax as $additional){
+                        $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">' . $additional->percentage . ' % ' . $additional->name. '</span>';
+                        $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($tax_onepercentage*$additional->percentage,2).'</h6></li>';
+                    }
+                }
+
+                $html.='<li class="divider mt-2 mb-2"></li>';
+
+                $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Total</span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_charge,2).'</h6></li>';
+
+                    // $html.='<tr data-widget="expandable-table" aria-expanded="true"><td>'.$index.'</td><td>'.$row->name.' - HSN Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
+                    // $html.='<tr class="expandable-body"> </tr>';
+                    // $html.='<tr class="expandable-body" style="text-align:center;">';
+                    // $html.='<td colspan="2">';
+                    // $html.='<div id="cgst"> <span> '.($row->gst_tax/2).' % CGST -  </span> '.number_format($total_cgst_amount,2).' </div>';
+                    // $html.='<div id="sgst"> <span> '.($row->gst_tax/2).' % SGST -  </span> '.number_format($total_sgst_amount,2).' </div>';
+                    // if(count($row->additionaltax) > 0){
+                    //     foreach($row->additionaltax as $additional){
+                    //         $html.='<div id="additionalTax" class="test gst"> <span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span> - '.number_format($tax_onepercentage*$additional->percentage,2). '</div>';
+                    //     }
+                    // }
+                    // $html.='</td></tr>';
+                    // $html.='<tr data-widget="expandable-table" aria-expanded="false"><td colspan="2">';
+                    // $html.='<div style="text-align:right;"><b>Total </b><br></td><td><b>'.number_format($gross_charge,2).'</b></div></td></tr>';
 
                 $grand_total = ($grand_total + $gross_charge); ;
                 $index++;
@@ -227,19 +273,18 @@ class CommonController extends Controller
     
     public function calculateTaxTable(Request $request)
     {
-        
+        $data_array     = array();
         $type = $request->type;
         if($type == 'services'){
-            $result = Service::with('additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
+            $result = Service::with('additionaltax', 'gsttax', 'hours', 'leadBefore', 'leadAfter')->where('shop_id', SHOP_ID)
                         // ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'services.gst_tax')
                         ->whereIn('services.id', $request->data_ids)->orderBy('services.id', 'desc')->get();
         }else{
-            $result = Package::with('additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
+            $result = Package::with('additionaltax', 'gsttax', 'hours', 'leadBefore', 'leadAfter')->where('shop_id', SHOP_ID)
                         ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'packages.gst_tax')
                         ->whereIn('packages.id', $request->data_ids)->orderBy('packages.id', 'desc')->get();
         }
 
-        // echo "<pre>"; print_r($result); exit;
 
         if($result){
 
@@ -250,9 +295,33 @@ class CommonController extends Controller
             $gross_charge           = 0 ;
             $gross_value            = 0 ;
             $grand_total            = 0 ;
+            $total_minutes          = 0;
             $additional_tax_array   = array();
 
             foreach($result as $row){
+                $minutes        = 0;
+                $lead_before    = 0;
+                $lead_after     = 0;
+
+                $minutes        = ($minutes+$row->hours->value);
+                $total_minutes  = ($total_minutes+$row->hours->value);
+
+
+                if($row->lead_before != null){
+                    $minutes += $row->leadBefore->value;
+                    $total_minutes += $row->leadBefore->value;
+                    $lead_before = $row->leadBefore->value;
+                }
+
+                if($row->lead_after != null){
+                    $minutes += $row->leadAfter->value;
+                    $total_minutes += $row->leadAfter->value;
+                    $lead_after = $row->leadAfter->value;
+
+                }
+
+                $data_array[] = array('name' => $row->name, 'price' => $row->price, 'minutes' => $minutes); 
+
 
                 // $tax_data       = TaxHelper::simpleTaxCalculation($row);
 
@@ -285,21 +354,44 @@ class CommonController extends Controller
                 }
 
 
-                    $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - HSN Codessss : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
-                    $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % CGST -  </span></td><td> '.number_format($total_cgst_amount,2).'</td></tr>';
-                    $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % SGST -  </span></td><td> '.number_format($total_sgst_amount,2).'</td></tr>';
-                
+                    $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
+                    $html.='<td>'.$row->name.  '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
+                    $html.='<td class="right-align">';
+
+                    $html.='<ul><li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Amount </span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_value,2).'</h6></li>';
+                  
+                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % CGST </span>';
+                    $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_cgst_amount,2).'</h6></li>';
+
+                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % SGST</span>';
+                    $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_sgst_amount,2).'</h6></li>';
+
                     if(count($row->additionaltax) > 0){
+                        $html.='<li class="divider mt-2 mb-2"></li>';
                         foreach($row->additionaltax as $additional){
-                            $html.='<tr><td></td><td><span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span></td><td> '.number_format($tax_onepercentage*$additional->percentage,2).'</td></tr>';
-                            // $html.='<div id="additionalTax" class="test gst"> <span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span> - '.number_format($tax_onepercentage*$additional->percentage,2). '</div>';
+                            $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">' . $additional->percentage . ' % ' . $additional->name. '</span>';
+                            $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($tax_onepercentage*$additional->percentage,2).'</h6></li>';
                         }
                     }
 
-                    $html.='<tr data-widget="expandable-table" aria-expanded="false"><td></td>';
-                    // $html.='<div style="text-align:left;"></div>';
-                    $html.='<td style="text-align:right;"><b>Total</b></td><td><b>'.number_format($gross_charge,2).'</b></td></tr>';
+                    $html.='<li class="divider mt-2 mb-2"></li>';
 
+                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Total</span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_charge,2).'</h6></li>';
+
+
+
+
+
+                    // $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - HSN Codessss : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
+                    // $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % CGSTaaaa -  </span></td><td> '.number_format($total_cgst_amount,2).'</td></tr>';
+                    // $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % SGST -  </span></td><td> '.number_format($total_sgst_amount,2).'</td></tr>';
+                    // if(count($row->additionaltax) > 0){
+                    //     foreach($row->additionaltax as $additional){
+                    //         $html.='<tr><td></td><td><span>  ' . $additional->percentage . ' % ' . $additional->name. '  </span></td><td> '.number_format($tax_onepercentage*$additional->percentage,2).'</td></tr>';
+                    //     }
+                    // }
+                    // $html.='<tr data-widget="expandable-table" aria-expanded="false"><td></td>';
+                    // $html.='<td style="text-align:right;"><b>Total</b></td><td><b>'.number_format($gross_charge,2).'</b></td></tr>';
 
                 $grand_total = ($grand_total + $gross_charge); ;
                 $index++;
@@ -308,8 +400,9 @@ class CommonController extends Controller
             // $table_footer='<tfoot><tr><td></td><td></td><td></td><td></td><td></td><td><b>Total - <h4>₹ '.$total_tax.'</h4></b></td><td><b>Total - <h4>₹ '.number_format($total_amount,2).'</h4></b></td></tr></tfoot>';
         }
 
-        return response()->json(['flagError' => false, 'grand_total' => $grand_total, 'html' => $html]);
+        return response()->json(['flagError' => false, 'grand_total' => $grand_total, 'html' => $html, 'data' => $data_array, 'total_minutes' => $total_minutes]);
     }
+    
 
     // public function getSubjects($curriculum_id)
     // {

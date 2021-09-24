@@ -9,10 +9,7 @@
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/app-invoice.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
 @endsection
-
-
 @section('content')
-
 @section('breadcrumb')
   <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
   <ol class="breadcrumbs mb-0">
@@ -21,10 +18,9 @@
     <li class="breadcrumb-item active">Create</li>
   </ol>
 @endsection
-
 @section('page-action')
-  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice/edit/'.$billing->id) }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Edit Bill<i class="material-icons right">mode_edit</i></a>
-  @endsection
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">List<i class="material-icons right">list</i></a>
+@endsection
 <section class="invoice-view-wrapper section">
   <div class="row">
     <!-- invoice view page -->
@@ -50,12 +46,10 @@
               </div>
             </div>
           </div>
-
-
           <!-- logo and title -->
           <div class="row mt-3 invoice-logo-title">
             <div class="col m6 s12 display-flex invoice-logo mt-1 push-m6">
-              <img src="{{ $variants->store->show_image }}" alt="logo" height="100">
+              <img src="{{ $variants->store->show_image }}" alt="Billbae" height="46" width="164">
             </div>
             <div class="col m6 s12 pull-m6">
               <h4 class="indigo-text">Invoice</h4>
@@ -113,20 +107,15 @@
             </div>
           </div>
           <div class="divider mb-3 mt-3"></div>
-
-
-
-
           <!-- product details table-->
           <div class="invoice-product-details">
-          <table class="striped responsive-table">
+          <table class="responsive-table">
           <thead>
             <tr>
               <th>No</th>
               <th>Items</th>
               <th>HSN Code #</th>
-              <th>Tax Details</th>
-              <th>Subtotal</th>
+              <th class="right-align">Details</th>
             </tr>
             </thead>
             <tbody>
@@ -136,58 +125,70 @@
                   <td>{{$loop->index + 1}}</td>
                   <td>{{ $item->name }} </td>
                   <td>{{ $item->hsn_code }}</td>
-                  <td>
-                    Amount (Without Tax) - <br>
-                    {{ $item->cgst_percentage }} % CGST - <br> 
-                    {{$item->sgst_percentage }} % SGST - <br> 
+                  <td class="right-align">
+                    <ul>
+                      <li class="display-flex justify-content-between">
+                        <span class="invoice-subtotal-title">Amount (Without Tax)</span>
+                        <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($item->tax_amount ,2)  @endphp</h6>
+                      </li>
+                      <li class="display-flex justify-content-between">
+                        <span class="invoice-subtotal-title">{{ $item->cgst_percentage }} % CGST </span>
+                        <h6 class="invoice-subtotal-value indigo-text">₹{{ $item->cgst_amount }}</h6>
+                      </li>
+                      <li class="display-flex justify-content-between">
+                        <span class="invoice-subtotal-title">{{$item->sgst_percentage }} % SGST</span>
+                        <h6 class="invoice-subtotal-value indigo-text">₹ {{ $item->sgst_amount }}</h6>
+                      </li>
+                      @php if(count($item->additionalTax) > 0) { @endphp
+                        <li class="divider mt-2 mb-2"></li>
+                        @foreach($item->additionalTax as $key => $additional)
+                          <li class="display-flex justify-content-between">
+                            <span class="invoice-subtotal-title"> {{ $additional->percentage }} % {{ $additional->tax_name }}</span>
+                            <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($additional->amount,2)  @endphp</h6>
+                          </li>
+                        @endforeach
+                      @php } @endphp
 
-                    @php if(count($item->additionalTax) > 0) { @endphp
-                      @foreach($item->additionalTax as $key => $additional)
-                          {{ $additional->percentage }} % {{ $additional->tax_name }} - <br> 
-                      @endforeach
-                    @php } @endphp
+                      
 
-                    @if($item->is_discount_used == 1)
-                      Discount @if($item->discount_type == 'percentage') {{$item->discount_value }} '%' @endif- <br>
-                    @endif
+                      @if($item->is_discount_used == 1)
+                        <li class="divider mt-2 mb-2"></li>
+                        <li class="display-flex justify-content-between">
+                          <span class="invoice-subtotal-title">Discount @if($item->discount_type == 'percentage') ({{$item->discount_value}}%) @endif </span>
+                          <h6 class="invoice-subtotal-value indigo-text">
 
-                    <br><b> Total - <b>
+                          @if($item->discount_type == 'percentage') 
+                            @php $discount_value = $item->grand_total * (($item->discount_value/100)) @endphp
+                          @else 
+                            @php $discount_value = $item->discount_value; @endphp                
+                          @endif
+
+                          @php 
+                            $grand_total = $grand_total - $discount_value;
+                          @endphp
+
+                          - ₹ @php echo number_format($discount_value,2)  @endphp
+
+                          </h6>
+                        </li>
+
+                      @else
+                        @php 
+                          $discount_value = 0;
+                        @endphp
+                      @endif
+
+                      <li class="divider mt-2 mb-2"></li>
+                      <li class="display-flex justify-content-between">
+        
+                      <span class="invoice-subtotal-title">Total</span>
+                        <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format(($item->grand_total - $discount_value),2) @endphp</h6>
+                      </li>
+
+
 
                   </td>
-                  <td>
-
-                  ₹ @php echo number_format($item->tax_amount ,2)  @endphp<br> 
-                  ₹ {{ $item->cgst_amount }}<br> 
-                  ₹ {{ $item->sgst_amount }}<br> 
-
-                  @php if(count($item->additionalTax) > 0) { @endphp
-                    @foreach($item->additionalTax as $key => $additional)
-                      ₹ @php echo number_format($additional->amount,2)  @endphp<br>
-                    @endforeach
-                  @php } @endphp
-
-                    @if($item->is_discount_used == 1)
-
-                        @if($item->discount_type == 'percentage') 
-                          @php $discount_value = $item->grand_total * (($item->discount_value/100)) @endphp
-                        @else 
-                          @php $discount_value = $item->discount_value; @endphp                
-                        @endif
-
-                                  ₹ @php echo number_format($discount_value,2)  @endphp  <br>
-
-                                  <br><b>₹ @php echo number_format(($item->grand_total - $discount_value),2) @endphp</b><br>
-
-                                  @php $grand_total = $grand_total- $discount_value @endphp
-
-                    @else
-
-                        <br><b> ₹ @php echo number_format($item->grand_total,2)  @endphp<br> 
-
-                    @endif
-
-                  </td>
-                </tr>
+                    </tr>
                 @php 
 
                 @endphp
@@ -197,42 +198,31 @@
           </div>
           <!-- invoice subtotal -->
           <div class="divider mt-3 mb-3"></div>
-
-
-
           <div class="invoice-subtotal">
             <div class="row">
               <div class="col m5 s12">
-                <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
-                  <p class="lead">Payment Details:</p>
-                    @if($billing->paymentMethods)
-                      <div class="striped responsive-table">
-                        <table class="table">
-                          @foreach($billing->paymentMethods as $row)
-                          <tr>
-                            <td style="width:50%">{{ $row->paymentype->name }}</td>
-                            <td style="align:right">₹ @php echo number_format($row->amount,2) @endphp</td>
-                          </tr>
-                          @endforeach
-                          <tr>
-                            <th>Grand Total:</th>
-                            <th><h4>₹ @php echo number_format($grand_total,2) @endphp<h4></th>
-                          </tr>
-                        </table>
-                      </div>
-                    @endif
+                <p>Thanks for your business.</p>
               </div>
-              <!-- <div class="col xl4 m4 s12 offset-xl3">
+              <div class="col xl4 m7 s12 offset-xl3">
+                <h6 class="lead">Payment Details:</h6>
+                @if($billing->paymentMethods)
                 <ul>
+                  @foreach($billing->paymentMethods as $row)
+                    <li class="display-flex justify-content-between">
+                      <span class="invoice-subtotal-title">{{ $row->paymentype->name }}</span>
+                      <h6 class="invoice-subtotal-value">₹ @php echo number_format($row->amount,2) @endphp</h6>
+                    </li>
+                  @endforeach
+                  <li class="divider mt-2 mb-2"></li>
                   <li class="display-flex justify-content-between">
-                    <span class="invoice-subtotal-title">Subtotal</span>
-                    <h5 class="invoice-subtotal-value">₹ <span id="grandtTotal"> </span></h5>
+                    <h5><span class="invoice-subtotal-title">Grand Total</span></h5>
+                    <h5 class="invoice-subtotal-value">₹ @php echo number_format($grand_total,2) @endphp</h5>
                   </li>
                 </ul>
-              </div> -->
+                @endif
+              </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -241,13 +231,13 @@
       <div class="card invoice-action-wrapper">
         <div class="card-content">
           <div class="invoice-action-btn">
-            <a href="#"
+            <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/invoice-data/generate-pdf/'.$billing->id) }}"
               class="btn indigo waves-effect waves-light display-flex align-items-center justify-content-center">
-              <i class="material-icons mr-4">check</i>
-              <span class="text-nowrap">Send Invoice</span>
+              <i class="material-icons mr-4">file_download</i>
+              <span class="text-nowrap">Download Invoice</span>
             </a>
           </div>
-          <div class="invoice-action-btn">
+          <!-- <div class="invoice-action-btn">
             <a href="#" class="btn-block btn btn-light-indigo waves-effect waves-light invoice-print">
               <span>Print</span>
             </a>
@@ -262,27 +252,21 @@
               <i class="material-icons mr-3">attach_money</i>
               <span class="text-nowrap">Add Payment</span>
             </a>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
   </div>
 </section>
-
 @endsection
-
 {{-- vendor scripts --}}
 @section('vendor-script')
 @endsection
-
-
 @push('page-scripts')
 <script src="{{asset('admin/js/scripts/app-invoice.js')}}"></script>
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
-
 <script>
 
 
 </script>
 @endpush
-

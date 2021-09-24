@@ -40,7 +40,7 @@
           <!-- logo and title -->
           <div class="row mt-3 invoice-logo-title">
             <div class="col m6 s12 display-flex invoice-logo mt-1 push-m6">
-              <img src="{{ $variants->store->show_image }}" alt="logo" height="100">
+              <img src="{{ $variants->store->show_image }}" alt="logo" height="46" width="164">
             </div>
             <div class="col m6 s12 pull-m6">
               <h4 class="indigo-text">Invoice</h4>
@@ -109,29 +109,25 @@
 
           <div class="invoice-subtotal">
             <div class="row">
-              <div class="col m5 s12">
+              <div class="col m7 s12">
                 <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
-                  <p class="lead">Payment Details:</p>
+                  <h6 class="lead" style="padding-top:25px">Payment Methods:</h6>
                   <form id="paymentForm" name="paymentForm" role="form" method="POST" action="" class="ajax-submit">
                     {{ csrf_field() }}
                     {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'payment_billing_id'] ); !!}
                     {!! Form::hidden('grand_total', $billing->amount ?? '' , ['id' => 'grand_total'] ); !!}
                       <table class="table" id="dynamic_field"> 
                         <tr> 
-                            <td>
-                            <div class="input-field">{!! Form::select('payment_type[]', $variants->payment_types , '' , ['id' => 'payment_type' , 'class' => 'select2 browser-default']) !!}  </div>
-                            </td>
+                            
+                            <td><div class="input-field">{!! Form::select('payment_type[]', $variants->payment_types , '' , ['id' => 'payment_type' , 'class' => 'select2 browser-default']) !!}  </div> </td>
                             <td><input name="payment_amount[]" type="text" placeholder="Amount" class="heck_numeric" value=""></td>  
-                            <td> 
-                               <button type="button" name="add" id="add" class="btn-floating mb-1 btn-flat waves-effect waves-light blue accent-2 white-text tooltipped" data-position="bottom" data-tooltip="Add Row"><i class="material-icons">add</i></button></td>  
-                        </tr>  
+                            <td> <button type="button" name="add" id="add" class="btn-floating mb-1 btn-flat waves-effect waves-light blue accent-2 white-text tooltipped" data-position="bottom" data-tooltip="Add Row"><i class="material-icons">add</i></button></td>  
+                        
+                          </tr>  
                       </table>
                   </form>
-
-
-
               </div>
-              <div class="col xl4 m4 s12 offset-xl3">
+              <div class="col m5 s12">
                 <ul>
                   <li class="display-flex justify-content-between">
                     <h5><span class="invoice-subtotal-title">Grand Total</span></h5>
@@ -141,8 +137,6 @@
               </div>
             </div>
           </div>
-
-          <div class="divider mt-3 mb-3"></div>
 
           <div class="row">
             <div class="input-field col s12">
@@ -188,8 +182,8 @@
 var bill_id       = {!! json_encode($variants->bill_id) !!};
 var paymentTypes  = {!! json_encode($variants->payment_types) !!};
 var i=1;
-$('.select2').select2({ placeholder: "Please select country", allowClear: true });
-$(".select2").select2({ dropdownAutoWidth: true, width: '100%' });
+// $('.select2').select2({ placeholder: "Please select country", allowClear: true });
+$(".select2").select2({ placeholder: "Please select payment type", allowClear: true });
 
 $(document).ready(function(){
   getInvoiceDetails();
@@ -308,7 +302,7 @@ $('#submitPayment').click(function(){
       if(data.flagError == false){
           showSuccessToaster(data.message);
           setTimeout(function () { 
-            window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+            window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route.'/show/'.$billing->id) }}";                
           }, 2000);
 
       }else{

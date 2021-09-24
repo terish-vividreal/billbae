@@ -32,15 +32,11 @@
 @endsection
 
 @section('page-action')
-  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">add</i></a>
+  <!-- <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">add</i></a> -->
 
-  <a href="javascript:" data-modalname="add-cash-modal"  data-form="addCashForm" class="btn waves-effect waves-light green breadcrumbs-btn right loadModal">
-                  <i class="fa fa-plus" aria-hidden="true"></i> Add Cash
-                </a>
-
-   <a href="javascript:" data-modalname="withdraw-cash-modal" data-form="withdrawCashForm" class="btn waves-effect waves-light green breadcrumbs-btn right orange loadModal">
-                  <i class="fa fa-credit-card" aria-hidden="true"></i> Withdraw Cash
-                </a>
+  <a href="javascript:" data-modalname="add-cash-modal"  data-form="addCashForm" class="btn waves-effect waves-light cyan breadcrumbs-btn right loadModal"><i class="fa fa-plus" aria-hidden="true"></i> Add Cash </a>
+  
+  <a href="javascript:" data-modalname="withdraw-cash-modal" data-form="withdrawCashForm" class="btn waves-effect waves-light cyan breadcrumbs-btn right orange loadModal"><i class="fa fa-credit-card" aria-hidden="true"></i> Withdraw Cash</a>
 @endsection
 
 
@@ -75,7 +71,7 @@
                 <div class="row">
                     <div class="col s7 m7">
                       <i class="material-icons background-round mt-5">perm_identity</i>
-                      <p>Customer</p>
+                      <p>Petty Cash</p>
                     </div>
                     <div class="col s5 m5 right-align">
                       <h5 class="mb-0 white-text">₹ <span id="petty_cash">{{ number_format($variants->petty_cash, 2) ?? ''}}</span></h5>
@@ -204,14 +200,17 @@ $('#add_cash_book').select2({ placeholder: "Add cash to", allowClear: true });
 
 
 $(".loadModal").on("click", function(){
-    var modalname 	= $(this).data("modalname");
-    var form   	    = $(this).data("form");
+  var modalname 	= $(this).data("modalname");
+  var form   	    = $(this).data("form");
   addvalidator.resetForm();
   validator.resetForm();
   $(".display-none").hide();
   $('input').removeClass('error');
   $('select').removeClass('error');
   $('#'+form).trigger("reset");
+  $('#add_cash_book').select2({ placeholder: "Add cash to", allowClear: true });
+  $('#withdraw_cash_book').select2({ placeholder: "Withdraw cash from", allowClear: true });
+  $("#cashOptionDiv").hide()
   $("#"+modalname).modal("open");
 });
 

@@ -19,4 +19,9 @@ class ShopBilling extends Model
         return $this->belongsTo(Country::class);
     }
 
+    public function currencyCode()
+    {
+        return $this->belongsTo(Currency::class, 'currency', 'id');
+    }
+
 }

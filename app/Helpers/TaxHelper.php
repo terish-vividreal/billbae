@@ -27,6 +27,8 @@ class TaxHelper
         $gross_charge           = 0 ;
         $gross_value            = 0 ;
         $discount_amount        = 0 ;
+        $discount_type          = '';
+        $discount_value         = 0;
         $additional_tax_array   = array();
         $tax_array              = array();
 
@@ -67,9 +69,12 @@ class TaxHelper
                 if($row->tax_included == 1) 
                 {
                     if($row->discount_type == 'amount'){
+                        $discount_type      = 'amount';
                         $discount_amount  = $row->discount_value ;
                         $balance_discount_amount  = $gross_charge - $row->discount_value;
                     }else{
+                        $discount_type      = 'percentage';
+                        $discount_value     = $row->discount_value;
                         $discount_amount  = $gross_charge * ($row->discount_value/100);
                         $balance_discount_amount  = $gross_charge - $discount_amount;
                     }
@@ -92,7 +97,10 @@ class TaxHelper
                 {
                     if($row->discount_type == 'amount'){
                         $discount_amount    = $row->discount_value ;
+                        $discount_type      = 'amount';
                     }else{
+                        $discount_type      = 'percentage';
+                        $discount_value     = $row->discount_value;
                         $discount_amount    = $gross_value * ($row->discount_value/100);
                     }
 
@@ -125,6 +133,8 @@ class TaxHelper
                             'additiona_array' => $additional_tax_array,
                             'discount_applied' => $row->is_discount_used,
                             'discount_amount' => $discount_amount,
+                            'discount_value' => $discount_value,
+                            'discount_type' => $discount_type,
                             ];
             
             return $tax_array;

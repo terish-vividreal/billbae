@@ -1,4 +1,4 @@
-@extends('layouts.app')
+ @extends('layouts.app')
 
 {{-- page title --}}
 @section('seo_title', Str::plural($page->title) ?? '') 
@@ -8,8 +8,15 @@
 @section('page-style')
   <!-- daterange picker -->
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-  <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
+  <!-- <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}"> -->
 @endsection
+
+@push('page-css')
+<style>
+
+
+</style>
+@endpush
 
 
 @section('content')
@@ -167,7 +174,6 @@
           
                 <div class="row" id="usedServicesDiv" style="display:none">
                   <div class="input-field col s12">
-
                     <table class="responsive-table" id="servicesTable">
                       <thead>
                         <tr>
@@ -208,7 +214,6 @@
 
 @endsection
 
-
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
@@ -220,9 +225,9 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script>
 
-var timePicker = {!! json_encode($variants->time_picker) !!};
-var timeFormat = {!! json_encode($variants->time_format) !!};
-var path = "{{ route('billing.autocomplete') }}";
+var timePicker  = {!! json_encode($variants->time_picker) !!};
+var timeFormat  = {!! json_encode($variants->time_format) !!};
+var path        = "{{ route('billing.autocomplete') }}";
 var timeout;
 
 $('#country_id').select2({ placeholder: "Please select country", allowClear: true });
@@ -264,8 +269,16 @@ $('input[name="checkout_time"]').daterangepicker({
     timePicker: true,
     timePicker24Hour: timePicker,
     locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
-}, function(ev, picker) {
+}, function(start, end, label) {
   // console.log(picker.format('DD-MM-YYYY'));
+  // var years = moment().diff(start, 'years');
+  var in_time   = $('input[name="checkin_time"]').val();
+  var out_time  = $('input[name="checkout_time"]').val();
+  var diff      = moment().diff(in_time, out_time);
+
+  alert(diff)
+  // alert("You are " + years + " years old!");
+
 });
 
 $('input[name="dob"]').daterangepicker({
@@ -282,6 +295,9 @@ $('input[name="dob"]').daterangepicker({
 
 $('input.typeahead').typeahead({
     autoSelect: true,
+    hint: true,
+    highlight: true,
+    minLength: 3,
     source:  function (query, process) {
     return $.get(path, 
         { 
@@ -478,6 +494,9 @@ if ($("#{{$page->entity}}Form").length > 0) {
             // });
             $('#continue-btn').html('Please Wait...');
             $("#continue-btn"). attr("disabled", true);
+
+
+
             form.submit();
         },
         errorPlacement: function(error, element) {
@@ -506,26 +525,26 @@ if ($("#newCustomerForm").length > 0) {
     var customervalidator = $("#newCustomerForm").validate({ 
         rules: {
             new_customer_name: {
-                    required: true,
-                    maxlength: 200,
-                    lettersonly: true,
+              required: true,
+              maxlength: 200,
+              lettersonly: true,
             },
             new_customer_mobile:{
-                  required:true,
-                  minlength:10,
-                  maxlength:10
+              required:true,
+              minlength:10,
+              maxlength:10
             },
         },
         messages: { 
             new_customer_name: {
-                required: "Please enter customer name",
-                maxlength: "Length cannot be more than 200 characters",
-                },
+              required: "Please enter customer name",
+              maxlength: "Length cannot be more than 200 characters",
+            },
             new_customer_mobile: {
-                required: "Please enter mobile number",
-                maxlength: "Length cannot be more than 10 numbers",
-                minlength: "Length must be 10 numbers",
-                },
+              required: "Please enter mobile number",
+              maxlength: "Length cannot be more than 10 numbers",
+              minlength: "Length must be 10 numbers",
+            },
         },
         submitHandler: function (form) {
             

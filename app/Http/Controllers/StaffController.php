@@ -13,6 +13,7 @@ use App\Models\Designation;
 use App\Models\StaffProfile;
 use Illuminate\Support\Arr;
 use App\Models\StaffDocument;
+use App\Models\ScheduleColor;
 use App\Models\Shop;
 use DataTables;
 use Response;
@@ -186,7 +187,7 @@ class StaffController extends Controller
             //     $message->subject('Create New Password Email');
             // });
 
-            return ['flagError' => false, 'message' => "Account Added successfully"];
+            return ['flagError' => false, 'message' => "Staff account added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     
@@ -213,18 +214,19 @@ class StaffController extends Controller
      */
     public function edit($id)
     {
-        $staff              = User::find($id);
-        $page               = collect();
-        $you                = Auth::user();
-        $page->title        = $this->title;
-        $page->route        = $this->route;
-        $page->entity       = $this->entity;
-        $page->link         = url($this->link);
-        $page->form_url     = url($this->link . '/' . $staff->id);
-        $page->form_method  = 'PUT';
-        $page->designations = Designation::pluck('name', 'id'); 
-        $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
-        $userRole           = $staff->roles->pluck('name','name')->all();
+        $staff                  = User::find($id);
+        $page                   = collect();
+        $you                    = Auth::user();
+        $page->title            = $this->title;
+        $page->route            = $this->route;
+        $page->entity           = $this->entity;
+        $page->link             = url($this->link);
+        $page->form_url         = url($this->link . '/' . $staff->id);
+        $page->form_method      = 'PUT';
+        $page->designations     = Designation::pluck('name', 'id'); 
+        $roles                  = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
+        $page->schedule_colors  = ScheduleColor::pluck('name', 'id');
+        $userRole               = $staff->roles->pluck('name','name')->all();
         return view($this->viewPath . '.edit',compact('staff','roles', 'you' ,'userRole', 'page'));
     }
     
@@ -237,6 +239,7 @@ class StaffController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // echo "<pre>"; print_r($request->all()); exit;
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -255,11 +258,18 @@ class StaffController extends Controller
         
             $user = User::find($id);
             $user->update($input);
-            DB::table('model_has_roles')->where('model_id',$id)->delete();
-        
-            $user->assignRole($request->input('roles'));
 
-            return ['flagError' => false, 'message' => "Account Added successfully"];
+
+            // Staff Profile
+            $profile = StaffProfile::where('user_id', $id)->first();
+            $profile->designation       = $request->designation;
+            $profile->schedule_color    = $request->schedule_color;
+            $profile->save();
+
+            // DB::table('model_has_roles')->where('model_id',$id)->delete();
+            // $user->assignRole($request->input('roles'));
+
+            return ['flagError' => false, 'message' => "Staff account updated successfully"];
         }
 
         return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
@@ -373,13 +383,12 @@ class StaffController extends Controller
     {   
         $user       = User::findOrFail($request->staff_id);
         if($user){
-            $documents  = StaffDocument::where('user_id', $user->id)->get();
+            $documents  = StaffDocument::where('user_id', $user->id)->where('status', 1)->get();
             if($documents){
                 $user_documents = view($this->viewPath . '.list-documents', compact('documents'))->render();  
                 return ['flagError' => false, 'html' => $user_documents];
             }
         }
-
         return ['flagError' => true, 'message' => "Errors occurred Please check !", 'error'=>$validator->errors()->all()];
     }
 
@@ -398,9 +407,22 @@ class StaffController extends Controller
         $document               = new StaffDocument();
         $document->user_id      = $request->staff_id;
         $document->name         = $imageName;
+        // $document->status       = 1;
         $document->uploaded_by  = Auth::user()->id;
         $document->save();
         return response()->json(['success'=>$imageName]);
+    }
+
+    public function storeDocuments(Request $request)
+    {
+        StaffDocument::where('user_id', $request->staff_id)->update(['status' => 1]);
+        return ['flagError' => false];
+    }
+
+    public function removeTempDocuments(Request $request)
+    {
+        StaffDocument::where('user_id', $request->staff_id)->where('status', 0)->delete();
+        return ['flagError' => false];
     }
 
     public function removeIdProofs(Request $request)
@@ -421,17 +443,8 @@ class StaffController extends Controller
 
     function downloadFile(Request $request, $document)
     {
-        // $file = Storage::disk('public')->get($document);
-        $file = asset('storage/store/users/documents/' . $document);
-  
-        return (new Response($file, 200))
-              ->header('Content-Type', 'image/jpeg');
-
-        // Method 1
-        // $download_path = asset('storage/store/users/documents/' . $document);
-        // return Storage::download($download_path);
-
-
+        $store_path = 'public/' . $this->uploadPath. '/users/documents/';
+        return Storage::download($store_path.'/'.$document);
     }
 
     function updateDocumentDetails(Request $request)

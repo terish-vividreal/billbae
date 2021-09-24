@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class StaffProfile extends Model
+class Currency extends Model
 {
     use HasFactory;
 
-    public function scheduleColor()
+    public static function getSymbol($id)
     {
-        return $this->belongsTo(ScheduleColor::class,  'id', 'schedule_colour');
+        $data = self::find($id);
+        return $data->symbol ;
     }
 }

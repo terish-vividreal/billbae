@@ -2,6 +2,9 @@
 <html>
 <head>
 <!-- <link rel="stylesheet" href="{{ public_path('admin/css/adminlte.min.css') }}"> -->
+<link rel="stylesheet" type="text/css" href="{{ public_path('admin/vendors/vendors.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ public_path('admin/css/custom/custom.css')}}">
+<link rel="stylesheet" type="text/css" href="{{ public_path('admin/css/pages/data-tables.css')}}">
 
 <title>{{ $store->billing->company_name ?? '' }} - Invoice</title>
 </head>

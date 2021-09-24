@@ -145,6 +145,16 @@
                   <label for="contract_end_date" class="label-placeholder">Contract End Date </label>  
                 </div>
               </div>
+
+              <div class="row">
+                <div class="input-field col m6 s12">
+                    {!! Form::select('schedule_color', $page->schedule_colors , $staff->staffProfile->schedule_color ?? '' , ['id' => 'schedule_color' ,'class' => 'select2 browser-default','placeholder'=>'Please select color']) !!}
+                </div>
+                <div class="input-field col m6 s12">                   
+                </div>
+              </div>
+
+
               <div class="row">
                 <div class="input-field col s12">
                   <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
@@ -152,6 +162,8 @@
                 </div>
               </div>
             </form>
+            
+            
 
 
             <!-- <div class="row">
@@ -237,6 +249,7 @@ $(document).ready(function(){
 
 $('#roles').select2({ placeholder: "Please select role", allowClear: true });
 $('#designation').select2({ placeholder: "Please select designation", allowClear: true });
+$('#schedule_color').select2({ placeholder: "Please select color", allowClear: true });
 
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
@@ -300,9 +313,9 @@ if ($("#{{$page->entity}}Form").length > 0) {
                 var data = JSON.parse(a);
                 if(data.flagError == false){
                     showSuccessToaster(data.message);
-                    setTimeout(function () { 
-                      window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-                    }, 2000);
+                    // setTimeout(function () { 
+                    //   window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+                    // }, 2000);
 
                 }else{
                   showErrorToaster(data.message);
