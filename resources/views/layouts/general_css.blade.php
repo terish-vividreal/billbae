@@ -1,4 +1,4 @@
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
 <link rel="stylesheet" type="text/css" href="{{ asset('admin/vendors/vendors.min.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ asset('admin/vendors/toastr/toastr.min.css') }}">
 <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/select2/select2.min.css')}}">
