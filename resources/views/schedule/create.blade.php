@@ -8,9 +8,9 @@
 {{-- vendor styles --}}
 @section('page-style')
 
-<link rel="stylesheet" type="text/css" href="https://fullcalendar.io/js/fullcalendar-3.1.0/fullcalendar.css">
-<link rel="stylesheet" type="text/css" href="https://fullcalendar.io/js/fullcalendar-scheduler-1.5.0/scheduler.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/fullcalendar.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/scheduler.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 @endsection
 
@@ -140,7 +140,7 @@
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.js"></script>
-<script src="https://fullcalendar.io/js/fullcalendar-3.1.0/fullcalendar.js"></script>
+<script src="{{asset('admin/js/fullcalendar.js')}}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>

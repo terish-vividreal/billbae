@@ -6,20 +6,14 @@
 <!-- BEGIN: VENDOR CSS-->
 @yield('vendor-style')
 <!-- END: VENDOR CSS-->
-
 <!-- SweetAlert2 -->
 <link rel="stylesheet" type="text/css" href="{{ asset('admin/vendors/sweetalert/sweetalert.css')}}">
-
 <!-- BEGIN: Page Level CSS-->
-
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/themes/vertical-modern-menu-template/materialize.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/themes/vertical-modern-menu-template/style.css')}}">
-
 @yield('page-style')
-
 <!-- BEGIN: Custom CSS-->
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/custom/custom.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/data-tables.css')}}">
 <!-- END: Custom CSS-->
-
 @stack('page-css')
