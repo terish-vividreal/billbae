@@ -8,8 +8,8 @@
 {{-- vendor styles --}}
 @section('page-style')
 
-<link rel="stylesheet" href="https://fullcalendar.io/js/fullcalendar-3.1.0/fullcalendar.css">
-<link rel="stylesheet" href="https://fullcalendar.io/js/fullcalendar-scheduler-1.5.0/scheduler.min.css">
+<link rel="stylesheet" type="text/css" href="https://fullcalendar.io/js/fullcalendar-3.1.0/fullcalendar.css">
+<link rel="stylesheet" type="text/css" href="https://fullcalendar.io/js/fullcalendar-scheduler-1.5.0/scheduler.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 @endsection
