@@ -8,13 +8,17 @@ use App\Helpers\TaxHelper;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Country;
-use App\Models\State;
 use App\Models\District;
+use App\Models\Billing;
+use App\Models\Schedule;
 use App\Models\Package;
 use App\Models\User;
+use App\Models\State;
 use Response;
-use DB;
 use Session;
+use Carbon;
+use DB;
+
 use Auth;
 
 class CommonController extends Controller
@@ -280,8 +284,8 @@ class CommonController extends Controller
                         // ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'services.gst_tax')
                         ->whereIn('services.id', $request->data_ids)->orderBy('services.id', 'desc')->get();
         }else{
-            $result = Package::with('additionaltax', 'gsttax', 'hours', 'leadBefore', 'leadAfter')->where('shop_id', SHOP_ID)
-                        ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'packages.gst_tax')
+            $result = Package::with('service','additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
+                        // ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'packages.gst_tax')
                         ->whereIn('packages.id', $request->data_ids)->orderBy('packages.id', 'desc')->get();
         }
 
@@ -303,30 +307,19 @@ class CommonController extends Controller
                 $lead_before    = 0;
                 $lead_after     = 0;
 
-                $minutes        = ($minutes+$row->hours->value);
-                $total_minutes  = ($total_minutes+$row->hours->value);
+                if ($type == 'services') {
 
+                    $service_time = Service::getDetails($row->id);
+                    $data_array[] = array('name' => $row->name, 'price' => $row->price, 'minutes' => $service_time['total_minutes']);
 
-                if($row->lead_before != null){
-                    $minutes += $row->leadBefore->value;
-                    $total_minutes += $row->leadBefore->value;
-                    $lead_before = $row->leadBefore->value;
+                } else {
+
+                    foreach ($row->service as $service_row) {
+                        $service_ids[] = $service_row->id ;
+                    }   
+                    $service_details = Package::getDetails($row->id);
+                    $data_array[] = array('name' => $service_details['package_services'], 'price' => $row->price, 'minutes' => $service_details['total_minutes']);
                 }
-
-                if($row->lead_after != null){
-                    $minutes += $row->leadAfter->value;
-                    $total_minutes += $row->leadAfter->value;
-                    $lead_after = $row->leadAfter->value;
-
-                }
-
-                $data_array[] = array('name' => $row->name, 'price' => $row->price, 'minutes' => $minutes); 
-
-
-                // $tax_data       = TaxHelper::simpleTaxCalculation($row);
-
-                // echo $row->gsttax->percentage; exit;
-
 
                 $total_percentage = $row->gsttax->percentage ;                
                 if(count($row->additionaltax) > 0){
@@ -334,8 +327,6 @@ class CommonController extends Controller
                         $total_percentage = $total_percentage+$additional->percentage;
                     } 
                 }
-
-                // echo $total_percentage; exit;
 
                 $total_service_tax          = ($row->price/100) * $total_percentage ;        
                 $tax_onepercentage          = $total_service_tax/$total_percentage;
@@ -347,12 +338,11 @@ class CommonController extends Controller
                     $included = 'Tax Included' ;
                     $gross_charge   = $row->price ;
                     $gross_value    = $row->price - $total_service_tax ;
-                }else{
+                } else {
                     $included = 'Tax Excluded' ;
                     $gross_charge   = $row->price + $total_service_tax  ;
                     $gross_value    = $row->price ;
                 }
-
 
                     $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
                     $html.='<td>'.$row->name.  '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
@@ -366,22 +356,15 @@ class CommonController extends Controller
                     $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % SGST</span>';
                     $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_sgst_amount,2).'</h6></li>';
 
-                    if(count($row->additionaltax) > 0){
+                    if(count($row->additionaltax) > 0) {
                         $html.='<li class="divider mt-2 mb-2"></li>';
-                        foreach($row->additionaltax as $additional){
+                        foreach($row->additionaltax as $additional) {
                             $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">' . $additional->percentage . ' % ' . $additional->name. '</span>';
                             $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($tax_onepercentage*$additional->percentage,2).'</h6></li>';
                         }
                     }
-
                     $html.='<li class="divider mt-2 mb-2"></li>';
-
                     $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Total</span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_charge,2).'</h6></li>';
-
-
-
-
-
                     // $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - HSN Codessss : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
                     // $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % CGSTaaaa -  </span></td><td> '.number_format($total_cgst_amount,2).'</td></tr>';
                     // $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % SGST -  </span></td><td> '.number_format($total_sgst_amount,2).'</td></tr>';
@@ -392,7 +375,6 @@ class CommonController extends Controller
                     // }
                     // $html.='<tr data-widget="expandable-table" aria-expanded="false"><td></td>';
                     // $html.='<td style="text-align:right;"><b>Total</b></td><td><b>'.number_format($gross_charge,2).'</b></td></tr>';
-
                 $grand_total = ($grand_total + $gross_charge); ;
                 $index++;
             }
@@ -401,6 +383,29 @@ class CommonController extends Controller
         }
 
         return response()->json(['flagError' => false, 'grand_total' => $grand_total, 'html' => $html, 'data' => $data_array, 'total_minutes' => $total_minutes]);
+    }
+
+    public function getBillingReports(Request $request) 
+    {
+        $total_bill_value = 0;
+        $total_sale_value = 0;
+
+        if(empty($request->start)) {
+            // Return todays sales amount
+            $billing_array          = Schedule::leftjoin('billings', 'billings.id', '=', 'schedules.billing_id')
+                                            ->whereDate('schedules.start', Carbon\Carbon::today())->where('schedules.shop_id', SHOP_ID)->get();
+            $sales_array            = Schedule::leftjoin('billings', 'billings.id', '=', 'schedules.billing_id')
+                                            ->whereDate('schedules.start', Carbon\Carbon::today())->where('billings.payment_status', 1)->where('billings.shop_id', SHOP_ID)->get();
+        }
+        foreach($billing_array as $row){
+            $total_bill_value +=$row->amount ;
+        }
+
+        foreach($sales_array as $row){
+            $total_sale_value +=$row->amount ;
+        }
+
+        return response()->json(['flagError' => false, 'total_bookings' => count($billing_array), 'booking_amount' => $total_bill_value, 'total_sales' => count($sales_array), 'sales_amount' => $total_sale_value]); 
     }
     
 
@@ -667,7 +672,5 @@ class CommonController extends Controller
         
     //    }
 
-    //    return view('login');
-    // }
 }
 

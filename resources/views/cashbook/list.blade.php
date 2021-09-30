@@ -43,7 +43,7 @@
 <div class="section section-data-tables">
   <div class="card">
     <div class="card-content">
-      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsume is used for the ...</p>
+      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsum is used for the ...</p>
     </div>
   </div>
 
@@ -353,9 +353,9 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-                url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
-                data: search
-            },
+            url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
+            data: search
+        },
         columns: [
             {data: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'created_at', name: 'name'},            

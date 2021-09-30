@@ -138,7 +138,6 @@ class PackageController extends Controller
             if($request->additional_tax){
                 $data->additionaltax()->sync($request->additional_tax);
             }
-
             return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
@@ -181,17 +180,16 @@ class PackageController extends Controller
             $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
             $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
             $variants->additional_tax_ids   = [];
-            foreach($package->service as $data){
+            foreach ($package->service as $data) {
                 $service_ids[] = $data->id ;
             }
 
-            if($package->additionaltax){
+            if ($package->additionaltax) {
                 $variants->additional_tax_ids = [];
                 foreach($package->additionaltax as $row){
                     $variants->additional_tax_ids[] = $row->id;
                 }
             }
-
             return view($this->viewPath . '.edit', compact('page', 'variants', 'package', 'service_ids'));
         }else{
             return redirect('services')->with('error', $this->title.' not found');
@@ -230,15 +228,11 @@ class PackageController extends Controller
             $data->hsn_code         = $request->hsn_code;
             $data->save();
 
-
             $data->service()->sync($request->services);
-
             $data->additionaltax()->sync($request->additional_tax);
-
             return ['flagError' => false, 'message' => $this->title. " updated successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
-
     }
 
     /**
@@ -255,14 +249,12 @@ class PackageController extends Controller
     public function updateStatus(Request $request)
     {
         $data = Package::findOrFail($request->id);
-
         if($data){
             $status = ($data->status == 0)?1:0;
             $data->status = $status;
             $data->save();
             return ['flagError' => false, 'message' => $this->title. " status updated successfully"];
         }
-
         return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
     }
     

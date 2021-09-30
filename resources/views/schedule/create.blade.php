@@ -4,7 +4,6 @@
 @section('seo_title', Str::plural($page->title) ?? '') 
 @section('search-title') {{ $page->title ?? ''}} @endsection
 
-
 {{-- vendor styles --}}
 @section('page-style')
 
@@ -13,7 +12,6 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 @endsection
-
 
 @section('content')
 
@@ -34,6 +32,51 @@
   <div class="card">
     <div class="card-content">
       <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsum is used for the ...</p>
+    </div>
+  </div>
+
+  <div id="card-stats" class="pt-0">
+    <div class="row">
+        <div class="col s12 m6 l6 xl3">
+          <div class="card gradient-45deg-light-blue-cyan gradient-shadow min-height-100 white-text animate fadeLeft">
+              <div class="padding-4">
+                <div class="row">
+                    <div class="col s7 m7"><i class="material-icons background-round mt-5">collections_bookmark</i><p>Total Bookings</p></div>
+                    <div class="col s5 m5 right-align"><h5 class="mb-0 white-text"><span id="total_bookings"></span></h5></div>
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="col s12 m6 l6 xl3">
+          <div class="card gradient-45deg-light-blue-cyan gradient-shadow min-height-100 white-text animate fadeLeft">
+              <div class="padding-4">
+                <div class="row">
+                    <div class="col s7 m7"><i class="material-icons background-round mt-5">attach_money</i><p>Total Booking value</p></div>
+                    <div class="col s5 m5 right-align"><h5 class="mb-0 white-text">₹ <span id="booking_amount"></span></h5></div>
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="col s12 m6 l6 xl3">
+          <div class="card gradient-45deg-green-teal gradient-shadow min-height-100 white-text animate fadeLeft">
+              <div class="padding-4">
+                <div class="row">
+                    <div class="col s7 m7"><i class="material-icons background-round mt-5">collections_bookmark</i><p>Total Sales</p></div>
+                    <div class="col s5 m5 right-align"><h5 class="mb-0 white-text"><span id="total_sales"></span></h5></div>
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="col s12 m6 l6 xl3">
+          <div class="card gradient-45deg-green-teal gradient-shadow min-height-100 white-text animate fadeLeft">
+              <div class="padding-4">
+                <div class="row">
+                    <div class="col s7 m7"><i class="material-icons background-round mt-5">attach_money</i><p>Total Sales value</p></div>
+                    <div class="col s5 m5 right-align"><h5 class="mb-0 white-text">₹ <span id="sales_amount"></span></h5></div>
+                </div>
+              </div>
+          </div>
+        </div>
     </div>
   </div>
   
@@ -57,7 +100,6 @@
   </div>
 </div>
 
-
 <div id="modal1" class="modal">
   <div class="modal-content">
     <form id="pop_form">
@@ -65,13 +107,6 @@
         <div class="pf_hd col m6 s12 l6">
           <h2>Please fill the form below</h2>
         </div>
-        <!-- <div class="pf_con">
-          <div class="pf_bar">
-            <span class="confirm_bkg">Confirm booking</span>
-            <span class="check_bkg">Check in </span>
-            <span class="recieve_bkg">Received payment</span>
-          </div>
-        </div> -->
       </div>
       <div class="row">
         <div class="input-field col m4 s4 l4">
@@ -135,7 +170,6 @@
 
 @endsection
 
-
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
@@ -150,13 +184,12 @@
 <script>
 
 var timePicker  = {!! json_encode($variants->time_picker) !!};
-var timezone    =   {!! json_encode($variants->timezone) !!};
+var timezone    = {!! json_encode($variants->timezone) !!};
 var timeFormat  = {!! json_encode($variants->time_format) !!};
 var therapists  = '';
 var today       = '';
 
 $(function() {
- 
   $('input[name="start"]').daterangepicker({
       singleDatePicker: true,
       startDate: new Date(),
@@ -168,7 +201,6 @@ $(function() {
   }, function(ev, picker) {
     // console.log(picker.format('DD-MM-YYYY'));
   })
-
 });
 
 // Form script start
@@ -178,19 +210,20 @@ $('#packages').select2({ placeholder: "Please select package" });
 $('#user_id').select2({ placeholder: "Please select therapist" });
 
 $(document).on('change', '#service_type', function () {
-  if( this.value == 1 ){
+  $("#bill_item").val();
+  $('#itemDetailsDiv').hide();
+  if ( this.value == 1 ) {
     $("#services_block").show();
     $("#packages_block").hide();
     getServices();
-  }else{
+  } else {
     $("#services_block").hide();
     $("#packages_block").show();
     getPackages();
   }
 });
 
-function getServices(itemIds = null){
- 
+function getServices(itemIds = null) {
   $.ajax({ type: 'GET', url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}", dataType: 'json',  delay: 250,
       success: function(data) {
           var selectTerms = '<option value="">Please select service</option>';
@@ -199,13 +232,10 @@ function getServices(itemIds = null){
           });
           var select = $('#services');
           select.empty().append(selectTerms);
-
-
           var values = $("input[name='item_ids[]']").map(function(){return $(this).val();}).get();
-          if(values != ''){
+          if (values != '') {
               select.val(values).trigger('change');
-          }
-            
+          } 
       }
   });
 }
@@ -224,6 +254,10 @@ function getPackages(){
 
           var select = $('#packages');
           select.empty().append(selectTerms);
+          var values = $("input[name='item_ids[]']").map(function(){return $(this).val();}).get();
+          if (values != '') {
+              select.val(values).trigger('change');
+          }
       }
   });
 }
@@ -238,11 +272,7 @@ $('input.typeahead').typeahead({
     return $.get(path, 
         { 
           search: query,
-          classNames: {
-                        input: 'Typeahead-input',
-                        hint: 'Typeahead-hint',
-                        selectable: 'Typeahead-selectable'
-                    }
+          classNames: { input: 'Typeahead-input', hint: 'Typeahead-hint', selectable: 'Typeahead-selectable' }
         }, function (data) {
             return process(data);
         });
@@ -272,7 +302,7 @@ function getCustomerDetails(customer_id){
   });
 }
 
-function clearForm(){
+function clearForm() {
   validator.resetForm();
   $('input').removeClass('error');
   $("#manageScheduleForm .form-control").removeClass("error");
@@ -288,6 +318,7 @@ function clearForm(){
   $('#itemDetails').html();
   $("#cancelSchedule").hide();
   $('#itemDetailsDiv').hide();
+  $(".form-action-btn").show();
 }
 
 $('.service-type').select2({ placeholder: "Please select ", allowClear: false }).on('select2:select select2:unselect', function (e) { 
@@ -300,9 +331,9 @@ $('.service-type').select2({ placeholder: "Please select ", allowClear: false })
   $(this).valid()
 });
 
-function listItemDetails(type){
+function listItemDetails(type) {
   var data_ids = $('#'+type).val();
-  if(data_ids != ''){
+  if (data_ids != '') {
     $.ajax({
         type: 'post',
         url: "{{ url(ROUTE_PREFIX.'/common/list-service-with-tax') }}",
@@ -312,7 +343,8 @@ function listItemDetails(type){
             $('#total_minutes').val(data.total_minutes);
             var html = '';
             var total_minutes = 0;
-            $.each( data.data, function( index, value ){
+
+            $.each( data.data, function( index, value ) {                                             
                 html +='<li class="collection-item">'+value.name +' ( '+value.minutes+ ' mns )</li>';
             });
             $('#itemDetails').html(html);
@@ -324,13 +356,12 @@ function listItemDetails(type){
 // Form script ends
 
 
-$( document ).ready(function(){
-
+$( document ).ready(function() {
     getTherapists();
-
+    getSalesData();
 });
 
-function getTherapists(){
+function getTherapists() {
   $.ajax({
     type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-all-therapists') }}", delay: 250,
     success: function(data) {
@@ -338,20 +369,31 @@ function getTherapists(){
         therapists = data.data;
         loadCalendar();
       }
-
     }
   });
 }
 
+function getSalesData() {
+  $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/billings/get-report-by-date') }}", delay: 250,
+    success: function(data) {
+      if(data.flagError == false){
+        $("#total_bookings").text(data.total_bookings)
+        $("#booking_amount").text(data.booking_amount)
+        $("#total_sales").text(data.total_sales)
+        $("#sales_amount").text(data.sales_amount)
+      }
+    }
+  });
+}
 
-function loadCalendar(){
+function loadCalendar() {
   var calendar = $('#calendar').fullCalendar({
       timeZone: timezone,
       defaultView: 'agendaDay',
       slotDuration: '00:10:00', 
       displayEventTime: false,
       editable: true,
-      // timeFormat: timeFormat+':mm A',
+      timeFormat: timeFormat+':mm A',
       eventDurationEditable :false,
       selectable: true,
       minTime: '09:00:00',
@@ -386,12 +428,13 @@ function loadCalendar(){
           $.ajax({
             type: 'GET', url: "{{ url(ROUTE_PREFIX.'/schedules') }}/"+event_id, delay: 250,
             success: function(data) {
-              if(data.flagError == false){
+              if(data.flagError == false) {
                 var $form = $('#manageScheduleForm');
                 $.each(data.item_ids, function( key, value ) {
                   var $input = $('<input type="hidden" name="item_ids[]" value="' + value + '" />');
                   $form.append($input);
                 });
+
                 $(".label-placeholder").addClass("active");
                 $("#customer_id").val(data.data.customer_id);                
                 $("#customer_name").val(data.customer_name);
@@ -407,11 +450,17 @@ function loadCalendar(){
                 $("#schedule_id").val(data.data.id);
                 $("#cancelSchedule").show();
                 $("input.disabled").attr("disabled", true);
+                (data.data.checked_in == 1)?$('#checked_in').prop('checked', true):$('#checked_in').prop('checked', false);
+                // listItemDetails(data.type);
+
+                if(data.data.payment_status == 1){
+                  $(".form-action-btn").hide();
+                }
+
                 $('#manage-schedule-modal').modal('open');
               }
             }
           });
-
       },
       eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
         var therapist = '';
@@ -427,16 +476,16 @@ function loadCalendar(){
             if (willDelete) {
               $.ajax({url: "{{ url(ROUTE_PREFIX.'/schedules/re-schedule') }}", type: "POST", data:{schedule_id:event.id, start_time:event.start.format(), user_id:therapist.id},})
                   .done(function (data) {
-                    if(data.flagError == false){
+                    if(data.flagError == false) {
                       showSuccessToaster(data.message); 
                       $('#calendar').fullCalendar( 'refetchEvents' );         
-                    }else{
+                    } else {
                       showErrorToaster(data.message);
                     }   
                   }).fail(function () {
-                          showErrorToaster("Something went wrong!");
+                      showErrorToaster("Something went wrong!");
                   });
-            } else{
+            } else {
               $('#calendar').fullCalendar( 'refetchEvents' );
             }
         });
@@ -450,7 +499,6 @@ function loadCalendar(){
 }
 
 $("#cancelSchedule").click(function() {
-  
   swal({ title: "Are you sure ?", icon: 'warning', dangerMode: true,
     buttons: { cancel: 'No, Please!',  delete: 'Yes, Cancel It' }
   }).then(function (willDelete) {
@@ -459,13 +507,11 @@ $("#cancelSchedule").click(function() {
       $.ajax({url: "{{ url(ROUTE_PREFIX.'/schedules') }}/" + schedule_id, type: "DELETE", dataType: "html"})
         .done(function (a) {
           var data = JSON.parse(a);
-          if(data.flagError == false){
+          if(data.flagError == false) {
             showSuccessToaster(data.message); 
-            // calendar.refetchEvents();   
-            // calendar.render();   
-            // loadCalendar() 
             $('#manage-schedule-modal').modal('close');  
             $('#calendar').fullCalendar( 'refetchEvents' );
+            getSalesData();
           }else{
             showErrorToaster(data.message);
           }   
@@ -474,19 +520,19 @@ $("#cancelSchedule").click(function() {
         });
     } 
   });
-  
 })
 
 function getSchedule(id){
-  $.ajax({
-    type: 'POST', url: "{{ url(ROUTE_PREFIX.'/schedules/') }}"+id, delay: 250,
-    success: function(data) {
-      // if(data.flagError == false){
-        return data;
-      // }
-    }
+  $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/schedules/') }}"+id, delay: 250,
+    success: function(data) { return data; }
   });
 }
+
+$("#receivePaymentBtn").click(function() {
+  var form    = $('#manageScheduleForm');
+  $("#receive_payment").val(1);    
+  form.submit();
+})
 
 var forms   = $("#manageScheduleForm");
 if ($("#manageScheduleForm").length > 0) {
@@ -532,10 +578,16 @@ if ($("#manageScheduleForm").length > 0) {
                   if (data.flagError == true) {
                     showErrorToaster(data.message);  
                   } else {
+                    if (data.redirect === 'redirect') {
+                      window.location.href = "{{ url(ROUTE_PREFIX.'/billings/invoice/') }}/" + data.billing_id;
+                    }else{
                       $('#manage-schedule-modal').modal('close');
                       showSuccessToaster(data.message);
                       $('#calendar').fullCalendar( 'refetchEvents' );
                       clearForm();
+                      getSalesData();
+                    }
+                      
                   }
                 }
             });
@@ -555,7 +607,6 @@ jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
  
-
 </script>
 @endpush
 
