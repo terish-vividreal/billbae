@@ -42,44 +42,18 @@ class ReportController extends Controller
         $page->title            = $this->title;
         $page->link             = url($this->link);
         $page->route            = $this->route;
-        
         $variants->start_range  = Carbon\Carbon::now()->startOfMonth()->format('m-d-Y');
         $variants->end_range    = Carbon\Carbon::now()->format('m-d-Y');
-
-        // $chart_reports      = Billing::where('shop_id', SHOP_ID)->get();
-        // foreach($chart_reports as $row){
-        //     echo $row->id. ' - ' .$row->created_at->format('Y-m-d'). '<br>';
-
-        //     $bill = Billing::findOrFail($row->id);
-        //     $bill->checkin_time = $row->created_at->format('Y-m-d'). ' 09:30 AM'; 
-        //     $bill->checkout_time = $row->created_at->format('Y-m-d'). ' 10:30 AM'; 
-        //     $bill->save();
-        //     // 18-06-2021 09:30 AM 
-        // }
-        // exit;
         return view($this->viewPath . '.sales-report', compact('page', 'variants'));
-
-        
-
     }
 
     public function getSalesReportChartData(Request $request)
     {
-        $total_cash     = 0;
-        $day_range      = $request->day_range;
-
-            $from   = Carbon\Carbon::parse($request->start_range)->startOfDay();  
-            $to     = Carbon\Carbon::parse($request->end_range)->endOfDay();
- 
-            $chart_reports      = Billing::select(  DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), 
-                                                    DB::raw("SUM(amount) as amount"),
-                                                    'id as row_id', 'customer_id', 'payment_status')                                    
-                                            ->where('shop_id', SHOP_ID)
-                                            ->groupBy(DB::raw("day(created_at)"))
-                                            //->whereDate('created_at', '=', $your_date)
-                                            ->whereBetween('created_at', [$from,$to])
-                                            ->orderBy('created_at', 'ASC')->get();                             
-
+        $total_cash         = 0;
+        $day_range          = $request->day_range;
+            $from               = Carbon\Carbon::parse($request->start_range)->startOfDay();  
+            $to                 = Carbon\Carbon::parse($request->end_range)->endOfDay();
+            $chart_reports      = Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id as row_id', 'customer_id', 'payment_status')->where('shop_id', SHOP_ID)->groupBy(DB::raw("day(created_at)"))->whereBetween('created_at', [$from,$to])->orderBy('created_at', 'ASC')->get();                             
             $chart_data         = array();
             $chart_label        = array();
             $customer_array     = array();
@@ -90,80 +64,32 @@ class ReportController extends Controller
                 $chart_label[]      = $value->day;
                 $chart_data[]       = (int)$value->amount;
                 $total_cash         =  $total_cash+(int)$value->amount;
-                
-                // if (!array_key_exists($value->customer_id,$customer_array))
-                // {
-                //     $customer_array[$value->customer_id] = 1;
-                // }
-                // else
-                // {
-                //     $customer_array[$value->customer_id] = $customer_array[$value->customer_id]+1;
-                // }
-
-                // if($value->payment_status == 0){
-                //     $pending    = $pending+1;
-                // }else{  
-                //     $completed = $completed+1;                              
-                // }
-
             }
 
-            $report_data = Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), 
-                                            DB::raw("SUM(amount) as amount"), 'id', 'payment_status', 'billing_code', 'billed_date',
-                                            'checkin_time', 'checkout_time',
-                                            'customer_id')
-                                            ->where('shop_id', SHOP_ID)
-                                            ->whereBetween('created_at', [$from,$to])
-                                            ->groupBy('billings.id')
-                                            ->orderBy('created_at', 'ASC')->get();
+            $report_data = Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id', 'payment_status', 'billing_code', 'billed_date', 'checkin_time', 'checkout_time', 'customer_id')
+                                            ->where('shop_id', SHOP_ID)->whereBetween('created_at', [$from,$to])->groupBy('billings.id')->orderBy('created_at', 'ASC')->get();
 
-            foreach($report_data as $data){
-                if (!array_key_exists($data->customer_id,$customer_array))
-                {
+            foreach ($report_data as $data) {
+                if (!array_key_exists($data->customer_id,$customer_array)) {
                     $customer_array[$data->customer_id] = 1;
-                }
-                else
-                {
+                } else {
                     $customer_array[$data->customer_id] = $customer_array[$data->customer_id]+1;
                 }
-
-                if($data->payment_status == 0){
+                if ($data->payment_status == 0) {
                     $pending    = $pending+1;
-                }else{  
+                } else {  
                     $completed = $completed+1;                              
                 }
             }
-
-
-            return ['flagError' => false, 'chart_label' => $chart_label,  'chart_data'=> $chart_data, 'start_date' => $from, 'end_date' => $to, 
-                                    'total_cash' => number_format($total_cash,2), 
-                                    'invoice' => count($report_data), 
-                                    'customer' => count($customer_array),
-                                    'completed' => $completed,
-                                    'pending' => $pending,
-            ];
-
+            return ['flagError' => false, 'chart_label' => $chart_label,  'chart_data'=> $chart_data, 'start_date' => $from, 'end_date' => $to, 'total_cash' => number_format($total_cash,2), 'invoice' => count($report_data), 'customer' => count($customer_array), 'completed' => $completed, 'pending' => $pending,];
     }
 
     public function getSalesReportTableData(Request $request)
     {
-        $from   = Carbon\Carbon::parse($request->start_range)->startOfDay();  
-        $to     = Carbon\Carbon::parse($request->end_range)->endOfDay();
-
-        $detail =  Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), 
-                                    DB::raw("SUM(amount) as amount"),
-                                    'id', 'payment_status', 'billing_code', 'billed_date',
-                                    'checkin_time', 'checkout_time',
-                                    'customer_id')
-                                ->where('shop_id', SHOP_ID)
-                                // ->groupBy(DB::raw("day(created_at)"));
-                                ->groupBy('billings.id')
-                                ->orderBy('created_at', 'ASC');
-       
-                                // echo "<pre>"; print_r($detail); exit;
-
-
-        if( ($from != '') && ($to != '') ){
+        $from       = Carbon\Carbon::parse($request->start_range)->startOfDay();  
+        $to         = Carbon\Carbon::parse($request->end_range)->endOfDay();
+        $detail     =  Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id', 'payment_status', 'billing_code', 'billed_date', 'checkin_time', 'checkout_time', 'customer_id')->where('shop_id', SHOP_ID)->groupBy('billings.id')->orderBy('created_at', 'ASC');
+        if( ($from != '') && ($to != '') ) {
             $detail->Where(function ($query) use ($from, $to) {
                 $query->whereBetween('created_at', [$from, $to]);
             });

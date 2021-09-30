@@ -218,7 +218,8 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($link . '/get-currencies', [CommonController::class, 'getCurrencies']);    
     Route::post($link . '/get-all-therapists', [CommonController::class, 'getAllTherapists']);    
     Route::post($link . '/get-therapist/{id}', [CommonController::class, 'getTherapist']);    
-
+    Route::post($link . '/billings/get-report-by-date/', [CommonController::class, 'getBillingReports']);    
+    
 
     
     

@@ -59,7 +59,7 @@ class Billing extends Model
 
     public static function generateBill($request)
     {
-        // echo "<pre>"; print_r($request); 
+        $total_amount   = 0; 
         $billed_date    = FunctionHelper::dateToTimeFormat($request['start']);
         // $checkin_time   = FunctionHelper::dateToTimeFormat($request->checkin_time);
         // $checkout_time  = FunctionHelper::dateToTimeFormat($request->checkout_time);
@@ -68,15 +68,12 @@ class Billing extends Model
         $billing->shop_id           = SHOP_ID;
         $billing->customer_id       = $request['customer_id'];
         $billing->customer_type     = Customer::isExisting($request['customer_id']);        
-        $billing->amount            = $request['grand_total'];
         $billing->billed_date       = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s A');
         // $billing->checkin_time      = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s A'); 
         // $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
         $billing->payment_status    = 0 ;
         $billing->address_type      = 'customer' ;
         $billing->save();
-        
-
         
         if($request['bill_item']){
             foreach($request['bill_item'] as $row){
@@ -86,26 +83,39 @@ class Billing extends Model
                 $item->item_type        = ($request['service_type'] == 1) ? 'services' : 'packages' ;
                 $item->item_id          = $row ;
                 $item->save();
+
+                if($request['service_type'] == 1) {
+                    $data_price     = Service::getPriceAfterTax($row);
+                }else{
+                    $data_price     = Package::getPriceAfterTax($row);
+                }
+                
+                $total_amount   += $data_price;
+
             }       
         }
+
+        $billing->amount            = $total_amount;
+        $billing->save();
+
         if($billing)
             return $billing; 
     }
 
     public static function updateBill($request, $id)
     {
-        // echo "<pre>"; print_r($request); 
+        $total_amount   = 0; 
         $billed_date    = FunctionHelper::dateToTimeFormat($request['start_time']);
         // $checkin_time   = FunctionHelper::dateToTimeFormat($request->checkin_time);
         // $checkout_time  = FunctionHelper::dateToTimeFormat($request->checkout_time);
 
         $billing                    = Billing::find($id);     
-        $billing->amount            = $request['grand_total'];
+        
         $billing->billed_date       = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s A');
         $billing->payment_status    = 0 ;
         $billing->address_type      = 'customer' ;
         $billing->save();
-        
+
         $old_bill_items = BillingItem::where('billing_id', $id)->where('customer_id', $request['customer_id'])->delete();
         
         if($request['bill_item']){
@@ -116,8 +126,20 @@ class Billing extends Model
                 $item->item_type        = ($request['service_type'] == 1) ? 'services' : 'packages' ;
                 $item->item_id          = $row ;
                 $item->save();
+
+                if($request['service_type'] == 1) {
+                    $data_price     = Service::getPriceAfterTax($row);
+                }else{
+                    $data_price     = Package::getPriceAfterTax($row);
+                }
+                $total_amount   += $data_price;
             }       
         }
+
+        $billing->amount            = $total_amount;
+        $billing->save();
+
+
         if($billing)
             return $billing; 
     }

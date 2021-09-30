@@ -15,7 +15,6 @@
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
 @endsection
 
-
 @section('content')
 
 @section('breadcrumb')
@@ -31,14 +30,12 @@
   <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">List<i class="material-icons right">list</i></a>
 @endsection
 
-
 <div class="section">
   <div class="card">
     <div class="card-content">
       <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsum is used for the ...</p>
     </div>
   </div>
-
   
   <!--Basic Form-->
   <div class="row">
@@ -47,7 +44,6 @@
       <div id="Form-advance" class="card card card-default scrollspy">
         <div class="card-content">
             <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
-
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">            
                   {{ csrf_field() }}
@@ -61,7 +57,6 @@
                   {!! Form::select('service_category_id',$variants->service_category , $service->service_category_id ?? '' , ['id' => 'service_category_id', 'class' => 'select2 browser-default', 'placeholder'=>'Please select service category']) !!}
                 </div>
               </div>
-
               <div class="row">
                 <div class="input-field col m6 s12"> 
                   {!! Form::text('price',  $service->price ?? '' , ['id' => 'price' ,'class' => 'check_numeric']) !!}
@@ -71,7 +66,6 @@
                   {!! Form::select('hours_id',$variants->hours , $service->hours_id ?? '' , ['class' => 'select2 browser-default', 'id' => 'hours_id', 'placeholder'=>'Please select service hour']) !!}
                 </div>
               </div>
-
               <div class="row">
                 <div class="input-field col m6 s12">
                     @php 
@@ -94,7 +88,6 @@
                   {!! Form::select('gst_tax', $variants->tax_percentage , $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => 'select2 browser-default', 'placeholder'=>'Select GST Tax %']) !!}
                 </div>
               </div>
-
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('hsn_code', $service->hsn_code ?? '', ['id' => 'hsn_code']) !!}  
@@ -104,7 +97,6 @@
                 {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids ?? [] , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'select2 browser-default']) !!}
                 </div>
               </div>
-
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::select('lead_before',$variants->hours , $service->lead_before ?? '' , ['id' => 'lead_before', 'placeholder'=>'Select Lead time before']) !!}
@@ -113,15 +105,12 @@
                   {!! Form::select('lead_after',$variants->hours , $service->lead_after ?? '' , ['id' => 'lead_after', 'placeholder'=>'Select Lead time after']) !!}
                 </div>
               </div>
-
               <div class="row">
                 <div class="input-field col s12">
                   <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
-
-
             </form>
         </div>
       </div>
@@ -135,7 +124,6 @@
 @section('vendor-script')
 
 @endsection
-
 
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
@@ -209,7 +197,5 @@ if ($("#{{$page->entity}}Form").length > 0) {
       }
     })
   }
-
 </script>
 @endpush
-

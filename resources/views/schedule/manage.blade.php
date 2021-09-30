@@ -12,6 +12,7 @@
               {!! Form::hidden('start_time', '' , ['id' => 'start_time'] ); !!}
               {!! Form::hidden('grand_total', '' , ['id' => 'grand_total'] ); !!}
               {!! Form::hidden('total_minutes', '' , ['id' => 'total_minutes'] ); !!}
+              {!! Form::hidden('receive_payment', '' , ['id' => 'receive_payment'] ); !!}
               <div class="card-body">              
                   <div class="row">
                     <div class="input-field col m4 s4 l4">
@@ -19,7 +20,16 @@
                     </div>
                     <div class="input-field col m4 s4 l4">
                       <input type="text" name="start" value="" id="start" class="disabled"/>
-                    </div>                    
+                    </div>  
+                    
+                    <div class="input-field col m4 s4 l4">
+                      <p><label>
+                          <input class="validate" name="checked_in" id="checked_in" value="1" type="checkbox">
+                          <span>Customer Checked In</span>
+                        </label> </p>
+                      <div class="input-field">
+                      </div>
+                    </div> 
                   </div>
 
                   <div class="row">
@@ -60,12 +70,7 @@
                   </div>
 
                   <div class="row" id="itemDetailsDiv" style="display:none;">
-                    <div class="input-field col m12 s6">
-                    <ul class="collection" id="itemDetails">
-                      
-                    </ul>
-                    </div>
-                    
+                    <div class="input-field col m12 s6"><ul class="collection" id="itemDetails"></ul></div>
                   </div>
 
                   
@@ -77,9 +82,9 @@
               </div>
         </div>
         <div class="modal-footer">
-            <button class="btn orange waves-effect waves-light modal-action" type="button" id="cancelSchedule" style="display:none;">Cancel Schedule</button>
-            <button class="btn waves-effect waves-light modal-action" type="reset" id="resetForm">Receive payment</button>
-            <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="schedule-submit-btn">Submit <i class="material-icons right">send</i></button>
+            <button class="btn orange waves-effect waves-light modal-action form-action-btn" type="button" id="cancelSchedule" style="display:none;">Cancel Schedule</button>
+            <button class="btn waves-effect waves-light modal-action form-action-btn" type="reset" id="receivePaymentBtn">Receive payment</button>
+            <button class="btn cyan waves-effect waves-light form-action-btn" type="submit" name="action" id="schedule-submit-btn">Submit <i class="material-icons right">send</i></button>
         </div>
     </form>
   </div>
