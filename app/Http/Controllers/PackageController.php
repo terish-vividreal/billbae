@@ -33,7 +33,6 @@ class PackageController extends Controller
         $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity;       
-        
         return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 
@@ -65,14 +64,12 @@ class PackageController extends Controller
     public function lists(Request $request)
     {
         $detail =  Package::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
-
         // if($request['service_category'] != '') {
         //     $service_category = $request['service_category'];
         //     $detail->Where(function ($query) use ($service_category) {
         //         $query->where('service_category_id', $service_category);
         //     });
         // }
-            
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
@@ -191,7 +188,7 @@ class PackageController extends Controller
                 }
             }
             return view($this->viewPath . '.edit', compact('page', 'variants', 'package', 'service_ids'));
-        }else{
+        } else {
             return redirect('services')->with('error', $this->title.' not found');
         }
     }

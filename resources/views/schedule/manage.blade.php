@@ -82,7 +82,7 @@
               </div>
         </div>
         <div class="modal-footer">
-            <button class="btn orange waves-effect waves-light modal-action form-action-btn" type="button" id="cancelSchedule" style="display:none;">Cancel Schedule</button>
+            <button class="btn orange waves-effect waves-light modal-action" type="button" id="cancelSchedule" style="display:none;">Cancel Schedule</button>
             <button class="btn waves-effect waves-light modal-action form-action-btn" type="reset" id="receivePaymentBtn">Receive payment</button>
             <button class="btn cyan waves-effect waves-light form-action-btn" type="submit" name="action" id="schedule-submit-btn">Submit <i class="material-icons right">send</i></button>
         </div>

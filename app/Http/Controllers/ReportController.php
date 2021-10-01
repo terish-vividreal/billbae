@@ -111,7 +111,6 @@ class ReportController extends Controller
                 return $customer;
             })
             ->editColumn('amount', function($detail){
-                // $amount = '₹ '. $detail->amount;
                 $amount = $detail->amount;
                 return $amount;
             })
@@ -125,15 +124,13 @@ class ReportController extends Controller
                 return $status;
             })
             ->addColumn('in_out_time', function($detail){
-
                 $checkin_time   =  FunctionHelper::dateToTimeZone($detail->checkin_time, 'd-M-Y '.$this->time_format.':i a');
                 $checkout_time  =  FunctionHelper::dateToTimeZone($detail->checkout_time, 'd-M-Y '.$this->time_format.':i a');
-                
-                $in_out_time = $checkin_time . ' - ' . $checkout_time;
+                $in_out_time    = $checkin_time . ' - ' . $checkout_time;
                 return $in_out_time;
             })
             ->addColumn('payment_method', function($detail){
-                $methods = '';
+                $methods         = '';
                 foreach($detail->paymentMethods as $row){
                     $methods .= $row->paymentype->name. ', '; 
                 }
