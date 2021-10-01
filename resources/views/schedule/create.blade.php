@@ -404,6 +404,7 @@ function loadCalendar() {
         right: 'month,agendaWeek,agendaDay'
       },
       allDaySlot: false,
+      initialView: 'resourceTimeGridDay',
       resources: therapists,
       events: "{{ url(ROUTE_PREFIX.'/schedules') }}",
       eventRender: function (event, element, view) {
@@ -428,7 +429,7 @@ function loadCalendar() {
           $.ajax({
             type: 'GET', url: "{{ url(ROUTE_PREFIX.'/schedules') }}/"+event_id, delay: 250,
             success: function(data) {
-              if(data.flagError == false) {
+              if (data.flagError == false) {
                 var $form = $('#manageScheduleForm');
                 $.each(data.item_ids, function( key, value ) {
                   var $input = $('<input type="hidden" name="item_ids[]" value="' + value + '" />');
@@ -452,11 +453,9 @@ function loadCalendar() {
                 $("input.disabled").attr("disabled", true);
                 (data.data.checked_in == 1)?$('#checked_in').prop('checked', true):$('#checked_in').prop('checked', false);
                 // listItemDetails(data.type);
-
                 if(data.data.payment_status == 1){
                   $(".form-action-btn").hide();
                 }
-
                 $('#manage-schedule-modal').modal('open');
               }
             }
@@ -489,12 +488,10 @@ function loadCalendar() {
               $('#calendar').fullCalendar( 'refetchEvents' );
             }
         });
-        
       },
       dayClick: function(date, jsEvent, view) {
           //$('#modal1').modal('open');
       }
-
   });
 }
 
@@ -606,7 +603,6 @@ if ($("#manageScheduleForm").length > 0) {
 jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
- 
+
 </script>
 @endpush
-

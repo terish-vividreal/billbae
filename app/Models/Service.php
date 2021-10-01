@@ -74,12 +74,10 @@ class Service extends Model
         $store          = Shop::find(Auth::user()->shop_id);
 
         foreach($item_ids as $key => $item){
-            $data = self::find($item);
-                
+            $data           = self::find($item);
             $total_minutes  = ($total_minutes+$data->hours->value);
             $data_price     = Service::getPriceAfterTax($item);
             $total_amount   += $data_price;
-
 
             if($data->lead_before != null){
                 $total_minutes += $data->leadBefore->value;
@@ -89,14 +87,11 @@ class Service extends Model
             if($data->lead_after != null){
                 $total_minutes += $data->leadAfter->value;
                 $lead_after = $data->leadAfter->value;
-
             }
 
-            $description .= $data->name. ' ( ' . ($data->hours->value+$lead_before+$lead_after) . ' mns ) - ' . $store->billing->currencyCode->symbol. ' ' .number_format($data_price,2) .' <br>';
-            
+            $description    .= $data->name. ' ( ' . ($data->hours->value+$lead_before+$lead_after) . ' mns ) - ' . $store->billing->currencyCode->symbol. ' ' .number_format($data_price,2) .' <br>';
             $lead_before    = 0;
             $lead_after     = 0;
-            
         }
         $description .= "<br> Price : ". number_format($total_amount,2);
         $result = array('total_hours' => $total_minutes, 'description' => $description);
@@ -136,7 +131,6 @@ class Service extends Model
         $gross_charge           = 0 ;
         $gross_value            = 0 ;
         $grand_total            = 0 ;
-
         $data                   = self::find($id);
         
         $total_percentage = $data->gsttax->percentage ;                
@@ -161,8 +155,6 @@ class Service extends Model
             $gross_charge   = $data->price + $total_service_tax  ;
             $gross_value    = $data->price ; 
         }
-
         return $gross_charge;
     }
-        
 }
