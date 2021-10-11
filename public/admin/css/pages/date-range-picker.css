@@ -35,6 +35,12 @@ font-size: 15px !important;
   color: #444 !important;
   border-bottom: 1px solid #f5f5f5 !important;
 }
+.typeahead.dropdown-menu li:hover{
+background-color: #f5f5f5;
+}
+.typeahead.dropdown-menu li a{
+color: #444 !important;
+}
 .typeahead.dropdown-menu li:last-child{
 border: none !important;
 }
