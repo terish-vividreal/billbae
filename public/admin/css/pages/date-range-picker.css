@@ -58,12 +58,13 @@ border: none !important;
   justify-content: center;
   display: flex;
   padding: 5px;
+  overflow: hidden;
 }
 .storlogo img{
 box-shadow: none !important;
 border-radius: 0 !important;
-max-width: 100% !important;
+max-width: 90% !important;
 }
 .invoice-logo img{
-max-width: 180px;
+max-width: 160px;
 }
