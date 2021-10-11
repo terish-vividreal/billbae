@@ -12,7 +12,7 @@
 
 {{-- page style --}}
 @section('page-style')
-<link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
 @endsection
 
 @section('content')
@@ -77,7 +77,7 @@
                     <div class="col s12">
                       <label for="tax_included">Check if tax is included with price !</label>
                       <p><label>
-                          <input class="validate" name="tax_included" id="tax_included" type="checkbox" {{ $checked }}>
+                          <input class="validate" value="1" name="tax_included" id="tax_included" type="checkbox" {{ $checked }}>
                           <span>Tax Included</span>
                         </label> </p>
                       <div class="input-field">

@@ -53,7 +53,6 @@ class ScheduleController extends Controller
             $data = Schedule::whereDate('start', '>=', $request->start)->whereDate('end', '<=', $request->end)->get(['id', 'user_id as resourceId', 'start', 'end', 'name as title', 'description', 'schedule_color as color']);   
             return response()->json($data);
         }
-        
         $page                   = collect();
         $page->title            = $this->title;
         $page->link             = url($this->link);
@@ -68,8 +67,6 @@ class ScheduleController extends Controller
         if (count($is_available) > 0) {
             return ['flagError' => true, 'message' => "Slot is already booked. Please select another time slot !"];
         }
-        // echo "<pre>"; print_r($request->all()); exit;
-
         $action = '';
         if ($request->customer_id == null) {
             $validator = Validator::make($request->all(), ['customer_name' => 'required',]);
@@ -124,14 +121,10 @@ class ScheduleController extends Controller
         $schedule->schedule_color   = ($request->checked_in == 1) ? "orange" : "red" ;
         $schedule->checked_in       = ($request->checked_in == 1) ? 1 : 0 ;   
         $schedule->save();
-
-        
         $redirect = ($request->receive_payment == 1 )?'redirect':'reload';
-
         if ($schedule) {
             return ['flagError' => false, 'redirect' => $redirect, 'billing_id' => $billing->id,  'message' => "Schedule " . $action . " successfully"];
         }
-        
         return ['flagError' => true, 'message' => "Something went wrong, Please try again!"];
     }
 
@@ -145,11 +138,7 @@ class ScheduleController extends Controller
 
         $user_id                = Auth::user()->id;
         $page                   = collect();
-   
-   
-   
-   
-       $variants               = collect();
+        $variants               = collect();
         $page->title            = $this->title;
         $page->link             = url($this->link);
         $page->route            = $this->route;

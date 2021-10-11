@@ -51,15 +51,14 @@ class StateController extends Controller
     public function lists(Request $request)
     {
         $detail =  State::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
-        if (isset($request->form)) {
-            foreach ($request->form as $search) {
-                if ($search['value'] != NULL && $search['name'] == 'search_name') {
-                    $names = strtolower($search['value']);
-                    $detail->where('name', 'like', "%{$names}%");
+            if (isset($request->form)) {
+                foreach ($request->form as $search) {
+                    if ($search['value'] != NULL && $search['name'] == 'search_name') {
+                        $names = strtolower($search['value']);
+                        $detail->where('name', 'like', "%{$names}%");
+                    }
                 }
-            }
-        }
-            
+            } 
             return Datatables::of($detail)
                 ->addIndexColumn()
                 ->addColumn('action', function($detail){
@@ -105,17 +104,14 @@ class StateController extends Controller
         ]);
 
         if ($validator->passes()) {
-
             $data               = new State();
             $data->name         = $request->name;
             $data->country_id   = $request->country_id;
             $data->shop_id      = SHOP_ID;
             $data->save();
-
             return ['flagError' => false, 'message' => $this->title. " Added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
-
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**
@@ -137,10 +133,10 @@ class StateController extends Controller
      */
     public function edit($id)
     {
-        $data = State::with('country')->findOrFail($id);
-        if($data){
+        $data       = State::with('country')->findOrFail($id);
+        if ($data) {
             return ['flagError' => false, 'data' => $data];
-        }else{
+        } else {
             return ['flagError' => true, 'message' => "Data not found, Try again!"];
         }
     }
@@ -165,14 +161,14 @@ class StateController extends Controller
 
 
         if ($validator->passes()) {
-            $data = State::findOrFail($id);
-            if($data){
+            $data                   = State::findOrFail($id);
+            if ($data) {
                 $data->name         = $request->name;
                 $data->country_id   = $request->country_id;
                 $data->shop_id      = SHOP_ID;
                 $data->save();
                 return ['flagError' => false, 'message' => $this->title. " updated successfully"];
-            }else{
+            } else {
                 return ['flagError' => true, 'message' => "Data not found, Try again!"];
             }
         }

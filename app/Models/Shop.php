@@ -11,7 +11,7 @@ class Shop extends Model
 
     public function getShowImageAttribute()
     {
-        return ($this->image != '') ? asset('storage/store/logo/' . $this->image) : asset('admin/img/dummy-logo.jpg');
+        return ($this->image != '') ? asset('storage/store/logo/' . $this->image) : asset('admin/images/image-not-found.png');
     }
 
     public function users()

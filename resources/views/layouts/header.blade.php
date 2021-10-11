@@ -5,6 +5,8 @@ $isNavbarDark     = '';
 $navbarMain       = '';
 $activeMenuColor  = '';
 $navBarFixed      = '';
+$navCollapsed     = '';
+$sideNavLock      = '';
 $user_profile     = (Auth::user()->profile != null) ? asset('storage/store/users/' . Auth::user()->profile) : asset('admin/images/user-icon.png');
 
 if(!empty($themeSettings)){
@@ -18,6 +20,8 @@ if(!empty($themeSettings)){
   }else{
     $navbarMain         = 'navbar-dark '. $navbarBgColor;
   }
+} else {
+  
 }
 @endphp
 

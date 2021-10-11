@@ -171,7 +171,7 @@ class BillingController extends Controller
      */
     public function manageDiscount(Request $request) 
     {
-        $billing_item       = BillingItem::findOrFail($request->billing_item_id);
+        $billing_item                           = BillingItem::findOrFail($request->billing_item_id);
         if ($billing_item) {
             if ($request->discount_action == 'add') {
                 $billing_item->is_discount_used = 1 ;
@@ -198,19 +198,19 @@ class BillingController extends Controller
     public function store(Request $request)
     {   
         // Formatting time 
-        $billed_date                = FunctionHelper::dateToTimeFormat($request->billed_date);
-        $checkin_time               = FunctionHelper::dateToTimeFormat($request->checkin_time);
-        $checkout_time              = FunctionHelper::dateToTimeFormat($request->checkout_time);
-        $billing                    = new Billing();
-        $billing->shop_id           = SHOP_ID;
-        $billing->customer_id       = $request->customer_id;
-        $billing->customer_type     = Customer::isExisting($request->customer_id);        
-        $billing->amount            = $request->grand_total;
-        $billing->billed_date       = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s A');
-        $billing->checkin_time      = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s A'); 
-        $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
-        $billing->payment_status    = 0 ;
-        $billing->address_type      = ($request->billing_address_checkbox == 0) ? 'company' : 'customer' ;
+        $billed_date                    = FunctionHelper::dateToTimeFormat($request->billed_date);
+        $checkin_time                   = FunctionHelper::dateToTimeFormat($request->checkin_time);
+        $checkout_time                  = FunctionHelper::dateToTimeFormat($request->checkout_time);
+        $billing                        = new Billing();
+        $billing->shop_id               = SHOP_ID;
+        $billing->customer_id           = $request->customer_id;
+        $billing->customer_type         = Customer::isExisting($request->customer_id);        
+        $billing->amount                = $request->grand_total;
+        $billing->billed_date           = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s A');
+        $billing->checkin_time          = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s A'); 
+        $billing->checkout_time         = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
+        $billing->payment_status        = 0 ;
+        $billing->address_type          = ($request->billing_address_checkbox == 0) ? 'company' : 'customer' ;
         $billing->save();
         
         if ($request->billing_address_checkbox == 0) {
@@ -252,10 +252,9 @@ class BillingController extends Controller
         foreach($request->input('payment_amount') as $key => $value) {
             $data["payment_amount.{$key}"] = 'required';
         }
-        $messages = [
-            'required' => 'Please enter amount'
-        ];
+        $messages   = [ 'required' => 'Please enter amount' ];
         $validator = Validator::make($request->all(), $data, $messages);
+
         if ($validator->passes()) {
             if ($request->grand_total == array_sum($request->payment_amount)) {
                 // Store default billing format
@@ -285,9 +284,9 @@ class BillingController extends Controller
                     $bill_amount->save();
                 }
                 if($billing->items) {
-                    $item_ids                   = [];
-                    $billing_items_array        = $billing->items->toArray();
-                    $item_type                  = $billing_items_array[0]['item_type'];
+                    $item_ids                       = [];
+                    $billing_items_array            = $billing->items->toArray();
+                    $item_type                      = $billing_items_array[0]['item_type'];
                     foreach($billing_items_array as $row) {
                         $item_ids[] = $row['item_id']; 
                     }
@@ -298,7 +297,7 @@ class BillingController extends Controller
                         $billing_items = Package::select('packages.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
                                             ->join('billing_items', 'billing_items.item_id', '=', 'packages.id')->where('packages.shop_id', SHOP_ID)->where('billing_items.billing_id', $request->billing_id)->whereIn('packages.id', $item_ids)->orderBy('packages.id', 'desc')->get();
                     }
-                    $discount = array();
+                    $discount   = array();
                     foreach ($billing_items as $key => $row) {
                         $tax_array                          = TaxHelper::simpleTaxCalculation($row);
                         $item_tax                           = new BillingItemTax();
@@ -314,6 +313,7 @@ class BillingController extends Controller
                         $item_tax->grand_total              = $tax_array['total_amount'];
                         $item_tax->tax_amount               = $tax_array['amount'];
                         $item_tax->save();
+
                         if ( count($tax_array['additiona_array']) > 0) {
                             foreach ($tax_array['additiona_array'] as $additional) {
                                 $additional_obj                 = new BillingItemAdditionalTax();
@@ -342,9 +342,9 @@ class BillingController extends Controller
     public function updateInvoice(Request $request, $id)
     {
         // Formatting time 
-        $billed_date    = FunctionHelper::dateToTimeFormat($request->billed_date);
-        $checkin_time   = FunctionHelper::dateToTimeFormat($request->checkin_time);
-        $checkout_time  = FunctionHelper::dateToTimeFormat($request->checkout_time);
+        $billed_date                = FunctionHelper::dateToTimeFormat($request->billed_date);
+        $checkin_time               = FunctionHelper::dateToTimeFormat($request->checkin_time);
+        $checkout_time              = FunctionHelper::dateToTimeFormat($request->checkout_time);
         $billing                    = Billing::findOrFail($id);
         $billing->customer_id       = $request->customer_id;
         $billing->amount            = $request->grand_total;
@@ -352,23 +352,22 @@ class BillingController extends Controller
         $billing->checkin_time      = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s A'); 
         $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
         $address                    = BillingAddres::where('bill_id', $id)->where('customer_id', $request->customer_id)->first();
-        $billing_address_checkbox = $request->has('billing_address_checkbox') ? 1 : 0;
+        $billing_address_checkbox   = $request->has('billing_address_checkbox') ? 1 : 0;
 
-        // echo $checked; exit;
         if ($billing_address_checkbox == 0) {
             if ($address) {
                 // echo "update";
-                $address->customer_id       = $request->customer_id;
-                $address->billing_name      = $request->customer_billing_name;
-                $address->country_id        = $request->country_id;
-                $address->state_id          = $request->state_id;
-                $address->district_id       = $request->district_id;
-                $address->pincode           = $request->pincode;
-                $address->gst               = $request->customer_gst;
-                $address->address           = $request->address;
-                $address->updated_by        = Auth::user()->id;
+                $address->customer_id           = $request->customer_id;
+                $address->billing_name          = $request->customer_billing_name;
+                $address->country_id            = $request->country_id;
+                $address->state_id              = $request->state_id;
+                $address->district_id           = $request->district_id;
+                $address->pincode               = $request->pincode;
+                $address->gst                   = $request->customer_gst;
+                $address->address               = $request->address;
+                $address->updated_by            = Auth::user()->id;
                 $address->save();
-                $billing->address_type      = 'company' ;
+                $billing->address_type          = 'company' ;
             } else {
                 // echo "new";
                 $new_address                    = new BillingAddres();
@@ -393,18 +392,18 @@ class BillingController extends Controller
             }
         }
         $billing->save();
-        $old_bill_items = BillingItem::where('billing_id', $id)->where('customer_id', $request->customer_id)->delete();
+        $old_bill_items                 = BillingItem::where('billing_id', $id)->where('customer_id', $request->customer_id)->delete();
         if ($request->bill_item) {
             foreach ($request->bill_item as $row) {
-                $item                   = new BillingItem();
-                $item->billing_id       = $billing->id ;
-                $item->customer_id      = $request->customer_id ;
-                $item->item_type        = ($request->service_type == 1) ? 'services' : 'packages' ;
-                $item->item_id          = $row ;
+                $item                       = new BillingItem();
+                $item->billing_id           = $billing->id ;
+                $item->customer_id          = $request->customer_id ;
+                $item->item_type            = ($request->service_type == 1) ? 'services' : 'packages' ;
+                $item->item_id              = $row ;
                 $item->save();
             }  
             if (!empty($billing->schedule)) {
-                $items_details      = Service::totalTime($request->bill_item);
+                $items_details              = Service::totalTime($request->bill_item);
                 $schedule                   = Schedule::find($billing->schedule->id);
                 $schedule->description      = $items_details['description'];
                 $schedule->total_minutes    = $items_details['total_hours'];
@@ -430,7 +429,7 @@ class BillingController extends Controller
      */
     public function storeCustomer(Request $request)
     {
-        $validator = Validator::make($request->all(), [ 'new_customer_name' => 'required',]);
+        $validator                  = Validator::make($request->all(), [ 'new_customer_name' => 'required',]);
 
         if ($validator->passes()) {
             $data                   = new Customer();
@@ -482,12 +481,12 @@ class BillingController extends Controller
                     $tax_array  = TaxHelper::simpleTaxCalculation($row);
                     $variants->billing_items[$key]['tax_array'] = $tax_array;
                 }
-                $variants->item_ids = $ids ;
+                $variants->item_ids         = $ids ;
             }
             
             if ($billing) {
-                $variants->item_ids = $ids ;
-                $variants->bill_id  = $id ;
+                $variants->item_ids         = $ids ;
+                $variants->bill_id          = $id ;
                 return view($this->viewPath . '.invoice', compact('page', 'billing' ,'variants'));
             }
         }
@@ -531,10 +530,10 @@ class BillingController extends Controller
      */
     public function generatePDF(Request $request, $id)
     {
-        $grand_total            = 0 ;
-        $user                   = Auth::user();
-        $billing                = Billing::findOrFail($id);
-        $store                  = Shop::with('billing')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')->find($user->shop_id); 
+        $grand_total                    = 0 ;
+        $user                           = Auth::user();
+        $billing                        = Billing::findOrFail($id);
+        $store                          = Shop::with('billing')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')->find($user->shop_id); 
         if ($billing) {
             $billing_items_array        = $billing->items->toArray();
             $item_type                  = $billing_items_array[0]['item_type'];
@@ -581,27 +580,27 @@ class BillingController extends Controller
             $billing                    = Billing::findOrFail($id);
             $variants->store            = Shop::with('billing')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')->find($user->shop_id); 
             if (isset($billing->billingaddress->country_id )) {
-                $variants->states        = DB::table('shop_states')->where('country_id',$billing->billingaddress->country_id)->pluck('name', 'id'); 
+                $variants->states       = DB::table('shop_states')->where('country_id',$billing->billingaddress->country_id)->pluck('name', 'id'); 
             }
             if (isset($billing->billingaddress->state_id )) {
-                $variants->districts     = DB::table('shop_districts')->where('state_id', $billing->billingaddress->state_id)->pluck('name', 'id');   
+                $variants->districts    = DB::table('shop_districts')->where('state_id', $billing->billingaddress->state_id)->pluck('name', 'id');   
             }
             if ($billing->items) {
-                $billing_items_array     = $billing->items->toArray();
-                $item_type               = $billing_items_array[0]['item_type'];
+                $billing_items_array    = $billing->items->toArray();
+                $item_type              = $billing_items_array[0]['item_type'];
                 foreach ($billing_items_array as $row) {
                     $ids[] = $row['item_id']; 
                 }
                 if ($item_type == 'services') {
-                    $service_type   = 1;
-                    $item_type      = 'services' ;
+                    $service_type       = 1;
+                    $item_type          = 'services' ;
                 } else {
-                    $service_type = 2;
-                    $item_type      = 'packages' ;
+                    $service_type       = 2;
+                    $item_type          = 'packages' ;
                 }
             }
             
-            if($billing) {
+            if ($billing) {
                 $variants->item_ids     = $ids ;
                 $variants->bill_id      = $id ;
                 $variants->time_picker  = ($this->time_format === 'h')?false:true;
@@ -651,7 +650,7 @@ class BillingController extends Controller
                                             ->join('packages', 'packages.id', '=', 'billing_items.item_id')->join('billing_item_taxes', 'billing_item_taxes.bill_item_id', '=', 'billing_items.id')                                        
                                             ->where('packages.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('packages.id', $ids)->orderBy('packages.id', 'desc')->get();
                     }
-                    $grand_total                =  $billing_items->sum('grand_total');
+                    $grand_total        =  $billing_items->sum('grand_total');
                 } 
                 return view($this->viewPath . '.invoice-view', compact('page', 'billing', 'billing_items', 'grand_total', 'item_type' ,'variants'));
             }
@@ -692,7 +691,7 @@ class BillingController extends Controller
 
     public function destroy(Billing $billing)
     {
-        if($billing->address_type== "company")
+        if($billing->address_type == "company")
             $billing_addres = BillingAddres::where('bill_id', $billing->id)->delete() ;
 
         $billing_items      = BillingItem::where('billing_id', $billing->id)->delete() ;

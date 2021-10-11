@@ -63,7 +63,7 @@
           <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
             <div class="media display-flex align-items-center mb-2">
               <a class="mr-2" href="#">
-                <img src="{{ $store->show_image }}" alt="users avatar" class="z-depth-4 circle" height="64" width="64" id="store_logo">
+                <img src="{{ $store->show_image }}" alt="users avatar" class="z-depth-4 circle" id="store_logo">
               </a>
               <div class="media-body">
                 <form id="storeLogoForm" name="storeLogoForm" action="" method="POST" enctype="multipart/form-data" class="ajax-submit">
@@ -212,7 +212,6 @@
 <script>
 
   $('#profile').change(function(){   
-
     var ext = $('#profile').val().split('.').pop().toLowerCase();
     if($.inArray(ext, ['png','jpg','jpeg']) == -1) {
         showErrorToaster("Invalid format. Allowed JPG, JPEG or PNG.");
@@ -234,7 +233,6 @@
   });
 
   $('#storeLogoForm').submit(function(e) {
-
       var formData = new FormData(this);
       $.ajax({
             type: "POST",url: "{{ url('/store/update-logo') }}", data: formData, cache:false, contentType: false, processData: false,
@@ -249,7 +247,6 @@
           }
         });
   });
-
 
   $('#country_id').select2({ placeholder: "Please select country", allowClear: true });
   $('#state_id').select2({ placeholder: "Please select state", allowClear: true });
@@ -379,35 +376,37 @@
     })
   } 
 
-  $("#profileImageSubmitBtn").click(function(){
-    canvas = cropper.getCroppedCanvas({
-    });
-    canvas.toBlob(function(blob) {
-      url = URL.createObjectURL(blob);
-      var reader = new FileReader();
-      reader.readAsDataURL(blob); 
-      reader.onloadend = function() {
-        var base64data = reader.result; 
-        id = $("#store_id").val();
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "{{ url('/store/update-logo') }}",
-            data: {store_id : id , 'image': base64data},
-            success: function(data){
-              if(data.flagError == false){
-                  showSuccessToaster(data.message);                 
-                  $("#store_logo").attr("src", data.logo);
-                  $modal.modal('close');
-              }else{
-                showErrorToaster(data.message);
-                printErrorMsg(data.error);
-              }
-          }
-        });
-      }
-    });
-  })
+  // $("#profileImageSubmitBtn").click(function(){
+  //   canvas = cropper.getCroppedCanvas({
+  //     width: 160,
+  //     height: 160,
+  //   });
+  //   canvas.toBlob(function(blob) {
+  //     url = URL.createObjectURL(blob);
+  //     var reader = new FileReader();
+  //     reader.readAsDataURL(blob); 
+  //     reader.onloadend = function() {
+  //       var base64data = reader.result; 
+  //       id = $("#store_id").val();
+  //       $.ajax({
+  //           type: "POST",
+  //           dataType: "json",
+  //           url: "{{ url('/store/update-logo') }}",
+  //           data: {store_id : id , 'image': base64data},
+  //           success: function(data){
+  //             if(data.flagError == false){
+  //                 showSuccessToaster(data.message);                 
+  //                 $("#store_logo").attr("src", data.logo);
+  //                 $modal.modal('close');
+  //             }else{
+  //               showErrorToaster(data.message);
+  //               printErrorMsg(data.error);
+  //             }
+  //         }
+  //       });
+  //     }
+  //   });
+  // })
 
   $("#select-files").on("click", function () {
     $("#profile").click();

@@ -59,17 +59,16 @@ class ServiceCategoryController extends Controller
                 }
             }
         }
-            
-            return Datatables::of($detail)
-                    ->addIndexColumn()
-                    ->addColumn('action', function($detail){
-                        $action = ' <a  href="javascript:" onclick="manageserviceCategory(' . $detail->id . ')" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                        $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
-                        return $action;
-                    })
-                    ->removeColumn('id')
-                    ->escapeColumns([])
-                    ->make(true);
+        return Datatables::of($detail)
+            ->addIndexColumn()
+            ->addColumn('action', function($detail){
+                $action = ' <a  href="javascript:" onclick="manageserviceCategory(' . $detail->id . ')" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
+                return $action;
+            })
+            ->removeColumn('id')
+            ->escapeColumns([])
+            ->make(true);
                     
     }
 
@@ -90,16 +89,13 @@ class ServiceCategoryController extends Controller
         ]);
 
         if ($validator->passes()) {
-
             $data           = new ServiceCategory();
             $data->name     = $request->name;
             $data->shop_id  = SHOP_ID;
             $data->save();
-
             return ['flagError' => false, 'message' => $this->title. " Added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
-
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**
@@ -111,9 +107,9 @@ class ServiceCategoryController extends Controller
     public function edit($id)
     {
         $data = ServiceCategory::findOrFail($id);
-        if($data){
+        if ($data) {
             return ['flagError' => false, 'data' => $data];
-        }else{
+        } else {
             return ['flagError' => true, 'message' => "Data not found, Try again!"];
         }
     }
@@ -126,7 +122,6 @@ class ServiceCategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $rules = [
             'name' => [
                 'required',Rule::unique('service_categories')->where(function($query) use($id) {
@@ -134,17 +129,13 @@ class ServiceCategoryController extends Controller
               })
             ],
         ];
-    
-        $messages = [
-            'required' => 'Please enter Service Category name'
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages);
+        $messages   = [ 'required' => 'Please enter Service Category name' ];
+        $validator  = Validator::make($request->all(), $rules, $messages);
 
 
         if ($validator->passes()) {
-            $data = ServiceCategory::findOrFail($id);
-            if($data){
+            $data           = ServiceCategory::findOrFail($id);
+            if ($data) {
                 $data->name = $request->name;
                 $data->save();
                 return ['flagError' => false, 'message' => $this->title. " updated successfully"];
@@ -163,12 +154,10 @@ class ServiceCategoryController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $data = ServiceCategory::with('services')->findOrFail($id);
-        if(count($data->services) > 0 )
-        {
+        $data   = ServiceCategory::with('services')->findOrFail($id);
+        if (count($data->services) > 0 ) {
             return ['flagError' => true, 'message' => "Please delete all services of item !"];
         }
-        
         $data->delete();
         return ['flagError' => false, 'message' => $this->title. " deleted successfully"];
     }

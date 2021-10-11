@@ -68,22 +68,16 @@ class PaymentTypeController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required'
-        ]);
+        $validator = Validator::make($request->all(), [ 'name' => 'required' ]);
 
         if ($validator->passes()) {
-
             $data               = new PaymentType();
             $data->shop_id      = SHOP_ID;
             $data->name         = $request->name;
-
             $data->save();
-
             return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
-
     }
 
     /**
@@ -105,8 +99,8 @@ class PaymentTypeController extends Controller
      */
     public function edit($id)
     {
-        $data = PaymentType::findOrFail($id);
-        if($data){
+        $data       = PaymentType::findOrFail($id);
+        if ($data) {
             return ['flagError' => false, 'data' => $data];
         }else{
             return ['flagError' => true, 'message' => "Data not found, Try again!"];
@@ -122,21 +116,15 @@ class PaymentTypeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required'
-        ]);
+        $validator = Validator::make($request->all(), [ 'name' => 'required' ]);
 
         if ($validator->passes()) {
-
             $data               = PaymentType::findOrFail($id);
             $data->name         = $request->name;
             $data->save();
-
             return ['flagError' => false, 'message' => $this->title. " updated successfully"];
         }
-
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
-
     }
 
     /**
@@ -147,8 +135,7 @@ class PaymentTypeController extends Controller
      */
     public function destroy($id)
     {
-        $data = PaymentType::findOrFail($id);
-
+        $data   = PaymentType::findOrFail($id);
         $data->delete();
         return ['flagError' => false, 'message' => Str::singular($this->title). " deleted successfully"];
     }

@@ -251,7 +251,6 @@ function getPackages(){
           $.each(data.data, function(key, value) {
             selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
           });
-
           var select = $('#packages');
           select.empty().append(selectTerms);
           var values = $("input[name='item_ids[]']").map(function(){return $(this).val();}).get();
@@ -354,7 +353,6 @@ function listItemDetails(type) {
   }
 }
 // Form script ends
-
 
 $( document ).ready(function() {
     getTherapists();

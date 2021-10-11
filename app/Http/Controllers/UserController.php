@@ -60,10 +60,8 @@ class UserController extends Controller
      */
     public function lists(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $detail =  User::select(['name', 'mobile', 'email', 'is_active', 'id']);
-
-        // $rs = User::where('parent_id', $user_id)->update(['is_Active' => 1]);
+        $user_id    = Auth::user()->id;
+        $detail     =  User::select(['name', 'mobile', 'email', 'is_active', 'id']);
 
         if (isset($request->form)) {
             foreach ($request->form as $search) {
@@ -135,32 +133,29 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'roles' => 'required'
         ]);
-        // print_r($request->input('roles'));
-
-        // exit;
 
         if ($validator->passes()) {
-            $input  = $request->all();
-            $user_id = Auth::user()->id;
+            $input                  = $request->all();
+            $user_id                = Auth::user()->id;
             // $input['password'] = Hash::make($input['password']);
-            $input['parent_id'] = $user_id;
-            // $input['gender']    = $request->gender;            
-            $user = User::create($input);
+            $input['parent_id']     = $user_id;   
+
+            $user       = User::create($input);
             $user->assignRole($request->input('roles'));
-            if(Auth::user()->parent_id == null){
-                $shop = new Shop();
-                $shop->name = $input['shop_name'];
-                $shop->user_id = $user->id;
+            if (Auth::user()->parent_id == null) {
+                $shop           = new Shop();
+                $shop->name     = $input['shop_name'];
+                $shop->user_id  = $user->id;
                 $shop->save();
-                $user->shop_id = $shop->id; 
-            }else{
-                $user->shop_id = Auth::user()->shop_id;
+                $user->shop_id  = $shop->id; 
+            } else {
+                $user->shop_id  = Auth::user()->shop_id;
             }
-            $token = Str::random(64);
-            $user->password_create_token = $token;
+            $token                          = Str::random(64);
+            $user->password_create_token    = $token;
             $user->save();
 
-            $profile = new StaffProfile();
+            $profile                = new StaffProfile();
             $profile->user_id       = $user->id;
             $profile->save();
 
@@ -185,7 +180,6 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        // dd('2');
         // $user = User::find($id);
         // return view('users.show',compact('user'));
     }
@@ -207,10 +201,8 @@ class UserController extends Controller
         $page->link         = url($this->link);
         $page->form_url     = url($this->link . '/' . $user->id);
         $page->form_method  = 'PUT';
-        
         $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
-        $userRole = $user->roles->pluck('name','name')->all();
-    
+        $userRole           = $user->roles->pluck('name','name')->all();
         return view($this->viewPath . '.create',compact('user','roles', 'you' ,'userRole', 'page'));
     }
     
@@ -232,25 +224,22 @@ class UserController extends Controller
 
         if ($validator->passes()) {
     
-            $input = $request->all();
-            if(!empty($input['password'])){ 
-                $input['password'] = Hash::make($input['password']);
-            }else{
-                $input = Arr::except($input,array('password'));    
+            $input      = $request->all();
+            if (!empty($input['password'])) { 
+                $input['password']  = Hash::make($input['password']);
+            } else {
+                $input              = Arr::except($input,array('password'));    
             }
         
-            $user = User::find($id);
+            $user               = User::find($id);
             $input['gender']    = $request->gender;     
             $user->update($input);
-            DB::table('model_has_roles')->where('model_id',$id)->delete();
-        
-            $user->assignRole($request->input('roles'));
 
+            DB::table('model_has_roles')->where('model_id',$id)->delete();
+            $user->assignRole($request->input('roles'));
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }
-
         return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
-
     }
     
     /**
@@ -266,19 +255,18 @@ class UserController extends Controller
         // return redirect()->route('users.index')
         //                 ->with('success','User deleted successfully');
 
-        $user = User::findOrFail($id);
-        $user->is_active = 2;
+        $user               = User::findOrFail($id);
+        $user->is_active    = 2;
         $user->save();
-
         return ['flagError' => false, 'message' => $this->title. " deactivated successfully"];
-
     }
 
-    public function isUnique(Request $request){ 
-        if($request->user_id == 0){
+    public function isUnique(Request $request)
+    { 
+        if ($request->user_id == 0) {
             $count = User::where('email', $request->email)->count();
             echo ($count > 0 ? 'false' : 'true');
-        }else{
+        } else {
             $count = User::where('email', $request->email)->where('id', '!=' , $request->user_id)->count();
             echo ($count > 0 ? 'false' : 'true');
         }
@@ -286,16 +274,13 @@ class UserController extends Controller
 
     public function manageStatus(Request $request)
     {
-
         $user = User::findOrFail($request->user_id);
-
-        if($user){
-            $status = ($user->is_active == 0)?1:0;
-            $user->is_active = $status;
+        if ($user) {
+            $status             = ($user->is_active == 0)?1:0;
+            $user->is_active    = $status;
             $user->save();
             return ['flagError' => false, 'message' => $this->title. " status updated successfully"];
         }
-
         return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
     }
 
@@ -311,7 +296,6 @@ class UserController extends Controller
             User::find(auth()->user()->id)->update(['password'=> Hash::make($request->new_password)]);
             return ['flagError' => false, 'message' => $this->title. " password updated successfully"];
         }
-        
         return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
     }
 }

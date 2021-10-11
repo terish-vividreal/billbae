@@ -61,24 +61,24 @@ class DistrictController extends Controller
             }
         }
             
-            return Datatables::of($detail)
-                ->addIndexColumn()
-                ->addColumn('action', function($detail){
-                    $action = ' <a  href="javascript:" onclick="manageState(' . $detail->id . ')" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
-                    return $action;
-                })
-                ->addColumn('country', function($detail){
-                    $country = $detail->state->country->name;
-                    return $country;
-                })
-                ->addColumn('state', function($detail){
-                    $country = $detail->state->name;
-                    return $country;
-                })
-                ->removeColumn('id')
-                ->escapeColumns([])
-                ->make(true);
+        return Datatables::of($detail)
+            ->addIndexColumn()
+            ->addColumn('action', function($detail){
+                $action = ' <a  href="javascript:" onclick="manageState(' . $detail->id . ')" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
+                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"> <i class="icon-1x fas fa-trash-alt"></i></a>';
+                return $action;
+            })
+            ->addColumn('country', function($detail){
+                $country = $detail->state->country->name;
+                return $country;
+            })
+            ->addColumn('state', function($detail){
+                $country = $detail->state->name;
+                return $country;
+            })
+            ->removeColumn('id')
+            ->escapeColumns([])
+            ->make(true);
     }
 
     /**
@@ -108,17 +108,14 @@ class DistrictController extends Controller
         ]);
 
         if ($validator->passes()) {
-
             $data           = new District();
             $data->name     = $request->name;
             $data->state_id = $request->state_id;
             $data->shop_id  = SHOP_ID;
             $data->save();
-
             return ['flagError' => false, 'message' => $this->title. " Added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
-
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**
@@ -140,13 +137,12 @@ class DistrictController extends Controller
      */
     public function edit($id)
     {
-        $data   = District::with('state')->findOrFail($id);
-        // $states = State::where('country_id',$data->state->country->id)->pluck('name','id');
-        $states = State::where('country_id',$data->state->country->id)->get();
-
-        if($data){
+        $data       = District::with('state')->findOrFail($id);
+        // $states  = State::where('country_id',$data->state->country->id)->pluck('name','id');
+        $states     = State::where('country_id',$data->state->country->id)->get();
+        if ($data) {
             return ['flagError' => false, 'data' => $data, 'country_id' => $data->state->country->id, 'states' => $states];
-        }else{
+        } else {
             return ['flagError' => true, 'message' => "Data not found, Try again!"];
         }
     }
@@ -169,20 +165,15 @@ class DistrictController extends Controller
             ],
         ];
     
-        $messages = [
-            'required' => 'Please enter district name'
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages);
-
-
+        $messages   = [ 'required' => 'Please enter district name' ];
+        $validator  = Validator::make($request->all(), $rules, $messages);
         if ($validator->passes()) {
-            $data = Country::findOrFail($id);
-            if($data){
+            $data           = Country::findOrFail($id);
+            if ($data) {
                 $data->name = $request->name;
                 $data->save();
                 return ['flagError' => false, 'message' => $this->title. " Updated successfully"];
-            }else{
+            } else {
                 return ['flagError' => true, 'message' => "Data not found, Try again!"];
             }
         }
@@ -197,8 +188,7 @@ class DistrictController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $data = Country::findOrFail($id);
-
+        $data   = Country::findOrFail($id);
         $data->delete();
         return ['flagError' => false, 'message' => $this->title. " Deleted successfully"];
     }

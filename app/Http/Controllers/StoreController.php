@@ -47,52 +47,46 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        $page                   = collect();
-        $variants               = collect();
-        $user                   = Auth::user();
-        $store                  = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
-                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
-                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
-                                    ->find($user->shop_id);        
+        $page                       = collect();
+        $variants                   = collect();
+        $user                       = Auth::user();
+        $store                      = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')->find($user->shop_id);        
         $page->title                = $this->title;
         $page->link                 = url($this->link);
         $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id');  
 
-        if($store->country_id){
+        if ($store->country_id) {
             $variants->states           = DB::table('shop_states')->where('country_id',$store->country_id)->pluck('name', 'id'); 
             $country_code               = DB::table('shop_countries')->where('id',$store->country_id)->value('sortname');
             $variants->timezone         = DB::table('timezone')->where('country_code',$country_code)->pluck('zone_name', 'zone_name');
         }        
-        if($store->state_id){
-            $variants->districts            = DB::table('shop_districts')->where('state_id',$store->state_id)->pluck('name', 'id'); 
+        if ($store->state_id) {
+            $variants->districts        = DB::table('shop_districts')->where('state_id',$store->state_id)->pluck('name', 'id'); 
         }   
         return view($this->viewPath . '.profile', compact('page', 'user', 'store', 'variants'));
     }
 
     public function billings(Request $request)
     {
-        $page                   = collect();
-        $variants               = collect();
-        $user                   = Auth::user();
-        $store                  = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
-                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
-                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
-                                    ->find($user->shop_id);  
+        $page                       = collect();
+        $variants                   = collect();
+        $user                       = Auth::user();
+        $store                      = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')->find($user->shop_id);  
         $billing                    = ShopBilling::where('shop_id', SHOP_ID)->first();      
         $page->title                = 'Billing';
         $page->link                 = url($this->link);
         $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id'); 
         $variants->tax_percentage   = DB::table('gst_tax_percentages')->pluck('percentage', 'id');  
 
-        if($billing->country_id){
+        if ($billing->country_id) {
             $variants->states           = DB::table('shop_states')->where('country_id',$billing->country_id)->pluck('name', 'id'); 
             $country_code               = DB::table('shop_countries')->where('id',$billing->country_id)->value('sortname');
             $variants->timezone         = DB::table('timezone')->where('country_code',$country_code)->pluck('zone_name', 'zone_name');
             $variants->currencies       = DB::table('currencies')->where('country_id', $billing->country_id)->pluck('symbol', 'id');
 
         }        
-        if($billing->state_id){
-            $variants->districts            = DB::table('shop_districts')->where('state_id',$billing->state_id)->pluck('name', 'id'); 
+        if ($billing->state_id) {
+            $variants->districts        = DB::table('shop_districts')->where('state_id',$billing->state_id)->pluck('name', 'id'); 
         }
 
         return view($this->viewPath . '.billing', compact('page', 'user', 'store', 'variants', 'billing'));
@@ -100,13 +94,10 @@ class StoreController extends Controller
 
     public function billingSeries(Request $request)
     {
-        $page                   = collect();
-        $variants               = collect();
-        $user                   = Auth::user();
-        $store                  = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
-                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
-                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
-                                    ->find($user->shop_id);  
+        $page                       = collect();
+        $variants                   = collect();
+        $user                       = Auth::user();
+        $store                      = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')->find($user->shop_id);  
         $billing                    = ShopBilling::where('shop_id', SHOP_ID)->first();      
         $page->title                = 'Billing Series';
         $page->link                 = url($this->link);
@@ -122,10 +113,7 @@ class StoreController extends Controller
         $page                   = collect();
         $variants               = collect();
         $user                   = Auth::user();
-        $store                  = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')
-                                    ->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')
-                                    ->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')
-                                    ->find($user->shop_id);        
+        $store                  = Shop::with('users')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')->find($user->shop_id);        
         $page->title            = $this->title;
         $page->link             = url($this->link);
         $page->form_url         = url($this->link);
@@ -143,9 +131,7 @@ class StoreController extends Controller
      */
     public function postUserProfile(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-        ]);
+        $validator = Validator::make($request->all(), [ 'name' => 'required', ]);
 
         if ($validator->passes()) {
             $user               = Auth::user();
@@ -168,9 +154,7 @@ class StoreController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-        ]);
+        $validator = Validator::make($request->all(), [ 'name' => 'required', ]);
 
         if ($validator->passes()) {
             $shop               = Shop::find($id);
@@ -204,9 +188,7 @@ class StoreController extends Controller
      */
     public function updateGst(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'gst_percentage' => 'required',
-        ]);
+        $validator = Validator::make($request->all(), [ 'gst_percentage' => 'required', ]);
 
         if ($validator->passes()) {
             $billing                    = ShopBilling::find($request->gst_billing_id);
@@ -215,7 +197,6 @@ class StoreController extends Controller
             return ['flagError' => false, 'message' => "GST Updated successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
-
     }
 
     /**
@@ -227,12 +208,9 @@ class StoreController extends Controller
      */
     public function storeBilling(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'billing_id' => 'required',
-        ]);
+        $validator = Validator::make($request->all(), [ 'billing_id' => 'required', ]);
 
         if ($validator->passes()) {
-       
             $billing                    = ShopBilling::find($id);
             $billing->shop_id           = SHOP_ID;
             $billing->company_name      = $request->company_name;
@@ -248,7 +226,6 @@ class StoreController extends Controller
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
-
     }
 
     /**
@@ -258,47 +235,43 @@ class StoreController extends Controller
      */
     public function updateLogo(Request $request)
     {
-	        // echo "<pre>"; print_r($request->all()); exit;
+        $validator = Validator::make($request->all(), [ 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', ]);
 
-	        $validator = Validator::make($request->all(), [
-	            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-	        ]);
-            if ($validator->passes()) {
-                $shop               = Shop::find($request->store_id);
+        if ($validator->passes()) {
+            $shop               = Shop::find($request->store_id);
+            $old_store_logo     = $shop->image;
 
-                $old_store_logo = $shop->image;
-
-                if ($old_store_logo != '') {
-                    \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/logo/' . $old_store_logo);
-                }
-
-                // Create storage folder if not exist
-                $store_path     = 'public/' . $this->uploadPath. '/logo/';
-                Storage::makeDirectory($store_path);
-
-                $file           = $request->image;
-
-                $extension      = $file->getClientOriginalExtension();
-                $imageName      = Str::random(20).'.'.$extension;
-                Storage::putFileAs($store_path, $file, $imageName);
-
-                $shop->image        = $imageName;
-                $shop->save();
-                return ['flagError' => false, 'logo' => $shop->show_image,  'message' => "Logo updated successfully"];
-
+            if ($old_store_logo != '') {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/logo/' . $old_store_logo);
             }
 
-            return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
+            // Create storage folder if not exist
+            $store_path         = 'public/' . $this->uploadPath. '/logo/';
+            Storage::makeDirectory($store_path);
+
+            $file               = $request->image;
+
+            $extension          = $file->getClientOriginalExtension();
+            $imageName          = Str::random(20).'.'.$extension;
+            Storage::putFileAs($store_path, $file, $imageName);
+
+            $shop->image        = $imageName;
+            $shop->save();
+            return ['flagError' => false, 'logo' => $shop->show_image,  'message' => "Logo updated successfully"];
+
+        }
+
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
 
 
-            // $image_64 = $request->image; //your base64 encoded data
-            // $extension = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
-            // $replace = substr($image_64, 0, strpos($image_64, ',')+1); 
+        // $image_64 = $request->image; //your base64 encoded data
+        // $extension = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
+        // $replace = substr($image_64, 0, strpos($image_64, ',')+1); 
 
-            // $image = str_replace($replace, '', $image_64); 
-            // $image = str_replace(' ', '+', $image); 
-            // $imageName = Str::random(20).'.'.$extension;
-            // Storage::put($store_path.'/'.$imageName, base64_decode($image));
+        // $image = str_replace($replace, '', $image_64); 
+        // $image = str_replace(' ', '+', $image); 
+        // $imageName = Str::random(20).'.'.$extension;
+        // Storage::put($store_path.'/'.$imageName, base64_decode($image));
     }
 
     /**
@@ -316,20 +289,19 @@ class StoreController extends Controller
         }
         
         // Create storage folder
-        $store_path = 'public/' . $this->uploadPath. '/users/';
+        $store_path         = 'public/' . $this->uploadPath. '/users/';
         Storage::makeDirectory($store_path);
 
-        $image_64   = $request->image; //your base64 encoded data
-        $extension  = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
-        $replace    = substr($image_64, 0, strpos($image_64, ',')+1); 
+        $image_64           = $request->image; //your base64 encoded data
+        $extension          = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
+        $replace            = substr($image_64, 0, strpos($image_64, ',')+1); 
 
-        $image      = str_replace($replace, '', $image_64); 
-        $image      = str_replace(' ', '+', $image); 
-        $imageName  = Str::random(20).'.'.$extension;
+        $image              = str_replace($replace, '', $image_64); 
+        $image              = str_replace(' ', '+', $image); 
+        $imageName          = Str::random(20).'.'.$extension;
+
         Storage::put($store_path.'/'.$imageName, base64_decode($image));
-
-
-        $user->profile        = $imageName;
+        $user->profile      = $imageName;
         $user->save();
 
         return ['flagError' => false, 'logo' => asset('storage/store/users/' . $user->profile),  'message' => "Profile image updated successfully"];
@@ -337,11 +309,11 @@ class StoreController extends Controller
 
     public function isUnique(Request $request)
     { 
-        if($request->store_id == 0){
-            $count = Shop::where('email', $request->email)->count();
+        if ($request->store_id == 0) {
+            $count      = Shop::where('email', $request->email)->count();
             echo ($count > 0 ? 'false' : 'true');
-        }else{
-            $count = Shop::where('email', $request->email)->where('id', '!=' , $request->store_id)->count();
+        } else {
+            $count      = Shop::where('email', $request->email)->where('id', '!=' , $request->store_id)->count();
             echo ($count > 0 ? 'false' : 'true');
         }
     }
@@ -354,10 +326,9 @@ class StoreController extends Controller
         $billing_format->suffix     = $request->bill_suffix;
         $billing_format->save();
 
-        if(!$request->has('applied_to_all') )
-        {
-            if(count($request->payment_types) > 0 ){
-                foreach($request->payment_types as $key => $type){
+        if (!$request->has('applied_to_all') ) {
+            if (count($request->payment_types) > 0 ) {
+                foreach($request->payment_types as $key => $type) {
                     $format = BillingFormat::updateOrCreate(
                         ['shop_id' => SHOP_ID, 'payment_type' => $type],
                         ['prefix' => Str::upper($request->bill_prefix_type[$type]), 'suffix' => ($request->bill_suffix_type[$type] != '') ? $request->bill_suffix_type[$type] : $request->bill_suffix, 'applied_to_all' => 1]
@@ -372,8 +343,7 @@ class StoreController extends Controller
 
     public function themeSettings(Request $request)
     {
-        // echo "<pre>"; print_r($request->all()); exit;
-        $theme_settings         = ThemeSetting::find($request->theme_settings_id);
+        $theme_settings                     = ThemeSetting::find($request->theme_settings_id);
         $theme_settings->activeMenuColor    = $request->activeMenuColor;
         $theme_settings->navbarBgColor      = $request->navbarBgColor;
         $theme_settings->isMenuDark         = ($request->has('isMenuDark'))?1:0;

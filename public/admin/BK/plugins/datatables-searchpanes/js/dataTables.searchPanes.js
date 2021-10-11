@@ -373,7 +373,7 @@
             });
             // When saving the state store all of the selected rows for preselection next time around
             this.s.dt.on('stateSaveParams.dtsp', function (e, settings, data) {
-                // If the data being passed in is empty then a state clear must have occured so clear the panes state as well
+                // If the data being passed in is empty then a state clear must have Occurred so clear the panes state as well
                 if ($.isEmptyObject(data)) {
                     _this.s.dtPane.state.clear();
                     return;
@@ -1772,7 +1772,7 @@
                     }
                     // Update the label that shows how many filters are in place
                     this._updateFilterCount();
-                    // If the length of the selections are different then some of them have been removed and a deselect has occured
+                    // If the length of the selections are different then some of them have been removed and a deselect has Occurred
                     if (newSelectionList.length > 0 && (newSelectionList.length < this.s.selectionList.length || rebuild)) {
                         this._cascadeRegen(newSelectionList);
                         var last = newSelectionList[newSelectionList.length - 1].index;
@@ -1912,7 +1912,7 @@
             return this._attachMessage();
         };
         /**
-         * Prepares the panes for selections to be made when cascade is active and a deselect has occured
+         * Prepares the panes for selections to be made when cascade is active and a deselect has Occurred
          * @param newSelectionList the list of selections which are to be made
          */
         SearchPanes.prototype._cascadeRegen = function (newSelectionList) {

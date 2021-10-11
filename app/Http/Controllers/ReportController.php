@@ -51,37 +51,34 @@ class ReportController extends Controller
     {
         $total_cash         = 0;
         $day_range          = $request->day_range;
-            $from               = Carbon\Carbon::parse($request->start_range)->startOfDay();  
-            $to                 = Carbon\Carbon::parse($request->end_range)->endOfDay();
-            $chart_reports      = Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id as row_id', 'customer_id', 'payment_status')->where('shop_id', SHOP_ID)->groupBy(DB::raw("day(created_at)"))->whereBetween('created_at', [$from,$to])->orderBy('created_at', 'ASC')->get();                             
-            $chart_data         = array();
-            $chart_label        = array();
-            $customer_array     = array();
-            $pending            = 0;
-            $completed          = 0;
+        $from               = Carbon\Carbon::parse($request->start_range)->startOfDay();  
+        $to                 = Carbon\Carbon::parse($request->end_range)->endOfDay();
+        $chart_reports      = Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id as row_id', 'customer_id', 'payment_status')->where('shop_id', SHOP_ID)->groupBy(DB::raw("day(created_at)"))->whereBetween('created_at', [$from,$to])->orderBy('created_at', 'ASC')->get();                             
+        $chart_data         = array();
+        $chart_label        = array();
+        $customer_array     = array();
+        $pending            = 0;
+        $completed          = 0;
 
-            foreach ($chart_reports as $key => $value) {
-                $chart_label[]      = $value->day;
-                $chart_data[]       = (int)$value->amount;
-                $total_cash         =  $total_cash+(int)$value->amount;
+        foreach ($chart_reports as $key => $value) {
+            $chart_label[]      = $value->day;
+            $chart_data[]       = (int)$value->amount;
+            $total_cash         =  $total_cash+(int)$value->amount;
+        }
+        $report_data            = Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id', 'payment_status', 'billing_code', 'billed_date', 'checkin_time', 'checkout_time', 'customer_id')->where('shop_id', SHOP_ID)->whereBetween('created_at', [$from,$to])->groupBy('billings.id')->orderBy('created_at', 'ASC')->get();
+        foreach ($report_data as $data) {
+            if (!array_key_exists($data->customer_id,$customer_array)) {
+                $customer_array[$data->customer_id] = 1;
+            } else {
+                $customer_array[$data->customer_id] = $customer_array[$data->customer_id]+1;
             }
-
-            $report_data = Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id', 'payment_status', 'billing_code', 'billed_date', 'checkin_time', 'checkout_time', 'customer_id')
-                                            ->where('shop_id', SHOP_ID)->whereBetween('created_at', [$from,$to])->groupBy('billings.id')->orderBy('created_at', 'ASC')->get();
-
-            foreach ($report_data as $data) {
-                if (!array_key_exists($data->customer_id,$customer_array)) {
-                    $customer_array[$data->customer_id] = 1;
-                } else {
-                    $customer_array[$data->customer_id] = $customer_array[$data->customer_id]+1;
-                }
-                if ($data->payment_status == 0) {
-                    $pending    = $pending+1;
-                } else {  
-                    $completed = $completed+1;                              
-                }
+            if ($data->payment_status == 0) {
+                $pending    = $pending+1;
+            } else {  
+                $completed  = $completed+1;                              
             }
-            return ['flagError' => false, 'chart_label' => $chart_label,  'chart_data'=> $chart_data, 'start_date' => $from, 'end_date' => $to, 'total_cash' => number_format($total_cash,2), 'invoice' => count($report_data), 'customer' => count($customer_array), 'completed' => $completed, 'pending' => $pending,];
+        }
+        return ['flagError' => false, 'chart_label' => $chart_label,  'chart_data'=> $chart_data, 'start_date' => $from, 'end_date' => $to, 'total_cash' => number_format($total_cash,2), 'invoice' => count($report_data), 'customer' => count($customer_array), 'completed' => $completed, 'pending' => $pending,];
     }
 
     public function getSalesReportTableData(Request $request)
@@ -95,7 +92,6 @@ class ReportController extends Controller
             });
         }
         $detail = $detail->orderBy('created_at', 'DESC')->get();
-
         return Datatables::of($detail)
             ->addIndexColumn()
             ->editColumn('billed_date', function($detail){
@@ -116,9 +112,9 @@ class ReportController extends Controller
             })
             ->editColumn('payment_status', function($detail){
                 $status = '';
-                if($detail->payment_status == 0){
+                if ($detail->payment_status == 0) {
                     $status = '<span class="chip lighten-5 red red-text">UNPAID</span>';
-                }else{  
+                } else {  
                     $status = '<span class="chip lighten-5 green green-text">PAID</span>';                                
                 }
                 return $status;
