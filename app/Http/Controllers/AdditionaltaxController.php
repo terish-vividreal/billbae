@@ -76,18 +76,15 @@ class AdditionaltaxController extends Controller
         ]);
 
         if ($validator->passes()) {
-
             $data               = new Additionaltax();
             $data->shop_id      = SHOP_ID;
             $data->name         = $request->name;
             $data->percentage   = $request->percentage;
             $data->information  = $request->information;
             $data->save();
-
             return ['flagError' => false, 'message' => $this->title. " Added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
-
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**
@@ -100,6 +97,7 @@ class AdditionaltaxController extends Controller
     {
         //
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -126,22 +124,16 @@ class AdditionaltaxController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required'
-        ]);
-
+        $validator = Validator::make($request->all(), [ 'name' => 'required' ]);
         if ($validator->passes()) {
-
             $data               = Additionaltax::findOrFail($id);
             $data->name         = $request->name;
             $data->percentage   = $request->percentage;
             $data->information  = $request->information;
             $data->save();
-
             return ['flagError' => false, 'message' => $this->title. " updated successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
-
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**
@@ -153,7 +145,6 @@ class AdditionaltaxController extends Controller
     public function destroy($id)
     {
         $data = Additionaltax::findOrFail($id);
-
         $data->delete();
         return ['flagError' => false, 'message' => $this->title. " Deleted successfully"];
     }

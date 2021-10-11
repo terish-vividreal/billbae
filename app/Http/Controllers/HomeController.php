@@ -24,17 +24,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-
-    //     if( Auth::user()->is_admin == NULL )
-    //     {
-    //         echo "user";
-    //     }else{
-    //         echo "admin";
-    //     }
-        
-    //  exit;
-        // echo  USER_ROLE ; exit;
+        // if( Auth::user()->is_admin == NULL ) {
+        //     echo "user";
+        // } else {
+        //     echo "admin";
+        // }
         return view('home');
     }
-    
 }

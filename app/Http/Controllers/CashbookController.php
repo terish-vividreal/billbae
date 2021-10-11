@@ -35,7 +35,6 @@ class CashbookController extends Controller
         $page->entity               = $this->entity; 
         $variants->business_cash    = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 1)->orderBy('created_at', 'desc')->value('balance_amount');  
         $variants->petty_cash       = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 2)->orderBy('created_at', 'desc')->value('balance_amount');  
-
         return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 
@@ -45,51 +44,43 @@ class CashbookController extends Controller
      */
     public function lists(Request $request)
     {
-
         $from   = Carbon\Carbon::parse($request->start_range)->startOfDay();  
         $to     = Carbon\Carbon::parse($request->end_range)->endOfDay();
-
-
         $detail =  Cashbook::where('shop_id', SHOP_ID);
 
-        if( ($from != '') && ($to != '') ){
+        if ( ($from != '') && ($to != '') ) {
             $detail->Where(function ($query) use ($from, $to) {
                 $query->whereBetween('created_at', [$from, $to]);
             });
         }
 
-        if($request['transaction_type'] != '') {
-            $transaction = $request['transaction_type'];
-
-            $detail = $detail->where(function($query)use($transaction){
+        if ($request['transaction_type'] != '') {
+            $transaction    = $request['transaction_type'];
+            $detail         = $detail->where(function($query)use($transaction){
                     $query->whereIn('transaction', $transaction);
             }); 
         }
         
-        if($request['cash_from'] != '') {
-            $cash_from = $request['cash_from'];
-
-            $detail = $detail->where(function($query)use($cash_from){
+        if ($request['cash_from'] != '') {
+            $cash_from  = $request['cash_from'];
+            $detail     = $detail->where(function($query)use($cash_from){
                     $query->whereIn('cash_from', $cash_from);
             }); 
         }
 
-        if($request['cash_book'] != '') {
-            $cash_book = $request['cash_book'];
-
-            $detail = $detail->where(function($query)use($cash_book){
+        if ($request['cash_book'] != '') {
+            $cash_book  = $request['cash_book'];
+            $detail     = $detail->where(function($query)use($cash_book){
                     $query->whereIn('cash_book', $cash_book);
             }); 
         }
 
         $detail = $detail->orderBy('created_at', 'DESC')->get();
-            
         return Datatables::of($detail)
             ->addIndexColumn()
             ->editColumn('created_at', function($detail){
                 $created_at = new Carbon\Carbon($detail->billed_date);
                 return $created_at->toFormattedDateString();
-
             })
             ->editColumn('billed_date', function($detail){
                 $billed_date = new Carbon\Carbon($detail->billed_date);
@@ -106,29 +97,20 @@ class CashbookController extends Controller
             ->addColumn('transaction_type', function($detail){
                 $transaction_type   = '';
                 $cash_from          = '';
-
-                if($detail->transaction == 1){
+                if ($detail->transaction == 1) {
                     $transaction_type .= '<span class="chip lighten-5 green green-text"> Credit</span>';
-
-                        if($detail->cash_from == 0){
+                        if ($detail->cash_from == 0) {
                             $cash_from .= '<span class="chip lighten-5 green green-text"> Cash Added</span>';
-                        }else{  
-                            $cash_from .= '<span class="chip lighten-5 green green-text">From Sales</span>'; 
-
-                            // $cash_from .= '&nbsp; <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '"><span class="chip lighten-5 green green-text"> BB1009</span></a>';                              
+                        } else {  
+                            $cash_from .= '<span class="chip lighten-5 green green-text">From Sales</span>';                               
                         }
-                    
-
-                }else{  
+                } else {  
                     $transaction_type .= '<span class="chip lighten-5 orange orange-text">Debit</span>';                                
                 }
-
-                
                 return $transaction_type. ' &nbsp; ' . $cash_from;
             })
             ->addColumn('transaction_from', function($detail){
                 $cash_from = '';
-               
                 return $cash_from;
             })
             ->addColumn('transaction_by', function($detail){
@@ -138,12 +120,9 @@ class CashbookController extends Controller
             ->editColumn('message', function($detail){
                 $message = '';
                 $message = Str::limit(strip_tags($detail->message), 30);
-
-                if (strlen(strip_tags($detail->message)) > 40){
-                    // $message .= '<button type="button" class="btn btn-default btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button>';
+                if (strlen(strip_tags($detail->message)) > 40) {
                     $message .= "<a href='javascript:void(0);' id=' . $detail->id . ' onclick='showMessage(\"".$detail->message."\")'>View</a>";
                 }
-
                 return $message ;
             })
             ->removeColumn('id')
@@ -169,41 +148,26 @@ class CashbookController extends Controller
      */
     public function store(Request $request)
     {
-
-        // echo "<pre>"; print_r($request->all()); exit;
-
         $validator = Validator::make($request->all(), [
             'cash_book' => 'required',
             'amount' => 'required',
         ]);
     
         if ($validator->passes()) {
-
-            
-
-            if($request->transaction == "add_cash"){
-
-                $current_balance = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $request->cash_book)
-                                            ->orderBy('created_at', 'desc')->value('balance_amount');
-                
-            }else{
-
-                $withdraw_from = ($request->cash_book == 1)?2:1;
-                $status = $this->checkWithdrawStatus($withdraw_from, $request->amount);
-                if($status){
-                    $withdraw = $this->systemWithdraw($request);
-                    $current_balance = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $request->cash_book)
-                                            ->orderBy('created_at', 'desc')->value('balance_amount');
-                }else{
+            if ($request->transaction == "add_cash") {
+                $current_balance = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $request->cash_book)->orderBy('created_at', 'desc')->value('balance_amount');
+            } else {
+                $withdraw_from          = ($request->cash_book == 1)?2:1;
+                $status                 = $this->checkWithdrawStatus($withdraw_from, $request->amount);
+                if ($status) {
+                    $withdraw           = $this->systemWithdraw($request);
+                    $current_balance    = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $request->cash_book)->orderBy('created_at', 'desc')->value('balance_amount');
+                } else {
                     $error = array('message' => 'No sufficient balance in account.');
-                    return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$error];
+                    return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$error];
                 }
-
-
-                    
             }
-
-            $obj = new Cashbook();  
+            $obj                        = new Cashbook();  
             $obj->shop_id               = SHOP_ID;	
             $obj->cash_book             = $request->cash_book;
             $obj->transaction_amount    = $request->amount;            
@@ -213,34 +177,26 @@ class CashbookController extends Controller
             $obj->done_by               = Auth::user()->id;            
             $obj->save();
 
-           
-            $business_cash    = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 1)->orderBy('created_at', 'desc')->value('balance_amount');  
-            $petty_cash       = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 2)->orderBy('created_at', 'desc')->value('balance_amount');  
-
+            $business_cash              = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 1)->orderBy('created_at', 'desc')->value('balance_amount');  
+            $petty_cash                 = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 2)->orderBy('created_at', 'desc')->value('balance_amount');  
             return ['flagError' => false, 'business_cash' => number_format($business_cash,2), 'petty_cash' => number_format($petty_cash,2), 'message' => "Transaction completed successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     public function systemWithdraw(Request $request)
     {
-
-        if($request->cash_book == 2){
-            $cash_book              = 1;
-            $cash_transfer_from     = "Business cash";
-            $cash_transfer_to       = "Petty cash";
-            
-        }else{
-            $cash_book              = 2;
-            $cash_transfer_from     = "Petty cash";
-            $cash_transfer_to       = "Business cash";
+        if ($request->cash_book == 2) {
+            $cash_book                  = 1;
+            $cash_transfer_from         = "Business cash";
+            $cash_transfer_to           = "Petty cash";
+        } else {
+            $cash_book                  = 2;
+            $cash_transfer_from         = "Petty cash";
+            $cash_transfer_to           = "Business cash";
         }
-       
-            $current_balance = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $cash_book)
-                                    ->orderBy('created_at', 'desc')->value('balance_amount');
-
-
-            $obj = new Cashbook();  
+            $current_balance            = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $cash_book)->orderBy('created_at', 'desc')->value('balance_amount');
+            $obj                        = new Cashbook();  
             $obj->shop_id               = SHOP_ID;	
             $obj->cash_book             = $cash_book;
             $obj->transaction_amount    = $request->amount;
@@ -249,7 +205,6 @@ class CashbookController extends Controller
             $obj->message               = "Auto withdrwal - Cash transfered to ". $cash_transfer_to. " from ". $cash_transfer_from;
             $obj->done_by               = Auth::user()->id;            
             $obj->save();
-
     }
     /**
      * Store a newly created resource in storage.
@@ -263,17 +218,11 @@ class CashbookController extends Controller
             'cash_book' => 'required',
             'amount' => 'required',
         ]);
-    
         if ($validator->passes()) {
-
-            $status = $this->checkWithdrawStatus($request->cash_book, $request->amount);
-
-            if($status){
-
-                $current_balance = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $request->cash_book)
-                                        ->orderBy('created_at', 'desc')->value('balance_amount');
-
-                $obj = new Cashbook();  
+            $status                         = $this->checkWithdrawStatus($request->cash_book, $request->amount);
+            if ($status) {
+                $current_balance            = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $request->cash_book)->orderBy('created_at', 'desc')->value('balance_amount');
+                $obj                        = new Cashbook();  
                 $obj->shop_id               = SHOP_ID;	
                 $obj->cash_book             = $request->cash_book;
                 $obj->transaction_amount    = $request->amount;
@@ -282,26 +231,20 @@ class CashbookController extends Controller
                 $obj->message               = $request->withdraw_details;
                 $obj->done_by               = Auth::user()->id;            
                 $obj->save();
-
-            
-                $business_cash    = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 1)->orderBy('created_at', 'desc')->value('balance_amount');  
-                $petty_cash       = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 2)->orderBy('created_at', 'desc')->value('balance_amount');  
-
+                $business_cash              = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 1)->orderBy('created_at', 'desc')->value('balance_amount');  
+                $petty_cash                 = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 2)->orderBy('created_at', 'desc')->value('balance_amount');  
                 return ['flagError' => false, 'business_cash' => number_format($business_cash,2), 'petty_cash' => number_format($petty_cash,2), 'message' => "Transaction completed successfully"];
             }
-
-            $error = array('message' => 'No sufficient balance in account.');
-            return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$error]; 
-        
+            $error                          = array('message' => 'No sufficient balance in account.');
+            return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$error]; 
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];   
-
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];   
     }
 
     public function checkWithdrawStatus($cash_book, $amount)
     {
         $business_cash    = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $cash_book)->orderBy('created_at', 'desc')->value('balance_amount');
-        if($business_cash < $amount){
+        if ($business_cash < $amount) {
             return false;
         }
         return true;

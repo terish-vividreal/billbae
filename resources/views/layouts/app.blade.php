@@ -3,8 +3,11 @@
   //confiData variable layoutClasses array in Helper.php file.
   $configData = Helper::applClasses();
 
-  // Store theme settings
-  $themeSettings = Helper::getThemeSettings(); 
+  if(auth()->user()->is_admin != 1) {
+    // Store theme settings
+    $themeSettings = Helper::getThemeSettings(); 
+  }
+
 @endphp
 <html class="loading" lang="en" data-textdirection="ltr">
 <head>

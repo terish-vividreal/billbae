@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
+use App\Models\ThemeSetting;
 use App\Models\User;
 use App\Models\ShopBilling;
 use App\Models\BillingFormat;
@@ -105,15 +107,16 @@ class StoreController extends Controller
      */
     public function create()
     {
-        $page               = collect();
-        $variants           = collect();
-        $user               = Auth::user();       
-        $page->title        = $this->title;
-        $page->link         = url($this->link);
-        $page->form_url     = url($this->link);
-        $page->form_method  = 'POST';
-        $variants->business_types     = BusinessType::pluck('name','id')->all();
-        $variants->roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
+        $page                       = collect();
+        $variants                   = collect();
+        $user                       = Auth::user();       
+        $page->title                = $this->title;
+        $page->link                 = url($this->link);
+        $page->form_url             = url($this->link);
+        $page->form_method          = 'POST';
+        $variants->business_types   = BusinessType::pluck('name','id')->all();
+        $variants->roles            = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
+        
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
     
@@ -134,15 +137,15 @@ class StoreController extends Controller
 
         if ($validator->passes()) {
 
-            $input      = $request->all();
-            $user_id    = Auth::user()->id;
-            $input['password'] = Hash::make($input['password']);
-            $input['parent_id'] = $user_id;
+            $input                      = $request->all();
+            $user_id                    = Auth::user()->id;
+            $input['password']          = Hash::make($input['password']);
+            $input['parent_id']         = $user_id;
 
             $user = User::create($input);
             $user->assignRole($request->input('roles'));
 
-            if(Auth::user()->parent_id == null){
+            if (Auth::user()->parent_id == null) {
                 $shop = new Shop();
                 $shop->name             = $input['shop_name'];
                 $shop->business_type_id = $input['business_type'];
@@ -151,26 +154,30 @@ class StoreController extends Controller
 
                 $user->shop_id = $shop->id;
             
-            }else{
-                $user->shop_id = Auth::user()->shop_id;
+            } else {
+                $user->shop_id          = Auth::user()->shop_id;
             }
-            
+
             $user->save();
 
-            $billing = new ShopBilling();
-            $billing->shop_id = $shop->id;
+            $billing                    = new ShopBilling();
+            $billing->shop_id           = $shop->id;
             $billing->save();
 
 
             $billing_format             = new BillingFormat();
             $billing_format->shop_id    = $shop->id;
-            $billing_format->prefix     = 'BBY';
-            $billing_format->suffix     = 100;
+            $billing_format->prefix     = Str::upper(Str::substr($shop->name, 0, 3)); 
+            $billing_format->suffix     = 1000;
             $billing_format->save();
+
+            $theme_settings             = new ThemeSetting();
+            $theme_settings->shop_id    = $shop->id;
+            $theme_settings->save();
 
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
     
     /**
@@ -227,28 +234,26 @@ class StoreController extends Controller
 
         if ($validator->passes()) {
 
-            $input = $request->all();
-            if(!empty($input['password'])){ 
-                $input['password'] = Hash::make($input['password']);
-            }else{
-                $input = Arr::except($input,array('password'));    
+            $input                  = $request->all();
+            if (!empty($input['password'])) { 
+                $input['password']  = Hash::make($input['password']);
+            } else {
+                $input              = Arr::except($input,array('password'));    
             }
         
-            $user = User::find($id);
+            $user                   = User::find($id);
             $user->update($input);
             DB::table('model_has_roles')->where('model_id',$id)->delete();
-        
             $user->assignRole($request->input('roles'));
 
-            $shop = Shop::find($user->shop_id);
+            $shop                   = Shop::find($user->shop_id);
             $shop->name             = $input['shop_name'];
             $shop->business_type_id = $input['business_type'];
             $shop->save();
 
-
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check!",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
 
     }
     
@@ -263,8 +268,6 @@ class StoreController extends Controller
         DB::table('model_has_roles')->where('model_id',$id)->delete();
         User::find($id)->delete();
 
-
-        return redirect()->route('users.index')
-                        ->with('success','User deleted successfully');
+        return redirect()->route('users.index')->with('success','User deleted successfully');
     }
 }

@@ -43,13 +43,13 @@ class PackageController extends Controller
      */
     public function create()
     {
-        $page                   = collect();
-        $variants               = collect();
-        $page->title            = $this->title;
-        $page->link             = url($this->link);
-        $page->route            = $this->route;
-        $page->entity           = $this->entity; 
-        $variants->services     = Service::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+        $page                           = collect();
+        $variants                       = collect();
+        $page->title                    = $this->title;
+        $page->link                     = url($this->link);
+        $page->route                    = $this->route;
+        $page->entity                   = $this->entity; 
+        $variants->services             = Service::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
         $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
         $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id');        
         $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');    
@@ -74,7 +74,6 @@ class PackageController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function($detail){
                 $action = ' <a  href="' . url(ROUTE_PREFIX.'/packages/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                // $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="icon-1x fas fa-trash-alt"></i></a>';
                 return $action;
             })
             ->addColumn('price', function($detail){
@@ -83,7 +82,7 @@ class PackageController extends Controller
             })
             ->addColumn('services', function($detail){
                 $services ='';
-                foreach($detail->service as $data){
+                foreach ($detail->service as $data) {
                     $services.=$data->name.',' ;
                 }
                 return rtrim($services, ',');
@@ -131,13 +130,12 @@ class PackageController extends Controller
             $data->save();
 
             $data->service()->sync($request->services);
-
-            if($request->additional_tax){
+            if ($request->additional_tax) {
                 $data->additionaltax()->sync($request->additional_tax);
             }
             return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**
@@ -165,22 +163,21 @@ class PackageController extends Controller
      */
     public function edit($id)
     {
-        $package = Package::with('service')->find($id);    
-        if($package){
-            $page                   = collect();
-            $variants               = collect();
-            $page->title            = $this->title;
-            $page->link             = url($this->link);
-            $page->route            = $this->route;
-            $page->entity           = $this->entity;   
-            $service_ids            = array();
+        $package                    = Package::with('service')->find($id);    
+        if ($package) {
+            $page                           = collect();
+            $variants                       = collect();
+            $page->title                    = $this->title;
+            $page->link                     = url($this->link);
+            $page->route                    = $this->route;
+            $page->entity                   = $this->entity;   
+            $service_ids                    = array();
             $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
             $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
             $variants->additional_tax_ids   = [];
             foreach ($package->service as $data) {
                 $service_ids[] = $data->id ;
             }
-
             if ($package->additionaltax) {
                 $variants->additional_tax_ids = [];
                 foreach($package->additionaltax as $row){
@@ -211,7 +208,7 @@ class PackageController extends Controller
         ]);
 
         if ($validator->passes()) {
-            $data = Package::findOrFail($id);
+            $data                   = Package::findOrFail($id);
             $data->shop_id          = SHOP_ID;
             $data->name             = $request->name;
             $data->slug             = $request->name;
@@ -229,7 +226,7 @@ class PackageController extends Controller
             $data->additionaltax()->sync($request->additional_tax);
             return ['flagError' => false, 'message' => $this->title. " updated successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**
@@ -245,14 +242,13 @@ class PackageController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $data = Package::findOrFail($request->id);
-        if($data){
-            $status = ($data->status == 0)?1:0;
-            $data->status = $status;
+        $data               = Package::findOrFail($request->id);
+        if ($data) {
+            $status         = ($data->status == 0)?1:0;
+            $data->status   = $status;
             $data->save();
             return ['flagError' => false, 'message' => $this->title. " status updated successfully"];
         }
         return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
     }
-    
 }

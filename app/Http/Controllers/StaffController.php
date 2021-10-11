@@ -56,11 +56,6 @@ class StaffController extends Controller
         $page->title    = $this->title;
         $page->link     = url($this->link);
         $page->route    = $this->route;
-
-        // $user_id = Auth::user()->id;
-        // $user = User::role('Staffs')->where('parent_id', $user_id)->where('is_active', '!=',  2)->get();
-        // echo "<pre>"; print_r($user); exit;
-
         return view($this->viewPath . '.list', compact('page'));
     }
 
@@ -72,9 +67,6 @@ class StaffController extends Controller
     {
         $user_id = Auth::user()->id;
         $detail =  User::role('Staffs')->where('parent_id', $user_id)->where('is_active', '!=',  2)->select(['name', 'mobile', 'email', 'is_active', 'id']);
-
-        // $rs = User::where('parent_id', $user_id)->update(['is_Active' => 1]);
-
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -87,10 +79,10 @@ class StaffController extends Controller
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('role', function($detail){
-                $roles = User::find($detail->id)->roles;
-                $html = '';
-                if($roles){
-                    foreach($roles as $role){
+                $roles  = User::find($detail->id)->roles;
+                $html   = '';
+                if ($roles) {
+                    foreach ($roles as $role) {
                         $html.= $role->name;
                     }
                 }
@@ -104,9 +96,6 @@ class StaffController extends Controller
             ->addColumn('action', function($detail){
                 $action = ' <a  href="' . url('staffs/' . $detail->id . '/edit') . '" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
                 $action .= ' <a  href="' . url('staffs/' . $detail->id . '/manage-document') . '" class="btn mr-2 light-blue" title="Update documents"><i class="material-icons">attach_file</i></a>';
-                // $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
-                // $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
-                // '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></button></form>';
                 return $action;
             })
             ->removeColumn('id', 'is_active')
@@ -149,48 +138,38 @@ class StaffController extends Controller
         ]);
 
         if ($validator->passes()) {
-            $input  = $request->all();
-            $user_id = Auth::user()->id;
-            // $input['password'] = Hash::make($input['password']);
+            $input              = $request->all();
+            $user_id            = Auth::user()->id;
             $input['parent_id'] = $user_id;
-            $user = User::create($input);
-
-            $staff_arr = array('0' => 'Staffs');
+            $user               = User::create($input);
+            $staff_arr          = array('0' => 'Staffs');
             $user->assignRole($staff_arr);
 
-            if(Auth::user()->parent_id == null){
-                $shop = new Shop();
-                $shop->name = $input['shop_name'];
-                $shop->user_id = $user->id;
+            if (Auth::user()->parent_id == null) {
+                $shop           = new Shop();
+                $shop->name     = $input['shop_name'];
+                $shop->user_id  = $user->id;
                 $shop->save();
-                $user->shop_id = $shop->id; 
-            }else{
-                $user->shop_id = Auth::user()->shop_id;
+                $user->shop_id  = $shop->id; 
+            } else {
+                $user->shop_id  = Auth::user()->shop_id;
             }
-            $token = Str::random(64);
+            $token              = Str::random(64);
             $user->password_create_token = $token;
             $user->save();
-
-
-
-
             // Staff Profile
-            $profile = new StaffProfile();
+            $profile                = new StaffProfile();
             $profile->user_id       = $user->id;
             $profile->designation   = $request->designation;
-            // $profile->dob           = $request->designation
             $profile->save();
-
             // Password create link
             // Mail::send('email.passwordCreate', ['token' => $token], function($message) use($request){
             //     $message->to($request->email);
             //     $message->subject('Create New Password Email');
             // });
-
             return ['flagError' => false, 'message' => "Staff account added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
-    
     }
     
     /**
@@ -201,7 +180,6 @@ class StaffController extends Controller
      */
     public function show($id)
     {
-        // dd('2');
         // $user = User::find($id);
         // return view('users.show',compact('user'));
     }
@@ -239,8 +217,6 @@ class StaffController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // echo "<pre>"; print_r($request->all()); exit;
-
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
@@ -248,32 +224,25 @@ class StaffController extends Controller
         ]);
 
         if ($validator->passes()) {
-    
-            $input = $request->all();
-            if(!empty($input['password'])){ 
+            $input  = $request->all();
+            if (!empty($input['password'])) { 
                 $input['password'] = Hash::make($input['password']);
-            }else{
-                $input = Arr::except($input,array('password'));    
+            } else {
+                $input  = Arr::except($input,array('password'));    
             }
-        
-            $user = User::find($id);
+            $user       = User::find($id);
             $user->update($input);
 
-
             // Staff Profile
-            $profile = StaffProfile::where('user_id', $id)->first();
+            $profile                    = StaffProfile::where('user_id', $id)->first();
             $profile->designation       = $request->designation;
             $profile->schedule_color    = $request->schedule_color;
             $profile->save();
-
             // DB::table('model_has_roles')->where('model_id',$id)->delete();
             // $user->assignRole($request->input('roles'));
-
             return ['flagError' => false, 'message' => "Staff account updated successfully"];
         }
-
         return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
-
     }
     
     /**
@@ -286,21 +255,19 @@ class StaffController extends Controller
     {
         // DB::table('model_has_roles')->where('model_id',$id)->delete();
         // User::find($id)->delete();
-        // return redirect()->route('users.index')
-        //                 ->with('success','User deleted successfully');
-        $user = User::findOrFail($id);
-        $user->is_active = 2;
+        // return redirect()->route('users.index')->with('success','User deleted successfully');
+        $user               = User::findOrFail($id);
+        $user->is_active    = 2;
         $user->save();
-
         return ['flagError' => false, 'message' => $this->title. " deactivated successfully"];
     }
 
     public function isUnique(Request $request)
     { 
-        if($request->user_id == 0){
+        if ($request->user_id == 0) {
             $count = User::where('email', $request->email)->count();
             echo ($count > 0 ? 'false' : 'true');
-        }else{
+        } else {
             $count = User::where('email', $request->email)->where('id', '!=' , $request->user_id)->count();
             echo ($count > 0 ? 'false' : 'true');
         }
@@ -375,16 +342,15 @@ class StaffController extends Controller
         $page->form_url     = url($this->link . '/' . $staff->id);
         $documents          = StaffDocument::where('user_id', $id)->get();
         $page->form_method  = 'PUT';
-
         return view($this->viewPath . '.manage-document',compact('staff','page', 'documents'));
     }
 
     public function getDocument(Request $request)
     {   
-        $user       = User::findOrFail($request->staff_id);
-        if($user){
+        $user           = User::findOrFail($request->staff_id);
+        if ($user) {
             $documents  = StaffDocument::where('user_id', $user->id)->where('status', 1)->get();
-            if($documents){
+            if ($documents) {
                 $user_documents = view($this->viewPath . '.list-documents', compact('documents'))->render();  
                 return ['flagError' => false, 'html' => $user_documents];
             }
@@ -434,10 +400,9 @@ class StaffController extends Controller
 
         StaffDocument::where('name',$old_image)->where('user_id',$request->staff_id)->delete();
 
-        if($request->data_return_type == 'html'){
+        if ($request->data_return_type == 'html') {
             return ['flagError' => false, 'message' => "Document deleted successfully"];
         }
-
         return $old_image;  
     }
 
@@ -451,12 +416,11 @@ class StaffController extends Controller
     {
         $document = StaffDocument::find($request->document_id);
 
-        if($document){
+        if ($document) {
             $document->details =$request->details;
             $document->save(); 
             return ['flagError' => false, 'message' => "Details updated successfully"];
         }
-
         return ['flagError' => true, 'message' => "Errors occurred Please check !", 'error'=>$validator->errors()->all()];
     }
 

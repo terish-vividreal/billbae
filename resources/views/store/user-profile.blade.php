@@ -35,13 +35,13 @@
 img {
   max-width: 100%; /* This rule is very important, please do not ignore this! */
 }
-/* .cropper-wrap-box, .cropper-canvas{
+.cropper-wrap-box, .cropper-canvas{
   transform: translateY(0) !important;
 }
 .cropper-container.cropper-bg{
   width: 766px !important;
   height: 766px !important;
-} */
+}
 </style>
 @endsection
 
@@ -203,6 +203,11 @@ img {
       canvas = cropper.getCroppedCanvas({
         width:400,
 			  height:700,
+        viewport: {
+          width: 600,
+          height: 300,
+          type:'circle'
+      },
     });
 
     canvas.toBlob(function(blob) {

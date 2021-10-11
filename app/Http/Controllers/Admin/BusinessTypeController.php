@@ -92,7 +92,7 @@ class BusinessTypeController extends Controller
 
             return ['flagError' => false, 'message' => $this->title. " Added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**

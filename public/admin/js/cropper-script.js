@@ -29,13 +29,16 @@
   $modal.modal({
       dismissible: true,
       onOpenEnd: function(modal, trigger) { 
+        $('input[type="file"]').val('');
         cropper = new Cropper(image, {
-        aspectRatio: 15 / 12,
-        viewMode: 3,
-        preview: '.preview'
+          aspectRatio: 15 / 15,
+        // viewMode: 3,
+        // preview: '.preview',
+        // autoCropArea:100,
       });
       },
       onCloseEnd: function() { 
+        $('input[type="file"]').val('');
         cropper.destroy();
         cropper = null;
       } 

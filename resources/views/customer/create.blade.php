@@ -138,26 +138,26 @@ if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
         rules: {
             name: {
-                    required: true,
-                    maxlength: 200,
-                    lettersonly: true,
+              required: true,
+              maxlength: 200,
+              lettersonly: true,
             },
             mobile:{
-                  required:true,
-                  minlength:10,
-                  maxlength:10
+              required:true,
+              minlength:10,
+              maxlength:10
             },
         },
         messages: { 
             name: {
-                required: "Please enter customer name",
-                maxlength: "Length cannot be more than 200 characters",
-                },
+              required: "Please enter customer name",
+              maxlength: "Length cannot be more than 200 characters",
+            },
             mobile: {
-                required: "Please enter mobile number",
-                maxlength: "Length cannot be more than 10 numbers",
-                minlength: "Length must be 10 numbers",
-                },
+              required: "Please enter mobile number",
+              maxlength: "Length cannot be more than 10 numbers",
+              minlength: "Length must be 10 numbers",
+            },
         },
         submitHandler: function (form) {
             $('#submit-btn').html('Please Wait...');

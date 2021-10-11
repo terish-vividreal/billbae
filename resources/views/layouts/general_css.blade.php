@@ -15,5 +15,6 @@
 <!-- BEGIN: Custom CSS-->
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/custom/custom.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/data-tables.css')}}">
+<link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/date-range-picker.css')}}">
 <!-- END: Custom CSS-->
 @stack('page-css')

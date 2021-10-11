@@ -997,7 +997,7 @@ $.extend( ColReorder.prototype, {
 			this._fnCreateDragNode();
 		}
 
-		/* Position the element - we respect where in the element the click occured */
+		/* Position the element - we respect where in the element the click Occurred */
 		this.dom.drag.css( {
 			left: this._fnCursorPosition( e, 'pageX' ) - this.s.mouse.offsetX,
 			top: this._fnCursorPosition( e, 'pageY' ) - this.s.mouse.offsetY

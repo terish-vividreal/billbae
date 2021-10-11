@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
@@ -48,13 +47,13 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $page                   = collect();
-        $variants               = collect();
-        $page->title            = $this->title;
-        $page->link             = url($this->link);
-        $page->route            = $this->route;
-        $page->entity           = $this->entity;        
-        $variants->service_category      = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');         
+        $page                           = collect();
+        $variants                       = collect();
+        $page->title                    = $this->title;
+        $page->link                     = url($this->link);
+        $page->route                    = $this->route;
+        $page->entity                   = $this->entity;        
+        $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');         
         return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 
@@ -65,14 +64,12 @@ class ServiceController extends Controller
     public function lists(Request $request)
     {
         $detail =  Service::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
-
         // if($request['name'] != '') {
         //     $names = strtolower($request['name']);
         //     $detail->Where(function ($query) use ($names) {
         //         $query->where('name', 'like', "'$names%'");
         //     });
         // }
-
         if($request['service_category'] != '') {
             $service_category = $request['service_category'];
             $detail->Where(function ($query) use ($service_category) {
@@ -110,13 +107,13 @@ class ServiceController extends Controller
      */
     public function create()
     {
-        $page                   = collect();
-        $variants               = collect();
-        $page->title            = $this->title;
-        $page->link             = url($this->link);
-        $page->route            = $this->route;
-        $page->entity           = $this->entity; 
-        $variants->hours        = Hours::pluck('name', 'id'); 
+        $page                           = collect();
+        $variants                       = collect();
+        $page->title                    = $this->title;
+        $page->link                     = url($this->link);
+        $page->route                    = $this->route;
+        $page->entity                   = $this->entity; 
+        $variants->hours                = Hours::pluck('name', 'id'); 
         $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');   
         $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
         $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'id'); 
@@ -132,6 +129,10 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
+
+        echo "<pre>"; print_r($request->all()); exit;
+
+
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',Rule::unique('services')->where(function($query) {
@@ -144,7 +145,6 @@ class ServiceController extends Controller
         ]);
 
         if ($validator->passes()) {
-
             $data                       = new Service();
             $data->shop_id              = SHOP_ID;
             $data->name                 = $request->name;
@@ -156,18 +156,15 @@ class ServiceController extends Controller
             $data->lead_after           = $request->lead_after;  
             $data->hours_id             = $request->hours_id;
             $data->gst_tax              = $request->gst_tax;
-            $data->hsn_code              = $request->hsn_code;
-
+            $data->hsn_code             = $request->hsn_code;
             $data->save();
 
-            if($request->additional_tax){
+            if ($request->additional_tax) {
                 $data->additionaltax()->sync($request->additional_tax);
             }
-
             return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occured. Please check !",  'error'=>$validator->errors()->all()];
-
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
     }
 
     /**
@@ -190,32 +187,25 @@ class ServiceController extends Controller
     public function edit($id)
     {
         $service = Service::with('gsttax')->find($id);   
-        
-        // echo "<pre>"; print_r($service); exit;
-
-
-
-        if($service){
+        if ($service) {
             $page                   = collect();
             $variants               = collect();
             $page->title            = $this->title;
-            $page->link              = url($this->link);
+            $page->link             = url($this->link);
             $page->route            = $this->route;
             $page->entity           = $this->entity; 
             $variants->hours        = Hours::pluck('name', 'id'); 
             $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
             $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'id');  
             $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
-            
-            if($service->additionaltax){
+            if ($service->additionaltax) {
                 $variants->additional_tax_ids = [];
-                foreach($service->additionaltax as $row){
+                foreach($service->additionaltax as $row) {
                     $variants->additional_tax_ids[] = $row->id;
                 }
             }
-
             return view($this->viewPath . '.create', compact('page', 'variants', 'service'));
-        }else{
+        } else {
             return redirect('services')->with('error', $this->title.' not found');
         }
     }
@@ -229,7 +219,6 @@ class ServiceController extends Controller
      */
     public function update(Request $request, $id)
     {       
-
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',Rule::unique('services')->where(function($query) use($id) {
@@ -240,11 +229,9 @@ class ServiceController extends Controller
             'hours_id' => 'required',
             'price' => 'required',
         ]);
-
-
         if ($validator->passes()) {
             $data = Service::findOrFail($id);
-            if($data){
+            if ($data) {
                 $data->name                 = $request->name;
                 $data->service_category_id  = $request->service_category_id;
                 $data->price                = $request->price;
@@ -253,15 +240,14 @@ class ServiceController extends Controller
                 $data->hours_id             = $request->hours_id;
                 $data->tax_included         = ($request->tax_included == 1) ? 1 : 0 ;
                 $data->gst_tax              = $request->gst_tax;
-                $data->hsn_code              = $request->hsn_code;
+                $data->hsn_code             = $request->hsn_code;
                 $data->save();
 
                 // if($request->additional_tax){
                     $data->additionaltax()->sync($request->additional_tax);
                 // }
-
                 return ['flagError' => false, 'message' => $this->title. " updated successfully"];
-            }else{
+            } else {
                 return ['flagError' => true, 'message' => "Data not found, Try again!"];
             }
         }
