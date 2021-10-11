@@ -25,11 +25,16 @@ background-color: #00bcd4 !important;
 }
 .typeahead.dropdown-menu{
   box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%), 0 1px 5px 0 rgb(0 0 0 / 20%) !important;
+  padding: 10px !important;
 }
 .typeahead.dropdown-menu li{
 font-size: 15px !important;
   line-height: 21px !important;
   display: block !important;
-  padding: 14px 16px !important;
+  padding: 12px 10px !important;
   color: #444 !important;
+  border-bottom: 1px solid #f5f5f5 !important;
+}
+.typeahead.dropdown-menu li:last-child{
+border: none !important;
 }
