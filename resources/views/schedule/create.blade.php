@@ -192,7 +192,7 @@ var today       = '';
 $(function() {
   $('input[name="start"]').daterangepicker({
       singleDatePicker: true,
-      startDate: new Date(),
+      // startDate: new Date(),
       showDropdowns: true,
       autoApply: true,
       timePicker: true,
@@ -416,7 +416,8 @@ function loadCalendar() {
       select: function(start, end, jsEvent, view, resource) {
           clearForm();
           $("#user_id").val(resource.id);
-          $("#start").val(start.format(timeFormat+':mm A'));
+          alert(start.format(timeFormat+':mm A'))
+          $('input[name="start"]').val(start.format(timeFormat+':mm A'));
           $("#start_time").val(start.format());
           $('#user_id').select2().trigger('change');
           $('#manage-schedule-modal').modal('open');
