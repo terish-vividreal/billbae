@@ -62,9 +62,9 @@
           <div class="col s12" id="account">
           <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
             <div class="media display-flex align-items-center mb-2">
-              <a class="mr-2" href="#">
-                <img src="{{ $store->show_image }}" alt="users avatar" class="z-depth-4 circle" id="store_logo">
-              </a>
+                <a class="mr-2 storlogo" href="javascript:">
+                  <img src="{{ $store->show_image }}" alt="users avatar" class="z-depth-4 circle" id="store_logo">
+                </a>
               <div class="media-body">
                 <form id="storeLogoForm" name="storeLogoForm" action="" method="POST" enctype="multipart/form-data" class="ajax-submit">
                     {{ csrf_field() }}
