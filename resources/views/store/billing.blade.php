@@ -302,7 +302,7 @@
           }
       });
 
-      billing_currency
+
     }      
   });
 

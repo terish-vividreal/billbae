@@ -68,3 +68,9 @@ max-width: 90% !important;
 .invoice-logo img{
 max-width: 160px;
 }
+
+/* Button Alignments */
+
+.btns{
+  text-align: right;
+}

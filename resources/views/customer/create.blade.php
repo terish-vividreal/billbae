@@ -4,7 +4,6 @@
 @section('seo_title', Str::plural($page->title) ?? '') 
 @section('search-title') {{ $page->title ?? ''}} @endsection
 
-
 {{-- vendor styles --}}
 @section('vendor-style')
 <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/flag-icon/css/flag-icon.min.css')}}">
@@ -12,12 +11,11 @@
 <link rel="stylesheet" type="text/css" href="{{ asset('admin/vendors/toastr/toastr.min.css') }}">
 @endsection
 
-
 @section('content')
 
 @section('breadcrumb')
   <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
- + <ol class="breadcrumbs mb-0">
+  <ol class="breadcrumbs mb-0">
     <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
     <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/customers') }}">{{ Str::plural($page->title) ?? ''}}</a></li>
     <li class="breadcrumb-item active">Create</li>
@@ -25,9 +23,22 @@
 @endsection
 
 @section('page-action')
-  <a href="{{ url(ROUTE_PREFIX.'/customers') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">List<i class="material-icons right">list</i></a>
+  <div class="actions action-btns display-flex align-items-center">
+    <div class="invoice-filter-action mr-3">
+      <a href="#" class="btn waves-effect waves-light invoice-export border-round z-depth-4">
+        <i class="material-icons">picture_as_pdf</i>
+        <span class="hide-on-small-only">Export to PDF</span>
+      </a>
+    </div>
+    <div class="invoice-create-btn">
+      <a href="app-invoice-add.html" class="btn waves-effect waves-light invoice-create border-round z-depth-4">
+        <i class="material-icons">add</i><span class="hide-on-small-only">Create Invoice</span>
+      </a>
+    </div>
+  </div>
+  <a class="btn waves-effect waves-light gradient-45deg-amber-amber gradient-shadow" onclick="importBrowseModal()">button</a>
+  <a href="{{ url(ROUTE_PREFIX.'/customers') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn gradient-shadow right" type="submit" name="action">List<i class="material-icons right">list</i></a>
 @endsection
-
 
 <div class="section">
   <div class="card">
@@ -41,6 +52,8 @@
     <div class="col s12 m12 l12">
       <div id="Form-advance" class="card card card-default scrollspy">
         <div class="card-content">
+          @include('layouts.success') 
+          @include('layouts.error')
           <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
                 {{ csrf_field() }}
@@ -103,6 +116,7 @@
   </div>
 </div>
 
+@include('customer.import-browse-modal')
 @endsection
 
 {{-- vendor scripts --}}
@@ -110,17 +124,14 @@
 <script src="{{asset('admin/vendors/toastr/toastr.min.js')}}"></script>
 @endsection
 
-
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <!-- date-time-picker -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-
-
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
 <script>
-
 
 $(document).ready(function(){
 
@@ -135,61 +146,109 @@ $(document).ready(function(){
 });
 
 if ($("#{{$page->entity}}Form").length > 0) {
-    var validator = $("#{{$page->entity}}Form").validate({ 
-        rules: {
-            name: {
-              required: true,
-              maxlength: 200,
-              lettersonly: true,
-            },
-            mobile:{
-              required:true,
-              minlength:10,
-              maxlength:10
-            },
-        },
-        messages: { 
-            name: {
-              required: "Please enter customer name",
-              maxlength: "Length cannot be more than 200 characters",
-            },
-            mobile: {
-              required: "Please enter mobile number",
-              maxlength: "Length cannot be more than 10 numbers",
-              minlength: "Length must be 10 numbers",
-            },
-        },
-        submitHandler: function (form) {
-            $('#submit-btn').html('Please Wait...');
-            $("#submit-btn"). attr("disabled", true);
-            id = $("#customer_id").val();
-            customer_id      = "" == id ? "" : "/" + id;
-            formMethod  = "" == id ? "POST" : "PUT";
-            var forms = $("#{{$page->entity}}Form");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-              $('#submit-btn').html('Submit');
-              $("#submit-btn"). attr("disabled", false);
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    setTimeout(function () { 
-                      window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-                    }, 2000);
-
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
-        },
-    })
+  var validator = $("#{{$page->entity}}Form").validate({ 
+    rules: {
+      name: {
+        required: true,
+        maxlength: 200,
+        lettersonly: true,
+      },
+      mobile:{
+        required:true,
+        minlength:10,
+        maxlength:10
+      },
+    },
+    messages: { 
+      name: {
+        required: "Please enter customer name",
+        maxlength: "Length cannot be more than 200 characters",
+      },
+      mobile: {
+        required: "Please enter mobile number",
+        maxlength: "Length cannot be more than 10 numbers",
+        minlength: "Length must be 10 numbers",
+      },
+    },
+    submitHandler: function (form) {
+        $('#submit-btn').html('Please Wait...');
+        $("#submit-btn"). attr("disabled", true);
+        id = $("#customer_id").val();
+        customer_id      = "" == id ? "" : "/" + id;
+        formMethod  = "" == id ? "POST" : "PUT";
+        var forms = $("#{{$page->entity}}Form");
+        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
+        data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          $('#submit-btn').html('Submit');
+          $("#submit-btn"). attr("disabled", false);
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);
+            setTimeout(function () { 
+              window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+            }, 2000);
+          }else{
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }
+        });
+    },
+  })
 }
 
 jQuery.validator.addMethod("lettersonly", function (value, element) {
     return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
+
+function importBrowseModal() {
+  $("#import-browse-modal").modal("open");
+}
+
+if ($("#importCustomerForm").length > 0) {
+  var validator = $("#importCustomerForm").validate({ 
+      rules: {
+        file: {
+          required: true,
+          extension: "csv"
+        }
+      },
+      messages: { 
+        file: {
+          required: "Please select a file.",
+          extension: "Please upload a file with .csv extension.",
+        }
+      },
+      submitHandler: function (form) {
+        additionaltax_id   = "" == id ? "" : "/" + id;
+        formMethod  = "" == id ? "POST" : "PUT";
+        var forms = $("#{{$page->entity}}Form");
+        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + additionaltax_id, type: formMethod, processData: false, 
+        data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+              showSuccessToaster(data.message);                
+              $("#import-browse-modal").modal("hide");
+              setTimeout(function () {
+                window.location.href = "{{ url('customers') }}";
+              }, 2000);
+
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }
+        });
+    },
+    errorPlacement: function(error, element) {
+        if (element.is("file")) {
+            error.insertAfter(element.next('.errorDiv'));
+        }else {
+            error.insertAfter(element);
+        }
+    }
+  })
+}
 
 </script>
 @endpush
