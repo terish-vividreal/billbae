@@ -3,17 +3,21 @@
 namespace App\Http\Controllers;
 use App\Models\ServiceCategory;
 use Illuminate\Validation\Rule;
+use App\Imports\CustomersImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use App\Models\Billing;
 use Illuminate\Support\Str;
 use App\Models\Customer;
 use App\Models\District;
 use App\Models\Country;
 use App\Models\Package;
 use App\Models\State;
+use App\Models\Shop;
 use DataTables;
 use Validator;
 use DB;
-
+use Auth;
 
 class CustomerController extends Controller
 {
@@ -30,6 +34,15 @@ class CustomerController extends Controller
      */
     public function index()
     {
+        // $store          = Shop::find(SHOP_ID);   
+        // $number         = 1001;  
+        // $prefix         = Str::upper(Str::substr($store->name, 0, 3)); 
+        // $max            = 6;
+        // $suffix         = str_pad($number, 5, 0, STR_PAD_LEFT);
+        // $customer_code  = $prefix.$suffix;
+        // echo $customer_code;
+        // exit;
+
         $page                   = collect();
         $variants               = collect();
         $page->title            = $this->title;
@@ -52,7 +65,7 @@ class CustomerController extends Controller
         $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity; 
-        $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');         
+        // $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');         
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
 
@@ -68,7 +81,7 @@ class CustomerController extends Controller
         if ($validator->passes()) {
             $data                   = new Customer();
             $data->shop_id          = SHOP_ID;
-            $data->name             = $request->name;
+            $data->name             = $request->name;   
             $data->gender           = $request->gender;
             $data->dob              = date("Y-m-d", strtotime($request->dob));
             $data->mobile           = $request->mobile;
@@ -79,6 +92,12 @@ class CustomerController extends Controller
             // $data->gst              = $request->gst;
             // $data->address          = $request->address;
             $data->save();
+
+
+            
+
+
+
             return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
@@ -188,7 +207,15 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer)
     {
-        //
+
+        $billing    = Billing::where('customer_id', $customer->id)->get();
+
+        if (count($billing) > 0) {
+            return ['flagError' => true, 'message' => "Cant Delete, Customer has billing information"];
+        } 
+        
+        $customer->delete();
+        return ['flagError' => false, 'message' => " Customer deleted successfully"];
     }
 
     public function autocomplete(Request $request)
@@ -196,4 +223,22 @@ class CustomerController extends Controller
         $data   = Customer::select("customers.id", DB::raw("CONCAT(customers.name,' - ',customers.mobile) as name"))->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")->orWhere("mobile","LIKE","%{$request->search}%")->get();
         return response()->json($data);
     }
+
+    /**
+    * @return \Illuminate\Support\Collection
+    */
+    public function import() 
+    {
+        // Excel::import(new CustomersImport,request()->file('file'));  
+        $import =  new CustomersImport;
+        $import->import(request()->file('file'));
+
+        // $file = request()->file('file')->store('import');
+        // if($import->failures()->isNotEmpty()){
+        //     unlink(storage_path('app/'.$file));
+        //     return redirect('customers')->with('success', 'Customers Imported Successfully.');
+        // }
+        return redirect('customers')->with('success', 'Customers Imported Successfully.');
+    }
+    
 }

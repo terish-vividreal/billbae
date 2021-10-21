@@ -172,6 +172,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($customer, CustomerController::class)->except(['show']);
     Route::get($customer . '/lists', [CustomerController::class, 'lists']);
     Route::get($customer . '/autocomplete', [CustomerController::class, 'autocomplete'])->name('billing.autocomplete');
+    Route::post($customer . '/import', [CustomerController::class, 'import'])->name('customer.import');
 
     // Additionaltax Routes
     $additionaltax = 'additional-tax';

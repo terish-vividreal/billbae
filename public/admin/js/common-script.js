@@ -49,4 +49,11 @@ function getChildElements(parent_id = null, selected = null, element = null, rou
             select.empty().append(selectTerms);
         }
     });
-  }
+}
+
+$(".print-success-msg").delay(1000).addClass("in").toggle(true).fadeOut(5000);
+$(".print-error-msg").delay(1000).addClass("in").toggle(true).fadeOut(5000);
+
+$(".card-alert .close").click(function () {
+    $(this).closest(".card-alert").fadeOut("slow");
+});

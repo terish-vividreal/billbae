@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-{{-- page title --}}
+{{++-- page title --}}
 @section('seo_title', Str::plural($page->title) ?? '') 
 @section('search-title') {{ $page->title ?? ''}} @endsection
 
@@ -10,7 +10,6 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
 @endsection
-
 
 @section('content')
 
@@ -71,7 +70,9 @@
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_mobile', $billing->mobile ?? '', array('id' => 'customer_mobile', 'placeholder' => 'Customer Mobile', 'disabled' => 'disabled')) !!}  
-                    <!-- <label for="customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label>  -->
+                    <!
+                    
+                    -- <label for="customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label>  -->
                   </div>
                 </div>
 
@@ -134,7 +135,6 @@
                     <label for="customer_gst" class="label-placeholder">GST No.</label> 
                   </div>
                   <div class="input-field col m6 s12">
-
                     @if(isset($billing->billingaddress->country_id))
                       {!! Form::select('country_id', $variants->country , $billing->billingaddress->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select country']) !!}
                     @else
@@ -159,7 +159,7 @@
                     @if(!empty($variants->districts))
                       {!! Form::select('district_id', $variants->districts , $billing->billingaddress->district_id ?? '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                     @else
-                    {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                      {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                     @endif 
 
                   </div>
@@ -235,7 +235,6 @@
 
 @endsection
 
-
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
@@ -276,7 +275,6 @@ $(function() {
   }, function(ev, picker) {
       // console.log(picker.format('DD-MM-YYYY'));
   });
-
   
   $('input[name="checkin_time"]').daterangepicker({
     singleDatePicker: true,
@@ -287,7 +285,7 @@ $(function() {
     timePicker24Hour: timePicker,
     locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
   }, function(ev, picker) {
-        // console.log(end.format('DD-MM-YYYY hh:mm A'));
+    // console.log(end.format('DD-MM-YYYY hh:mm A'));
   });
 
   $('input[name="checkout_time"]').daterangepicker({
@@ -299,7 +297,7 @@ $(function() {
     timePicker24Hour: timePicker,
     locale: { format: 'DD-MM-YYYY '+timeFormat+':mm A' },
   }, function(start, end, label) {
-        // console.log(end.format('DD-MM-YYYY hh:mm A'));
+      // console.log(end.format('DD-MM-YYYY hh:mm A'));
   });
   
   $('input[name="dob"]').daterangepicker({
@@ -309,12 +307,9 @@ $(function() {
     drops: "up",
     maxYear: parseInt(moment().format('YYYY'),10),
     autoApply: true,
-
-    }, function(ev, picker) {
-      console.log(picker.format('DD-MM-YYYY'));
-
+  }, function(ev, picker) {
+    console.log(picker.format('DD-MM-YYYY'));
   });
-
 });
 
 
@@ -324,23 +319,20 @@ getCustomerDetails(customer_id);
 
 // set service_type value and list items
 $("#service_type").val(service_type);
-if( service_type == 1 )
-{
+if( service_type == 1 ) {
   $("#services_block").show();
   $("#packages_block").hide();
   getServices(item_ids);
-}else
-{
+} else {
   $("#services_block").hide();
   $("#packages_block").show();
   getPackages(item_ids);
 }
 
 
-
 $('.service-type').select2({ placeholder: "Please choose packages", allowClear: false }).on('select2:select select2:unselect', function (e) { 
   var type = $(this).data("type");
-  listItemDetails(type) 
+  listItemDetails(type)
   $(this).valid()
 });
 
@@ -404,7 +396,7 @@ function getCustomerDetails(customer_id){
       url: "{{ url(ROUTE_PREFIX.'/common/get-customer-details') }}",
       dataType: 'json', data: { customer_id:customer_id},
       delay: 250,
-      success: function(data) {
+     success: function(data) {
         $('#customer_id').val(data.data.id);
         $("#search_customer").val(data.data.name + ' - ' + data.data.mobile);
         $("#customer_name").val(data.data.name);
@@ -417,13 +409,11 @@ function getCustomerDetails(customer_id){
 
 
 $(document).on('change', '#service_type', function () {
-  if( this.value == 1 )
-  {
+  if( this.value == 1 ) {
     $("#services_block").show();
     $("#packages_block").hide();
     getServices(null);
-  }else
-  {
+  } else {
     $("#services_block").hide();
     $("#packages_block").show();
     getPackages(null);
@@ -431,18 +421,16 @@ $(document).on('change', '#service_type', function () {
 });
 
 function getServices(item_ids = null){
-  $.ajax({
-      type: 'GET',
+  $.ajax({ type: 'GET',
       url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}",
       dataType: 'json',
       delay: 250,
       success: function(data) {
-          
           var selectTerms = '<option value="">Please choose services</option>';
           $.each(data.data, function(key, value) {
             selected = '';
-            if ( (item_ids != null) && (item_ids.length != 0) ){
-                if(jQuery.inArray(value.id, item_ids) !== -1 ){
+            if ( (item_ids != null) && (item_ids.length != 0) ) {
+                if (jQuery.inArray(value.id, item_ids) !== -1 ) {
                   selected = 'selected';
                 }
             }
@@ -457,24 +445,19 @@ function getServices(item_ids = null){
 }
 
 function getPackages(item_ids = null){
-  $.ajax({
-      type: 'GET',
-      url: "{{ url(ROUTE_PREFIX.'/common/get-all-packages') }}",
-      dataType: 'json',
-      delay: 250,
+  $.ajax({ type: 'GET', url: "{{ url(ROUTE_PREFIX.'/common/get-all-packages') }}", dataType: 'json', delay: 250,
       success: function(data) {
           var selectTerms = '<option value="">Please choose packages</option>';
           $.each(data.data, function(key, value) {
             selected = '';
-            if ( (item_ids != null) && (item_ids.length != 0) ){
-                if(jQuery.inArray(value.id, item_ids) !== -1 ){
+            if ( (item_ids != null) && (item_ids.length != 0) ) {
+                if (jQuery.inArray(value.id, item_ids) !== -1 ) {
                   selected = 'selected';
                 }
             }
             selectTerms += '<option value="' + value.id + '" '+selected+'>' + value.name + '</option>';
           });
-
-          var select = $('#packages');
+          var select    = $('#packages');
           select.empty().append(selectTerms);
           listItemDetails(item_type)
       }
@@ -483,56 +466,55 @@ function getPackages(item_ids = null){
 
 
 if ($("#{{$page->entity}}Form").length > 0) {
-    var validator = $("#{{$page->entity}}Form").validate({ 
-        rules: {
-            customer_name: {
-                    required: true,
-            },
-            search_customer: {
-                    required: true,
-            },
-            "bill_item[]": {
-                    required: true,
-            },
-        },
-        messages: { 
-            customer_name: {
-                required: "Please select a customer",
-            },
-            search_customer: {
-                required: "Please select a customer",
-            },
-            "bill_item[]": {
-                required: "Please select an item",
-            },
-        },
-        submitHandler: function (form) {
-            // var forms = $("#{{$page->entity}}Form");
-            // $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}", type: "POST", processData: false, 
-            // data: forms.serialize(), dataType: "html",
-            // }).done(function (a) {
-            //     var data = JSON.parse(a);
-            //     if(data.flagError == false){
-            //         showSuccessToaster(data.message);
-            //         // setTimeout(function () { 
-            //         //   window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-            //         // }, 2000);
-
-            //     }else{
-            //       showErrorToaster(data.message);
-            //       printErrorMsg(data.error);
-            //     }
-            // });
-            form.submit();
-        },
-        errorPlacement: function(error, element) {
-            if (element.is("select")) {
-                error.insertAfter(element.next('.select2'));
-            }else {
-                error.insertAfter(element);
-            }
-        }
-    })
+  var validator = $("#{{$page->entity}}Form").validate({ 
+    rules: {
+      customer_name: {
+        required: true,
+      },
+      search_customer: {
+        required: true,
+      },
+      "bill_item[]": {
+        required: true,
+      },
+    },
+    messages: { 
+      customer_name: {
+        required: "Please select a customer",
+      },
+      search_customer: {
+        required: "Please select a customer",
+      },
+      "bill_item[]": {
+        required: "Please select an item",
+      },
+    },
+    submitHandler: function (form) {
+      // var forms = $("#{{$page->entity}}Form");
+      // $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}", type: "POST", processData: false, 
+      // data: forms.serialize(), dataType: "html",
+      // }).done(function (a) {
+      //     var data = JSON.parse(a);
+      //     if(data.flagError == false){
+      //         showSuccessToaster(data.message);
+      //         // setTimeout(function () { 
+      //         //   window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+      //         // }, 2000);
+      //     }else{
+      //       showErrorToaster(data.message);
+      //       printErrorMsg(data.error);
+      //     }
+      // });
+      form.submit();
+    },
+    errorPlacement: function(error, element) {
+      if (element.is("select")) {
+        error.insertAfter(element.next('.select2'));
+      } else {
+        error.insertAfter(element);
+      }
+    }
+  })
 } 
 
 jQuery.validator.addMethod("lettersonly", function (value, element) {
@@ -541,8 +523,7 @@ jQuery.validator.addMethod("lettersonly", function (value, element) {
 
 
 $(document).on('change', '#country_id', function () {
-  $.ajax({
-      type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
+  $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
       success: function(data) {
           var selectTerms = '<option value="">Please select state</option>';
           $.each(data.data, function(key, value) {
@@ -556,8 +537,7 @@ $(document).on('change', '#country_id', function () {
 });
 
 $(document).on('change', '#state_id', function () {
-  $.ajax({
-      type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-districts-of-state') }}", data:{'state_id':this.value }, dataType: 'json',
+  $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-districts-of-state') }}", data:{'state_id':this.value }, dataType: 'json',
       success: function(data) {
           var selectTerms = '<option value="">Please select district</option>';
           $.each(data.data, function(key, value) {
@@ -569,41 +549,40 @@ $(document).on('change', '#state_id', function () {
   });
 });
 
-$("#discount_btn").click(function(){
+$("#discount_btn").click(function() {
   $("#discount-modal").modal("show");
 });
 
 if ($("#discountForm").length > 0) {
     var validator = $("#discountForm").validate({ 
         rules: {
-            discount_value: {
-                    required: true,
-            },
+          discount_value: {
+            required: true,
+          },
         },
         messages: { 
-            discount_value: {
-                required: "Please enter discount value",
-            }
+          discount_value: {
+            required: "Please enter discount value",
+          }
         },
         submitHandler: function (form) {
-            var forms       = $("#discountForm");
-            var grand_total = $("#grand_total").val();
-            $input          = $('<input type="hidden" name="grand_total"/>').val(grand_total);
-            forms.append($input);
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    $('#discountAmount').text('Discount Amount : ' + data.discount_value);
-                    $('#afterdiscount').text('After discount : ' + data.amount);
-                    $('#grand_total').val(data.amount);
-                    $("#discount-modal").modal("hide");
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
+          var forms       = $("#discountForm");
+          var grand_total = $("#grand_total").val();
+          $input          = $('<input type="hidden" name="grand_total"/>').val(grand_total);
+          forms.append($input);
+          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, data: forms.serialize(), dataType: "html",
+          }).done(function (a) {
+              var data    = JSON.parse(a);
+              if (data.flagError == false) {
+                  $('#discountAmount').text('Discount Amount : ' + data.discount_value);
+                  $('#afterdiscount').text('After discount : ' + data.amount);
+                  $('#grand_total').val(data.amount);
+                  $("#discount-modal").modal("hide");
+              } else {
+                showErrorToaster(data.message);
+                printErrorMsg(data.error);
+              }
+          });
         }
     })
 } 
