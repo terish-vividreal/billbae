@@ -4,7 +4,6 @@
 @section('seo_title', Str::plural($page->title) ?? '') 
 @section('search-title') {{ $page->title ?? ''}} @endsection
 
-
 {{-- vendor styles --}}
 @section('vendor-style')
   <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/jquery.dataTables.min.css')}}">
@@ -33,12 +32,9 @@
 
 @section('page-action')
   <!-- <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">add</i></a> -->
-
   <a href="javascript:" data-modalname="add-cash-modal"  data-form="addCashForm" class="btn waves-effect waves-light cyan breadcrumbs-btn right loadModal"><i class="fa fa-plus" aria-hidden="true"></i> Add Cash </a>
-  
   <a href="javascript:" data-modalname="withdraw-cash-modal" data-form="withdrawCashForm" class="btn waves-effect waves-light cyan breadcrumbs-btn right orange loadModal"><i class="fa fa-credit-card" aria-hidden="true"></i> Withdraw Cash</a>
 @endsection
-
 
 <div class="section section-data-tables">
   <div class="card">
@@ -198,7 +194,6 @@ $('.select2').select2({ placeholder: "Please select ", allowClear: false }).on('
 
 $('#add_cash_book').select2({ placeholder: "Add cash to", allowClear: true });
 
-
 $(".loadModal").on("click", function(){
   var modalname 	= $(this).data("modalname");
   var form   	    = $(this).data("form");
@@ -322,12 +317,12 @@ $(function() {
   var end     = moment();
 
   function cb(start, end) {
-      $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-      $("#start_range").val(start.format('YYYY-MM-DD MM:MM:MM'));
-      $("#end_range").val(end.format('YYYY-MM-DD MM:MM:MM'));
-      $("#range_sort").val(1);
-  
-    }
+    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    $("#start_range").val(start.format('YYYY-MM-DD MM:MM:MM'));
+    $("#end_range").val(end.format('YYYY-MM-DD MM:MM:MM'));
+    $("#range_sort").val(1);
+  }
+
   $('#reportrange').daterangepicker({
       startDate: start,
       endDate: end,
@@ -341,40 +336,39 @@ $(function() {
       }
   }, cb);
   cb(start, end);
-
 });
 
 $(function () {
-    table = $('#data-table-reports').DataTable({
-        pagination: true,
-        pageLength: 10,
-        responsive: true,
-        searchDelay: 500,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
-            data: search
-        },
-        columns: [
-            {data: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'created_at', name: 'name'},            
-            {data: 'cash_book', name: 'name'},            
-            {data: 'amount', name: 'name'},            
-            {data: 'transaction_type', name: 'name'},  
-            {data: 'transaction_by', name: 'name'},
-            {data: 'message', name: 'name'},
-        ]
-    });
+  table = $('#data-table-reports').DataTable({
+    pagination: true,
+    pageLength: 10,
+    responsive: true,
+    searchDelay: 500,
+    processing: true,
+    serverSide: true,
+    ajax: {
+      url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
+      data: search
+    },
+    columns: [
+      {data: 'DT_RowIndex', orderable: false, searchable: false},
+      {data: 'created_at', name: 'name'},            
+      {data: 'cash_book', name: 'name'},            
+      {data: 'amount', name: 'name'},            
+      {data: 'transaction_type', name: 'name'},  
+      {data: 'transaction_by', name: 'name'},
+      {data: 'message', name: 'name'},
+    ]
+  });
 });
 
 function search(value) {
-    value.name              = $('input[type=search]').val();
-    value.start_range       = $("#start_range").val();
-    value.end_range         = $("#end_range").val();
-    value.transaction_type  = $("#transaction_type").val();
-    value.cash_from         = $("#cash_from").val();
-    value.cash_book         = $("#cash_book").val();
+  value.name              = $('input[type=search]').val();
+  value.start_range       = $("#start_range").val();
+  value.end_range         = $("#end_range").val();
+  value.transaction_type  = $("#transaction_type").val();
+  value.cash_from         = $("#cash_from").val();
+  value.cash_book         = $("#cash_book").val();
 }
 
 $("#resetSelection").on("click", function(){

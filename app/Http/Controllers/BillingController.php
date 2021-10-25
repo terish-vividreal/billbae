@@ -537,24 +537,41 @@ class BillingController extends Controller
         if ($billing) {
             $billing_items_array        = $billing->items->toArray();
             $item_type                  = $billing_items_array[0]['item_type'];
+            // foreach ($billing_items_array as $row) {
+            //     $item_ids[] = $row['item_id']; 
+            // }
             foreach ($billing_items_array as $row) {
-                $item_ids[] = $row['item_id']; 
+                $ids[] = $row['item_id']; 
             }
             if ($item_type == 'services') {
-                $billing_items = Service::select('services.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
-                                    ->join('billing_items', 'billing_items.item_id', '=', 'services.id')->where('services.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('services.id', $item_ids)->orderBy('services.id', 'desc')->get();
+                $billing_items  = BillingItem::select('services.name',  'services.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 
+                                    'billing_items.discount_type', 'billing_items.discount_value', 'billing_item_taxes.cgst_percentage', 'billing_item_taxes.sgst_percentage',
+                                    'billing_item_taxes.tax_amount', 'billing_item_taxes.sgst_amount','billing_item_taxes.grand_total', 'billing_item_taxes.cgst_amount', )
+                                    ->join('services', 'services.id', '=', 'billing_items.item_id')->join('billing_item_taxes', 'billing_item_taxes.bill_item_id', '=', 'billing_items.id')                                        
+                                    ->where('services.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('services.id', $ids)->orderBy('services.id', 'desc')->get();
             } else {
-                $billing_items = Package::select('packages.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
-                                    ->join('billing_items', 'billing_items.item_id', '=', 'packages.id')->where('packages.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('packages.id', $item_ids)->orderBy('packages.id', 'desc')->get();
-            }      
-            foreach ($billing_items as $key => $row) {
-                $tax_array                          = TaxHelper::simpleTaxCalculation($row);
-                $billing_items[$key]['tax_array']   = $tax_array;
-                $grand_total                        = ($grand_total + $billing_items[$key]['tax_array']['total_amount']); 
-                if($billing_items[$key]['tax_array']['discount_applied'] == 1) {
-                    $grand_total            = ($grand_total - $billing_items[$key]['tax_array']['discount_amount']); 
-                }
+                $billing_items  = BillingItem::select('packages.name',  'packages.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 
+                                    'billing_items.discount_type', 'billing_items.discount_value', 'billing_item_taxes.cgst_percentage', 'billing_item_taxes.sgst_percentage',
+                                    'billing_item_taxes.tax_amount', 'billing_item_taxes.sgst_amount','billing_item_taxes.grand_total', 'billing_item_taxes.cgst_amount',)
+                                    ->join('packages', 'packages.id', '=', 'billing_items.item_id')->join('billing_item_taxes', 'billing_item_taxes.bill_item_id', '=', 'billing_items.id')                                        
+                                    ->where('packages.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('packages.id', $ids)->orderBy('packages.id', 'desc')->get();
             }
+            $grand_total        =  $billing_items->sum('grand_total');
+            // if ($item_type == 'services') {
+            //     $billing_items = Service::select('services.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
+            //                         ->join('billing_items', 'billing_items.item_id', '=', 'services.id')->where('services.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('services.id', $item_ids)->orderBy('services.id', 'desc')->get();
+            // } else {
+            //     $billing_items = Package::select('packages.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
+            //                         ->join('billing_items', 'billing_items.item_id', '=', 'packages.id')->where('packages.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('packages.id', $item_ids)->orderBy('packages.id', 'desc')->get();
+            // }      
+            // foreach ($billing_items as $key => $row) {
+            //     $tax_array                          = TaxHelper::simpleTaxCalculation($row);
+            //     $billing_items[$key]['tax_array']   = $tax_array;
+            //     $grand_total                        = ($grand_total + $billing_items[$key]['tax_array']['total_amount']); 
+            //     if($billing_items[$key]['tax_array']['discount_applied'] == 1) {
+            //         $grand_total            = ($grand_total - $billing_items[$key]['tax_array']['discount_amount']); 
+            //     }
+            // }
         }              
         $data       = ['billing' => $billing, 'store' => $store, 'billing_items' => $billing_items, 'grand_total' => $grand_total, ];
         $pdf        = PDF::loadView($this->viewPath . '.invoice-pdf', $data);

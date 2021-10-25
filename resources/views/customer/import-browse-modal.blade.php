@@ -31,3 +31,61 @@
         </div>
     </form>
   </div>
+
+  
+@push('page-scripts')
+<!-- date-time-picker -->
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+<script>
+
+function importBrowseModal() {
+  $("#import-browse-modal").modal("open");
+}
+
+if ($("#importCustomerForm").length > 0) {
+  var validator = $("#importCustomerForm").validate({ 
+      rules: {
+        file: {
+          required: true,
+          extension: "csv"
+        }
+      },
+      messages: { 
+        file: {
+          required: "Please select a file.",
+          extension: "Please upload a file with .csv extension.",
+        }
+      },
+      submitHandler: function (form) {
+        additionaltax_id   = "" == id ? "" : "/" + id;
+        formMethod  = "" == id ? "POST" : "PUT";
+        var forms = $("#{{$page->entity}}Form");
+        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + additionaltax_id, type: formMethod, processData: false, 
+        data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+              showSuccessToaster(data.message);                
+              $("#import-browse-modal").modal("hide");
+              setTimeout(function () {
+                window.location.href = "{{ url('customers') }}";
+              }, 2000);
+
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }
+        });
+    },
+    errorPlacement: function(error, element) {
+        if (element.is("file")) {
+            error.insertAfter(element.next('.errorDiv'));
+        }else {
+            error.insertAfter(element);
+        }
+    }
+  })
+}
+
+</script>
+@endpush
