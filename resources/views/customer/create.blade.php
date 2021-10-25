@@ -23,21 +23,9 @@
 @endsection
 
 @section('page-action')
-  <div class="actions action-btns display-flex align-items-center">
-    <div class="invoice-filter-action mr-3">
-      <a href="#" class="btn waves-effect waves-light invoice-export border-round z-depth-4">
-        <i class="material-icons">picture_as_pdf</i>
-        <span class="hide-on-small-only">Export to PDF</span>
-      </a>
-    </div>
-    <div class="invoice-create-btn">
-      <a href="app-invoice-add.html" class="btn waves-effect waves-light invoice-create border-round z-depth-4">
-        <i class="material-icons">add</i><span class="hide-on-small-only">Create Invoice</span>
-      </a>
-    </div>
-  </div>
-  <a class="btn waves-effect waves-light gradient-45deg-amber-amber gradient-shadow" onclick="importBrowseModal()">button</a>
-  <a href="{{ url(ROUTE_PREFIX.'/customers') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn gradient-shadow right" type="submit" name="action">List<i class="material-icons right">list</i></a>
+  <a href="javascript:" class="btn waves-effect waves-light orange darken-4 breadcrumbs-btn" onclick="importBrowseModal()" >Upload<i class="material-icons right">attach_file</i></a>
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">person_add</i></a>
+  <a href="{{ url(ROUTE_PREFIX.'/customers') }}" class="btn waves-effect waves-light light-blue darken-4 breadcrumbs-btn" type="submit" name="action">List<i class="material-icons right">list</i></a>
 @endsection
 
 <div class="section">
@@ -56,59 +44,51 @@
           @include('layouts.error')
           <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
-                {{ csrf_field() }}
-                {!! Form::hidden('customer_id', $customer->id ?? '' , ['id' => 'customer_id'] ); !!}
-
-            <div class="row">
-              <div class="input-field col m6 s12">
-                {!! Form::text('name', $customer->name ?? '', array('id' => 'name')) !!}  
-                <label for="name" class="label-placeholder">Customer Name <span class="red-text">*</span></label>
+              {{ csrf_field() }}
+              {!! Form::hidden('customer_id', $customer->id ?? '' , ['id' => 'customer_id'] ); !!}
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  {!! Form::text('name', $customer->name ?? '', array('id' => 'name')) !!}  
+                  <label for="name" class="label-placeholder">Customer Name <span class="red-text">*</span></label>
+                </div>
+                <div class="input-field col m6 s12">
+                  {!! Form::text('email', $customer->email ?? '', array('autocomplete' => 'off', 'id' => 'email')) !!}
+                  <label for="email" class="label-placeholder">Email</label>
+                </div>
               </div>
-              <div class="input-field col m6 s12">
-                {!! Form::text('email', $customer->email ?? '', array('autocomplete' => 'off', 'id' => 'email')) !!}
-                <label for="email" class="label-placeholder">Email</label>
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  {!! Form::text('mobile', $customer->mobile ?? '', array('id' => 'mobile', 'class' => 'check_numeric')) !!}  
+                  <label for="mobile" class="label-placeholder">Mobile<span class="red-text">*</span></label>
+                </div>              
+                <div class="input-field col m6 s12">                
+                  <p>
+                    <label>
+                      <input value="1" id="male" name="gender" type="radio" checked/>
+                      <span> Male </span>
+                    </label>             
+                    <label>
+                      <input value="2" id="female" name="gender" type="radio" />
+                      <span> Female </span>
+                    </label>     
+                    <label>
+                      <input value="3" id="others" name="gender" type="radio" />
+                      <span> Others </span>
+                    </label>
+                  </p>
+                </div>             
               </div>
-            </div>
-
-
-
-            <div class="row">
-              <div class="input-field col m6 s12">
-                {!! Form::text('mobile', $customer->mobile ?? '', array('id' => 'mobile', 'class' => 'check_numeric')) !!}  
-                <label for="mobile" class="label-placeholder">Mobile<span class="red-text">*</span></label>
-              </div>              
-              <div class="input-field col m6 s12">                
-                <p>
-                  <label>
-                    <input value="1" id="male" name="gender" type="radio" checked/>
-                    <span> Male </span>
-                  </label>             
-                  <label>
-                    <input value="2" id="female" name="gender" type="radio" />
-                    <span> Female </span>
-                  </label>     
-                  <label>
-                    <input value="3" id="others" name="gender" type="radio" />
-                    <span> Others </span>
-                  </label>
-                </p>
-                <!-- <label for="gender" class="label-placeholder">Gender </label> -->
-              </div>             
-            </div>
-
-            <div class="row">
-              <div class="input-field col m6 s12">
-                <input type='text' name="dob" id="dob" onkeydown="return false" class="" autocomplete="off" />
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  <input type='text' name="dob" id="dob" onkeydown="return false" class="" autocomplete="off" />
+                </div>
               </div>
-            </div>
-
-            <div class="row">
-              <div class="input-field col s12">
-                <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
-                <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
+              <div class="row">
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
+                </div>
               </div>
-            </div>
-
           </form>
         </div>
       </div>
@@ -130,7 +110,7 @@
 <!-- date-time-picker -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+
 <script>
 
 $(document).ready(function(){
@@ -171,28 +151,28 @@ if ($("#{{$page->entity}}Form").length > 0) {
       },
     },
     submitHandler: function (form) {
-        $('#submit-btn').html('Please Wait...');
-        $("#submit-btn"). attr("disabled", true);
-        id = $("#customer_id").val();
-        customer_id      = "" == id ? "" : "/" + id;
-        formMethod  = "" == id ? "POST" : "PUT";
-        var forms = $("#{{$page->entity}}Form");
-        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
-        data: forms.serialize(), dataType: "html",
-        }).done(function (a) {
-          $('#submit-btn').html('Submit');
-          $("#submit-btn"). attr("disabled", false);
-          var data = JSON.parse(a);
-          if (data.flagError == false) {
-            showSuccessToaster(data.message);
-            setTimeout(function () { 
-              window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-            }, 2000);
-          }else{
-            showErrorToaster(data.message);
-            printErrorMsg(data.error);
-          }
-        });
+      $('#submit-btn').html('Please Wait...');
+      $("#submit-btn"). attr("disabled", true);
+      id = $("#customer_id").val();
+      customer_id      = "" == id ? "" : "/" + id;
+      formMethod  = "" == id ? "POST" : "PUT";
+      var forms = $("#{{$page->entity}}Form");
+      $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
+      data: forms.serialize(), dataType: "html",
+      }).done(function (a) {
+        $('#submit-btn').html('Submit');
+        $("#submit-btn"). attr("disabled", false);
+        var data = JSON.parse(a);
+        if (data.flagError == false) {
+          showSuccessToaster(data.message);
+          setTimeout(function () { 
+            window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+          }, 2000);
+        } else {
+          showErrorToaster(data.message);
+          printErrorMsg(data.error);
+        }
+      });
     },
   })
 }
@@ -201,55 +181,5 @@ jQuery.validator.addMethod("lettersonly", function (value, element) {
     return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
 
-function importBrowseModal() {
-  $("#import-browse-modal").modal("open");
-}
-
-if ($("#importCustomerForm").length > 0) {
-  var validator = $("#importCustomerForm").validate({ 
-      rules: {
-        file: {
-          required: true,
-          extension: "csv"
-        }
-      },
-      messages: { 
-        file: {
-          required: "Please select a file.",
-          extension: "Please upload a file with .csv extension.",
-        }
-      },
-      submitHandler: function (form) {
-        additionaltax_id   = "" == id ? "" : "/" + id;
-        formMethod  = "" == id ? "POST" : "PUT";
-        var forms = $("#{{$page->entity}}Form");
-        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + additionaltax_id, type: formMethod, processData: false, 
-        data: forms.serialize(), dataType: "html",
-        }).done(function (a) {
-          var data = JSON.parse(a);
-          if (data.flagError == false) {
-              showSuccessToaster(data.message);                
-              $("#import-browse-modal").modal("hide");
-              setTimeout(function () {
-                window.location.href = "{{ url('customers') }}";
-              }, 2000);
-
-          } else {
-            showErrorToaster(data.message);
-            printErrorMsg(data.error);
-          }
-        });
-    },
-    errorPlacement: function(error, element) {
-        if (element.is("file")) {
-            error.insertAfter(element.next('.errorDiv'));
-        }else {
-            error.insertAfter(element);
-        }
-    }
-  })
-}
-
 </script>
 @endpush
-

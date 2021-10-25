@@ -109,18 +109,35 @@ class CustomerController extends Controller
      */
     public function lists(Request $request)
     {
-        $detail =  Customer::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
-        // if($request['service_category'] != '') {
-        //     $service_category = $request['service_category'];
-        //     $detail->Where(function ($query) use ($service_category) {
-        //         $query->where('service_category_id', $service_category);
-        //     });
-        // }
+        $detail =  Customer::where('shop_id', SHOP_ID);
+
+        if ($request['customer_type'] != '') {
+            if ($request['customer_type'] == 'deleted') {  
+                $detail         = $detail->onlyTrashed();
+            }
+        }
+
+        $detail = $detail->orderBy('id', 'desc');;
+
         return Datatables::of($detail)
             ->addIndexColumn()
+            ->addColumn('status', function($detail){
+            if ($detail->deleted_at == null) {  
+                $status = '<span class="chip lighten-5 green green-text">Active</span>';
+            } else {
+                $status = '<span class="chip lighten-5 red red-text">Banned</span>';
+            }
+            return $status;
+            })
             ->addColumn('action', function($detail){
+
+            if ($detail->deleted_at == null) {  
                 $action = ' <a  href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
+                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Remove"><i class="material-icons">block</i></a>';
+            } else {
+                $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
+                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="hardDelete(this.id)" data-type="delete" class="btn btn-danger btn-sm btn-icon mr-2" title="PDelete"><i class="material-icons">delete</i></a>';
+            }
                 return $action;
             })
             ->removeColumn('id')
@@ -196,7 +213,7 @@ class CustomerController extends Controller
             $data->save();
             return ['flagError' => false, 'message' => $this->title. " updated successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=> $validator->errors()->all()];
     }
 
     /**
@@ -205,17 +222,41 @@ class CustomerController extends Controller
      * @param  \App\Models\Customer  $customer
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Customer $customer)
+    public function destroy(Customer $customer, Request $request)
     {
-
         $billing    = Billing::where('customer_id', $customer->id)->get();
-
         if (count($billing) > 0) {
-            return ['flagError' => true, 'message' => "Cant Delete, Customer has billing information"];
+            return ['flagError' => true, 'message' => "Cant Delete, Customer have billing information"];
         } 
-        
+    
         $customer->delete();
-        return ['flagError' => false, 'message' => " Customer deleted successfully"];
+        return ['flagError' => false, 'message' => " Customer removed successfully"];
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Customer  $customer
+     * @return \Illuminate\Http\Response
+     */
+    public function hardDelete($id, Request $request)
+    {
+        $customer   = Customer::where('id', $id)->withTrashed()->first();
+        $customer->forceDelete();
+        return ['flagError' => false, 'message' => " Customer permanently deleted"];
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Customer  $customer
+     * @return \Illuminate\Http\Response
+     */
+    public function restore($id, Request $request)
+    {
+        $customer   = Customer::where('id', $id)->withTrashed()->first();
+        $customer->restore();
+        return ['flagError' => false, 'message' => " Customer restored successfully"];
     }
 
     public function autocomplete(Request $request)
@@ -240,5 +281,4 @@ class CustomerController extends Controller
         // }
         return redirect('customers')->with('success', 'Customers Imported Successfully.');
     }
-    
 }

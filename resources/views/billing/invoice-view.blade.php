@@ -37,7 +37,7 @@
               <div class="invoice-date display-flex align-items-center flex-wrap">
                 <div class="mr-3">
                   <small>Billed Date:</small>
-                  <span>{{$billing->billed_date}}</span>
+                  <span>{{$billing->formatted_billed_date}}</span>
                 </div>
                 <!-- <div>
                   <small>Date Due:</small>

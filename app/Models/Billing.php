@@ -144,6 +144,11 @@ class Billing extends Model
             return $billing; 
     }
 
+    public function getFormattedBilledDateAttribute()
+    {
+        return FunctionHelper::dateToTimeZone($this->billed_date, 'd-m-Y h:i A');
+    }
+
     public static function deleteBill($id)
     {
         $data   =  self::find($id);

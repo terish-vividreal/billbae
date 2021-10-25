@@ -29,21 +29,18 @@
 @endsection
 
 @section('page-action')
+  <a href="javascript:" class="btn waves-effect waves-light orange darken-4 breadcrumbs-btn" onclick="importBrowseModal()" >Upload<i class="material-icons right">attach_file</i></a>
   <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">person_add</i></a>
-  <!-- <a href="#" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">person_add</i></a> -->
-  
   <a class="btn dropdown-settings waves-effect waves-light  light-blue darken-4 breadcrumbs-btn" href="#!" data-target="dropdown1" id="customerListBtn"><i class="material-icons hide-on-med-and-up">settings</i><span class="hide-on-small-onl">List</span><i class="material-icons right">arrow_drop_down</i></a>
-  <ul class="dropdown-content" id="dropdown1" tabindex="0">
-    <li tabindex="0"><a class="grey-text text-darken-2" href="{{ url(ROUTE_PREFIX.'/customers') }}">Active </a></li>
-    <li tabindex="0"><a class="grey-text text-darken-2" href="{{ url(ROUTE_PREFIX.'/customers/deleted') }}">Deleted</a></li>
+    <ul class="dropdown-content" id="dropdown1" tabindex="0">
+      <li tabindex="0"><a class="grey-text text-darken-2 listBtn" href="javascript:" data-type="active">Active </a></li>
+      <li tabindex="0"><a class="grey-text text-darken-2 listBtn" data-type="deleted" href="javascript:">Deleted</a></li>
+    </ul>
 
-  </ul>
-
-
-
-  <!-- <a href="" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">person_add</i></a>
-  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">person_add</i></a> -->
-  
+  <form id="customerListForm" name="customerListForm" role="form" method="" action="" class="ajax-submit">
+    {{ csrf_field() }}
+    {!! Form::hidden('customer_type', '' , ['id' => 'customer_type'] ); !!}
+  </form>
 @endsection
 
 <div class="section section-data-tables">
@@ -69,6 +66,7 @@
                               <th>Name</th>
                               <th>Email</th>
                               <th>Mobile</th>
+                              <th>Status</th>
                               <th>Action</th>
                             </tr>
                         </thead>
@@ -80,7 +78,7 @@
       </div>
     </div>
 </div>
-
+@include('customer.import-browse-modal')
 @endsection
 
 {{-- vendor scripts --}}
@@ -89,7 +87,6 @@
 <script src="{{asset('admin/vendors/data-tables/extensions/responsive/js/dataTables.responsive.min.js')}}"></script>
 <script src="{{asset('admin/vendors/data-tables/js/dataTables.select.min.js')}}"></script>
 @endsection
-
 
 @push('page-scripts')
 <script src="{{asset('admin/js/scripts/data-tables.js')}}"></script>
@@ -114,6 +111,7 @@
           {data: 'name', name: 'name', orderable: false},            
           {data: 'email', name: 'name', orderable: false},               
           {data: 'mobile', name: 'name', orderable: false},               
+          {data: 'status', name: 'name', orderable: false},               
           {data: 'action', name: 'action', orderable: false, searchable: false, width:75},
         ]
     });
@@ -121,75 +119,98 @@
   });
 
   function search(value) {
-    value.name = $('input[type=search]').val();
+    value.name          = $('input[type=search]').val();
+    value.customer_type = $("#customer_type").val();
   }
 
-  $( "#customerListBtn" ).change(function() {
-    alert( "Handler for .change() called." );
+  $(".listBtn").on("click", function(){
+    $("#customer_type").val($(this).attr('data-type'));
+    table.ajax.reload();
   });
-  
-
 
   function softDelete(b) {
-
     swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
-          buttons: {
-            cancel: 'No, Please!',
-            delete: 'Yes, Delete'
-          }
-      }).then(function (willDelete) {
-        if (willDelete) {
-          $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-            .done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                  showSuccessToaster(data.message);          
-                  setTimeout(function () {
-                    table.ajax.reload();
-                    }, 2000);
+        buttons: {
+          cancel: 'No, Please!',
+          delete: 'Yes, Remove'
+        }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+          .done(function (a) {
+              var data = JSON.parse(a);
+              if(data.flagError == false){
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                  }, 2000);
 
-              }else{
-                showErrorToaster(data.message);
-                printErrorMsg(data.error);
-              }   
-          }).fail(function () {
-                  showErrorToaster("Something went wrong!");
-          });
-        } 
-      });
-
-
-          //  Swal.fire({
-          //   title: 'Are you sure want to delete ?',
-          //   text: "You won't be able to revert this!",
-          //   type: 'warning',
-          //   showCancelButton: true,
-          //   confirmButtonColor: '#3085d6',
-          //   cancelButtonColor: '#d33',
-          //   confirmButtonText: 'Yes, delete it!'
-          //   }).then(function(result) {
-          //       if (result.value) {
-          //           $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-          //               .done(function (a) {
-          //                   var data = JSON.parse(a);
-          //                   if(data.flagError == false){
-          //                     showSuccessToaster(data.message);          
-          //                     setTimeout(function () {
-          //                       table.ajax.reload();
-          //                       }, 2000);
-      
-          //                 }else{
-          //                   showErrorToaster(data.message);
-          //                   printErrorMsg(data.error);
-          //                 }   
-          //               }).fail(function () {
-          //                       showErrorToaster("Somthing went wrong!");
-          //               });
-          //       }
-          //   });
+            }else{
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+        }).fail(function () {
+                showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
   }
 
+  function hardDelete(b) {
+    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
+        buttons: {
+          cancel: 'No, Please!',
+          delete: 'Yes, Delete'
+        }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/hard-delete/" + b, type: "POST", dataType: "html"})
+          .done(function (a) {
+              var data = JSON.parse(a);
+              if(data.flagError == false){
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                  }, 2000);
 
+            }else{
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+        }).fail(function () {
+            showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
+  }
+
+  function restore(b) {
+    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
+        buttons: {
+          cancel: 'No, Please!',
+          delete: 'Yes, Restore'
+        }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/restore/" + b, type: "POST", dataType: "html"})
+          .done(function (a) {
+              var data = JSON.parse(a);
+              if(data.flagError == false){
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                  }, 2000);
+
+            }else{
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+        }).fail(function () {
+                showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
+  }
 
 </script>
 @endpush
