@@ -36,9 +36,7 @@ class CustomersImport implements ToCollection, WithHeadingRow, SkipsOnFailure
             '*.email.unique' => 'Duplicate Email id. Customer email must be unique',
             '*.email.required' => 'Customer email is required',
             '*.email.email' => 'Invalid email',
-        ]
-        
-        )->validate();
+        ])->validate();
  
        foreach ($rows as $row) {
 

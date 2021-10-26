@@ -160,6 +160,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($services, ServiceController::class)->except(['show']);
     Route::get($services . '/lists', [ServiceController::class, 'lists']);
     Route::get($services . '/select-list', [ServiceController::class, 'lists']);
+    Route::post($services . '/import/data', [ServiceController::class, 'import'])->name('services.import');
 
     // Packages Routes
     $packages = 'packages';

@@ -7,6 +7,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\ServiceCategory;
 use App\Models\Additionaltax;
+use App\Imports\ServicesImport;
 use Illuminate\Support\Arr;
 use App\Models\Service;
 use App\Models\User;
@@ -129,10 +130,7 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
-
-        echo "<pre>"; print_r($request->all()); exit;
-
-
+        // echo "<pre>"; print_r($request->all()); exit;
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',Rule::unique('services')->where(function($query) {
@@ -264,5 +262,15 @@ class ServiceController extends Controller
     {
         $error = array('message' => 'Cant delete! Used in another modules.');
         return ['flagError' => true, 'error'=> $error];
+    }
+
+    /**
+    * @return \Illuminate\Support\Collection
+    */
+    public function import() 
+    {
+        $import =  new ServicesImport;
+        $import->import(request()->file('file'));
+        return redirect('customers')->with('success', 'Services Imported Successfully.');
     }
 }
