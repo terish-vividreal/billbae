@@ -16,6 +16,7 @@ class Service extends Model
 {
 
     use HasFactory;
+    protected $fillable = ['shop_id', 'name', 'slug', 'hours_id', 'price'];
 
     public function serviceCategory()
     {
