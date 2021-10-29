@@ -273,12 +273,6 @@ class CustomerController extends Controller
         // Excel::import(new CustomersImport,request()->file('file'));  
         $import =  new CustomersImport;
         $import->import(request()->file('file'));
-
-        // $file = request()->file('file')->store('import');
-        // if($import->failures()->isNotEmpty()){
-        //     unlink(storage_path('app/'.$file));
-        //     return redirect('customers')->with('success', 'Customers Imported Successfully.');
-        // }
         return redirect('customers')->with('success', 'Customers Imported Successfully.');
     }
 }

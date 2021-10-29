@@ -317,32 +317,36 @@ class CommonController extends Controller
                     $data_array[]           = array('name' => $service_details['package_services'], 'price' => $row->price, 'minutes' => $service_details['total_minutes']);
                 }
 
-                $total_percentage           = $row->gsttax->percentage ;                
-                if (count($row->additionaltax) > 0) {
-                    foreach ($row->additionaltax as $additional) {
-                        $total_percentage = $total_percentage+$additional->percentage;
-                    } 
-                }
+                $total_percentage           = $row->gsttax->percentage ;  
 
-                $total_service_tax          = ($row->price/100) * $total_percentage ;        
-                $tax_onepercentage          = $total_service_tax/$total_percentage;
-                $total_gst_amount           = $tax_onepercentage*$row->gsttax->percentage ;
-                $total_cgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
-                $total_sgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
-
-                if ($row->tax_included == 1) {
-                    $included               = 'Tax Included' ;
-                    $gross_charge           = $row->price ;
-                    $gross_value            = $row->price - $total_service_tax ;
-                } else {
-                    $included               = 'Tax Excluded' ;
-                    $gross_charge           = $row->price + $total_service_tax  ;
-                    $gross_value            = $row->price ;
-                }
+                    if ($row->tax_included == 1) {
+                        $included               = 'Tax Included' ;
+                        $gross_charge           = $row->price ;
+                        $gross_value            = $row->price - $total_service_tax ;
+                    } else {
+                        $included               = 'Tax Excluded' ;
+                        $gross_charge           = $row->price + $total_service_tax  ;
+                        $gross_value            = $row->price ;
+                    }
 
                     $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
                     $html.='<td>'.$row->name.  '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
                     $html.='<td class="right-align">';
+
+                
+                if($total_percentage > 0) {
+
+                    if (count($row->additionaltax) > 0) {
+                        foreach ($row->additionaltax as $additional) {
+                            $total_percentage = $total_percentage+$additional->percentage;
+                        } 
+                    }
+
+                    $total_service_tax          = ($row->price/100) * $total_percentage ;        
+                    $tax_onepercentage          = $total_service_tax/$total_percentage;
+                    $total_gst_amount           = $tax_onepercentage*$row->gsttax->percentage ;
+                    $total_cgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
+                    $total_sgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
 
                     $html.='<ul><li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Amount </span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_value,2).'</h6></li>';
                   
@@ -351,6 +355,12 @@ class CommonController extends Controller
 
                     $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % SGST</span>';
                     $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_sgst_amount,2).'</h6></li>';
+                }
+
+
+                    
+
+                    
 
                     if (count($row->additionaltax) > 0) {
                         $html.='<li class="divider mt-2 mb-2"></li>';

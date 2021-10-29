@@ -188,20 +188,28 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($paymentTypes . '/lists', [PaymentTypeController::class, 'lists']);
     Route::get($paymentTypes . '/select-list', [PaymentTypeController::class, 'lists']);
 
-    // Billing Routes 
-    $billing = 'billings';
-    Route::resource($billing, BillingController::class)->except(['show']);
-    Route::get($billing . '/lists', [BillingController::class, 'lists']);
-    Route::get($billing . '/show/{id}', [BillingController::class, 'show']);
-    Route::post($billing . '/manage-discount', [BillingController::class, 'manageDiscount']);
-    Route::post($billing . '/get-invoice-data', [BillingController::class, 'getInvoiceData']);
-    Route::get($billing . '/invoice/{id}', [BillingController::class, 'invoice']);
-    Route::put($billing . '/invoice/update/{id}', [BillingController::class, 'updateInvoice']);
-    Route::get($billing . '/invoice/edit/{id}', [BillingController::class, 'editInvoice']);
-    Route::get($billing .'/invoice-data/generate-pdf/{id}', [BillingController::class, 'generatePDF']);
-    Route::post($billing . '/add-new-customer', [BillingController::class, 'storeCustomer']);
-    Route::post($billing . '/store-payment', [BillingController::class, 'storePayment']);
-    Route::post($billing . '/cancel/{billing}', [BillingController::class, 'cancelBill']);
+
+    
+
+    Route::middleware([isStoreCompleted::class])->group(function(){
+
+        // Billing Routes 
+        $billing = 'billings';
+        Route::resource($billing, BillingController::class)->except(['show']);
+        Route::get($billing . '/lists', [BillingController::class, 'lists']);
+        Route::get($billing . '/show/{id}', [BillingController::class, 'show']);
+        Route::post($billing . '/manage-discount', [BillingController::class, 'manageDiscount']);
+        Route::post($billing . '/get-invoice-data', [BillingController::class, 'getInvoiceData']);
+        Route::get($billing . '/invoice/{id}', [BillingController::class, 'invoice']);
+        Route::put($billing . '/invoice/update/{id}', [BillingController::class, 'updateInvoice']);
+        Route::get($billing . '/invoice/edit/{id}', [BillingController::class, 'editInvoice']);
+        Route::get($billing .'/invoice-data/generate-pdf/{id}', [BillingController::class, 'generatePDF']);
+        Route::post($billing . '/add-new-customer', [BillingController::class, 'storeCustomer']);
+        Route::post($billing . '/store-payment', [BillingController::class, 'storePayment']);
+        Route::post($billing . '/cancel/{billing}', [BillingController::class, 'cancelBill']);
+        
+    });
+        
 
     $link = 'common';
     Route::get($link . '/get-states', [CommonController::class, 'getStates']);    

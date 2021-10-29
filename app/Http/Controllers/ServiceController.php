@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\ServiceCategory;
 use App\Models\Additionaltax;
 use App\Imports\ServicesImport;
+use App\Imports\CustomersImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Arr;
 use App\Models\Service;
 use App\Models\User;
@@ -267,10 +269,14 @@ class ServiceController extends Controller
     /**
     * @return \Illuminate\Support\Collection
     */
-    public function import() 
+    public function import(Request $request) 
     {
-        $import =  new ServicesImport;
-        $import->import(request()->file('file'));
-        return redirect('customers')->with('success', 'Services Imported Successfully.');
+        Excel::import(new ServicesImport, $request->file('file')->store('temp'));
+
+        // $import =  new ServicesImport;
+        // $import->import(request()->file('file'));
+        return redirect('services')->with('success', 'Services Imported Successfully.');
     }
+
+    
 }

@@ -7,5 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Hours extends Model
 {
+    protected $fillable = ['name', 'value'];
+
     use HasFactory;
 }

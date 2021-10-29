@@ -57,25 +57,26 @@ if ($("#importCustomerForm").length > 0) {
         }
       },
       submitHandler: function (form) {
-        additionaltax_id   = "" == id ? "" : "/" + id;
-        formMethod  = "" == id ? "POST" : "PUT";
-        var forms = $("#{{$page->entity}}Form");
-        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + additionaltax_id, type: formMethod, processData: false, 
-        data: forms.serialize(), dataType: "html",
-        }).done(function (a) {
-          var data = JSON.parse(a);
-          if (data.flagError == false) {
-              showSuccessToaster(data.message);                
-              $("#import-browse-modal").modal("hide");
-              setTimeout(function () {
-                window.location.href = "{{ url('customers') }}";
-              }, 2000);
+        form.submit();
+        // additionaltax_id   = "" == id ? "" : "/" + id;
+        // formMethod  = "" == id ? "POST" : "PUT";
+        // var forms = $("#{{$page->entity}}Form");
+        // $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + additionaltax_id, type: formMethod, processData: false, 
+        // data: forms.serialize(), dataType: "html",
+        // }).done(function (a) {
+        //   var data = JSON.parse(a);
+        //   if (data.flagError == false) {
+        //       showSuccessToaster(data.message);                
+        //       $("#import-browse-modal").modal("hide");
+        //       setTimeout(function () {
+        //         window.location.href = "{{ url('customers') }}";
+        //       }, 2000);
 
-          } else {
-            showErrorToaster(data.message);
-            printErrorMsg(data.error);
-          }
-        });
+        //   } else {
+        //     showErrorToaster(data.message);
+        //     printErrorMsg(data.error);
+        //   }
+        // });
     },
     errorPlacement: function(error, element) {
         if (element.is("file")) {

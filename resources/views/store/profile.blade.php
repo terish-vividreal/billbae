@@ -82,7 +82,17 @@
             </div>
             <!-- users edit media object ends -->
             <!-- users edit account form start -->
-            <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text">I am sorry, this service is currently not supported in your selected country. In case you wish to use this service in any country other than India, please leave a message in the contact us page, and we shall respond to you at the earliest.</div></div>
+            <div class="card-alert card red lighten-5 print-error-msg" style="display:none">
+              <div class="card-content red-text">I am sorry, this service is currently not supported in your selected country. In case you wish to use this service in any country other than India, please leave a message in the contact us page, and we shall respond to you at the earliest.</div>
+            </div>
+            @if (Session::has('error'))
+            <div class="card-alert card red lighten-5 print-error-msg">
+
+              <div class="card-content red-text">Few mandatory store details are missing</div>
+              <div class="card-content red-text">{!! Session::get('error') !!}</div>
+            </div>
+            @endif
+
             <form id="storeProfileForm" name="storeProfileForm" role="form" method="" action="" class="ajax-submit">
               {{ csrf_field() }}
               {!! Form::hidden('store_id', $store->id ?? '' , ['id' => 'store_id'] ); !!}
@@ -109,7 +119,7 @@
                 <div class="input-field col m6 s12">
                   <div id="timezone_block"> 
                     @if(isset($variants->timezone))
-                      {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'select2 browser-default']) !!}
+                      {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
                     @else  
                       {!! Form::select('timezone', [] , '' , ['id' => 'timezone' ,'class' => 'select2 browser-default']) !!}
                     @endif
