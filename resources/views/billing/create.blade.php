@@ -178,6 +178,7 @@
                         <tr>
                           <th>#</th>
                           <th>Name</th>
+                          <th>HSN Code</th>
                           <th>Amount</th>
                         </tr>
                       </thead>
@@ -528,11 +529,11 @@ if ($("#newCustomerForm").length > 0) {
               maxlength: 200,
               lettersonly: true,
             },
-            new_customer_mobile:{
-              required:true,
-              minlength:10,
-              maxlength:10
-            },
+            // new_customer_mobile:{
+            //   required:true,
+            //   minlength:10,
+            //   maxlength:10
+            // },
         },
         messages: { 
             new_customer_name: {
