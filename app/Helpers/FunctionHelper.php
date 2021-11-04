@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use App\Models\BillingFormat;
 use App\Models\BillAmount;
 use App\Models\Billing;
+use App\Models\Customer;
 use App\Models\Shop;
 use Keygen\Keygen;
 use Carbon;
@@ -53,6 +54,20 @@ class FunctionHelper
             }   
             $prefix         = (isset($payment_type_format))?$payment_type_format->prefix:$store_default_format->prefix;
             return $prefix.($suffix+1);
+    }
+
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public static function generateCustomerCode()
+    {
+        do {
+            $code = Str::upper(Str::random(8));
+        } while (Customer::where("customer_code", "=", $code)->first());
+  
+        return $code;
     }
 
     public static function getTimezone()

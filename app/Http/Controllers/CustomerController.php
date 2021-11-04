@@ -34,15 +34,6 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        // $store          = Shop::find(SHOP_ID);   
-        // $number         = 1001;  
-        // $prefix         = Str::upper(Str::substr($store->name, 0, 3)); 
-        // $max            = 6;
-        // $suffix         = str_pad($number, 5, 0, STR_PAD_LEFT);
-        // $customer_code  = $prefix.$suffix;
-        // echo $customer_code;
-        // exit;
-
         $page                   = collect();
         $variants               = collect();
         $page->title            = $this->title;
@@ -86,18 +77,12 @@ class CustomerController extends Controller
             $data->dob              = date("Y-m-d", strtotime($request->dob));
             $data->mobile           = $request->mobile;
             $data->email            = $request->email;
-            // $data->billing_name     = $request->billing_name;
+            $data->customer_code    = FunctionHelper::generateCustomerCode();
             // $data->district_id      = $request->district_id;
             // $data->pincode          = $request->pincode;
             // $data->gst              = $request->gst;
             // $data->address          = $request->address;
             $data->save();
-
-
-            
-
-
-
             return ['flagError' => false, 'message' => $this->title. " added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
@@ -133,6 +118,7 @@ class CustomerController extends Controller
 
             if ($detail->deleted_at == null) {  
                 $action = ' <a  href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                $action .= '<a href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/view') . '" data-type="remove" data-type="remove" class="btn btn-sm gradient-45deg-amber-amber mr-2" title="View"><i class="material-icons">visibility</i></a>';
                 $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Remove"><i class="material-icons">block</i></a>';
             } else {
                 $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
@@ -151,9 +137,29 @@ class CustomerController extends Controller
      * @param  \App\Models\Customer  $customer
      * @return \Illuminate\Http\Response
      */
-    public function show(Customer $customer)
+    public function show(Request $request, $id)
     {
-        //
+        $customer                       = Customer::find($id);
+
+        
+        // $customer               = Customer::where('id', $id)
+        //                             ->whereHas('billings', function ($query) {
+        //                                 // $query->orderBy('billed_date', 'DESC');
+        //                             })->get();
+        
+        // echo "<pre>"; print_r($customer); exit;
+
+        if ($customer) { 
+            $page                   = collect();
+            $variants               = collect();
+            $page->title            = $this->title;
+            $page->link             = url($this->link);
+            $page->route            = $this->route;
+            $page->entity           = $this->entity;         
+            return view($this->viewPath . '.show', compact('page', 'variants', 'customer'));
+        }else {
+            return redirect('customers')->with('error', $this->title.' not found');
+        }  
     }
 
     /**
@@ -228,7 +234,6 @@ class CustomerController extends Controller
         if (count($billing) > 0) {
             return ['flagError' => true, 'message' => "Cant Delete, Customer have billing information"];
         } 
-    
         $customer->delete();
         return ['flagError' => false, 'message' => " Customer removed successfully"];
     }
@@ -261,7 +266,10 @@ class CustomerController extends Controller
 
     public function autocomplete(Request $request)
     {
-        $data   = Customer::select("customers.id", DB::raw("CONCAT(customers.name,' - ',customers.mobile) as name"))->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")->orWhere("mobile","LIKE","%{$request->search}%")->get();
+        $data   = Customer::select("customers.id", DB::raw("CONCAT(customers.name,' - ',COALESCE(customers.mobile, '')) as name"))
+                            ->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")
+                            ->orWhere("mobile","LIKE","%{$request->search}%")
+                            ->get();
         return response()->json($data);
     }
 

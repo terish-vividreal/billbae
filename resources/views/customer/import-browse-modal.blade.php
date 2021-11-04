@@ -27,7 +27,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn waves-effect waves-light modal-action modal-close" type="reset" id="resetForm">Close</button>
-          <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="additional-submit-btn">Submit <i class="material-icons right">send</i></button>
+          <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="import-submit-btn">Submit <i class="material-icons right">send</i></button>
         </div>
     </form>
   </div>
@@ -57,6 +57,8 @@ if ($("#importCustomerForm").length > 0) {
         }
       },
       submitHandler: function (form) {
+        $('#import-submit-btn').html('Please Wait...');
+        $("#import-submit-btn"). attr("disabled", true);
         form.submit();
         // additionaltax_id   = "" == id ? "" : "/" + id;
         // formMethod  = "" == id ? "POST" : "PUT";

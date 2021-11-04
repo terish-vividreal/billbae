@@ -181,9 +181,9 @@ class CommonController extends Controller
     {
         
         $type = $request->type;
-        if($type == 'services'){
+        if ($type == 'services') {
             $result = Service::with('additionaltax')->where('shop_id', SHOP_ID)->whereIn('id', $request->data_ids)->orderBy('id', 'desc')->get();
-        }else{
+        } else {
             $result = Package::with('additionaltax')->where('shop_id', SHOP_ID)->whereIn('id', $request->data_ids)->orderBy('id', 'desc')->get();
         }
 
@@ -356,11 +356,6 @@ class CommonController extends Controller
                     $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % SGST</span>';
                     $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_sgst_amount,2).'</h6></li>';
                 }
-
-
-                    
-
-                    
 
                     if (count($row->additionaltax) > 0) {
                         $html.='<li class="divider mt-2 mb-2"></li>';
@@ -675,4 +670,3 @@ class CommonController extends Controller
     //    }
 
 }
-

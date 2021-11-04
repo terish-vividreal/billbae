@@ -121,7 +121,8 @@ class ServiceController extends Controller
         $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
         $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'id'); 
         $variants->additional_tax_ids   = [];
-        return view($this->viewPath . '.create', compact('page', 'variants'));
+        $store                          = Shop::find(Auth::user()->shop_id);  
+        return view($this->viewPath . '.create', compact('page', 'variants', 'store'));
     }
 
     /** 

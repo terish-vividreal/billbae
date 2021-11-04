@@ -131,14 +131,18 @@
                         <span class="invoice-subtotal-title">Amount (Without Tax)</span>
                         <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($item->tax_amount ,2)  @endphp</h6>
                       </li>
+                      @if($item->cgst_amount > 0)
                       <li class="display-flex justify-content-between">
                         <span class="invoice-subtotal-title">{{ $item->cgst_percentage }} % CGST </span>
                         <h6 class="invoice-subtotal-value indigo-text">₹{{ $item->cgst_amount }}</h6>
                       </li>
+                      @endif
+                      @if($item->sgst_amount > 0)
                       <li class="display-flex justify-content-between">
                         <span class="invoice-subtotal-title">{{$item->sgst_percentage }} % SGST</span>
                         <h6 class="invoice-subtotal-value indigo-text">₹ {{ $item->sgst_amount }}</h6>
                       </li>
+                      @endif
                       @php if(count($item->additionalTax) > 0) { @endphp
                         <li class="divider mt-2 mb-2"></li>
                         @foreach($item->additionalTax as $key => $additional)

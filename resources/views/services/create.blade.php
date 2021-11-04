@@ -87,7 +87,10 @@
                   </div>
                 </div>
                 <div class="input-field col m6 s12">
-                  {!! Form::select('gst_tax', $variants->tax_percentage , $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => 'select2 browser-default', 'placeholder'=>'Select GST Tax %']) !!}
+                  @php
+                    $ignoreValidation = ($store->billing->gst_percentage != NULL) ? 'select2 browser-default' : 'select2 browser-default ignore-validation';
+                  @endphp
+                  {!! Form::select('gst_tax', $variants->tax_percentage , $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => $ignoreValidation, 'placeholder'=>'Select GST Tax %']) !!}
                 </div>
               </div>
               <div class="row">
@@ -140,6 +143,7 @@ $('#additional_tax').select2({ placeholder: "Select additional tax", allowClear:
 
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
+        ignore: ".ignore-validation",
         rules: {
             name: {
                   required: true,

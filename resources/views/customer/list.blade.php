@@ -64,6 +64,7 @@
                             <tr>
                               <th>No</th>
                               <th>Name</th>
+                              <th>Customer Code</th>
                               <th>Email</th>
                               <th>Mobile</th>
                               <th>Status</th>
@@ -109,6 +110,7 @@
         columns: [
           {data: 'DT_RowIndex', orderable: false, width:10},
           {data: 'name', name: 'name', orderable: false},            
+          {data: 'customer_code', name: 'name', orderable: false},            
           {data: 'email', name: 'name', orderable: false},               
           {data: 'mobile', name: 'name', orderable: false},               
           {data: 'status', name: 'name', orderable: false},               

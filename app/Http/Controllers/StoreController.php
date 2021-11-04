@@ -192,7 +192,7 @@ class StoreController extends Controller
 
         if ($validator->passes()) {
             $billing                    = ShopBilling::find($request->gst_billing_id);
-            $billing->gst_percentage    = $request->gst_percentage;
+            $billing->gst_percentage    = ($request->gst_percentage == 1)?NULL:$request->gst_percentage;
             $billing->save();
             return ['flagError' => false, 'message' => "GST Updated successfully"];
         }

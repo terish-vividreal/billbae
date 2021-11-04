@@ -52,12 +52,12 @@
                       <table id="data-table-simple-services" class="display data-tables">
                         <thead>
                             <tr>
-                                    <th>No</th>
-                                    <th>Name</th>
-                                    <th>Service Category</th>                                    
-                                    <th>Price</th>
-                                    <th>Hours</th>
-                                    <th width="100px">Action</th>
+                              <th>No</th>
+                              <th>Name</th>
+                              <th>Service Category</th>                                    
+                              <th>Price</th>
+                              <th>Hours</th>
+                              <th width="100px">Action</th>
                             </tr>
                         </thead>
                       </table>
@@ -78,13 +78,11 @@
 <script src="{{asset('admin/vendors/data-tables/js/dataTables.select.min.js')}}"></script>
 @endsection
 
-
 @push('page-scripts')
 <script src="{{asset('admin/js/scripts/data-tables.js')}}"></script>
 
 <script>
   $(function () {
-
     table = $('#data-table-simple-services').DataTable({
         bSearchable: true,
         pagination: true,
@@ -94,9 +92,9 @@
         processing: true,
         serverSide: true,
         ajax: {
-                url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
-                data: search
-              },
+          url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
+          data: search
+        },
         columns: [
             {data: 'DT_RowIndex', orderable: false, searchable: false, width:20},            
             {data: 'name', name: 'name', orderable: false},  
@@ -106,7 +104,6 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
     });
-
   });
 
   function search(value) {
@@ -121,7 +118,7 @@
              title: 'Are you sure want to delete ?',
              text: "You won't be able to revert this!",
              type: 'warning',
-             showCancelButton: true,/
+             showCancelButton: true,
              confirmButtonColor: '#3085d6',
              cancelButtonColor: '#d33',
              confirmButtonText: 'Yes, delete it!'

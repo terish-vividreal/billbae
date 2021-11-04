@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Helpers\FunctionHelper;
 use Carbon;
 
 class Customer extends Model
@@ -12,7 +13,7 @@ class Customer extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['shop_id', 'name', 'email', 'mobile', 'gender', 'dob'];
+    protected $fillable = ['shop_id', 'customer_code', 'name', 'email', 'mobile', 'gender', 'dob'];
 
     public function billingaddress()
     {
@@ -23,10 +24,16 @@ class Customer extends Model
     {
         return $this->hasMany(Billing::class);
     }
+    
     public function getDobAttribute()
     {
         $dob = new Carbon\Carbon($this->attributes['dob']);
         return $dob;
+    }
+
+    public function getCreatedAtAttribute()
+    {
+        return FunctionHelper::dateToTimeZone($this->attributes['created_at'], 'd-m-Y h:i A');
     }
 
     public static function isExisting($id)
