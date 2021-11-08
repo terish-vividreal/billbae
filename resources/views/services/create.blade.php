@@ -140,6 +140,7 @@ $('#additional_tax').select2({ placeholder: "Select additional tax", allowClear:
 
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
+        ignore: ".ignore-validation",
         rules: {
             name: {
                   required: true,
@@ -155,7 +156,7 @@ if ($("#{{$page->entity}}Form").length > 0) {
                   required: true,
             },
             gst_tax: {
-                  required: true,
+                  // required: true,
             }
         },
         messages: { 

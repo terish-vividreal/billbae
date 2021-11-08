@@ -49,9 +49,6 @@
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
                 {{ csrf_field() }}
                 {!! Form::hidden('customer_id', $customer->id ?? '' , ['id' => 'customer_id'] ); !!}
-
-
-
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $customer->name ?? '', array('id' => 'name')) !!}  
@@ -113,7 +110,6 @@
                 </div>
               </div>
 
-
               <div class="row">
                 <div class="input-field col m6 s12">  
                   {!! Form::text('gst', $customer->gst ?? '' , array('placeholder' => 'GST No.')) !!} 
@@ -128,22 +124,18 @@
                   </div>
                 </div>
               </div>
-
               <div class="row">
                 <div class="input-field col s6">
                   {!! Form::textarea('address', $customer->address ?? '', ['class' => 'materialize-textarea', 'placeholder'=>'Address','rows'=>3]) !!}
                 </div>
 
               </div>
-
               <div class="row">
                 <div class="input-field col s12">
                   <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
-
-              
             </form>
         </div>
       </div>
@@ -186,55 +178,55 @@ $(document).ready(function(){
 });
 
 if ($("#{{$page->entity}}Form").length > 0) {
-    var validator = $("#{{$page->entity}}Form").validate({ 
-        rules: {
-            name: {
-                    required: true,
-                    maxlength: 200,
-                    lettersonly: true,
-            },
-            mobile:{
-                  required:true,
-                  minlength:10,
-                  maxlength:10
-            },
-        },
-        messages: { 
-            name: {
-                required: "Please enter customer name",
-                maxlength: "Length cannot be more than 200 characters",
-                },
-            mobile: {
-                required: "Please enter mobile number",
-                maxlength: "Length cannot be more than 10 numbers",
-                minlength: "Length must be 10 numbers",
-                },
-        },
-        submitHandler: function (form) {
-            $('#submit-btn').html('Please Wait...');
-            $("#submit-btn"). attr("disabled", true);
-            id = $("#customer_id").val();
-            customer_id      = "" == id ? "" : "/" + id;
-            formMethod  = "" == id ? "POST" : "PUT";
-            var forms = $("#{{$page->entity}}Form");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-              $('#submit-btn').html('Submit');
-              $("#submit-btn"). attr("disabled", false);
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    setTimeout(function () { 
-                      window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-                    }, 2000);
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
-        },
-    })
+  var validator = $("#{{$page->entity}}Form").validate({ 
+    rules: {
+      name: {
+        required: true,
+        maxlength: 200,
+        lettersonly: true,
+      },
+      mobile:{
+        required:true,
+        minlength:10,
+        maxlength:10
+      },
+    },
+    messages: { 
+      name: {
+        required: "Please enter customer name",
+        maxlength: "Length cannot be more than 200 characters",
+      },
+      mobile: {
+        required: "Please enter mobile number",
+        maxlength: "Length cannot be more than 10 numbers",
+        minlength: "Length must be 10 numbers",
+      },
+    },
+    submitHandler: function (form) {
+      $('#submit-btn').html('Please Wait...');
+      $("#submit-btn"). attr("disabled", true);
+      id = $("#customer_id").val();
+      customer_id      = "" == id ? "" : "/" + id;
+      formMethod  = "" == id ? "POST" : "PUT";
+      var forms = $("#{{$page->entity}}Form");
+      $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
+      data: forms.serialize(), dataType: "html",
+      }).done(function (a) {
+        $('#submit-btn').html('Submit');
+        $("#submit-btn"). attr("disabled", false);
+        var data = JSON.parse(a);
+        if(data.flagError == false) {
+          showSuccessToaster(data.message);
+          setTimeout(function () { 
+            window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+          }, 2000);
+        } else {
+          showErrorToaster(data.message);
+          printErrorMsg(data.error);
+        }
+      });
+    },
+  })
 }
 
 jQuery.validator.addMethod("lettersonly", function (value, element) {
@@ -243,31 +235,29 @@ jQuery.validator.addMethod("lettersonly", function (value, element) {
 
 
 $(document).on('change', '#country_id', function () {
-  $.ajax({
-      type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
-      success: function(data) {
-          var selectTerms = '<option value="">Please select state</option>';
-          $.each(data.data, function(key, value) {
-            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
-          });
-          var select = $('#state_id');
-          select.empty().append(selectTerms);
-          $('#district_id').empty().trigger("change");
-      }
+  $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
+    success: function(data) {
+      var selectTerms = '<option value="">Please select state</option>';
+      $.each(data.data, function(key, value) {
+        selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+      });
+      var select = $('#state_id');
+      select.empty().append(selectTerms);
+      $('#district_id').empty().trigger("change");
+    }
   });
 });
 
 $(document).on('change', '#state_id', function () {
-  $.ajax({
-      type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-districts-of-state') }}", data:{'state_id':this.value }, dataType: 'json',
-      success: function(data) {
-          var selectTerms = '<option value="">Please select district</option>';
-          $.each(data.data, function(key, value) {
-            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
-          });
-          var select = $('#district_id');
-          select.empty().append(selectTerms);
-      }
+  $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-districts-of-state') }}", data:{'state_id':this.value }, dataType: 'json',
+    success: function(data) {
+      var selectTerms = '<option value="">Please select district</option>';
+      $.each(data.data, function(key, value) {
+        selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+      });
+      var select = $('#district_id');
+      select.empty().append(selectTerms);
+    }
   });
 });
 

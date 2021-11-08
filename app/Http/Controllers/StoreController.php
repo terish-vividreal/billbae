@@ -175,7 +175,7 @@ class StoreController extends Controller
             $shop->save();
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=> $validator->errors()->all()];
 
     }
 
@@ -188,15 +188,17 @@ class StoreController extends Controller
      */
     public function updateGst(Request $request)
     {
-        $validator = Validator::make($request->all(), [ 'gst_percentage' => 'required', ]);
+        // echo $request->gst_percentage; exit;
+        // $validator = Validator::make($request->all(), [ 'gst_percentage' => 'required', ]);
 
-        if ($validator->passes()) {
+        // if ($validator->passes()) {
             $billing                    = ShopBilling::find($request->gst_billing_id);
-            $billing->gst_percentage    = $request->gst_percentage;
+            $billing->gst_percentage    = ($request->gst_percentage == 1)?NULL:$request->gst_percentage;
+            $billing->hsn_code          = $request->hsn_code;
             $billing->save();
-            return ['flagError' => false, 'message' => "GST Updated successfully"];
-        }
-        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
+            return ['flagError' => false, 'message' => "Details Updated successfully"];
+        // }
+        // return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
     }
 
     /**

@@ -22,7 +22,6 @@
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/data-tables.css')}}">
 @endsection
 
-
 @section('content')
 
 @section('breadcrumb')
@@ -133,19 +132,21 @@
             <h4 class="card-title">GST Percentage</h4>
             <form id="storeGSTForm" name="storeGSTForm" role="form" method="" action="" class="ajax-submit">
               {{ csrf_field() }}
-              {!! Form::hidden('gst_billing_id', $billing->id ?? '' , ['id' => 'gst_billing_id'] ); !!}
+              {!! Form::hidden('gst_billing_id', $billing->id ?? '' , ['id' => 'gst_billing_id'] ) !!}
               <div class="row">
-                <div class="input-field col m6 s6">
-                  {!! Form::select('gst_percentage', $variants->tax_percentage, $billing->gst_percentage ?? '' , ['id' => 'gst_percentage', 'placeholder'=>'Select default tax percentage']) !!}
-                  <label for="icon_prefix1">Default GST percentage %</label>
+              <div class="input-field col m5 s6">
+                  {!! Form::select('gst_percentage', $variants->tax_percentage, $billing->gst_percentage ?? '' , ['id' => 'gst_percentage', 'class' => 'select2 browser-default', 'placeholder'=>'Please select default GST percentage']) !!}
+                  <!-- <label for="icon_prefix1">Default GST percentage </label> -->
                 </div>
-
-                <div class="input-field col m6 s6">
+                <div class="input-field col m5 s6">
+                {!! Form::text('hsn_code', $billing->hsn_code ?? '', ['id' => 'hsn_code']) !!}
+                <label for="hsn_code" class="label-placeholder">Store HSN Code </label>
+                </div>
+                <div class="input-field col m2 s6">
                   <div class="input-field col s12">
                     <button class="btn cyan waves-effect waves-light right" type="submit" name="action" id="gst-submit-btn">Submit <i class="material-icons right">send</i></button>
                   </div>
                 </div>
-
               </div>
             </form>
 
@@ -225,9 +226,7 @@
 
 <script>
   var table;
-
   $(function () {
-
     table = $('#data-table-payment-types').DataTable({
       bSearchable: true,
       pagination: true,
@@ -243,7 +242,6 @@
           {data: 'action', name: 'action', orderable: false, searchable: false, width:20},
       ]
     });
-
     taxTable = $('#data-table-taxes').DataTable({
       bSearchable: true,
       pagination: true,
@@ -261,9 +259,9 @@
           {data: 'action', name: 'action', orderable: false, searchable: false, width:20},
       ]
     });
-
   });
 
+  $('#gst_percentage').select2({ placeholder: "Please select default GST percentage", allowClear: true });
   $('#billing_country_id').select2({ placeholder: "Please select country", allowClear: false });
   $('#billing_state_id').select2({ placeholder: "Please select state", allowClear: true });
   $('#billing_district_id').select2({ placeholder: "Please select district", allowClear: true });
@@ -271,11 +269,11 @@
 
   $(document).on('change', '#billing_country_id', function () {
 
-    if(this.value != 101){
+    if(this.value != 101) {
         $("#submit-btn").prop('disabled', true);
         showErrorToaster("Currently not supported in your selected country!");
         $(".print-error-msg").show();
-    }else{
+    } else {
       $("#submit-btn").prop('disabled', false);
       $(".print-error-msg").hide();
       $.ajax({
@@ -362,12 +360,12 @@
     var validator = $("#storeGSTForm").validate({ 
         rules: {
           gst_percentage: {
-              required: true,
+              // required: true,
           }
         },
         messages: { 
           gst_percentage: {
-            required: "Please select default GST",
+            required: "Please select store default GST",
           }
         },
         submitHandler: function (form) {

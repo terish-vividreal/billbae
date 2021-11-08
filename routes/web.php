@@ -176,6 +176,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($customer . '/import', [CustomerController::class, 'import'])->name('customer.import');
     Route::post($customer . '/hard-delete/{id}', [CustomerController::class, 'hardDelete']);
     Route::post($customer . '/restore/{id}', [CustomerController::class, 'restore']);
+    Route::get($customer . '/{id}/view', [CustomerController::class, 'show']);
 
     // Additionaltax Routes
     $additionaltax = 'additional-tax';

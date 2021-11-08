@@ -378,7 +378,7 @@ class BillingController extends Controller
                 $new_address->country_id        = $request->country_id;
                 $new_address->state_id          = $request->state_id;
                 $new_address->district_id       = $request->district_id;
-                $new_address->pincode           = $request->pincode;
+          +      $new_address->pincode           = $request->pincode;
                 $new_address->gst               = $request->customer_gst;
                 $new_address->address           = $request->address;
                 $new_address->updated_by        = Auth::user()->id;
@@ -500,7 +500,7 @@ class BillingController extends Controller
         $discount                   = $request->discount;
         if ($billing->items) {
             $billing_items_array    = $billing->items->toArray();
-            $item_type              = $billing_items_array[0]['item_type'];
+            $item_type              = $billing_items_array[0]['item_type'];                                 
 
             if($item_type == 'services') {
                 $billing_items = Service::select('services.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')

@@ -6,6 +6,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\GstTaxPercentage;
 use App\Models\Hours;
+use App\Helpers\CustomHelper;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Validators\Failure;
@@ -61,13 +62,13 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
             }
 
             
-            $gst_tax=NULL;
-            if($row['gst_tax']!=''){
-                $gst = GstTaxPercentage::firstOrCreate(['percentage' => $row['gst_tax']]);
-                if($hours){
-                    $gst_tax = $gst->id;
-                }
-            }
+            // $gst_tax=NULL;
+            // if($row['gst_tax']!=''){
+            //     $gst = GstTaxPercentage::firstOrCreate(['percentage' => $row['gst_tax']]);
+            //     if($hours){
+            //         $gst_tax = $gst->id;
+            //     }
+            // }
 
             $lead_before=NULL;
             if($row['lead_before']!=''){
@@ -88,7 +89,7 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
             }
 
             $tax_included   = (Str::of($row['tax_included'])->trim() == 'yes')?1:0;
-            $hsn_code       = ($row['hsn_code'] != '')?$row['hsn_code']:NULL;
+            // $hsn_code       = ($row['hsn_code'] != '')?$row['hsn_code']:NULL;
 
       
             // dd($row['lead_before'],$hsn_code);
@@ -101,10 +102,10 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
                 'service_category_id' => $service_category_id,
                 'slug' => $row['name'],
                 'hours_id' => $hours_id,
-                'gst_tax' => $gst_tax,
+                'gst_tax' => CustomHelper::serviceGST(SHOP_ID, $row['gst_tax']),
                 'tax_included' => $tax_included,
                 'price' => $row['price'],
-                'hsn_code' => $hsn_code,
+                'hsn_code' => CustomHelper::serviceHSN(SHOP_ID, $row['hsn_code']),
                 'lead_before' => $lead_before,
                 'lead_after' => $lead_after,
 

@@ -22,15 +22,18 @@
                     <span class="invoice-subtotal-title">Amount (Without Tax)</span>
                     <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($item['tax_array']['amount'],2)  @endphp</h6>
                   </li>
+                  @if($item['tax_array']['cgst'] > 0)
                   <li class="display-flex justify-content-between">
                     <span class="invoice-subtotal-title">{{ $item['tax_array']['cgst_percentage'] }} % CGST </span>
                     <h6 class="invoice-subtotal-value indigo-text">₹ {{ $item['tax_array']['cgst'] }}</h6>
                   </li>
+                  @endif
+                  @if($item['tax_array']['sgst'] > 0)
                   <li class="display-flex justify-content-between">
                     <span class="invoice-subtotal-title">{{ $item['tax_array']['sgst_percentage'] }} % SGST</span>
                     <h6 class="invoice-subtotal-value indigo-text">₹ {{ $item['tax_array']['sgst'] }}</h6>
                   </li>
-                  
+                  @endif
                   @php if(count($item['tax_array']['additiona_array']) > 0) { @endphp
                       <li class="divider mt-2 mb-2"></li>
                     @foreach($item['tax_array']['additiona_array'] as $key => $additional)                    

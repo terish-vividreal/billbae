@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Customer;
 use Illuminate\Support\Str;
+use App\Helpers\FunctionHelper;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Validators\Failure;
 use Illuminate\Support\Collection;
@@ -44,6 +45,7 @@ class CustomersImport implements ToCollection, WithHeadingRow, SkipsOnFailure
         
         Customer::create([
             'shop_id' => SHOP_ID,
+            'customer_code' => FunctionHelper::generateCustomerCode(),
             'name' => $row['name'],
             'email' => $row['email'],
             'mobile' => $row['mobile'],

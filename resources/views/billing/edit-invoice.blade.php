@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-{{++-- page title --}}
+{{-- page title --}}
 @section('seo_title', Str::plural($page->title) ?? '') 
 @section('search-title') {{ $page->title ?? ''}} @endsection
 
@@ -70,9 +70,7 @@
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_mobile', $billing->mobile ?? '', array('id' => 'customer_mobile', 'placeholder' => 'Customer Mobile', 'disabled' => 'disabled')) !!}  
-                    <!
-                    
-                    -- <label for="customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label>  -->
+                    <!-- <label for="customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label>  -->
                   </div>
                 </div>
 
@@ -200,6 +198,7 @@
                         <tr>
                           <th>#</th>
                           <th>Name</th>
+                          <th>HSN Code</th>
                           <th>Amount</th>
                         </tr>
                       </thead>
