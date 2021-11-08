@@ -22,7 +22,6 @@
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/data-tables.css')}}">
 @endsection
 
-
 @section('content')
 
 @section('breadcrumb')
@@ -135,17 +134,19 @@
               {{ csrf_field() }}
               {!! Form::hidden('gst_billing_id', $billing->id ?? '' , ['id' => 'gst_billing_id'] ) !!}
               <div class="row">
-                <div class="input-field col m6 s6">
+              <div class="input-field col m5 s6">
                   {!! Form::select('gst_percentage', $variants->tax_percentage, $billing->gst_percentage ?? '' , ['id' => 'gst_percentage', 'class' => 'select2 browser-default', 'placeholder'=>'Please select default GST percentage']) !!}
                   <!-- <label for="icon_prefix1">Default GST percentage </label> -->
                 </div>
-
-                <div class="input-field col m6 s6">
+                <div class="input-field col m5 s6">
+                {!! Form::text('hsn_code', $billing->hsn_code ?? '', ['id' => 'hsn_code']) !!}
+                <label for="hsn_code" class="label-placeholder">Store HSN Code </label>
+                </div>
+                <div class="input-field col m2 s6">
                   <div class="input-field col s12">
                     <button class="btn cyan waves-effect waves-light right" type="submit" name="action" id="gst-submit-btn">Submit <i class="material-icons right">send</i></button>
                   </div>
                 </div>
-
               </div>
             </form>
 
@@ -359,7 +360,7 @@
     var validator = $("#storeGSTForm").validate({ 
         rules: {
           gst_percentage: {
-              required: true,
+              // required: true,
           }
         },
         messages: { 

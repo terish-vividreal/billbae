@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
+use App\Helpers\CustomHelper;
 use App\Models\ServiceCategory;
 use App\Models\Additionaltax;
 use App\Imports\ServicesImport;
@@ -49,7 +50,7 @@ class ServiceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
+    {        
         $page                           = collect();
         $variants                       = collect();
         $page->title                    = $this->title;
@@ -156,8 +157,8 @@ class ServiceController extends Controller
             $data->lead_before          = $request->lead_before;
             $data->lead_after           = $request->lead_after;  
             $data->hours_id             = $request->hours_id;
-            $data->gst_tax              = $request->gst_tax;
-            $data->hsn_code             = $request->hsn_code;
+            $data->gst_tax              = CustomHelper::serviceGST(SHOP_ID, $request->gst_tax);
+            $data->hsn_code             = CustomHelper::serviceHSN(SHOP_ID, $request->hsn_code);
             $data->save();
 
             if ($request->additional_tax) {
