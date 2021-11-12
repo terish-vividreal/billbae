@@ -21,6 +21,7 @@
 <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/extensions/responsive/css/responsive.dataTables.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/select.dataTables.min.css')}}">
 
+
 <!-- Success and error toasters -->
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <!-- BEGIN PAGE LEVEL JS-->

@@ -36,42 +36,19 @@
     <div class="col s12 m12 l12">
       <div id="Form-advance" class="card card card-default scrollspy">
         <div class="card-content">
-            <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
+            <h4 class="card-title">Billing Form</h4>
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
-            <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="post" action="{{ url(ROUTE_PREFIX.'/'.$page->route) }}">
+            <form id="customerBillingForm" name="customerBillingForm" role="form" method="post" action="{{ url(ROUTE_PREFIX.'/billings') }}">
                 {{ csrf_field() }}
                 {!! Form::hidden('billing_id', $billing->id ?? '' , ['id' => 'billing_id'] ); !!}
-                {!! Form::hidden('customer_id', $billing->customer_id ?? '' , ['id' => 'customer_id'] ); !!}
-                <div class="row">
-                  <div class="col s12">
-                    <!-- <div class="row"> -->
-                      <div class="input-field col m8 s12" id="custom-templates">
-                          <i class="material-icons prefix">textsms</i>
-                          <input type="text" name="search_customer" id="search_customer" class="typeahead autocomplete" autocomplete="off" value="">
-                          <label for="search_customer" class="typeahead label-placeholder">Search Customer name or mobile...</label>
-                      </div>
-                      <div class="input-field col m2 s12" id="customerActionDiv" style="display:none;">
-                        <a class="btn-floating mb-1 btn-flat waves-effect waves-light pink accent-2 white-text amber darken-4" target="_blank" id="customerViewLink">
-                          <i class="material-icons">remove_red_eye</i>
-                        </a>
-                        <a class="btn-floating mb-1 btn-flat waves-effect waves-light pink accent-2 white-text" onclick="removeCustomer()">
-                          <i class="material-icons">cancel</i>
-                        </a>
-                      </div>
-                      <div class="input-field col m2 s12" id="newCustomerBtn">
-                        <a class="waves-effect waves-light btn-small mb-1 mr-1 cyan" onClick="addNewCustomer()" style="margin-top: 12px;"><i class="material-icons left">person_add</i>button</a>
-                      </div>
-                      
-                    <!-- </div> -->
-                  </div>
-                </div>
+                {!! Form::hidden('customer_id', $customer->id, ['id' => 'customer_id'] ); !!}
                 <div class="row">
                   <div class="input-field col m6 s12">
-                    {!! Form::text('customer_name', '',  ['id' => 'customer_name', 'placeholder' => 'Customer Name', 'disabled' => 'disabled']) !!}  
+                    {!! Form::text('customer_name', $customer->name,  ['id' => 'customer_name', 'placeholder' => 'Customer Name', 'disabled' => 'disabled']) !!}  
                     <!-- <label for="customer_name" class="label-placeholder">Customer Name <span class="red-text">*</span></label> -->
                   </div>
                   <div class="input-field col m6 s12">
-                    {!! Form::text('customer_mobile', '', array('id' => 'customer_mobile', 'placeholder' => 'Customer Mobile', 'disabled' => 'disabled')) !!}  
+                    {!! Form::text('customer_mobile', $customer->mobile ?? '', array('id' => 'customer_mobile', 'placeholder' => 'Customer Mobile', 'disabled' => 'disabled')) !!}  
                     <!-- <label for="customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label>  -->
                   </div>
                 </div>
@@ -80,7 +57,7 @@
                     <input type="text" name="billed_date" id="billed_date" class="form-control" onkeydown="return false" autocomplete="off" value="" />
                   </div>
                   <div class="input-field col m6 s12">
-                    {!! Form::text('customer_email', '', array('id' => 'customer_email', 'placeholder' => 'Customer Email', 'disabled' => 'disabled')) !!}  
+                    {!! Form::text('customer_email', $customer->email ?? '', array('id' => 'customer_email', 'placeholder' => 'Customer Email', 'disabled' => 'disabled')) !!}  
                     <!-- <label for="customer_email" class="label-placeholder">Customer Email <span class="red-text">*</span></label>  -->
                   </div>
                 </div>
@@ -252,10 +229,8 @@ $('input[name="checkout_time"]').daterangepicker({
   var in_time   = $('input[name="checkin_time"]').val();
   var out_time  = $('input[name="checkout_time"]').val();
   var diff      = moment().diff(in_time, out_time);
-
   // alert(diff)
   // // alert("You are " + years + " years old!");
-
 });
 
 $('input[name="dob"]').daterangepicker({
@@ -269,26 +244,6 @@ $('input[name="dob"]').daterangepicker({
     console.log(picker.format('DD-MM-YYYY'));
 });
 
-
-$('input.typeahead').typeahead({
-  autoSelect: true,
-  hint: true,
-  highlight: true,
-  minLength: 3,
-  source:  function (query, process) {
-    return $.get(path, { 
-      search: query, classNames: { input: 'Typeahead-input', hint: 'Typeahead-hint', selectable: 'Typeahead-selectable' }
-    }, function (data) {
-      return process(data);
-    });
-  },
-  updater: function (item) {
-    $('#customer_id').val(item.id);
-    getCustomerDetails(item.id);
-    return item;
-  }
-});
-
 $('#billing_address_checkbox').change(function() {
   if($(this).is(":unchecked")) 
     $('.billing-address-section').show();
@@ -296,38 +251,26 @@ $('#billing_address_checkbox').change(function() {
     $('.billing-address-section').hide();         
 });
 
-function getCustomerDetails(customer_id){
-  $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-customer-details') }}", dataType: 'json', data: { customer_id:customer_id}, delay: 250,
-    success: function(data) {
-      var customerMobile = '';
-      if (data.data.mobile != null) {
-        customerMobile = ' - ' + data.data.mobile;
-      }
-      $("#search_customer").val(data.data.name + customerMobile );
-      $("#customer_name").val(data.data.name);
-      $("#customer_mobile").val(data.data.mobile);
-      $("#customer_email").val(data.data.email);
-      $("#customer_id").val(customer_id);
-      $("#newCustomerBtn").hide();
-      $("#customer_details_div").show();
-      var customerViewURL = "{{ url(ROUTE_PREFIX.'/customers/view-details/') }}/"+customer_id;
-      $("#customerViewLink").attr("href", customerViewURL);
-      $("#customerActionDiv").show();
-    }
-  });
-}
-
-function removeCustomer() {
-  $("#search_customer").val('');
-  $("#customer_name").val('');
-  $("#customer_mobile").val('');
-  $("#customer_email").val('');
-  $("#customer_id").val();
-  $("#newCustomerBtn").show();
-  $("#customer_details_div").hide();
-  $("#customerActionDiv").hide();
-  showSuccessToaster("Customer removed successfully.");
-}
+// function getCustomerDetails(customer_id){
+//   $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-customer-details') }}", dataType: 'json', data: { customer_id:customer_id}, delay: 250,
+//     success: function(data) {
+//       var customerMobile = '';
+//       if (data.data.mobile != null) {
+//         customerMobile = ' - ' + data.data.mobile;
+//       }
+//       $("#search_customer").val(data.data.name + customerMobile );
+//       $("#customer_name").val(data.data.name);
+//       $("#customer_mobile").val(data.data.mobile);
+//       $("#customer_email").val(data.data.email);
+//       $("#customer_id").val(customer_id);
+//       $("#newCustomerBtn").hide();
+//       $("#customer_details_div").show();
+//       var customerViewURL = "{{ url(ROUTE_PREFIX.'/customers/view-details/') }}/"+customer_id;
+//       $("#customerViewLink").attr("href", customerViewURL);
+//       $("#customerActionDiv").show();
+//     }
+//   });
+// }
 
 $('.service-type').select2({ placeholder: "Please select ", allowClear: false }).on('select2:select select2:unselect', function (e) { 
   var type = $(this).data("type");
@@ -418,15 +361,9 @@ $(document).on('change', '#state_id', function () {
   });
 });
 
-if ($("#{{$page->entity}}Form").length > 0) {
-  var validator = $("#{{$page->entity}}Form").validate({ 
+if ($("#customerBillingForm").length > 0) {
+  var validator = $("#customerBillingForm").validate({ 
     rules: {
-      customer_name: {
-        required: true,
-      },
-      search_customer: {
-        required: true,
-      },
       "bill_item[]": {
         required: true,
       },
@@ -482,57 +419,6 @@ if ($("#{{$page->entity}}Form").length > 0) {
 jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
-
-function addNewCustomer(){
-  customervalidator.resetForm();
-  $("#newCustomerForm .form-control").removeClass("error");
-  $('#newCustomerForm').trigger("reset");
-  $('#newCustomerForm').find("input[type=text], textarea").val("");
-  $("#new-customer-modal").modal("open");
-}
-
-if ($("#newCustomerForm").length > 0) {
-  var customervalidator = $("#newCustomerForm").validate({ 
-    rules: {
-      new_customer_name: {
-        required: true,
-        maxlength: 200,
-        lettersonly: true,
-      },
-      // new_customer_mobile:{
-      //   required:true,
-      //   minlength:10,
-      //   maxlength:10
-      // },
-    },
-    messages: { 
-      new_customer_name: {
-        required: "Please enter customer name",
-        maxlength: "Length cannot be more than 200 characters",
-      },
-      new_customer_mobile: {
-        required: "Please enter mobile number",
-        maxlength: "Length cannot be more than 10 numbers",
-        minlength: "Length must be 10 numbers",
-      },
-    },
-    submitHandler: function (form) {
-      var forms = $("#newCustomerForm");
-      $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/add-new-customer') }}", type: "POST", processData: false, 
-      data: forms.serialize(), dataType: "html",
-      }).done(function (a) {
-        var data = JSON.parse(a);
-        if(data.flagError == false){
-            getCustomerDetails(data.customer_id)
-            $("#new-customer-modal").modal("close");
-        }else{
-          showErrorToaster(data.message);
-          printErrorMsg(data.error);
-        }
-      });
-    }
-  })
-}
 
 </script>
 @endpush

@@ -378,7 +378,7 @@ class BillingController extends Controller
                 $new_address->country_id        = $request->country_id;
                 $new_address->state_id          = $request->state_id;
                 $new_address->district_id       = $request->district_id;
-          +      $new_address->pincode           = $request->pincode;
+                $new_address->pincode           = $request->pincode;
                 $new_address->gst               = $request->customer_gst;
                 $new_address->address           = $request->address;
                 $new_address->updated_by        = Auth::user()->id;
@@ -439,6 +439,7 @@ class BillingController extends Controller
             $data->dob              = date("Y-m-d", strtotime($request->dob));
             $data->mobile           = $request->new_customer_mobile;
             $data->email            = $request->new_customer_email;
+            $data->customer_code    = FunctionHelper::generateCustomerCode();
             $data->save();
             return ['flagError' => false, 'customer_id' => $data->id,  'message' => $this->title. " added successfully"];
         }

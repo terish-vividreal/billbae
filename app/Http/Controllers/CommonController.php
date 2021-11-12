@@ -280,11 +280,9 @@ class CommonController extends Controller
         $type           = $request->type;
         if ($type == 'services') {
             $result = Service::with('additionaltax', 'gsttax', 'hours', 'leadBefore', 'leadAfter')->where('shop_id', SHOP_ID)
-                        // ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'services.gst_tax')
                         ->whereIn('services.id', $request->data_ids)->orderBy('services.id', 'desc')->get();
         } else {
             $result = Package::with('service','additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
-                        // ->leftjoin('gst_tax_percentages', 'gst_tax_percentages.id', '=', 'packages.gst_tax')
                         ->whereIn('packages.id', $request->data_ids)->orderBy('packages.id', 'desc')->get();
         }
 
@@ -317,7 +315,10 @@ class CommonController extends Controller
                     $data_array[]           = array('name' => $service_details['package_services'], 'price' => $row->price, 'minutes' => $service_details['total_minutes']);
                 }
 
-                $total_percentage           = $row->gsttax->percentage ;  
+                if($row->gst_tax != NULL){
+                    $total_percentage           = $row->gsttax->percentage ;
+                }
+                  
 
                     if ($row->tax_included == 1) {
                         $included               = 'Tax Included' ;

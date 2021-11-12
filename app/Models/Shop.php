@@ -38,5 +38,4 @@ class Shop extends Model
     {
         return $this->belongsTo('App\Models\ShopBilling', 'id', 'shop_id');
     }
-
 }

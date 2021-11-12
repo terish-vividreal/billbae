@@ -134,7 +134,7 @@ if ($("#{{$page->entity}}Form").length > 0) {
         lettersonly: true,
       },
       mobile:{
-        required:true,
+        // required:true,
         minlength:10,
         maxlength:10
       },

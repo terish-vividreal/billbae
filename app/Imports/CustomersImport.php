@@ -51,6 +51,7 @@ class CustomersImport implements ToCollection, WithHeadingRow, SkipsOnFailure
             'mobile' => $row['mobile'],
             'gender' => $gender,
             'dob' => date("Y-m-d", strtotime($row['dob'])),
+            'customer_code' => FunctionHelper::generateCustomerCode(),
         ]);
        }        
     }
