@@ -11,6 +11,12 @@
 <!-- BEGIN: Page Level CSS-->
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/themes/vertical-modern-menu-template/materialize.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/themes/vertical-modern-menu-template/style.css')}}">
+
+<link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/jquery.dataTables.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/extensions/responsive/css/responsive.dataTables.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/select.dataTables.min.css')}}">
+
+  
 @yield('page-style')
 <!-- BEGIN: Custom CSS-->
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/custom/custom.css')}}">

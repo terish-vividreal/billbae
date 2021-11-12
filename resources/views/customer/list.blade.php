@@ -7,9 +7,6 @@
 {{-- vendor styles --}}
 @section('vendor-style')
   <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/flag-icon/css/flag-icon.min.css')}}">
-  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/jquery.dataTables.min.css')}}">
-  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/extensions/responsive/css/responsive.dataTables.min.css')}}">
-  <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/data-tables/css/select.dataTables.min.css')}}">
 @endsection
 
 {{-- page style --}}
@@ -39,7 +36,7 @@
 
   <form id="customerListForm" name="customerListForm" role="form" method="" action="" class="ajax-submit">
     {{ csrf_field() }}
-    {!! Form::hidden('customer_type', '' , ['id' => 'customer_type'] ); !!}
+    {!! Form::hidden('customer_type', '', ['id' => 'customer_type'] ); !!}
   </form>
 @endsection
 
@@ -68,6 +65,7 @@
                               <th>Email</th>
                               <th>Mobile</th>
                               <th>Status</th>
+                              <th>Create Bill</th>
                               <th>Action</th>
                             </tr>
                         </thead>
@@ -114,6 +112,7 @@
           {data: 'email', name: 'name', orderable: false},               
           {data: 'mobile', name: 'name', orderable: false},               
           {data: 'status', name: 'name', orderable: false},               
+          {data: 'create_bill', name: 'name', orderable: false},               
           {data: 'action', name: 'action', orderable: false, searchable: false, width:75},
         ]
     });
@@ -130,6 +129,10 @@
     table.ajax.reload();
   });
 
+  $(".searchEmail").keyup(function(){
+        table.draw();
+    });
+
   function softDelete(b) {
     swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
         buttons: {
@@ -141,18 +144,18 @@
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
           .done(function (a) {
               var data = JSON.parse(a);
-              if(data.flagError == false){
+              if (data.flagError == false) {
                 showSuccessToaster(data.message);          
                 setTimeout(function () {
                   table.ajax.reload();
                   }, 2000);
 
-            }else{
+            } else {
               showErrorToaster(data.message);
               printErrorMsg(data.error);
             }   
         }).fail(function () {
-                showErrorToaster("Something went wrong!");
+            showErrorToaster("Something went wrong!");
         });
       } 
     });

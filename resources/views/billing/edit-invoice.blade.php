@@ -54,11 +54,6 @@
                           <i class="material-icons prefix">textsms</i>
                           <input type="text" name="search_customer" id="search_customer" class="typeahead autocomplete" autocomplete="off" value="">
                       </div>
-                      <!-- <div class="input-field col m2 s12">
-                        <button class="btn cyan waves-effect waves-light" type="button" name="action" onClick="addNewCustomer()">New Customer
-                          <i class="material-icons right">add</i>
-                        </button>
-                      </div> -->
                     </div>
                   </div>
                 </div>
@@ -341,7 +336,7 @@ function listItemDetails(type){
   if(data_ids != ''){
     $.ajax({
         type: 'post',
-        url: "{{ url(ROUTE_PREFIX.'/common/get-taxdetails') }}",
+        url: "{{ url(ROUTE_PREFIX.'/common/list-service-with-tax') }}",
         dataType: 'json',data: { data_ids:data_ids, type : type},delay: 250,
         success: function(data) {
             $("#servicesTable").find("tr:gt(0)").remove();
@@ -397,12 +392,16 @@ function getCustomerDetails(customer_id){
       delay: 250,
      success: function(data) {
         $('#customer_id').val(data.data.id);
-        $("#search_customer").val(data.data.name + ' - ' + data.data.mobile);
+        var customerMobile = '';
+        if (data.data.mobile != null) {
+          customerMobile = ' - ' + data.data.mobile;
+        }
+        $("#search_customer").val(data.data.name + customerMobile );
         $("#customer_name").val(data.data.name);
         $("#customer_mobile").val(data.data.mobile);
         $("#customer_email").val(data.data.email);
         $("#customer_details_div").show();
-      }
+    }
   });
 }   
 

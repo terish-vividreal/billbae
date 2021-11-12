@@ -13,6 +13,8 @@ class State extends Model
 {
     use HasFactory;
 
+    protected $table = 'shop_states';
+
     public function country()
     {
         return $this->belongsTo(Country::class);

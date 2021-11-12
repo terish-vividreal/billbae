@@ -9,6 +9,8 @@ class District extends Model
 {
     use HasFactory;
 
+    protected $table = 'shop_districts';
+
     public function state()
     {
         return $this->belongsTo(State::class);

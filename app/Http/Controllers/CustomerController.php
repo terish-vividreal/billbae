@@ -5,8 +5,11 @@ use App\Models\ServiceCategory;
 use Illuminate\Validation\Rule;
 use App\Imports\CustomersImport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Helpers\FunctionHelper;
 use Illuminate\Http\Request;
 use App\Models\Billing;
+use App\Models\PaymentType;
+use App\Models\Service;
 use Illuminate\Support\Str;
 use App\Models\Customer;
 use App\Models\District;
@@ -26,6 +29,21 @@ class CustomerController extends Controller
     protected $link     = 'customers';
     protected $route    = 'customers';
     protected $entity   = 'Customers';
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    function __construct()
+    {
+        // $this->middleware('permission:store-profile-update', ['only' => ['index','update']]);
+        $this->middleware(function ($request, $next) {
+            $this->timezone     = Shop::where('user_id', Auth::user()->id)->value('timezone');
+            $this->time_format  = (Shop::where('user_id', Auth::user()->id)->value('time_format') == 1)?'h':'H';
+            return $next($request);
+        });
+    }
 
     /**
      * Display a listing of the resource.
@@ -115,10 +133,9 @@ class CustomerController extends Controller
             return $status;
             })
             ->addColumn('action', function($detail){
-
             if ($detail->deleted_at == null) {  
                 $action = ' <a  href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                $action .= '<a href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/view') . '" data-type="remove" data-type="remove" class="btn btn-sm gradient-45deg-amber-amber mr-2" title="View"><i class="material-icons">visibility</i></a>';
+                $action .= '<a href="' . url(ROUTE_PREFIX.'/customers/view-details/' . $detail->id ) . '" data-type="remove" data-type="remove" class="btn btn-sm gradient-45deg-amber-amber mr-2" title="View"><i class="material-icons">visibility</i></a>';
                 $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Remove"><i class="material-icons">block</i></a>';
             } else {
                 $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
@@ -126,9 +143,105 @@ class CustomerController extends Controller
             }
                 return $action;
             })
+            ->addColumn('create_bill', function($detail){
+                $action = '<a href="' . url(ROUTE_PREFIX.'/customers/create-bill/' . $detail->id ) . '" class="btn btn-sm mr-2 green darken-1" title="View"><i class="material-icons">account_balance_wallet</i></a>';
+                return $action;
+            })
             ->removeColumn('id')
             ->escapeColumns([])
             ->make(true);                    
+    }
+
+    public function billReport(Request $request, $id)
+    {
+        $detail     =  Billing::select( 'id', 'billed_date', 'amount', 'billing_code', 'payment_status')
+                            ->where('customer_id', $id)->where('shop_id', SHOP_ID);
+        // if( ($from != '') && ($to != '') ) {
+        //     $detail->Where(function ($query) use ($from, $to) {
+        //         $query->whereBetween('created_at', [$from, $to]);
+        //     });
+        // }
+
+        if ($request['billing_code'] != '') {
+            $billing_code    = $request['billing_code'];
+            $detail         = $detail->where(function($query)use($billing_code){
+                    $query->where('billing_code', 'like', '%'.$billing_code.'%');
+            }); 
+        }
+
+        if ($request['payment_status'] != '') {
+            $payment_status    = $request['payment_status'];
+            $detail         = $detail->where(function($query)use($payment_status){
+                    $query->where('payment_status', $payment_status);
+            }); 
+        }
+
+        $detail = $detail->orderBy('created_at', 'DESC')->get();
+        return Datatables::of($detail)
+            ->addIndexColumn()
+            ->editColumn('billed_date', function($detail){
+                return FunctionHelper::dateToTimeZone($detail->billed_date, 'd-M-Y '.$this->time_format.':i a');
+            })
+            ->editColumn('billing_code', function($detail){
+                $billing_code = '';
+                $billing_code .=' <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '" target="_blank">'.$detail->billing_code.'</a>';
+                return $billing_code;
+            })
+            // ->editColumn('customer_id', function($detail){
+            //     $customer = $detail->customer->name;
+            //     return $customer;
+            // })
+            ->editColumn('amount', function($detail){
+                $amount = $detail->amount;
+                return $amount;
+            })
+            ->editColumn('payment_status', function($detail){
+                $status = '';
+                if ($detail->payment_status == 0) {
+                    $status = '<span class="chip lighten-5 red red-text">UNPAID</span>';
+                } else {  
+                    $status = '<span class="chip lighten-5 green green-text">PAID</span>';                                
+                }
+                return $status;
+            })
+            ->addColumn('in_out_time', function($detail){
+                $checkin_time   =  FunctionHelper::dateToTimeZone($detail->checkin_time, $this->time_format.':i a');
+                $checkout_time  =  FunctionHelper::dateToTimeZone($detail->checkout_time, $this->time_format.':i a');
+                $in_out_time    = $checkin_time . ' - ' . $checkout_time;
+                return $in_out_time;
+            })
+            ->addColumn('payment_method', function($detail){
+                $methods         = '';
+                foreach($detail->paymentMethods as $row){
+                    $methods .= $row->paymentype->name. ', '; 
+                }
+                return rtrim($methods, ', ');
+            })
+            ->removeColumn('id')
+            ->escapeColumns([])
+            ->make(true);
+    }
+
+    public function createBill(Request $request, $id)
+    {
+        $page                       = collect();
+        $variants                   = collect();
+        $user                       = Auth::user();
+        $store                      = Shop::find($user->shop_id);
+        $page->title                = $this->title;
+        $page->link                 = url($this->link);
+        $page->route                = $this->route;
+        $page->entity               = $this->entity;       
+        $customer                   = Customer::find($id);                                                                                                                      
+        $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id');          
+        $variants->services         = Service::where('shop_id', SHOP_ID)->pluck('name', 'id');          
+        $variants->packages         = Package::where('shop_id', SHOP_ID)->pluck('name', 'id');
+        $variants->payment_types    = PaymentType::where('shop_id', SHOP_ID)->pluck('name', 'id');         
+        $variants->time_picker      = ($this->time_format === 'h')?false:true;
+        $variants->time_format      = $this->time_format;
+        return view($this->viewPath . '.create-bill', compact('page', 'customer', 'variants', 'store'));
+
+
     }
 
     /**
@@ -140,15 +253,9 @@ class CustomerController extends Controller
     public function show(Request $request, $id)
     {
         $customer                       = Customer::find($id);
-
-        
-        // $customer               = Customer::where('id', $id)
-        //                             ->whereHas('billings', function ($query) {
-        //                                 // $query->orderBy('billed_date', 'DESC');
-        //                             })->get();
-        
-        // echo "<pre>"; print_r($customer); exit;
-
+        $last_activity                  = Customer::lastActivity($id);
+        $completed_bills                = Customer::completedBills($id);
+        $pending_bills                  = Customer::pendingBills($id);
         if ($customer) { 
             $page                   = collect();
             $variants               = collect();
@@ -156,7 +263,7 @@ class CustomerController extends Controller
             $page->link             = url($this->link);
             $page->route            = $this->route;
             $page->entity           = $this->entity;         
-            return view($this->viewPath . '.show', compact('page', 'variants', 'customer'));
+            return view($this->viewPath . '.show', compact('page', 'variants', 'customer', 'last_activity', 'completed_bills', 'pending_bills'));
         }else {
             return redirect('customers')->with('error', $this->title.' not found');
         }  
@@ -266,11 +373,19 @@ class CustomerController extends Controller
 
     public function autocomplete(Request $request)
     {
-        $data   = Customer::select("customers.id", DB::raw("CONCAT(customers.name,' - ',COALESCE(customers.mobile, '')) as name"))
+        $data = array();
+        $result   = Customer::select("customers.id", DB::raw("CONCAT(customers.name,' - ', COALESCE(customers.mobile, '')) as name"))
                             ->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")
                             ->orWhere("mobile","LIKE","%{$request->search}%")
                             ->get();
-        return response()->json($data);
+        if ($result) {
+            foreach($result as $row) {
+                $data[] = array([ 'id' => $row->id, 'name' => $row->name]);
+            }
+        } else {
+            $data = [];
+        }
+        return response()->json($result);
     }
 
     /**

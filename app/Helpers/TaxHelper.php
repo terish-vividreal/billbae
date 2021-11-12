@@ -31,11 +31,16 @@ class TaxHelper
         $discount_value         = 0 ;
         $total_cgst_amount      = 0 ;
         $total_sgst_amount      = 0;
+        $cgst_percentage        = 0;
+        $sgst_percentage        = 0;
         $additional_tax_array   = array();
         $tax_array              = array();
 
             // $total_percentage       = $row->gst_tax ; 
-            $total_percentage       = $row->gsttax->percentage;
+            if($row->gst_tax != NULL){
+                $total_percentage           = $row->gsttax->percentage ;
+            }
+
             if($total_percentage > 0) {
 
                 if(count($row->additionaltax) > 0){
@@ -49,6 +54,9 @@ class TaxHelper
                 $total_gst_amount           = $tax_onepercentage*$row->gsttax->percentage;
                 $total_cgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
                 $total_sgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
+
+                $cgst_percentage            = ($row->gsttax->percentage/2);
+                $sgst_percentage            = ($row->gsttax->percentage/2);
             }
                           
             
@@ -88,9 +96,13 @@ class TaxHelper
                         $balance_discount_amount  = $gross_charge - $discount_amount;
                     }
 
-                    $gross_value            = $balance_discount_amount * ((100 - $total_percentage)/100)  ;  
-                    $total_cgst_amount      = $balance_discount_amount * (($row->gsttax->percentage/2)/100) ;  
-                    $total_sgst_amount      = $balance_discount_amount * (($row->gsttax->percentage/2)/100) ;  
+                    $gross_value            = $balance_discount_amount * ((100 - $total_percentage)/100)  ;
+                    
+                    if ($total_percentage > 0) {
+                        $total_cgst_amount      = $balance_discount_amount * (($row->gsttax->percentage/2)/100) ;  
+                        $total_sgst_amount      = $balance_discount_amount * (($row->gsttax->percentage/2)/100) ;
+                    } 
+                      
                     
                     if(count($additional_tax_array) > 0){
                         foreach($additional_tax_array as $key => $additional)
@@ -128,9 +140,9 @@ class TaxHelper
                 'tax_method' => $included, 
                 'hsn_code' => $row->hsn_code, 
                 'amount' => $gross_value,
-                'total_tax_percentage' => $row->gsttax->percentage,
-                'cgst_percentage' => ($row->gsttax->percentage/2),
-                'sgst_percentage' => ($row->gsttax->percentage/2),
+                'total_tax_percentage' => $total_percentage,
+                'cgst_percentage' => $cgst_percentage,
+                'sgst_percentage' => $sgst_percentage,
                 'cgst' => number_format($total_cgst_amount,2),
                 'sgst' => number_format($total_sgst_amount,2),
                 'total_amount' => $gross_charge,
