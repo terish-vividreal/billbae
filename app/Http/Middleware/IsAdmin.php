@@ -25,6 +25,7 @@ class IsAdmin
                 define('ROUTE_PREFIX', 'admin');
             }else{
                 define('USER_ROLE', '');
+                define('ROUTE_PREFIX', 'admin');
             }           
             return $next($request);            
         }

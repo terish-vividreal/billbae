@@ -1,289 +1,201 @@
-@extends('layouts.app')
+@extends('layouts.admin.app')
 
 @section('content')
 
-@section('breadcrumb')
-  <li class="nav-item">
-    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url('/home') }}" class="nav-link">Home</a>
-  </li>
-  <!-- <li class="nav-item d-none d-sm-inline-block">
-    <a href="#" class="nav-link">Contact</a>
-  </li> -->
-@endsection
 
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">Dashboard v3</h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Dashboard v3</li>
-            </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
-    <div class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-header border-0">
-                <div class="d-flex justify-content-between">
-                  <h3 class="card-title">Online Store Visitors</h3>
-                  <a href="javascript:void(0);">View Report</a>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="d-flex">
-                  <p class="d-flex flex-column">
-                    <span class="text-bold text-lg">820</span>
-                    <span>Visitors Over Time</span>
-                  </p>
-                  <p class="ml-auto d-flex flex-column text-right">
-                    <span class="text-success">
-                      <i class="fas fa-arrow-up"></i> 12.5%
-                    </span>
-                    <span class="text-muted">Since last week</span>
-                  </p>
-                </div>
-                <!-- /.d-flex -->
-
-                <div class="position-relative mb-4">
-                  <canvas id="visitors-chart" height="200"></canvas>
-                </div>
-
-                <div class="d-flex flex-row justify-content-end">
-                  <span class="mr-2">
-                    <i class="fas fa-square text-primary"></i> This Week
-                  </span>
-
-                  <span>
-                    <i class="fas fa-square text-gray"></i> Last Week
-                  </span>
-                </div>
-              </div>
+<div class="section">
+   <!-- Current balance & total transactions cards-->
+   <div class="row vertical-modern-dashboard">
+      <div class="col s12 m4 l4">
+         <!-- Current Balance -->
+         <div class="card animate fadeLeft">
+            <div class="card-content">
+               <h6 class="mb-0 mt-0 display-flex justify-content-between">Current Balance <i
+                     class="material-icons float-right">more_vert</i>
+               </h6>
+               <p class="medium-small">This billing cycle</p>
+               <div class="current-balance-container">
+                  <div id="current-balance-donut-chart" class="current-balance-shadow"></div>
+               </div>
+               <h5 class="center-align">₹ 50,150.00</h5>
+               <p class="medium-small center-align">Used balance this billing cycle</p>
             </div>
-            <!-- /.card -->
-
-            <div class="card">
-              <div class="card-header border-0">
-                <h3 class="card-title">Products</h3>
-                <div class="card-tools">
-                  <a href="#" class="btn btn-tool btn-sm">
-                    <i class="fas fa-download"></i>
-                  </a>
-                  <a href="#" class="btn btn-tool btn-sm">
-                    <i class="fas fa-bars"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="card-body table-responsive p-0">
-                <table class="table table-striped table-valign-middle">
-                  <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Sales</th>
-                    <th>More</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>
-                    <td>
-                      <img src="{{ asset('admin/img/default-150x150.png') }}" alt="Product 1" class="img-circle img-size-32 mr-2">
-                      Some Product
-                    </td>
-                    <td>$13 USD</td>
-                    <td>
-                      <small class="text-success mr-1">
-                        <i class="fas fa-arrow-up"></i>
-                        12%
-                      </small>
-                      12,000 Sold
-                    </td>
-                    <td>
-                      <a href="#" class="text-muted">
-                        <i class="fas fa-search"></i>
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <img src="{{ asset('admin/img/default-150x150.png') }}" alt="Product 1" class="img-circle img-size-32 mr-2">
-                      Another Product
-                    </td>
-                    <td>$29 USD</td>
-                    <td>
-                      <small class="text-warning mr-1">
-                        <i class="fas fa-arrow-down"></i>
-                        0.5%
-                      </small>
-                      123,234 Sold
-                    </td>
-                    <td>
-                      <a href="#" class="text-muted">
-                        <i class="fas fa-search"></i>
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <img src="{{ asset('admin/img/default-150x150.png') }}" alt="Product 1" class="img-circle img-size-32 mr-2">
-                      Amazing Product
-                    </td>
-                    <td>$1,230 USD</td>
-                    <td>
-                      <small class="text-danger mr-1">
-                        <i class="fas fa-arrow-down"></i>
-                        3%
-                      </small>
-                      198 Sold
-                    </td>
-                    <td>
-                      <a href="#" class="text-muted">
-                        <i class="fas fa-search"></i>
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <img src="{{ asset('admin/img/default-150x150.png') }}" alt="Product 1" class="img-circle img-size-32 mr-2">
-                      Perfect Item
-                      <span class="badge bg-danger">NEW</span>
-                    </td>
-                    <td>$199 USD</td>
-                    <td>
-                      <small class="text-success mr-1">
-                        <i class="fas fa-arrow-up"></i>
-                        63%
-                      </small>
-                      87 Sold
-                    </td>
-                    <td>
-                      <a href="#" class="text-muted">
-                        <i class="fas fa-search"></i>
-                      </a>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <!-- /.card -->
-          </div>
-          <!-- /.col-md-6 -->
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-header border-0">
-                <div class="d-flex justify-content-between">
-                  <h3 class="card-title">Sales</h3>
-                  <a href="javascript:void(0);">View Report</a>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="d-flex">
-                  <p class="d-flex flex-column">
-                    <span class="text-bold text-lg">$18,230.00</span>
-                    <span>Sales Over Time</span>
-                  </p>
-                  <p class="ml-auto d-flex flex-column text-right">
-                    <span class="text-success">
-                      <i class="fas fa-arrow-up"></i> 33.1%
-                    </span>
-                    <span class="text-muted">Since last month</span>
-                  </p>
-                </div>
-                <!-- /.d-flex -->
-
-                <div class="position-relative mb-4">
-                  <canvas id="sales-chart" height="200"></canvas>
-                </div>
-
-                <div class="d-flex flex-row justify-content-end">
-                  <span class="mr-2">
-                    <i class="fas fa-square text-primary"></i> This year
-                  </span>
-
-                  <span>
-                    <i class="fas fa-square text-gray"></i> Last year
-                  </span>
-                </div>
-              </div>
-            </div>
-            <!-- /.card -->
-
-            <div class="card">
-              <div class="card-header border-0">
-                <h3 class="card-title">Online Store Overview</h3>
-                <div class="card-tools">
-                  <a href="#" class="btn btn-sm btn-tool">
-                    <i class="fas fa-download"></i>
-                  </a>
-                  <a href="#" class="btn btn-sm btn-tool">
-                    <i class="fas fa-bars"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
-                  <p class="text-success text-xl">
-                    <i class="ion ion-ios-refresh-empty"></i>
-                  </p>
-                  <p class="d-flex flex-column text-right">
-                    <span class="font-weight-bold">
-                      <i class="ion ion-android-arrow-up text-success"></i> 12%
-                    </span>
-                    <span class="text-muted">CONVERSION RATE</span>
-                  </p>
-                </div>
-                <!-- /.d-flex -->
-                <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
-                  <p class="text-warning text-xl">
-                    <i class="ion ion-ios-cart-outline"></i>
-                  </p>
-                  <p class="d-flex flex-column text-right">
-                    <span class="font-weight-bold">
-                      <i class="ion ion-android-arrow-up text-warning"></i> 0.8%
-                    </span>
-                    <span class="text-muted">SALES RATE</span>
-                  </p>
-                </div>
-                <!-- /.d-flex -->
-                <div class="d-flex justify-content-between align-items-center mb-0">
-                  <p class="text-danger text-xl">
-                    <i class="ion ion-ios-people-outline"></i>
-                  </p>
-                  <p class="d-flex flex-column text-right">
-                    <span class="font-weight-bold">
-                      <i class="ion ion-android-arrow-down text-danger"></i> 1%
-                    </span>
-                    <span class="text-muted">REGISTRATION RATE</span>
-                  </p>
-                </div>
-                <!-- /.d-flex -->
-              </div>
-            </div>
-          </div>
-          <!-- /.col-md-6 -->
-        </div>
-        <!-- /.row -->
+         </div>
       </div>
-      <!-- /.container-fluid -->
-    </div>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+      <div class="col s12 m8 l8 animate fadeRight">
+         <!-- Total Transaction -->
+         <div class="card">
+            <div class="card-content">
+               <h4 class="card-title mb-0">Total Transaction <i class="material-icons float-right">more_vert</i></h4>
+               <p class="medium-small">This month transaction</p>
+               <div class="total-transaction-container">
+                  <div id="total-transaction-line-chart" class="total-transaction-shadow"></div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--/ Current balance & total transactions cards-->
+
+   <!-- User statistics & appointment cards-->
+   <div class="row">
+      <div class="col s12 l5">
+         <!-- User Statistics -->
+         <div class="card user-statistics-card animate fadeLeft">
+            <div class="card-content">
+               <h4 class="card-title mb-0">User Statistics <i class="material-icons float-right">more_vert</i></h4>
+               <div class="row">
+                  <div class="col s12 m6">
+                     <ul class="collection border-none mb-0">
+                        <li class="collection-item avatar">
+                           <i class="material-icons circle pink accent-2">trending_up</i>
+                           <p class="medium-small">This year</p>
+                           <h5 class="mt-0 mb-0">60%</h5>
+                        </li>
+                     </ul>
+                  </div>
+                  <div class="col s12 m6">
+                     <ul class="collection border-none mb-0">
+                        <li class="collection-item avatar">
+                           <i class="material-icons circle purple accent-4">trending_down</i>
+                           <p class="medium-small">Last year</p>
+                           <h5 class="mt-0 mb-0">40%</h5>
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+               <div class="user-statistics-container">
+                  <div id="user-statistics-bar-chart" class="user-statistics-shadow ct-golden-section"></div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="col s12 l4">
+         <!-- Recent Buyers -->
+         <div class="card recent-buyers-card animate fadeUp">
+            <div class="card-content">
+               <h4 class="card-title mb-0">Recent Buyers <i class="material-icons float-right">more_vert</i></h4>
+               <p class="medium-small pt-2">Today</p>
+               <ul class="collection mb-0">
+                  <li class="collection-item avatar">
+                     <img src="../../../app-assets/images/avatar/avatar-7.png" alt="" class="circle" />
+                     <p class="font-weight-600">John Doe</p>
+                     <p class="medium-small">18, January 2019</p>
+                     <a href="#!" class="secondary-content"><i class="material-icons">star_border</i></a>
+                  </li>
+                  <li class="collection-item avatar">
+                     <img src="../../../app-assets/images/avatar/avatar-3.png" alt="" class="circle" />
+                     <p class="font-weight-600">Adam Garza</p>
+                     <p class="medium-small">20, January 2019</p>
+                     <a href="#!" class="secondary-content"><i class="material-icons">star_border</i></a>
+                  </li>
+                  <li class="collection-item avatar">
+                     <img src="../../../app-assets/images/avatar/avatar-5.png" alt="" class="circle" />
+                     <p class="font-weight-600">Jennifer Rice</p>
+                     <p class="medium-small">25, January 2019</p>
+                     <a href="#!" class="secondary-content"><i class="material-icons">star_border</i></a>
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </div>
+      <div class="col s12 l3">
+         <div class="card animate fadeRight">
+            <div class="card-content">
+               <h4 class="card-title mb-0">Conversion Ratio</h4>
+               <div class="conversion-ration-container mt-8">
+                  <div id="conversion-ration-bar-chart" class="conversion-ration-shadow"></div>
+               </div>
+               <p class="medium-small center-align">This month conversion ratio</p>
+               <h5 class="center-align mb-0 mt-0">62%</h5>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--/ Current balance & appointment cards-->
+
+   <div class="row">
+      <div class="col s12 m6 l4">
+         <div class="card padding-4 animate fadeLeft">
+            <div class="row">
+               <div class="col s5 m5">
+                  <h5 class="mb-0">1885</h5>
+                  <p class="no-margin">New</p>
+                  <p class="mb-0 pt-8">1,12,900</p>
+               </div>
+               <div class="col s7 m7 right-align">
+                  <i
+                     class="material-icons background-round mt-5 mb-5 gradient-45deg-purple-amber gradient-shadow white-text">perm_identity</i>
+                  <p class="mb-0">Total Clients</p>
+               </div>
+            </div>
+         </div>
+         <div id="chartjs" class="card pt-0 pb-0 animate fadeLeft">
+            <div class="dashboard-revenue-wrapper padding-2 ml-2">
+               <span class="new badge gradient-45deg-indigo-purple gradient-shadow mt-2 mr-2">+ ₹900</span>
+               <p class="mt-2 mb-0 font-weight-600">Today's revenue</p>
+               <p class="no-margin grey-text lighten-3">₹40,512 avg</p>
+               <h5₹ 22,300</h5>
+            </div>
+            <div class="sample-chart-wrapper card-gradient-chart">
+               <canvas id="custom-line-chart-sample-three" class="center"></canvas>
+            </div>
+         </div>
+      </div>
+      <div class="col s12 m6 l8">
+         <div class="card subscriber-list-card animate fadeRight">
+            <div class="card-content pb-1">
+               <h4 class="card-title mb-0">Subscriber List <i class="material-icons float-right">more_vert</i></h4>
+            </div>
+            <table class="subscription-table responsive-table highlight">
+               <thead>
+                  <tr>
+                     <th>Name</th>
+                     <th>Company</th>
+                     <th>Start Date</th>
+                     <th>Status</th>
+                     <th>Amount</th>
+                     <th>Action</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr>
+                     <td>Michael Austin</td>
+                     <td>ABC Fintech LTD.</td>
+                     <td>Jan 1,2019</td>
+                     <td><span class="badge pink lighten-5 pink-text text-accent-2">Close</span></td>
+                     <td>₹ 1000.00</td>
+                     <td class="center-align"><a href="#"><i class="material-icons pink-text">clear</i></a></td>
+                  </tr>
+                  <tr>
+                     <td>Aldin Rakić</td>
+                     <td>ACME Pvt LTD.</td>
+                     <td>Jan 10,2019</td>
+                     <td><span class="badge green lighten-5 green-text text-accent-4">Open</span></td>
+                     <td>₹ 3000.00</td>
+                     <td class="center-align"><a href="#"><i class="material-icons pink-text">clear</i></a></td>
+                  </tr>
+                  <tr>
+                     <td>İris Yılmaz</td>
+                     <td>Collboy Tech LTD.</td>
+                     <td>Jan 12,2019</td>
+                     <td><span class="badge green lighten-5 green-text text-accent-4">Open</span></td>
+                     <td>₹ 2000.00</td>
+                     <td class="center-align"><a href="#"><i class="material-icons pink-text">clear</i></a></td>
+                  </tr>
+                  <tr>
+                     <td>Lidia Livescu</td>
+                     <td>My Fintech LTD.</td>
+                     <td>Jan 14,2019</td>
+                     <td><span class="badge pink lighten-5 pink-text text-accent-2">Close</span></td>
+                     <td>₹ 1100.00</td>
+                     <td class="center-align"><a href="#"><i class="material-icons pink-text">clear</i></a></td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+</div><!-- START RIGHT SIDEBAR NAV -->
+
 @endsection

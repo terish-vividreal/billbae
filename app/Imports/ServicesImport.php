@@ -52,7 +52,6 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
                 }
             }
 
-
             $hours_id=NULL;
             if($row['hours_id']!=''){
                 $hours = Hours::firstOrCreate(['value' => $row['hours_id']], ['name' => $row['hours_id']. ' mns'] );
@@ -61,7 +60,6 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
                 }
             }
 
-            
             // $gst_tax=NULL;
             // if($row['gst_tax']!=''){
             //     $gst = GstTaxPercentage::firstOrCreate(['percentage' => $row['gst_tax']]);
@@ -90,11 +88,8 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
 
             $tax_included   = (Str::of($row['tax_included'])->trim() == 'yes')?1:0;
             // $hsn_code       = ($row['hsn_code'] != '')?$row['hsn_code']:NULL;
-
-      
             // dd($row['lead_before'],$hsn_code);
             // echo $service_category_id; exit;
-
 
             Service::create([
                 'shop_id' => SHOP_ID,

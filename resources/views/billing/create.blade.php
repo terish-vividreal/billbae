@@ -45,7 +45,7 @@
                 <div class="row">
                   <div class="col s12">
                     <!-- <div class="row"> -->
-                      <div class="input-field col m8 s12" id="custom-templates">
+                      <div class="input-field col m6 s12" id="custom-templates">
                           <i class="material-icons prefix">textsms</i>
                           <input type="text" name="search_customer" id="search_customer" class="typeahead autocomplete" autocomplete="off" value="">
                           <label for="search_customer" class="typeahead label-placeholder">Search Customer name or mobile...</label>
@@ -161,7 +161,7 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Name</th>
+                           <th>Name</th>
                           <th>HSN Code</th>
                           <th>Amount</th>
                         </tr>
@@ -471,9 +471,9 @@ if ($("#{{$page->entity}}Form").length > 0) {
     },
     errorPlacement: function(error, element) {
       if (element.is("select")) {
-          error.insertAfter(element.next('.select2'));
-      }else {
-          error.insertAfter(element);
+        error.insertAfter(element.next('.select2'));
+      } else {
+        error.insertAfter(element);
       }
     }
   })

@@ -1,149 +1,144 @@
-@extends('layouts.app')
+@extends('layouts.admin.app')
+
+{{-- page title --}}
+@section('seo_title', Str::plural($page->title) ?? '') 
+@section('search-title') {{ $page->title ?? ''}} @endsection
+
+{{-- vendor styles --}}
+@section('vendor-style')
+<link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/flag-icon/css/flag-icon.min.css')}}">
+<!-- <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<link rel="stylesheet" type="text/css" href="{{ asset('admin/vendors/toastr/toastr.min.css') }}"> -->
+@endsection
+
+@section('page-style')
+<link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
+@endsection
 
 @section('content')
 
 @section('breadcrumb')
-  <li class="nav-item">
-    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/home') }}" class="nav-link">Home</a>
-  </li>
-  <li class="nav-item d-none d-sm-inline-block">
-    <a href="{{ url(ROUTE_PREFIX.'/users') }}" class="nav-link">{{ $page->title ?? ''}}</a>
-  </li>
+  <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
+  <ol class="breadcrumbs mb-0">
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/customers') }}">{{ Str::plural($page->title) ?? ''}}</a></li>
+    <li class="breadcrumb-item active">Create</li>
+  </ol>
 @endsection
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">{{ $page->title ?? ''}}</h1>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+@section('page-action')
+  <a href="javascript:" class="btn waves-effect waves-light orange darken-4 breadcrumbs-btn" onclick="importBrowseModal()" >Upload<i class="material-icons right">attach_file</i></a>
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">person_add</i></a>
+  <a href="{{ url(ROUTE_PREFIX.'/customers') }}" class="btn waves-effect waves-light light-blue darken-4 breadcrumbs-btn" type="submit" name="action">List<i class="material-icons right">list</i></a>
+@endsection
+
+<div class="section">
+  <div class="card">
+    <div class="card-content">
+      <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsume is used for the ...</p>
     </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
-    <section class="content">
-      <div class="container-fluid">
-        <!-- SELECT2 EXAMPLE -->
-        <div class="card card-primary">
-          <div class="card-header">
-            <h3 class="card-title">{{ $page->title ?? ''}} Form</h3>
-
-
-            
-            <div class="card-tools">
-              <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                <i class="fas fa-minus"></i>
-              </button>
-            </div>
-          </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-
-            <div class="alert alert-danger print-error-msg" style="display:none">
-
-            <ul></ul>
-
-            </div>
-
-
-              <form id="storeForm" name="storeForm" role="form" method="" action="" class="ajax-submit">
+  </div>
+  <!--Basic Form-->
+  <div class="row">
+    <!-- Form Advance -->
+    <div class="col s12 m12 l12">
+      <div id="Form-advance" class="card card card-default scrollspy">
+        <div class="card-content">
+          @include('layouts.success') 
+          @include('layouts.error')
+          <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
+            <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
                 {{ csrf_field() }}
                 {!! Form::hidden('user_id', $user->id ?? '' , ['id' => 'user_id'] ); !!}
-                <div class="col-md-8 ">  
-
-                    <div class="form-group">
-                        {!! Form::label('shop_name', 'Store Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('shop_name', $user->shop->name ?? '' , array('placeholder' => 'Store Name','class' => 'form-control')) !!}                        
-                        <div class="error" id="email_error"></div>
-                    </div> 
-                    <div class="form-group">
-                        {!! Form::label('business_type', 'Business Types*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::select('business_type', $variants->business_types, $user->shop->business_type_id ?? '' , ['class' => 'form-control','placeholder'=>'Select Business Type']) !!}
-                        <div class="error" id="roles_error"></div>
-                    </div>            
-                    <div class="form-group">
-                        {!! Form::label('name', 'Admin Name*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('name', $user->name ?? '', array('placeholder' => 'Admin Name','class' => 'form-control')) !!}
-                        <div class="error" id="name_error"></div>
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label('email', 'Email*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('email', $user->email ?? '' , array('placeholder' => 'Email','class' => 'form-control')) !!}
-                        <div class="error" id="email_error"></div>
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label('mobile', 'Mobile Number*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::text('mobile', $user->mobile ?? '', array('placeholder' => 'Mobile','class' => 'form-control check_numeric')) !!}
-                        <div class="error" id="name_error"></div>
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label('password', 'Password*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control')) !!}
-                        <div class="error" id="password_error"></div>
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label('confirm-password', 'Confirm Password*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
-                        <div class="error" id="password_error"></div>
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label('roles', 'Role*', ['class' => 'col-sm-2 col-form-label text-alert']) !!}
-                        {!! Form::select('roles[]', $variants->roles, $userRole ??  [] , array('class' => 'form-control','multiple')) !!}
-                        <div class="error" id="roles_error"></div>
-                    </div>                  
-                    
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  {!! Form::text('shop_name', $user->shop->name ?? '', array('id' => 'shop_name')) !!}  
+                  <label for="shop_name" class="label-placeholder">Store Name <span class="red-text">*</span></label>
                 </div>
-                <div class="row">
-                    <div class="col-12">
-                    <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button class="btn btn-success ajax-submit">Submit</button>
-                    </div>
+                <div class="input-field col m6 s12">
+                  {!! Form::select('business_type', $variants->business_types , $user->shop->business_type_id ?? '' , ['id' => 'business_type' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select business type']) !!}
+                
+                
                 </div>
-              {!! Form::close() !!}              
-
-            </div>
-          <!-- /.card-body -->
+              </div>
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  {!! Form::text('name', $user->name ?? '', array('id' => 'name')) !!}  
+                  <label for="name" class="label-placeholder">Admin Name <span class="red-text">*</span></label>
+                </div>
+                <div class="input-field col m6 s12">
+                  {!! Form::text('email', $user->email ?? '', array('id' => 'email', 'autocomplete' => 'off')) !!}  
+                  <label for="email" class="label-placeholder">Email <span class="red-text">*</span></label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  {!! Form::text('mobile', $user->mobile ?? '', array('id' => 'mobile', 'class' => 'check_numeric')) !!}
+                  <label for="mobile" class="label-placeholder">Mobile <span class="red-text">*</span></label>
+                </div>
+                <div class="input-field col m6 s12">
+                  {!! Form::select('roles[]', $variants->roles, $userRole ??  [] , array('id' =>'roles' , 'class' => 'select2 browser-default', 'multiple' => 'multiple', 'placeholder'=>'Please select roles')) !!}
+                </div>
+              </div>  
+              <div class="row">
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
+                </div>
+              </div>
+          </form>
         </div>
-        <!-- /.card -->
       </div>
-      <!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+    </div>
   </div>
-  <!-- /.content-wrapper -->
+</div>
+
+@include('customer.import-browse-modal')
 @endsection
+
+{{-- vendor scripts --}}
+@section('vendor-script')
+<script src="{{asset('admin/vendors/toastr/toastr.min.js')}}"></script>
+@endsection
+
 @push('page-scripts')
-
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
-<script type="text/javascript">
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script> -->
+<script>
 
-if ($("#storeForm").length > 0) {
-    var validator = $("#storeForm").validate({ 
+$('#business_type').select2({ placeholder: "Please select business type", allowClear: false });
+$('#roles').select2({ placeholder: "Please select roles", allowClear: true });
+
+if ($("#{{$page->entity}}Form").length > 0) {
+    var validator = $("#{{$page->entity}}Form").validate({ 
         rules: {
             shop_name: {
                     required: true,
                     maxlength: 200,
             }, 
-            // email: {
-            //     required: true,
-            //     email: true,
-            //     remote: { url: "{{ url('admin/users/unique') }}", type: "POST",
-            //         data: {
-            //             user_id: function () {
-            //                 return $('#user_id').val();
-            //             }
-            //         }
-            //     },
-            // },
+            email: {
+                required: true,
+                email: true,
+                remote: { url: "{{ url('admin/users/unique') }}", type: "POST",
+                    data: {
+                        user_id: function () {
+                            return $('#user_id').val();
+                        }
+                    }
+                },
+            },
+            name: {
+                    required: true,
+                    maxlength: 200,
+            },
+            mobile:{
+              required:true,
+              minlength:10,
+              maxlength:10
+            },
+            "roles[]": {
+                    required: true,
+            },
             // password: {
             //     required: true,
             //     minlength: 6,
@@ -158,10 +153,22 @@ if ($("#storeForm").length > 0) {
                 required: "Please enter store name",
                 maxlength: "Length cannot be more than 200 characters",
                 },
+            name: {
+                required: "Please enter admin name",
+                maxlength: "Length cannot be more than 200 characters",
+                },
             email: {
                 required: "Please enter email",
                 email: "Please enter a valid email address.",
                 remote: "Email already existing"
+            },
+            mobile: {
+                required: "Please enter mobile number",
+                maxlength: "Length cannot be more than 10 numbers",
+                minlength: "Length must be 10 numbers",
+                },
+            "roles[]": {
+                required: "Please choose role",
             },
             password: {
                 required: "Please enter password",
@@ -203,11 +210,9 @@ jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
 
-$("body").on("submit", ".ajax-submit", function (e) {
-    e.preventDefault();         
-});
-
-
+jQuery.validator.addMethod("lettersonly", function (value, element) {
+    return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
+}, "Letters only please");
 
 </script>
 @endpush

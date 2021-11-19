@@ -64,7 +64,7 @@ class CustomerController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Htt+p\Response
      */
     public function create()
     {
@@ -134,9 +134,9 @@ class CustomerController extends Controller
             })
             ->addColumn('action', function($detail){
             if ($detail->deleted_at == null) {  
-                $action = ' <a  href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                $action .= '<a href="' . url(ROUTE_PREFIX.'/customers/view-details/' . $detail->id ) . '" data-type="remove" data-type="remove" class="btn btn-sm gradient-45deg-amber-amber mr-2" title="View"><i class="material-icons">visibility</i></a>';
-                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Remove"><i class="material-icons">block</i></a>';
+                $action      = '<a  href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                $action     .= '<a href="' . url(ROUTE_PREFIX.'/customers/view-details/' . $detail->id ) . '" data-type="remove" data-type="remove" class="btn btn-sm gradient-45deg-amber-amber mr-2" title="View"><i class="material-icons">visibility</i></a>';
+                $action     .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Remove"><i class="material-icons">block</i></a>';
             } else {
                 $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
                 $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="hardDelete(this.id)" data-type="delete" class="btn btn-danger btn-sm btn-icon mr-2" title="PDelete"><i class="material-icons">delete</i></a>';

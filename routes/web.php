@@ -71,7 +71,6 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // Dashboard
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-
     //Schedule Routes
     $schedule = 'schedules';
     Route::resource($schedule, ScheduleController::class);

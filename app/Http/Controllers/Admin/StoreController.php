@@ -24,7 +24,9 @@ class StoreController extends Controller
 {
     protected $title    = 'Stores';
     protected $viewPath = '/admin/users';
-    protected $link     = 'users';
+    protected $link     = 'stores';
+    protected $route    = 'stores';
+    protected $entity   = 'stores';
 
     /**
      * Display a listing of the resource.
@@ -48,6 +50,8 @@ class StoreController extends Controller
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
+        $page->route    = $this->route;
+        $page->entity   = $this->entity;
         return view($this->viewPath . '.list', compact('page'));
     }
 
@@ -114,6 +118,8 @@ class StoreController extends Controller
         $page->link                 = url($this->link);
         $page->form_url             = url($this->link);
         $page->form_method          = 'POST';
+        $page->route                = $this->route;
+        $page->entity               = $this->entity;
         $variants->business_types   = BusinessType::pluck('name','id')->all();
         $variants->roles            = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
         

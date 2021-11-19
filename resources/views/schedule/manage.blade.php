@@ -72,13 +72,6 @@
                   <div class="row" id="itemDetailsDiv" style="display:none;">
                     <div class="input-field col m12 s6"><ul class="collection" id="itemDetails"></ul></div>
                   </div>
-
-                  
-
-
-
-
-
               </div>
         </div>
         <div class="modal-footer">

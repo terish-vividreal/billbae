@@ -53,12 +53,21 @@ class ScheduleController extends Controller
             $data = Schedule::whereDate('start', '>=', $request->start)->whereDate('end', '<=', $request->end)->get(['id', 'user_id as resourceId', 'start', 'end', 'name as title', 'description', 'schedule_color as color']);   
             return response()->json($data);
         }
+        $user_id                = Auth::user()->id;
         $page                   = collect();
+        $variants               = collect();
         $page->title            = $this->title;
         $page->link             = url($this->link);
         $page->route            = $this->route;
-        $page->entity           = $this->entity;  
-        return view($this->viewPath . '.list', compact('page'));
+        $page->entity           = $this->entity;   
+        $variants->time_picker  = ($this->time_format === 'h')?false:true;
+        $variants->time_format  = $this->time_format;   
+        $variants->timezone     = $this->timezone;   
+        $variants->customers    = Customer::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+        $variants->therapists   = User::role('Staffs')->leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')->where('users.parent_id', $user_id)->whereIn('staff_profiles.designation', [1, 2])->where('users.is_active', '!=',  2)->pluck('users.name', 'users.id'); 
+        $schedule_data          = Schedule::whereDate('start', Carbon\Carbon::today())->get(['id', 'user_id as resourceId', 'start', 'end', 'name as title', 'description']);
+        $sales_report           = Billing::select( DB::raw("SUM(amount) as amount"), 'id as row_id', 'payment_status')->where('shop_id', SHOP_ID)->where('payment_status', 1)->whereDate('created_at', Carbon\Carbon::today())->groupBy(DB::raw("day(created_at)"))->get()->toArray(); 
+        return view($this->viewPath . '.create', compact('page', 'variants', 'schedule_data', 'sales_report'));
     }
 
     public function storeSchedule(Request $request)
@@ -104,6 +113,7 @@ class ScheduleController extends Controller
             $total_time         = $items_details['total_hours'];
             $description        = $items_details['description'];
         }
+
         // Calculating end time
         $formatted_start_date       = new Carbon\Carbon($request->start_time);
         $start_date                 = new Carbon\Carbon($request->start_time);
@@ -136,21 +146,6 @@ class ScheduleController extends Controller
     public function create()
     {           
 
-        $user_id                = Auth::user()->id;
-        $page                   = collect();
-        $variants               = collect();
-        $page->title            = $this->title;
-        $page->link             = url($this->link);
-        $page->route            = $this->route;
-        $page->entity           = $this->entity;   
-        $variants->time_picker  = ($this->time_format === 'h')?false:true;
-        $variants->time_format  = $this->time_format;   
-        $variants->timezone     = $this->timezone;   
-        $variants->customers    = Customer::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
-        $variants->therapists   = User::role('Staffs')->leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')->where('users.parent_id', $user_id)->whereIn('staff_profiles.designation', [1, 2])->where('users.is_active', '!=',  2)->pluck('users.name', 'users.id'); 
-        $schedule_data          = Schedule::whereDate('start', Carbon\Carbon::today())->get(['id', 'user_id as resourceId', 'start', 'end', 'name as title', 'description']);
-        $sales_report           = Billing::select( DB::raw("SUM(amount) as amount"), 'id as row_id', 'payment_status')->where('shop_id', SHOP_ID)->where('payment_status', 1)->whereDate('created_at', Carbon\Carbon::today())->groupBy(DB::raw("day(created_at)"))->get()->toArray(); 
-        return view($this->viewPath . '.create', compact('page', 'variants', 'schedule_data', 'sales_report'));
     }
 
     /**

@@ -22,7 +22,7 @@ if(!empty($themeSettings)){
           target="_blank">Billbae</a> All rights reserved.
       </span>
       <span class="right hide-on-small-only">
-        Design and Developed by <a href="https://vividreal.com/">Vividreal</a>
+        Design and Developed by <a href="https://vividreal.com/" target="_blank">Vividreal</a>
       </span>
     </div>
   </div>
