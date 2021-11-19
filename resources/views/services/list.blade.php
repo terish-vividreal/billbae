@@ -82,6 +82,7 @@
 <script src="{{asset('admin/js/scripts/data-tables.js')}}"></script>
 
 <script>
+  
   $(function () {
     table = $('#data-table-simple-services').DataTable({
         bSearchable: true,
@@ -110,41 +111,35 @@
     value.name = $('input[type=search]').val();
   }
 
-
-
-  function softDelete(b) {
-           
-           Swal.fire({
-             title: 'Are you sure want to delete ?',
-             text: "You won't be able to revert this!",
-             type: 'warning',
-             showCancelButton: true,
-             confirmButtonColor: '#3085d6',
-             cancelButtonColor: '#d33',
-             confirmButtonText: 'Yes, delete it!'
-             }).then(function(result) {
-                 if (result.value) {
-                     $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-                         .done(function (a) {
-                             var data = JSON.parse(a);
-                             if(data.flagError == false){
-                               showSuccessToaster(data.message);          
-                               setTimeout(function () {
-                                 table.ajax.reload();
-                                 }, 2000);
-       
-                           }else{
-                             showErrorToaster(data.message);
-                             printErrorMsg(data.error);
-                           }   
-                         }).fail(function () {
-                                 showErrorToaster("Somthing went wrong!");
-                         });
-                 }
-             });
-         }
-
-
+  function softDelete(b) {       
+    Swal.fire({
+      title: 'Are you sure want to delete ?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+      }).then(function(result) {
+        if (result.value) {
+          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+          .done(function (a) {
+            var data = JSON.parse(a);
+            if (data.flagError == false) {
+              showSuccessToaster(data.message);          
+              setTimeout(function () {
+                table.ajax.reload();
+              }, 2000);
+            } else {
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+        }).fail(function () {
+          showErrorToaster("Somthing went wrong!");
+        });
+        }
+      });
+  }
 
 </script>
 @endpush

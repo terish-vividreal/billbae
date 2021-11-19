@@ -11,9 +11,11 @@ use DB;
     
 class RoleController extends Controller
 {
-    protected $title = 'Roles';
+    protected $title    = 'Roles';
     protected $viewPath = 'admin/roles';
-    protected $link = 'roles';
+    protected $link     = 'roles';
+    protected $route    = 'roles';
+    protected $entity   = 'roles';
 
     /**
      * Display a listing of the resource.
@@ -22,11 +24,11 @@ class RoleController extends Controller
      */
     function __construct()
     {
-         $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
-         $this->middleware('permission:role-create', ['only' => ['create','store']]);
-         $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-         $this->middleware('permission:role-list', ['only' => ['show']]);
+        //  $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
+        //  $this->middleware('permission:role-create', ['only' => ['create','store']]);
+        //  $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
+        //  $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+        //  $this->middleware('permission:role-list', ['only' => ['show']]);
     }
     
     /**
@@ -39,6 +41,9 @@ class RoleController extends Controller
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
+        $page->route    = $this->route;
+        $page->entity   = $this->entity;
+
         if (auth()->user()->is_admin == 1) {
             $roles          = Role::get(); 
         } else {
@@ -57,6 +62,8 @@ class RoleController extends Controller
         $page           = collect();
         $page->title    = $this->title;
         $page->link     = url($this->link);
+        $page->route    = $this->route;
+        $page->entity   = $this->entity;
         $permissions    = Permission::where('parent', '=', 0)->get();
         return view($this->viewPath . '.create', compact('page', 'permissions'));
     }
@@ -87,9 +94,14 @@ class RoleController extends Controller
      */
     public function show($id)
     {
+        $page               = collect();
+        $page->title        = $this->title;
+        $page->link         = url($this->link);
+        $page->route        = $this->route;
+        $page->entity       = $this->entity;
         $role               = Role::find($id);
         $rolePermissions    = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")->where("role_has_permissions.role_id",$id)->get();
-        return view($this->viewPath . '.show',compact('role','rolePermissions'));
+        return view($this->viewPath . '.show',compact('page', 'role', 'rolePermissions'));
     }
     
     /**

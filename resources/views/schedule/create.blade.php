@@ -207,7 +207,7 @@ $(function() {
 $('#service_type').select2({ placeholder: "Please select type"});
 $('#services').select2({ placeholder: "Please select service", allowClear: true });
 $('#packages').select2({ placeholder: "Please select package" });
-$('#user_id').select2({ placeholder: "Please select therapist" });
+$('#user_id').select2({ placeholder: "Please select therapist", allowClear: true });
 
 $(document).on('change', '#service_type', function () {
   $("#bill_item").val();
@@ -416,7 +416,7 @@ function loadCalendar() {
       select: function(start, end, jsEvent, view, resource) {
           clearForm();
           $("#user_id").val(resource.id);
-          alert(start.format(timeFormat+':mm A'))
+          // alert(start.format(timeFormat+':mm A'))
           $('input[name="start"]').val(start.format(timeFormat+':mm A'));
           $("#start_time").val(start.format());
           $('#user_id').select2().trigger('change');
@@ -539,6 +539,9 @@ if ($("#manageScheduleForm").length > 0) {
             maxlength: 200,
             lettersonly: true,
           },
+          user_id: {
+            required: true,
+          },
           mobile:{
             minlength:10,
             maxlength:10
@@ -554,6 +557,9 @@ if ($("#manageScheduleForm").length > 0) {
           customer_name: {
             required: "Please enter customer name",
             maxlength: "Length cannot be more than 200 characters",
+          },
+          user_id: {
+            required: "Please select therapist",
           },
           mobile: {
             required: "Please enter customer mobile",

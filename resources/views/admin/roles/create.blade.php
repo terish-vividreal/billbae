@@ -110,7 +110,7 @@
                                     <ul class="lg-box-list">
                                       @foreach($permission as $row)
                                         <li>
-                                        <label>{{ Form::checkbox('permission[]', $row->id, false, array('class' => 'name')) }} {{ $row->name }}</label
+                                        <label>{{ Form::checkbox('permission[]', $row->id, false, array('class' => 'name')) }} {{ $row->name }}</label>
                                         </li>
                                       @endforeach
                                     </ul>                                

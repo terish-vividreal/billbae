@@ -73,7 +73,7 @@
               </tr>
               <tr>
                 <td>Latest Activity:</td>
-                <td class="users-view-latest-activity">{{$last_activity->billed_date}}</td>
+                <td class="users-view-latest-activity">{{$last_activity->billed_date ?? ''}}</td>
               </tr>
               
               <tr>

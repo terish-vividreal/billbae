@@ -193,7 +193,6 @@
                       </table>
                   </div>
                 </div>
-
             <!-- users edit Info form ends -->
           </div>
         @endif
@@ -214,11 +213,9 @@
 <script src="{{asset('admin/vendors/data-tables/js/dataTables.select.min.js')}}"></script>
 @endsection
 
-
 @push('page-scripts')
 <script src="{{asset('admin/js/scripts/data-tables.js')}}"></script>
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
-
 <!-- date-time-picker -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
@@ -237,9 +234,9 @@
       serverSide: true,
       ajax: "{{ url(ROUTE_PREFIX.'/payment-types/lists') }}",
       columns: [
-          {data: 'DT_RowIndex', orderable: false, searchable: false},
-          {data: 'name', name: 'name', orderable: false,},
-          {data: 'action', name: 'action', orderable: false, searchable: false, width:20},
+        { data: 'DT_RowIndex', orderable: false, searchable: false },
+        { data: 'name', name: 'name', orderable: false, },
+        { data: 'action', name: 'action', orderable: false, searchable: false, width:20 },
       ]
     });
     taxTable = $('#data-table-taxes').DataTable({
@@ -252,11 +249,11 @@
       serverSide: true,
       ajax: "{{ url(ROUTE_PREFIX.'/additional-tax/lists') }}",
       columns: [
-          {data: 'DT_RowIndex', orderable: false, searchable: false, width:10},
-          {data: 'name', name: 'name', orderable: false,},
-          {data: 'percentage', name: 'name', orderable: false, searchable: false},
-          {data: 'information', name: 'name', orderable: false, searchable: false},
-          {data: 'action', name: 'action', orderable: false, searchable: false, width:20},
+        { data: 'DT_RowIndex', orderable: false, searchable: false, width:10 },
+        { data: 'name', name: 'name', orderable: false, },
+        { data: 'percentage', name: 'name', orderable: false, searchable: false },
+        { data: 'information', name: 'name', orderable: false, searchable: false },
+        { data: 'action', name: 'action', orderable: false, searchable: false, width:20 },
       ]
     });
   });
@@ -268,69 +265,57 @@
   $('#currency').select2({ placeholder: "Please select currency", allowClear: true });
 
   $(document).on('change', '#billing_country_id', function () {
-
     if(this.value != 101) {
-        $("#submit-btn").prop('disabled', true);
-        showErrorToaster("Currently not supported in your selected country!");
-        $(".print-error-msg").show();
+      $("#submit-btn").prop('disabled', true);
+      showErrorToaster("Currently not supported in your selected country!");
+      $(".print-error-msg").show();
     } else {
       $("#submit-btn").prop('disabled', false);
       $(".print-error-msg").hide();
-      $.ajax({
-          type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
-          success: function(data) {
-              var selectTerms = '<option value="">Please select state</option>';
-              $.each(data.data, function(key, value) {
-                selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
-              });
-              var select = $('#billing_state_id');
-              select.empty().append(selectTerms);
-              $('#billing_district_id').empty().trigger("change");
-          }
+      $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
+        success: function(data) {
+          var selectTerms = '<option value="">Please select state</option>';
+          $.each(data.data, function(key, value) {
+            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+          });
+          var select = $('#billing_state_id');
+          select.empty().append(selectTerms);
+          $('#billing_district_id').empty().trigger("change");
+        }
       });
-      $.ajax({
-          type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-currencies') }}", data:{'country_id':this.value }, dataType: 'json',
-          success: function(data) {
-              var selectTerms = '<option value="">Please select currency</option>';
-              $.each(data.data, function(key, value) {
-                selectTerms += '<option value="' + value.id + '" >' + value.symbol + '</option>';
-              });
-              var select = $('#currency');
-              select.empty().append(selectTerms);
-          }
+      $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-currencies') }}", data:{'country_id':this.value }, dataType: 'json',
+        success: function(data) {
+          var selectTerms = '<option value="">Please select currency</option>';
+          $.each(data.data, function(key, value) {
+            selectTerms += '<option value="' + value.id + '" >' + value.symbol + '</option>';
+          });
+          var select = $('#currency');
+          select.empty().append(selectTerms);
+        }
       });
-
-
     }      
   });
 
   $(document).on('change', '#billing_state_id', function () {
-    $.ajax({
-        type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-districts-of-state') }}", data:{'state_id':this.value }, dataType: 'json',
-        success: function(data) {
-            var selectTerms = '<option value="">Please select district</option>';
-            $.each(data.data, function(key, value) {
-              selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
-            });
-            var select = $('#billing_district_id');
-            select.empty().append(selectTerms);
-        }
+    $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-districts-of-state') }}", data:{'state_id':this.value }, dataType: 'json',
+      success: function(data) {
+        var selectTerms = '<option value="">Please select district</option>';
+        $.each(data.data, function(key, value) {
+          selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+        });
+        var select = $('#billing_district_id');
+        select.empty().append(selectTerms);
+      }
     });
   });
 
   if ($("#storeBillingForm").length > 0) {
     var validator = $("#storeBillingForm").validate({ 
         rules: {
-          company_name: {
-            maxlength: 200,
-            required: true,
-          }
+          company_name: { maxlength: 200, required: true, }
         },
         messages: { 
-          company_name: {
-            maxlength: "Length cannot be more than 200 characters",
-            required: "Please enter company name",
-          }
+          company_name: { maxlength: "Length cannot be more than 200 characters", required: "Please enter company name", }
         },
         submitHandler: function (form) {
             id = $("#billing_id").val();
@@ -341,13 +326,12 @@
             data: forms.serialize(), dataType: "html",
             }).done(function (a) {
                 var data = JSON.parse(a);
-                if(data.flagError == false){
+                if (data.flagError == false) {
                     showSuccessToaster(data.message);
                     setTimeout(function () { 
                         window.location.href = "{{ url('store/billings')}}";                    
                     }, 2000);
-
-                }else{
+                } else {
                   showErrorToaster(data.message);
                   printErrorMsg(data.error);
                 }
@@ -358,35 +342,33 @@
 
   if ($("#storeGSTForm").length > 0) {
     var validator = $("#storeGSTForm").validate({ 
-        rules: {
-          gst_percentage: {
-              // required: true,
-          }
-        },
-        messages: { 
-          gst_percentage: {
-            required: "Please select store default GST",
-          }
-        },
-        submitHandler: function (form) {
-            id = $("#gst_billing_id").val();
-            var forms   = $("#storeGSTForm");
-            $.ajax({ url: "{{ url('/store/update/gst-billing') }}" , type: 'POST', processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    // setTimeout(function () { 
-                    //     window.location.href = "{{ url('store/billings')}}";                    
-                    // }, 2000);
-
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
+      rules: {
+        gst_percentage: {
+            // required: true,
         }
+      },
+      messages: { 
+        gst_percentage: {
+          required: "Please select store default GST",
+        }
+      },
+      submitHandler: function (form) {
+        id          = $("#gst_billing_id").val();
+        var forms   = $("#storeGSTForm");
+        $.ajax({ url: "{{ url('/store/update/gst-billing') }}" , type: 'POST', processData: false, data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);
+            // setTimeout(function () { 
+            //     window.location.href = "{{ url('store/billings')}}";                    
+            // }, 2000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }
+        });
+      }
     })
   }
 
@@ -394,26 +376,26 @@
     validator.resetForm();
     $('input').removeClass('error');
     if (additionaltax_id === null) {
-        $("#additionalTaxForm")[0].reset();
-        $('#additionalTaxForm').find("input[type=text]").val("");
-        $("#additionaltax_id").val('');
-        $("#additionaltaxFields .label-placeholder").show();
-        $("#additionaltax-modal").modal("open");
+      $("#additionalTaxForm")[0].reset();
+      $('#additionalTaxForm').find("input[type=text]").val("");
+      $("#additionaltax_id").val('');
+      $("#additionaltaxFields .label-placeholder").show();
+      $("#additionaltax-modal").modal("open");
     } else {
-        $.ajax({url: "{{ url(ROUTE_PREFIX.'/additional-tax') }}/" + additionaltax_id + "/edit", type: "GET", dataType: "html"})
-            .done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    $("#additionaltax_id").val(data.data.id);
-                    $("#additionalTaxForm input[name=name]").val(data.data.name);
-                    $("#additionalTaxForm input[name=percentage]").val(data.data.percentage);
-                    $("#information").val(data.data.information);
-                    $("#additionaltaxFields .label-placeholder").hide();
-                    $("#additionaltax-modal").modal("open");
-                }
-            }).fail(function () {
-                printErrorMsg("Please try again...", "error");
-        });
+      $.ajax({url: "{{ url(ROUTE_PREFIX.'/additional-tax') }}/" + additionaltax_id + "/edit", type: "GET", dataType: "html"})
+      .done(function (a) {
+        var data = JSON.parse(a);
+        if (data.flagError == false) {
+          $("#additionaltax_id").val(data.data.id);
+          $("#additionalTaxForm input[name=name]").val(data.data.name);
+          $("#additionalTaxForm input[name=percentage]").val(data.data.percentage);
+          $("#information").val(data.data.information);
+          $("#additionaltaxFields .label-placeholder").hide();
+          $("#additionaltax-modal").modal("open");
+        }
+      }).fail(function () {
+        printErrorMsg("Please try again...", "error");
+      });
     }
   }
 
@@ -421,172 +403,142 @@
     validator.resetForm();
     $('input').removeClass('error');
     if (paymentType_id === null) {
-        $("#paymentTypeForm")[0].reset();
-        $('#paymentTypeForm').find("input[type=text]").val("");
-        $("#paymentType_id").val('');
-        $("#paymentTypeFields .label-placeholder").show();
-        $('#paymentType-modal').modal('open');
+      $("#paymentTypeForm")[0].reset();
+      $('#paymentTypeForm').find("input[type=text]").val("");
+      $("#paymentType_id").val('');
+      $("#paymentTypeFields .label-placeholder").show();
+      $('#paymentType-modal').modal('open');
     } else {
-        $.ajax({url: "{{ url(ROUTE_PREFIX.'/payment-types') }}/" + paymentType_id + "/edit", type: "GET", dataType: "html"})
-            .done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    $("#paymentType_id").val(data.data.id);
-                    $("#paymentTypeForm input[name=name]").val(data.data.name);
-
-                    $("#paymentTypeFields .label-placeholder").hide();
-                    $("#paymentType-modal").modal("open");
-                }
-            }).fail(function () {
-                printErrorMsg("Please try again...", "error");
-        });
+      $.ajax({url: "{{ url(ROUTE_PREFIX.'/payment-types') }}/" + paymentType_id + "/edit", type: "GET", dataType: "html"})
+      .done(function (a) {
+        var data = JSON.parse(a);
+        if (data.flagError == false) {
+          $("#paymentType_id").val(data.data.id);
+          $("#paymentTypeForm input[name=name]").val(data.data.name);
+          $("#paymentTypeFields .label-placeholder").hide();
+          $("#paymentType-modal").modal("open");
+        }
+      }).fail(function () {
+        printErrorMsg("Please try again...", "error");
+      });
     }
   }
 
   if ($("#additionalTaxForm").length > 0) {
     var validator = $("#additionalTaxForm").validate({ 
-        rules: {
-            name: {
-                  required: true,
-                  maxlength: 100,
-            },
-            percentage: {
-                  required: true,
-            },
-            information: {
-              maxlength: 200,
-            }
-        },
-        messages: { 
-          name: {
-            required: "Please enter additional tax name",
-            maxlength: "Length cannot be more than 100 characters",
-          },
-          percentage: {
-            required: "Please enter tax percentage",
-          },
-          information: {
-            maxlength: "Length cannot be more than 30 characters",
+      rules: {
+        name: { required: true, maxlength: 100, },
+        percentage: { required: true, },
+        information: { maxlength: 200, }
+      },
+      messages: { 
+        name: { required: "Please enter additional tax name", maxlength: "Length cannot be more than 100 characters", },
+        percentage: { required: "Please enter tax percentage", },
+        information: { maxlength: "Length cannot be more than 30 characters", }
+      },
+      submitHandler: function (form) {
+        id = $("#additionaltax_id").val();
+        additionaltax_id   = "" == id ? "" : "/" + id;
+        formMethod  = "" == id ? "POST" : "PUT";
+        var forms = $("#additionalTaxForm");
+        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/additional-tax') }}" + additionaltax_id, type: formMethod, processData: false, 
+        data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);                
+            $("#additionaltax-modal").modal("close");
+            setTimeout(function () {
+              taxTable.ajax.reload();
+            }, 2000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
           }
-        },
-        submitHandler: function (form) {
-          id = $("#additionaltax_id").val();
-          additionaltax_id   = "" == id ? "" : "/" + id;
-          formMethod  = "" == id ? "POST" : "PUT";
-          var forms = $("#additionalTaxForm");
-          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/additional-tax') }}" + additionaltax_id, type: formMethod, processData: false, 
-          data: forms.serialize(), dataType: "html",
-          }).done(function (a) {
-            var data = JSON.parse(a);
-            if(data.flagError == false){
-                showSuccessToaster(data.message);                
-                $("#additionaltax-modal").modal("close");
-                setTimeout(function () {
-                  taxTable.ajax.reload();
-                }, 2000);
-
-            }else{
-              showErrorToaster(data.message);
-              printErrorMsg(data.error);
-            }
-          });
+        });
       }
     })
   }
 
   if ($("#paymentTypeForm").length > 0) {
     var validator = $("#paymentTypeForm").validate({ 
-        rules: {
-            name: {
-                  required: true,
-                  maxlength: 100,
-            },
-        },
-        messages: { 
-          name: {
-            required: "Please enter payment type",
-            maxlength: "Length cannot be more than 100 characters",
-          },
-        },
-        submitHandler: function (form) {
-          $('#paymentTypename-submit-btn').html('Please Wait...');
-          $("#paymentTypename-submit-btn"). attr("disabled", true);
-          id = $("#paymentType_id").val();
-          paymentType_id   = "" == id ? "" : "/" + id;
-          formMethod  = "" == id ? "POST" : "PUT";
-          var forms = $("#paymentTypeForm");
-          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/payment-types') }}" + paymentType_id, type: formMethod, processData: false, 
-          data: forms.serialize(), dataType: "html",
-          }).done(function (a) {
-            $('#paymentTypename-submit-btn').html('Submit <i class="material-icons right">send</i>');
-            $("#paymentTypename-submit-btn"). attr("disabled", false);
-            var data = JSON.parse(a);
-            if(data.flagError == false){
-                showSuccessToaster(data.message);                
-                $("#paymentType-modal").modal("close");
-                setTimeout(function () {
-                  table.ajax.reload();
-                }, 1000);
-
-            }else{
-              showErrorToaster(data.message);
-              printErrorMsg(data.error);
-            }
-          });
+      rules: {
+        name: { required: true, maxlength: 100, },
+      },
+      messages: { 
+        name: { required: "Please enter payment type", maxlength: "Length cannot be more than 100 characters", },
+      },
+      submitHandler: function (form) {
+        $('#paymentTypename-submit-btn').html('Please Wait...');
+        $("#paymentTypename-submit-btn"). attr("disabled", true);
+        id = $("#paymentType_id").val();
+        paymentType_id   = "" == id ? "" : "/" + id;
+        formMethod  = "" == id ? "POST" : "PUT";
+        var forms = $("#paymentTypeForm");
+        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/payment-types') }}" + paymentType_id, type: formMethod, processData: false, 
+        data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          $('#paymentTypename-submit-btn').html('Submit <i class="material-icons right">send</i>');
+          $("#paymentTypename-submit-btn"). attr("disabled", false);
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);                
+            $("#paymentType-modal").modal("close");
+            setTimeout(function () {
+              table.ajax.reload();
+            }, 1000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }
+        });
       }
     })
   }
 
   function deleteAdditionalTax(b) {  
     swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
-			buttons: {
-				cancel: 'No, Please!',
-				delete: 'Yes, Delete It'
-			}
+			buttons: { cancel: 'No, Please!',	delete: 'Yes, Delete It' }
 		}).then(function (willDelete) {
 			if (willDelete) {
 			  $.ajax({url: "{{ url(ROUTE_PREFIX.'/additional-tax') }}/" + b, type: "DELETE", dataType: "html"})
-            .done(function (a) {
-              var data = JSON.parse(a);
-              if(data.flagError == false){
-                showSuccessToaster(data.message);          
-                setTimeout(function () {
-                  taxTable.ajax.reload();
-                }, 1000);
-              }else{
-                showErrorToaster(data.message);
-                printErrorMsg(data.error);
-              }   
-            }).fail(function () {
-                showErrorToaster("Something went wrong!");
-            });
+          .done(function (a) {
+            var data = JSON.parse(a);
+            if (data.flagError == false) {
+              showSuccessToaster(data.message);          
+              setTimeout(function () {
+                taxTable.ajax.reload();
+              }, 1000);
+            } else {
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+          }).fail(function () {
+            showErrorToaster("Something went wrong!");
+          });
 			} 
 		});
   }
 
   function deletePaymentTypes(b) {  
-    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
-			buttons: {
-				cancel: 'No, Please!',
-				delete: 'Yes, Delete It'
-			}
+    swal({ title: "Are you sure?", icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!',	delete: 'Yes, Delete It' }
 		}).then(function (willDelete) {
 			if (willDelete) {
 			  $.ajax({url: "{{ url(ROUTE_PREFIX.'/payment-types') }}/" + b, type: "DELETE", dataType: "html"})
-            .done(function (a) {
-              var data = JSON.parse(a);
-              if(data.flagError == false){
-                showSuccessToaster(data.message);          
-                setTimeout(function () {
-                  table.ajax.reload();
-                }, 1000);
-              }else{
-                showErrorToaster(data.message);
-                printErrorMsg(data.error);
-              }   
-            }).fail(function () {
-                showErrorToaster("Something went wrong!");
-            });
+        .done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);          
+            setTimeout(function () {
+              table.ajax.reload();
+            }, 1000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
 			} 
 		});
   }

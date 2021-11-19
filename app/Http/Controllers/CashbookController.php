@@ -99,11 +99,11 @@ class CashbookController extends Controller
                 $cash_from          = '';
                 if ($detail->transaction == 1) {
                     $transaction_type .= '<span class="chip lighten-5 green green-text"> Credit</span>';
-                        if ($detail->cash_from == 0) {
-                            $cash_from .= '<span class="chip lighten-5 green green-text"> Cash Added</span>';
-                        } else {  
-                            $cash_from .= '<span class="chip lighten-5 green green-text">From Sales</span>';                               
-                        }
+                    if ($detail->cash_from == 0) {
+                        $cash_from .= '<span class="chip lighten-5 green green-text"> Cash Added</span>';
+                    } else {  
+                        $cash_from .= '<span class="chip lighten-5 green green-text">From Sales</span>';                               
+                    }
                 } else {  
                     $transaction_type .= '<span class="chip lighten-5 orange orange-text">Debit</span>';                                
                 }
