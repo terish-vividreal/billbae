@@ -20,7 +20,7 @@ class StoreAuth
     {
         $user   = Auth::user();
         $store = Shop::find($user->shop_id);
-        if($user->hasAnyRole(['Shop Admin', 'Manager', 'Staff'])){
+        if($user->hasAnyRole(['Store', 'Manager', 'Staff'])){
             define('USER_ROLE', 'user');
             define('ROUTE_PREFIX', '');
             define('SHOP_ID', $user->shop_id);

@@ -39,15 +39,12 @@ if(!empty($themeSettings)){
               <!-- <li><a class="waves-effect waves-block waves-light" href="{{ url(ROUTE_PREFIX.'/users') }}"><i class="material-icons">person</i></a></li>
               <li><a class="waves-effect waves-block waves-light notification-button" href="javascript:void(0);" data-target="notifications-dropdown"><i class="material-icons">settings</i></a></li>
               <li><a class="waves-effect waves-block waves-light notification-button" href="javascript:void(0);" data-target="services-dropdown"><i class="material-icons">business</i></a></li> -->
-
               <li><a class="waves-effect waves-block waves-light notification-button" href="javascript:void(0);" data-target="notifications-dropdown1"><i class="material-icons">settings</i></a></li>
               <li class="hide-on-med-and-down"><a class="waves-effect waves-block waves-light toggle-fullscreen" href="javascript:void(0);"><i class="material-icons">settings_overscan</i></a></li>
               <li class="hide-on-large-only search-input-wrapper"><a class="waves-effect waves-block waves-light search-button" href="javascript:void(0);"><i class="material-icons">search</i></a></li>              
               <li><a class="waves-effect waves-block waves-light notification-button" href="javascript:void(0);" data-target="notifications-dropdown-2"><i class="material-icons">notifications_none<small class="notification-badge">5</small></i></a></li>
               <li><a class="waves-effect waves-block waves-light profile-button" href="javascript:void(0);" data-target="profile-dropdown"><span class="avatar-status avatar-online"><img src="{{$user_profile}}" alt="avatar" id="log_user_icon"><i></i></span></a></li>
             </ul>
-
-
             <!-- megamenu for settings-->
             <div class="dropdown-content mega-menu" id="notifications-dropdown1">
               <div class="mega-menu-wrap">
@@ -124,7 +121,7 @@ if(!empty($themeSettings)){
             </ul>
             <!-- profile-dropdown-->
             <ul class="dropdown-content" id="profile-dropdown">
-              <li><a class="grey-text text-darken-1" href="{{ url('store/user-profile') }}"><i class="material-icons">person_outline</i> Profile</a></li>
+              <li><a class="grey-text text-darken-1" href="{{ url('store/user-profile') }}"><i class="material-icons">person_outline</i>Profile</a></li>
               <!-- <li><a class="grey-text text-darken-1" href="javascript:"><i class="material-icons">chat_bubble_outline</i> Chat</a></li>
               <li><a class="grey-text text-darken-1" href="javascript:"><i class="material-icons">help_outline</i> Help</a></li> -->
               <li class="divider"></li>

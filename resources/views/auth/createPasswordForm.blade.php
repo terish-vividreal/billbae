@@ -11,7 +11,7 @@
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
             <div class="row">
-                <div class="input-field col s12"><h5 class="ml-4">Create Password</h5></div>
+                <div class="input-field col s12"><h5 class="ml-4">Create New Password</h5></div>
             </div>
 
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>          
@@ -91,10 +91,8 @@ if ($("#userPasswordForm").length > 0) {
         submitHandler: function (form) {
           $('#submit-btn').html('Please Wait...');
           $("#submit-btn"). attr("disabled", true);
-            id          = $("#user_id").val();
-            userId      = "" == id ? "" : "/" + id;
             var forms   = $("#userPasswordForm");
-            $.ajax({ url: "{{ url('create-password') }}", type: "POST", processData: false, 
+            $.ajax({ url: "{{ url('store-new-password-save') }}", type: "POST", processData: false, 
             data: forms.serialize(), dataType: "html",
             }).done(function (a) {              
                 $('#submit-btn').html('Submit');
@@ -119,3 +117,6 @@ $(".alert-danger").delay(1000).addClass("in").toggle(true).fadeOut(3000);
 
 </script>
 @endpush
+
+
+ 
