@@ -27,9 +27,8 @@
 @endsection
 
 @section('page-action')
-  <a href="javascript:" class="btn waves-effect waves-light orange darken-4 breadcrumbs-btn" onclick="importBrowseModal()" >Upload<i class="material-icons right">attach_file</i></a>
-  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">person_add</i></a>
-  <a href="{{ url(ROUTE_PREFIX.'/customers') }}" class="btn waves-effect waves-light light-blue darken-4 breadcrumbs-btn" type="submit" name="action">List<i class="material-icons right">list</i></a>
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">business</i></a>
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn waves-effect waves-light light-blue darken-4 breadcrumbs-btn" type="submit" name="action">List<i class="material-icons right">list</i></a>
 @endsection
 
 <div class="section">
@@ -110,109 +109,97 @@ $('#business_type').select2({ placeholder: "Please select business type", allowC
 $('#roles').select2({ placeholder: "Please select roles", allowClear: true });
 
 if ($("#{{$page->entity}}Form").length > 0) {
-    var validator = $("#{{$page->entity}}Form").validate({ 
-        rules: {
-            shop_name: {
-                    required: true,
-                    maxlength: 200,
-            }, 
-            email: {
-                required: true,
-                email: true,
-                remote: { url: "{{ url('admin/users/unique') }}", type: "POST",
-                    data: {
-                        user_id: function () {
-                            return $('#user_id').val();
-                        }
-                    }
-                },
-            },
-            name: {
-                    required: true,
-                    maxlength: 200,
-            },
-            mobile:{
-              required:true,
-              minlength:10,
-              maxlength:10
-            },
-            "roles[]": {
-                    required: true,
-            },
-            // password: {
-            //     required: true,
-            //     minlength: 6,
-            //     maxlength: 10,
-            // },
-            // password_confirmation: {
-            //     equalTo: "#password"
-            // },
-        },
-        messages: { 
-            shop_name: {
-                required: "Please enter store name",
-                maxlength: "Length cannot be more than 200 characters",
-                },
-            name: {
-                required: "Please enter admin name",
-                maxlength: "Length cannot be more than 200 characters",
-                },
-            email: {
-                required: "Please enter email",
-                email: "Please enter a valid email address.",
-                remote: "Email already existing"
-            },
-            mobile: {
-                required: "Please enter mobile number",
-                maxlength: "Length cannot be more than 10 numbers",
-                minlength: "Length must be 10 numbers",
-                },
-            "roles[]": {
-                required: "Please choose role",
-            },
-            password: {
-                required: "Please enter password",
-                minlength: "Passwords must be at least 6 characters in length",
-                maxlength: "Length cannot be more than 10 characters",
-            },
-            password_confirmation: {
-                equalTo: "Passwords are not matching",
-            },
-            department_id: {
-                required: "Please choose department"
-            },
-        },
-        submitHandler: function (form) {
-            id = $("#user_id").val();
-            userId      = "" == id ? "" : "/" + id;
-            formMethod  = "" == id ? "POST" : "PUT";
-            var forms   = $("#storeForm");
-            $.ajax({ url: "{{ url('admin/stores') }}" + userId, type: formMethod, processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    setTimeout(function () { 
-                        window.location.href = "{{ url('admin/stores')}}";                    
-                    }, 3000);
-
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
+  var validator = $("#{{$page->entity}}Form").validate({ 
+    rules: {
+      shop_name: { required: true, maxlength: 200 }, 
+      email: { required: true,  email: true,
+        remote: { url: "{{ url('admin/users/unique') }}", type: "POST",
+            data: {
+                user_id: function () {
+                    return $('#user_id').val();
                 }
-            });
+            }
+        },
+      },
+      name: {  required: true, maxlength: 200, },
+      business_type: { required: true, },
+      mobile:{ required:true, minlength:10, maxlength:10 },
+      "roles[]": { required: true, },
+      // password: {
+      //     required: true,
+      //     minlength: 6,
+      //     maxlength: 10,
+      // },
+      // password_confirmation: {
+      //     equalTo: "#password"
+      // },
+    },
+    messages: { 
+      shop_name: {
+        required: "Please enter store name",
+        maxlength: "Length cannot be more than 200 characters",
+      },
+      name: {
+        required: "Please enter admin name",
+        maxlength: "Length cannot be more than 200 characters",
+      },
+      business_type: {
+        required: "Please select business type ",
+      },
+      email: {
+        required: "Please enter email",
+        email: "Please enter a valid email address.",
+        remote: "Email already existing"
+      },
+      mobile: {
+        required: "Please enter mobile number",
+        maxlength: "Length cannot be more than 10 numbers",
+        minlength: "Length must be 10 numbers",
+      },
+      "roles[]": {
+        required: "Please choose role",
+      },
+      password: {
+        required: "Please enter password",
+        minlength: "Passwords must be at least 6 characters in length",
+        maxlength: "Length cannot be more than 10 characters",
+      },
+      password_confirmation: {
+        equalTo: "Passwords are not matching",
+      },
+      department_id: {
+        required: "Please choose department"
+      },
+    },
+    submitHandler: function (form) {
+      $('#submit-btn').html('Please Wait...');
+      $("#submit-btn"). attr("disabled", true);
+      id = $("#user_id").val();
+      userId      = "" == id ? "" : "/" + id;
+      formMethod  = "" == id ? "POST" : "PUT";
+      var forms   = $("#{{$page->entity}}Form");
+      $.ajax({ url: "{{ url('admin/stores') }}" + userId, type: formMethod, processData: false, 
+      data: forms.serialize(), dataType: "html",
+      }).done(function (a) {
+        var data = JSON.parse(a);
+        if (data.flagError == false) {
+          showSuccessToaster(data.message);
+          setTimeout(function () { 
+            window.location.href = "{{ url('admin/stores')}}";                    
+          }, 3000);
+        } else {
+          showErrorToaster(data.message);
+          printErrorMsg(data.error);
         }
-    })
+      });
+    }
+  })
 } 
 
 jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
 
-jQuery.validator.addMethod("lettersonly", function (value, element) {
-    return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
-}, "Letters only please");
 
 </script>
 @endpush

@@ -7,12 +7,15 @@ use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use App\Models\ThemeSetting;
+use App\Events\StoreRegistered;
 use App\Models\User;
 use App\Models\ShopBilling;
 use App\Models\BillingFormat;
 use Spatie\Permission\Models\Role;
 use App\Models\BusinessType;
+use Mail;
 use DB;
+use Event;
 use Validator;
 use Auth;
 use Hash;
@@ -71,37 +74,38 @@ class StoreController extends Controller
                 }
             }
         }
-            $detail->where('parent_id', $user_id)->orderBy('id', 'desc');
-            return Datatables::of($detail)
-                ->addIndexColumn()
-                ->addColumn('role', function($detail){
-                    $roles = User::find($detail->id)->roles;
-                    $html = '';
-                    if($roles){
-                        foreach($roles as $role){
-                            $html.= $role->name;
-                        }
-                    }                        
-                    return $html;
-                })
-                ->addColumn('store', function($detail){                        
-                    $html = $detail->shop->name;                      
-                    return $html;
-                })
-                ->addColumn('businesstype', function($detail){                        
-                    $html =$detail->shop->business_types->name;                      
-                    return $html;
-                })
-                ->addColumn('action', function($detail){
-                    $action = ' <a  href="' . url('admin/stores/' . $detail->id . '/edit') . '" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
-                        $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
-                    '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2"><i class="fa fa-trash" aria-hidden="true"></i></button></form>';
-                    return $action;
-                })
-                ->removeColumn('id')
-                ->escapeColumns([])
-                ->make(true);
-                    
+
+        $detail->where('parent_id', $user_id)->orderBy('id', 'desc');
+        return Datatables::of($detail)
+            ->addIndexColumn()
+            ->addColumn('role', function($detail){
+                $roles = User::find($detail->id)->roles;
+                $html = '';
+                if($roles){
+                    foreach($roles as $role){
+                        $html.= $role->name;
+                    }
+                }                        
+                return $html;
+            })
+            ->addColumn('store', function($detail){                        
+                $html = $detail->shop->name;                      
+                return $html;
+            })
+            ->addColumn('businesstype', function($detail){                        
+                $html =$detail->shop->business_types->name;                      
+                return $html;
+            })
+            ->addColumn('action', function($detail){
+                $action = ' <a  href="' . url('admin/stores/' . $detail->id . '/edit') . '" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                // $action = ' <a  href="' . url('admin/stores/' . $detail->id . '/edit') . '" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
+                //     $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
+                // '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2"><i class="fa fa-trash" aria-hidden="true"></i></button></form>';
+                return $action;
+            })
+            ->removeColumn('id')
+            ->escapeColumns([])
+            ->make(true);                   
     }
     
     /**
@@ -121,8 +125,7 @@ class StoreController extends Controller
         $page->route                = $this->route;
         $page->entity               = $this->entity;
         $variants->business_types   = BusinessType::pluck('name','id')->all();
-        $variants->roles            = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
-        
+        $variants->roles            = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();        
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
     
@@ -135,17 +138,15 @@ class StoreController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'shop_name' => 'required',
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password',
             'roles' => 'required'
         ]);
-
         if ($validator->passes()) {
-
             $input                      = $request->all();
             $user_id                    = Auth::user()->id;
-            $input['password']          = Hash::make($input['password']);
+            // $input['password']          = Hash::make($input['password']);
             $input['parent_id']         = $user_id;
 
             $user = User::create($input);
@@ -164,16 +165,17 @@ class StoreController extends Controller
                 $user->shop_id          = Auth::user()->shop_id;
             }
 
+            $token                      = Str::random(64);
+            $user->verify_token         = $token;
             $user->save();
 
             $billing                    = new ShopBilling();
             $billing->shop_id           = $shop->id;
             $billing->save();
 
-
             $billing_format             = new BillingFormat();
             $billing_format->shop_id    = $shop->id;
-            $billing_format->prefix     = Str::upper(Str::substr($shop->name, 0, 3)); 
+            $billing_format->prefix     = Str::upper(Str::substr(str_replace(' ', '', $shop->name), 0, 3)); 
             $billing_format->suffix     = 1000;
             $billing_format->save();
 
@@ -181,9 +183,11 @@ class StoreController extends Controller
             $theme_settings->shop_id    = $shop->id;
             $theme_settings->save();
 
+            StoreRegistered::dispatch($user->id);
+
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=> $validator->errors()->all()];
     }
     
     /**
@@ -213,7 +217,9 @@ class StoreController extends Controller
         $page->title        = $this->title;
         $page->link         = url($this->link);
         $page->form_url     = url($this->link . '/' . $user->id);
-        $page->form_method  = 'PUT';        
+        $page->form_method  = 'PUT';   
+        $page->route        = $this->route;
+        $page->entity       = $this->entity;     
         $variants->roles    = Role::pluck('name','name')->all();
         $variants->business_types     = BusinessType::pluck('name','id')->all();
         $userRole           = $user->roles->pluck('name','name')->all();
@@ -260,7 +266,6 @@ class StoreController extends Controller
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
-
     }
     
     /**
@@ -273,7 +278,6 @@ class StoreController extends Controller
     {
         DB::table('model_has_roles')->where('model_id',$id)->delete();
         User::find($id)->delete();
-
         return redirect()->route('users.index')->with('success','User deleted successfully');
     }
 }

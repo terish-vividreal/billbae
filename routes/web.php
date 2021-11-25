@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\HomeController as AdminHome;
 use App\Http\Controllers\Admin\StoreController as AdminStore;
 use App\Http\Controllers\Admin\BusinessTypeController as AdminBusinessType;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\StoreCreatePasswordController;
 
 
 use App\Http\Controllers\StoreController as Store;
@@ -58,12 +59,15 @@ Route::get('create-password/{token}', [ForgotPasswordController::class, 'showCre
 Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
 Route::post('create-password', [ForgotPasswordController::class, 'submitCreatePasswordForm'])->name('create.password.post');
 
+
+// Store Create Password
+Route::get('store-create-password/{token}', [StoreCreatePasswordController::class, 'get'])->name('store.create.password.get');
+Route::post('store-new-password-save', [StoreCreatePasswordController::class, 'store'])->name('store.create.password.post');
 // Forgot password routes
 // Route::get('forget-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');
 // Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('forget.password.post'); 
 // Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('reset.password.get');
 // Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
-
 
 // User Routes
 Route::group(['middleware' => ['auth', 'store']], function () {
@@ -195,7 +199,6 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     
 
     Route::middleware([isStoreCompleted::class])->group(function(){
-
         // Billing Routes 
         $billing = 'billings';
         Route::resource($billing, BillingController::class)->except(['show']);
@@ -210,10 +213,8 @@ Route::group(['middleware' => ['auth', 'store']], function () {
         Route::post($billing . '/add-new-customer', [BillingController::class, 'storeCustomer']);
         Route::post($billing . '/store-payment', [BillingController::class, 'storePayment']);
         Route::post($billing . '/cancel/{billing}', [BillingController::class, 'cancelBill']);
-        
     });
         
-
     $link = 'common';
     Route::get($link . '/get-states', [CommonController::class, 'getStates']);    
     Route::get($link . '/get-districts', [CommonController::class, 'getDistricts']);    
@@ -235,9 +236,6 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($link . '/get-therapist/{id}', [CommonController::class, 'getTherapist']);    
     Route::post($link . '/billings/get-report-by-date/', [CommonController::class, 'getBillingReports']);    
     
-
-    
-    
     // Report Routes 
     $reports = 'reports';
     Route::get($reports . '/sales-report', [ReportController::class, 'salesReport']);
@@ -250,17 +248,17 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($cashbook . '/lists', [CashbookController::class, 'lists']);
     Route::post($cashbook . '/withdraw', [CashbookController::class, 'withdraw']);
 
-    Route::get('send-mail', function () {
+    // Route::get('send-mail', function () {
    
-        $details = [
-            'title' => 'Mail from Billbae',
-            'body' => 'This is for testing email using smtp'
-        ];
+    //     $details = [
+    //         'title' => 'Mail from Billbae',
+    //         'body' => 'This is for testing email using smtp'
+    //     ];
        
-        \Mail::to('ajesh.ks@vividreal.com')->send(new \App\Mail\MyTestMail($details));
+    //     \Mail::to('ajesh.ks@vividreal.com')->send(new \App\Mail\MyTestMail($details));
        
-        dd("Email is Sent...");
-    });
+    //     dd("Email is Sent...");
+    // });
     
 });
 
@@ -283,6 +281,10 @@ Route::prefix('admin/')->group(function () {
 
         // Roles Routes
         Route::resource('roles', RoleController::class);
+
+        // User
+        Route::post('users/unique', [UserController::class, 'isUnique']);
+
     });
 
 });

@@ -59,7 +59,7 @@
       <div class="row">
         @if($store)
           <div class="col s12" id="account">
-            <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
+            <h4 class="card-title">Store {{ $page->title ?? ''}} Form</h4>
             <div class="media display-flex align-items-center mb-2">
               <a class="mr-2 storlogo" href="javascript:"><img src="{{ $store->show_image }}" alt="users avatar" class="z-depth-4 circle" id="store_logo"></a>
               <div class="media-body">
@@ -140,7 +140,7 @@
                 </div>
                 <div class="input-field col m6 s12">
                   @if(!empty($variants->districts))
-                      {!! Form::select('district_id', $variants->districts , $store->district_id ?? '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                    {!! Form::select('district_id', $variants->districts , $store->district_id ?? '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                   @else
                       {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                   @endif
@@ -232,7 +232,7 @@
     var formData = new FormData(this);
     $.ajax({ type: "POST",url: "{{ url('/store/update-logo') }}", data: formData, cache:false, contentType: false, processData: false,
       success: function(data) {
-        if(data.flagError == false) {
+        if (data.flagError == false) {
           showSuccessToaster(data.message);                 
           $("#store_logo").attr("src", data.logo);
         } else {
@@ -250,7 +250,7 @@
   $('#currency').select2();
 
   $(document).on('change', '#country_id', function () {
-    if(this.value != 101){
+    if (this.value != 101) {
       $("#submit-btn").prop('disabled', true);
       showErrorToaster("Currently not supported in your selected country!");
       $(".print-error-msg").show();
@@ -259,13 +259,13 @@
       $(".print-error-msg").hide();
       $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
         success: function(data) {
-            var selectTerms = '<option value="">Please select state</option>';
-            $.each(data.data, function(key, value) {
-              selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
-            });
-            var select = $('#state_id');
-            select.empty().append(selectTerms);
-            $('#district_id').empty().trigger("change");
+          var selectTerms = '<option value="">Please select state</option>';
+          $.each(data.data, function(key, value) {
+            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+          });
+          var select = $('#state_id');
+          select.empty().append(selectTerms);
+          $('#district_id').empty().trigger("change");
         }
       });
 
@@ -346,7 +346,7 @@
           if(data.flagError == false) {
             showSuccessToaster(data.message);
             setTimeout(function () { 
-                window.location.href = "{{ url('store/profile')}}";                    
+              window.location.href = "{{ url('store/profile')}}";                    
             }, 3000);
           } else {
             showErrorToaster(data.message);
@@ -357,7 +357,7 @@
       errorPlacement: function(error, element) {
         if (element.is("select")) {
           error.insertAfter(element.next('.select2'));
-        }else {
+        } else {
           error.insertAfter(element);
         }
       }

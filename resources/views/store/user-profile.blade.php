@@ -66,7 +66,7 @@ img {
       <ul class="tabs mb-2 row">
         <li class="tab">
           <a class="display-flex align-items-center active" id="account-tab" href="#account">
-            <i class="material-icons mr-1">account_circle</i><span>Profile</span>
+            <i class="material-icons mr-1">account_circle</i><span> User Profile</span>
           </a>
         </li>
         <li class="tab">
@@ -89,7 +89,24 @@ img {
                   height="64" width="64">
               </a>
               <div class="media-body">
-                <h5 class="media-heading mt-0">Photo</h5>
+
+                <form id="storeAdminImageForm" name="storeAdminImageForm" action="" method="POST" enctype="multipart/form-data" class="ajax-submit">
+                  {{ csrf_field() }}
+                  {!! Form::hidden('user_id', $user->id ?? '' , ['id' => 'user_id'] ); !!}
+                  {!! Form::hidden('user_photo_url', $user_profile, ['id' => 'user_photo_url'] ); !!}
+                  <h5 class="media-heading mt-0">Admin Photo</h5>
+                  <div class="user-edit-btns display-flex">
+                    <a id="select-files" class="btn indigo mr-2"><span>Browse</span></a>
+                    <a href="#" class="btn-small btn-light-pink logo-action-btn" id="removeLogoDisplayBtn" style="display:none;">Remove</a>
+                    <button type="submit" class="btn btn-success logo-action-btn" id="uploadLogoBtn" style="display:none;">Upload</button>
+                  </div>
+                  <small>Allowed JPG, JPEG or PNG. Max size of 800kB</small>
+                  <div class="upfilewrapper" style="display:none;">
+                    <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
+                  </div>
+                </form>
+
+                <!-- <h5 class="media-heading mt-0">Admin Photo</h5>
                 <div class="user-edit-btns display-flex">
                   <button id="select-files" class="btn indigo mr-2">
                     <span>Browse</span>
@@ -99,12 +116,13 @@ img {
                 <small>Allowed JPG, JPEG or PNG. Max size of 800kB</small>
                 <div class="upfilewrapper" style="display:none;">
                   <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
-                </div>
+                </div> -->
+
               </div>
               
             </div>
             <!-- users edit account form start -->
-            <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
+            <h4 class="card-title">Store Admin {{ $page->title ?? ''}} Form</h4>
             <form id="userProfileForm" name="userProfileForm" role="form" method="" action="" class="ajax-submit">
               {{ csrf_field() }}
               {!! Form::hidden('user_id', $user->id ?? '' , ['id' => 'user_id'] ); !!}
@@ -112,13 +130,13 @@ img {
                 <div class="col s6">
                   <div class="input-field">
                     {!! Form::text('name', $user->name ?? '', array('id' => 'name')) !!} 
-                    <label for="name" class="label-placeholder">Name <span class="red-text">*</span></label>
+                    <label for="name" class="label-placeholder">Admin Name <span class="red-text">*</span></label>
                   </div>
                 </div>
                 <div class="col s6">
                   <div class="input-field">
                     {!! Form::text('email', $user->email ?? '') !!} 
-                    <label for="email" class="label-placeholder">Email <span class="red-text">*</span></label>
+                    <label for="email" class="label-placeholder">Store Email <span class="red-text">*</span></label>
                     <small class="errorTxt2"></small>
                   </div>
                 </div>
@@ -127,7 +145,7 @@ img {
                 <div class="col s6">
                   <div class="input-field">
                     {!! Form::text('mobile', $user->mobile ?? '',  ['class' => 'check_numeric']) !!} 
-                    <label for="mobile" class="label-placeholder">Mobile <span class="red-text">*</span></label>
+                    <label for="mobile" class="label-placeholder">Store Mobile <span class="red-text">*</span></label>
                     <small class="errorTxt2"></small>
                   </div>
                 </div>
@@ -190,7 +208,6 @@ img {
 
 @endsection
 
-
 @push('page-scripts')
 
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
@@ -199,17 +216,17 @@ img {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.js"></script>
 <script src="{{ asset('admin/js/cropper-script.js') }}"></script>
 <script>
+
   $("#profileImageSubmitBtn").click(function(){
-      canvas = cropper.getCroppedCanvas({
-        width:400,
-			  height:700,
-        viewport: {
-          width: 600,
-          height: 300,
-          type:'circle'
+    canvas = cropper.getCroppedCanvas({
+      width:400,
+      height:700,
+      viewport: {
+        width: 600,
+        height: 300,
+        type:'circle'
       },
     });
-
     canvas.toBlob(function(blob) {
       url = URL.createObjectURL(blob);
       var reader = new FileReader();
@@ -218,20 +235,20 @@ img {
         var base64data = reader.result; 
         id = $("#store_id").val();
         $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "{{ url('/store/update-user-image') }}",
-            data: {store_id : id , 'image': base64data},
-            success: function(data){
-              if(data.flagError == false){
-                  showSuccessToaster(data.message);                 
-                  $("#user_profile").attr("src", data.logo);
-                  $("#log_user_icon").attr("src", data.logo);
-                  $modal.modal('close');
-              }else{
-                showErrorToaster(data.message);
-                printErrorMsg(data.error);
-              }
+          type: "POST",
+          dataType: "json",
+          url: "{{ url('/store/update-user-image') }}",
+          data: {store_id : id , 'image': base64data},
+          success: function(data) {
+            if (data.flagError == false) {
+              showSuccessToaster(data.message);                 
+              $("#user_profile").attr("src", data.logo);
+              $("#log_user_icon").attr("src", data.logo);
+              $modal.modal('close');
+            } else {
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }
           }
         });
       }
@@ -240,111 +257,131 @@ img {
 
   if ($("#userProfileForm").length > 0) {
     var validator = $("#userProfileForm").validate({ 
-        rules: {
-            name: {
-                    required: true,
-                    maxlength: 200,
-            }, 
-            mobile: {
-                  required: true,
-                  maxlength: 10,
-            },
-            email: {
-                required: true,
-                email: true,
-                remote: { url: "{{ url(ROUTE_PREFIX.'/users/unique') }}", type: "POST",
-                    data: {
-                        user_id: function () {
-                            return $('#user_id').val();
-                        }
-                    }
-                },
-            },
+      rules: {
+        name: {
+          required: true,
+          maxlength: 200,
+        }, 
+        mobile: {
+          required: true,
+          maxlength: 10,
         },
-        messages: { 
-            name: {
-                required: "Please enter store name",
-                maxlength: "Length cannot be more than 200 characters",
-            },
-            mobile: {
-              required: "Please enter mobile",
-              maxlength: "Length cannot be more than 10 characters",
-              },
-            email: {
-                email: "Please enter a valid email address.",
-                remote: "Email already existing"
-            },
+        email: {
+          required: true,
+          email: true,
+          remote: { url: "{{ url(ROUTE_PREFIX.'/users/unique') }}", type: "POST",
+            data: {
+              user_id: function () {
+                return $('#user_id').val();
+              }
+            }
+          },
         },
-        submitHandler: function (form) {
-            var forms   = $("#userProfileForm");
-            $.ajax({ url: "{{ url('/store/user-profile') }}", type: "POST", processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    setTimeout(function () { 
-                        window.location.href = "{{ url('store/user-profile')}}";                    
-                    }, 3000);
-
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
-        }
+      },
+      messages: { 
+        name: {
+          required: "Please enter store name",
+          maxlength: "Length cannot be more than 200 characters",
+        },
+        mobile: {
+          required: "Please enter mobile",
+          maxlength: "Length cannot be more than 10 characters",
+        },
+        email: {
+          email: "Please enter a valid email address.",
+          remote: "Email already existing"
+        },
+      },
+      submitHandler: function (form) {
+        var forms   = $("#userProfileForm");
+        $.ajax({ url: "{{ url('/store/user-profile') }}", type: "POST", processData: false, 
+        data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);
+            setTimeout(function () { 
+              window.location.href = "{{ url('store/user-profile')}}";                    
+            }, 3000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }
+        });
+      }
     })
   } 
 
   if ($("#changepasswordForm").length > 0) {
     var validator = $("#changepasswordForm").validate({ 
-        rules: {
-            old_password: {
-                required: true,
-            },
-            new_password: {
-                required: true,
-                minlength: 6,
-                maxlength: 10,
-            },
-            new_password_confirmation: {
-                equalTo: "#new_password"
-            },
+      rules: {
+        old_password: {
+          required: true,
         },
-        messages: { 
-            old_password: {
-                required: "Please enter password",
-            },
-            new_password: {
-                required: "Please enter password",
-                minlength: "Passwords must be at least 6 characters in length",
-                maxlength: "Length cannot be more than 10 characters",
-            },
-            new_password_confirmation: {
-                equalTo: "Passwords are not matching",
-            }
+        new_password: {
+          required: true,
+          minlength: 6,
+          maxlength: 10,
         },
-        submitHandler: function (form) {
-            var forms   = $("#changepasswordForm");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/users/update-password') }}", type: 'POST', processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    // setTimeout(function () { 
-                    //     window.location.href = "{{ url('admin/stores')}}";                    
-                    // }, 3000);
-
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
+        new_password_confirmation: {
+          equalTo: "#new_password"
+        },
+      },
+      messages: { 
+        old_password: {
+            required: "Please enter password",
+        },
+        new_password: {
+            required: "Please enter password",
+            minlength: "Passwords must be at least 6 characters in length",
+            maxlength: "Length cannot be more than 10 characters",
+        },
+        new_password_confirmation: {
+            equalTo: "Passwords are not matching",
         }
+      },
+      submitHandler: function (form) {
+        var forms   = $("#changepasswordForm");
+        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/users/update-password') }}", type: 'POST', processData: false, 
+        data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);
+            // setTimeout(function () { 
+            //     window.location.href = "{{ url('admin/stores')}}";                    
+            // }, 3000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }
+        });
+      }
     })
-}
+  }
 
+  // $("#removeLogoDisplayBtn").click(function(event){
+  //   event.preventDefault();
+  //   var old_logo = $("#user_photo_url").val();
+  //   $("#user_profile").attr("src", old_logo); 
+  //   $(".logo-action-btn").hide();
+  // });
+
+  // $('#storeLogoForm').submit(function(e) {
+  //   var formData = new FormData(this);
+  //   $.ajax({ type: "POST",url: "{{ url('/store/update-logo') }}", data: formData, cache:false, contentType: false, processData: false,
+  //     success: function(data) {
+  //       if(data.flagError == false) {
+  //         showSuccessToaster(data.message);                 
+  //         $("#store_logo").attr("src", data.logo);
+  //       } else {
+  //         showErrorToaster(data.message);
+  //         printErrorMsg(data.error);
+  //       }
+  //     }
+  //   });
+  // });
+  
 </script>
 @endpush
 

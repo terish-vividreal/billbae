@@ -176,7 +176,6 @@ class StoreController extends Controller
             return ['flagError' => false, 'message' => "Account Updated successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=> $validator->errors()->all()];
-
     }
 
     /**
@@ -190,7 +189,6 @@ class StoreController extends Controller
     {
         // echo $request->gst_percentage; exit;
         // $validator = Validator::make($request->all(), [ 'gst_percentage' => 'required', ]);
-
         // if ($validator->passes()) {
             $billing                    = ShopBilling::find($request->gst_billing_id);
             $billing->gst_percentage    = ($request->gst_percentage == 1)?NULL:$request->gst_percentage;
@@ -211,7 +209,6 @@ class StoreController extends Controller
     public function storeBilling(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [ 'billing_id' => 'required', ]);
-
         if ($validator->passes()) {
             $billing                    = ShopBilling::find($id);
             $billing->shop_id           = SHOP_ID;
@@ -238,7 +235,6 @@ class StoreController extends Controller
     public function updateLogo(Request $request)
     {
         $validator = Validator::make($request->all(), [ 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', ]);
-
         if ($validator->passes()) {
             $shop               = Shop::find($request->store_id);
             $old_store_logo     = $shop->image;
@@ -246,13 +242,10 @@ class StoreController extends Controller
             if ($old_store_logo != '') {
                 \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/logo/' . $old_store_logo);
             }
-
             // Create storage folder if not exist
             $store_path         = 'public/' . $this->uploadPath. '/logo/';
             Storage::makeDirectory($store_path);
-
             $file               = $request->image;
-
             $extension          = $file->getClientOriginalExtension();
             $imageName          = Str::random(20).'.'.$extension;
             Storage::putFileAs($store_path, $file, $imageName);
@@ -260,16 +253,11 @@ class StoreController extends Controller
             $shop->image        = $imageName;
             $shop->save();
             return ['flagError' => false, 'logo' => $shop->show_image,  'message' => "Logo updated successfully"];
-
         }
-
         return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
-
-
         // $image_64 = $request->image; //your base64 encoded data
         // $extension = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
         // $replace = substr($image_64, 0, strpos($image_64, ',')+1); 
-
         // $image = str_replace($replace, '', $image_64); 
         // $image = str_replace(' ', '+', $image); 
         // $imageName = Str::random(20).'.'.$extension;
@@ -285,27 +273,21 @@ class StoreController extends Controller
     {
         $user               = Auth::user();
         $old_image          = $user->profile;
-
         if ($old_image != '') {
             \Illuminate\Support\Facades\Storage::delete('public/' . $this->uploadPath . '/users/' . $old_image);
         }
-        
         // Create storage folder
         $store_path         = 'public/' . $this->uploadPath. '/users/';
         Storage::makeDirectory($store_path);
-
         $image_64           = $request->image; //your base64 encoded data
         $extension          = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];   // .jpg .png .pdf
         $replace            = substr($image_64, 0, strpos($image_64, ',')+1); 
-
         $image              = str_replace($replace, '', $image_64); 
         $image              = str_replace(' ', '+', $image); 
         $imageName          = Str::random(20).'.'.$extension;
-
         Storage::put($store_path.'/'.$imageName, base64_decode($image));
         $user->profile      = $imageName;
         $user->save();
-
         return ['flagError' => false, 'logo' => asset('storage/store/users/' . $user->profile),  'message' => "Profile image updated successfully"];
     }
 
@@ -327,7 +309,6 @@ class StoreController extends Controller
         $billing_format->prefix     = Str::upper($request->bill_prefix);
         $billing_format->suffix     = $request->bill_suffix;
         $billing_format->save();
-
         if (!$request->has('applied_to_all') ) {
             if (count($request->payment_types) > 0 ) {
                 foreach($request->payment_types as $key => $type) {
@@ -353,7 +334,6 @@ class StoreController extends Controller
         $theme_settings->footerFixed        = ($request->has('footerFixed'))?1:0;
         $theme_settings->menuStyle          = $request->menuSelection;
         $theme_settings->save();
-
         return ['flagError' => false, 'message' => "Theme settings updated successfully"];    
     }
 }

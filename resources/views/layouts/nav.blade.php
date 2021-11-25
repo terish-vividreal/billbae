@@ -22,22 +22,24 @@ if(!empty($themeSettings)){
 @endphp
 
     @if(Auth::user()->is_admin == 1)
-    <aside class="sidenav-main nav-expanded nav-lock nav-collapsible sidenav-light sidenav-active-square">
+      <aside class="sidenav-main nav-expanded nav-lock nav-collapsible sidenav-light sidenav-active-square">
     @else
-    <aside class="sidenav-main nav-expanded {{$navLock}} nav-collapsible {{$navCollapsed}} {{$isMenuDark}} {{$menuStyle}}">
+      <aside class="sidenav-main nav-expanded {{$navLock}} nav-collapsible {{$navCollapsed}} {{$isMenuDark}} {{$menuStyle}}">
     @endif
       <div class="brand-sidebar">
-        <h1 class="logo-wrapper"><a class="brand-logo darken-1" href="{{ url('home/') }}">
-        <img class="hide-on-med-and-down" src="{{asset('admin/images/logo/logo.png')}}" alt="materialize logo"/>
-        <img class="show-on-medium-and-down hide-on-med-and-up" src="{{asset('admin/images/logo/logo.png')}}" alt="materialize logo"/>
-        <span class="logo-text hide-on-med-and-down">Billbae</span></a><a class="navbar-toggler" href="#">
-          <i class="material-icons">radio_button_checked</i></a></h1>
+        <h1 class="logo-wrapper">
+          <a class="brand-logo darken-1" href="{{ url('home/') }}">
+            <img class="hide-on-med-and-down" src="{{asset('admin/images/logo/logo.png')}}" alt="materialize logo"/>
+            <img class="show-on-medium-and-down hide-on-med-and-up" src="{{asset('admin/images/logo/logo.png')}}" alt="materialize logo"/>
+            <span class="logo-text hide-on-med-and-down">Billbae</span>
+          </a>
+          <a class="navbar-toggler" href="#"> <i class="material-icons">radio_button_checked</i> </a>
+        </h1>
       </div>
       <ul class="sidenav sidenav-collapsible leftside-navigation collapsible sidenav-fixed menu-shadow" id="slide-out" data-menu="menu-navigation" data-collapsible="menu-accordion">
 
           <li class="bold"><a class="@if(Request::is(ROUTE_PREFIX.'home')) active {{$activeMenuColor}} @endif waves-effect waves-cyan" href="{{ url(ROUTE_PREFIX.'/home') }}"><i class="material-icons">settings_input_svideo</i><span class="menu-title" data-i18n="Dashboard">Dashboard</span></a>               
           </li>
-
 
         @if(Auth::user()->is_admin == 1)
           <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'stores*') ||  Request::is(ROUTE_PREFIX.'stores/create*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/stores') }}"><i class="material-icons">business</i><span class="menu-title" data-i18n="Stores">Stores</span></a>
