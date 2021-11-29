@@ -116,7 +116,7 @@ class CashbookController extends Controller
             ->addColumn('transaction_by', function($detail){
                 $transaction_by = $detail->user->name;
                 return $transaction_by;
-            })
+            })                                                        
             ->editColumn('message', function($detail){
                 $message = '';
                 $message = Str::limit(strip_tags($detail->message), 30);
@@ -152,7 +152,6 @@ class CashbookController extends Controller
             'cash_book' => 'required',
             'amount' => 'required',
         ]);
-    
         if ($validator->passes()) {
             if ($request->transaction == "add_cash") {
                 $current_balance = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', $request->cash_book)->orderBy('created_at', 'desc')->value('balance_amount');
@@ -176,7 +175,6 @@ class CashbookController extends Controller
             $obj->message               = $request->details;
             $obj->done_by               = Auth::user()->id;            
             $obj->save();
-
             $business_cash              = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 1)->orderBy('created_at', 'desc')->value('balance_amount');  
             $petty_cash                 = Cashbook::where('shop_id', SHOP_ID)->where('cash_book', 2)->orderBy('created_at', 'desc')->value('balance_amount');  
             return ['flagError' => false, 'business_cash' => number_format($business_cash,2), 'petty_cash' => number_format($petty_cash,2), 'message' => "Transaction completed successfully"];
@@ -202,7 +200,7 @@ class CashbookController extends Controller
             $obj->transaction_amount    = $request->amount;
             $obj->balance_amount        = ($current_balance - $request->amount);
             $obj->transaction           = 2;
-            $obj->message               = "Auto withdrwal - Cash transfered to ". $cash_transfer_to. " from ". $cash_transfer_from;
+            $obj->message               = "Auto withdrawal - Cash transferred to ". $cash_transfer_to. " from ". $cash_transfer_from;
             $obj->done_by               = Auth::user()->id;            
             $obj->save();
     }
