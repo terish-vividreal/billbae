@@ -31,10 +31,6 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CashbookController;
 use App\Http\Controllers\PaymentTypeController;
 
-
-
-
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -58,7 +54,6 @@ Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showRese
 Route::get('create-password/{token}', [ForgotPasswordController::class, 'showCreatePasswordForm'])->name('create.password.get');
 Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
 Route::post('create-password', [ForgotPasswordController::class, 'submitCreatePasswordForm'])->name('create.password.post');
-
 
 // Store Create Password
 Route::get('store-create-password/{token}', [StoreCreatePasswordController::class, 'get'])->name('store.create.password.get');
@@ -101,7 +96,6 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($store_link . '/user-profile', [Store::class, 'userProfile']);
     Route::post($store_link . '/user-profile', [Store::class, 'postUserProfile']);
     Route::post($store_link . '/update-user-image', [Store::class, 'updateUserImage']);
-
     
     // User Routes
     Route::resource('users', UserController::class)->except(['show']);
@@ -115,7 +109,6 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($staff, StaffController::class)->except(['show']);
     Route::get($staff.'/lists', [StaffController::class, 'lists']);
     Route::get($staff.'/{id}/manage-document', [StaffController::class, 'manageDocument']);
-
 
     Route::post($staff.'/update/user-image', [StaffController::class, 'updateUserImage']);
     Route::post($staff.'/get-document', [StaffController::class, 'getDocument']);
@@ -195,9 +188,6 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($paymentTypes . '/lists', [PaymentTypeController::class, 'lists']);
     Route::get($paymentTypes . '/select-list', [PaymentTypeController::class, 'lists']);
 
-
-    
-
     Route::middleware([isStoreCompleted::class])->group(function(){
         // Billing Routes 
         $billing = 'billings';
@@ -249,17 +239,13 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($cashbook . '/withdraw', [CashbookController::class, 'withdraw']);
 
     // Route::get('send-mail', function () {
-   
     //     $details = [
     //         'title' => 'Mail from Billbae',
     //         'body' => 'This is for testing email using smtp'
     //     ];
-       
     //     \Mail::to('ajesh.ks@vividreal.com')->send(new \App\Mail\MyTestMail($details));
-       
     //     dd("Email is Sent...");
     // });
-    
 });
 
 // Super Admin Routes
@@ -285,6 +271,8 @@ Route::prefix('admin/')->group(function () {
         // User
         Route::post('users/unique', [UserController::class, 'isUnique']);
 
+        // Notifications
+        $notifications = 'notifications';
+        Route::resource($notifications, AdminStore::class)->except(['show']);
     });
-
 });

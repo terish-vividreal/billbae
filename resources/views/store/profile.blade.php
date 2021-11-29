@@ -87,12 +87,10 @@
             </div>
             @if (Session::has('error'))
             <div class="card-alert card red lighten-5 print-error-msg">
-
               <div class="card-content red-text">Few mandatory store details are missing</div>
               <div class="card-content red-text">{!! Session::get('error') !!}</div>
             </div>
             @endif
-
             <form id="storeProfileForm" name="storeProfileForm" role="form" method="" action="" class="ajax-submit">
               {{ csrf_field() }}
               {!! Form::hidden('store_id', $store->id ?? '' , ['id' => 'store_id'] ); !!}
@@ -207,7 +205,7 @@
 <!-- <script src="{{ asset('admin/js/cropper-script.js') }}"></script> -->
 <script src="{{asset('admin/js/scripts/page-users.js')}}"></script>
 <script>
-  $('#profile').change(function(){   
+  $('#profile').change(function() {   
     var ext = $('#profile').val().split('.').pop().toLowerCase();
     if ($.inArray(ext, ['png','jpg','jpeg']) == -1) {
       showErrorToaster("Invalid format. Allowed JPG, JPEG or PNG.");
@@ -221,7 +219,7 @@
     }    
   });
 
-  $("#removeLogoDisplayBtn").click(function(event){
+  $("#removeLogoDisplayBtn").click(function(event) {
     event.preventDefault();
     var old_logo = $("#log_url").val();
     $("#store_logo").attr("src", old_logo); 

@@ -62,7 +62,6 @@ class UserController extends Controller
     {
         $user_id    = Auth::user()->id;
         $detail     =  User::select(['name', 'mobile', 'email', 'is_active', 'id']);
-
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -75,23 +74,23 @@ class UserController extends Controller
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('role', function($detail){
-                $roles = User::find($detail->id)->roles;
-                $html = '';
-                if($roles){
-                    foreach($roles as $role){
+                $roles  = User::find($detail->id)->roles;
+                $html   = '';
+                if ($roles) {
+                    foreach($roles as $role) {
                         $html.= $role->name;
                     }
                 }
                 return $html;
             })
             ->addColumn('activate', function($detail){
-                $checked = ($detail->is_active == 1) ? 'checked' : '';
-                $html = '<div class="switch"><label> <input type="checkbox" '.$checked.' id="' . $detail->id . '" class="activate-user" data-id="'.$detail->id.'" onclick="manageUserStatus(this.id)"> <span class="lever"></span> </label> </div>';
+                $checked    = ($detail->is_active == 1) ? 'checked' : '';
+                $html       = '<div class="switch"><label> <input type="checkbox" '.$checked.' id="' . $detail->id . '" class="activate-user" data-id="'.$detail->id.'" onclick="manageUserStatus(this.id)"> <span class="lever"></span> </label> </div>';
                 return $html;
             })
             ->addColumn('action', function($detail){
-                $action = ' <a  href="' . url('users/' . $detail->id . '/edit') . '" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
+                $action     = ' <a  href="' . url('users/' . $detail->id . '/edit') . '" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                $action     .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
                 // $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
                 // '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></button></form>';
                 return $action;
@@ -133,14 +132,12 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'roles' => 'required'
         ]);
-
         if ($validator->passes()) {
             $input                  = $request->all();
             $user_id                = Auth::user()->id;
             // $input['password'] = Hash::make($input['password']);
             $input['parent_id']     = $user_id;   
-
-            $user       = User::create($input);
+            $user                   = User::create($input);
             $user->assignRole($request->input('roles'));
             if (Auth::user()->parent_id == null) {
                 $shop           = new Shop();
@@ -154,22 +151,17 @@ class UserController extends Controller
             $token                          = Str::random(64);
             $user->password_create_token    = $token;
             $user->save();
-
             $profile                = new StaffProfile();
             $profile->user_id       = $user->id;
             $profile->save();
-
             // Password create link
-            // Mail::send('email.passwordCreate', ['token' => $token], function($message) use($request){
+            // Mail::send('email.passwordCreate', ['token' => $token], function($message) use($request) {
             //     $message->to($request->email);
             //     $message->subject('Create New Password Email');
             // });
-
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
-    
-   
     }
     
     /**
@@ -181,7 +173,7 @@ class UserController extends Controller
     public function show($id)
     {
         // $user = User::find($id);
-        // return view('users.show',compact('user'));
+        // return view('users.show', compact('user'));
     }
     
     /**
@@ -215,31 +207,27 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
             'roles' => 'required'
         ]);
-
         if ($validator->passes()) {
-    
-            $input      = $request->all();
+            $input                  = $request->all();
             if (!empty($input['password'])) { 
                 $input['password']  = Hash::make($input['password']);
             } else {
                 $input              = Arr::except($input,array('password'));    
             }
-        
-            $user               = User::find($id);
-            $input['gender']    = $request->gender;     
+            $user                   = User::find($id);
+            $input['gender']        = $request->gender;     
             $user->update($input);
 
             DB::table('model_has_roles')->where('model_id',$id)->delete();
             $user->assignRole($request->input('roles'));
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }
-        return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=> $validator->errors()->all()];
     }
     
     /**
@@ -254,7 +242,6 @@ class UserController extends Controller
         // User::find($id)->delete();
         // return redirect()->route('users.index')
         //                 ->with('success','User deleted successfully');
-
         $user               = User::findOrFail($id);
         $user->is_active    = 2;
         $user->save();
@@ -291,7 +278,6 @@ class UserController extends Controller
             'new_password' => ['required'],
             'new_password_confirmation' => ['same:new_password'],
         ]);
-
         if ($validator->passes()) {
             User::find(auth()->user()->id)->update(['password'=> Hash::make($request->new_password)]);
             return ['flagError' => false, 'message' => $this->title. " password updated successfully"];
