@@ -116,11 +116,7 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   <div id="timezone_block"> 
-                    @if(isset($variants->timezone))
-                      {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
-                    @else  
-                      {!! Form::select('timezone', [] , '' , ['id' => 'timezone' ,'class' => 'select2 browser-default']) !!}
-                    @endif
+                    {!! Form::select('timezone', [] , '', ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
                   </div>
                 </div>
                 <div class="input-field col m6 s12">
@@ -173,7 +169,7 @@
               <div class="row">
                 <div class="input-field col s12">
                   <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
-                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="store-profile-submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
             </form>
@@ -244,7 +240,7 @@
   $('#country_id').select2({ placeholder: "Please select country", allowClear: true });
   $('#state_id').select2({ placeholder: "Please select state", allowClear: true });
   $('#district_id').select2({ placeholder: "Please select district", allowClear: true });
-  $('#timezone').select2({ placeholder: "Please select timezone"});
+  $('#timezone').select2({ placeholder: "Please select timezone", allowClear: true });
   $('#currency').select2();
 
   $(document).on('change', '#country_id', function () {
@@ -269,7 +265,7 @@
 
       $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-timezone') }}", data:{'country_id':this.value }, dataType: 'json',
         success: function(data) {
-          var selectTerms = '';
+          var selectTerms = '<option value="">Please select timezone</option>';
           $.each(data.data, function(key, value) {
             selectTerms += '<option value="' + value.id + '" >' + value.zone_name + '</option>';
           });
@@ -334,6 +330,7 @@
         },
       },
       submitHandler: function (form) {
+        disableBtn('store-profile-submit-btn');
         id          = $("#store_id").val();
         userId      = "" == id ? "" : "/" + id;
         formMethod  = "" == id ? "POST" : "PUT";
@@ -341,6 +338,7 @@
         $.ajax({ url: "{{ url('/store/update') }}" + userId, type: formMethod, processData: false, data: forms.serialize(), dataType: "html",
         }).done(function (a) {
           var data = JSON.parse(a);
+          // enableBtn('store-profile-submit-btn');
           if(data.flagError == false) {
             showSuccessToaster(data.message);
             setTimeout(function () { 

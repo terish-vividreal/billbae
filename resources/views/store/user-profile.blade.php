@@ -85,11 +85,9 @@ img {
                 $user_profile = ($user->profile != null) ? asset('storage/store/users/' . $user->profile) : asset('admin/images/user-icon.png');
               @endphp
               <a class="mr-2" href="#">
-                <img src="{{$user_profile}}" class="border-radius-4" alt="profile image" id="user_profile" 
-                  height="64" width="64">
+                <img src="{{$user_profile}}" class="border-radius-4" alt="profile image" id="user_profile" height="64" width="64">
               </a>
               <div class="media-body">
-
                 <form id="storeAdminImageForm" name="storeAdminImageForm" action="" method="POST" enctype="multipart/form-data" class="ajax-submit">
                   {{ csrf_field() }}
                   {!! Form::hidden('user_id', $user->id ?? '' , ['id' => 'user_id'] ); !!}
@@ -105,21 +103,16 @@ img {
                     <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
                   </div>
                 </form>
-
                 <!-- <h5 class="media-heading mt-0">Admin Photo</h5>
                 <div class="user-edit-btns display-flex">
-                  <button id="select-files" class="btn indigo mr-2">
-                    <span>Browse</span>
-                  </button>
+                  <button id="select-files" class="btn indigo mr-2"><span>Browse</span></button>
                   <a href="#" class="btn-small btn-light-pink">Remove</a>
                 </div>
                 <small>Allowed JPG, JPEG or PNG. Max size of 800kB</small>
                 <div class="upfilewrapper" style="display:none;">
                   <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
                 </div> -->
-
               </div>
-              
             </div>
             <!-- users edit account form start -->
             <h4 class="card-title">Store Admin {{ $page->title ?? ''}} Form</h4>
@@ -144,24 +137,22 @@ img {
               <div class="row">
                 <div class="col s6">
                   <div class="input-field">
-                    {!! Form::text('mobile', $user->mobile ?? '',  ['class' => 'check_numeric']) !!} 
+                    {!! Form::text('mobile', $user->mobile ?? '',  ['class' => '']) !!} 
                     <label for="mobile" class="label-placeholder">Store Mobile <span class="red-text">*</span></label>
                     <small class="errorTxt2"></small>
                   </div>
                 </div>
               </div>
               <div class="row">
-                <div class="col s12 display-flex justify-content-end form-action">
-                  <button type="submit" class="btn indigo waves-effect waves-light mr-2">
-                    Save changes
-                  </button>
-                  <button type="button" class="btn btn-light-pink waves-effect waves-light mb-1">Cancel</button>
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset" onclick="resetUserProfileForm()">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="profile-submit-btn">Submit <i class="material-icons right">keyboard_arrow_right</i></button>
                 </div>
               </div>
             </form>
+
             <!-- users edit account form ends -->
           </div>
-          
           <div class="col s12" id="additionalTaxes">
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
             <h4 class="card-title">Update Password </h4>
@@ -185,12 +176,14 @@ img {
                   <label for="new_password_confirmation" class="label-placeholder">Confirm Password<span class="red-text">*</span></label>
                 </div>
               </div>
-              <div class="col s12 display-flex justify-content-end form-action">
-                <button type="submit" class="btn indigo waves-effect waves-light mr-1">Save changes</button>
-                <button type="reset" class="btn btn-light-pink waves-effect waves-light">Cancel</button>
-              </div>
              </div>
-             {!! Form::close() !!}
+             <div class="row">
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset" onclick="resetChangepasswordForm()">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="password-submit-btn">Submit <i class="material-icons right">keyboard_arrow_right</i></button>
+                </div>
+              </div>
+            {!! Form::close() !!}
           </div>
         @endif
       </div>
@@ -198,18 +191,15 @@ img {
     </div>
   </div>
 </div>
-
 @include('layouts.crop-modal') 
 
 @endsection
-
 {{-- vendor scripts --}}
 @section('vendor-script')
 
 @endsection
 
 @push('page-scripts')
-
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <!-- <script src="{{asset('admin/js/scripts/page-users.js')}}"></script> -->
@@ -256,7 +246,7 @@ img {
   })
 
   if ($("#userProfileForm").length > 0) {
-    var validator = $("#userProfileForm").validate({ 
+    var userProfileFormValidator = $("#userProfileForm").validate({ 
       rules: {
         name: {
           required: true,
@@ -265,6 +255,7 @@ img {
         mobile: {
           required: true,
           maxlength: 10,
+          digits:true
         },
         email: {
           required: true,
@@ -312,8 +303,16 @@ img {
     })
   } 
 
+  function resetUserProfileForm() {
+    userProfileFormValidator.resetForm();
+    $('#userProfileForm').find("input[type=password], textarea, hidden").val("");
+    $('input').removeClass('error');
+    $("#userProfileForm label").removeClass("error");
+    $("#userProfileForm .label-placeholder").addClass('active');
+  }
+
   if ($("#changepasswordForm").length > 0) {
-    var validator = $("#changepasswordForm").validate({ 
+    var changePasswordFormValidator = $("#changepasswordForm").validate({ 
       rules: {
         old_password: {
           required: true,
@@ -329,23 +328,26 @@ img {
       },
       messages: { 
         old_password: {
-            required: "Please enter password",
+          required: "Please enter password",
         },
         new_password: {
-            required: "Please enter password",
-            minlength: "Passwords must be at least 6 characters in length",
-            maxlength: "Length cannot be more than 10 characters",
+          required: "Please enter password",
+          minlength: "Passwords must be at least 6 characters in length",
+          maxlength: "Length cannot be more than 10 characters",
         },
         new_password_confirmation: {
-            equalTo: "Passwords are not matching",
+          equalTo: "Passwords are not matching",
         }
       },
       submitHandler: function (form) {
+        disableBtn('password-submit-btn');
         var forms   = $("#changepasswordForm");
         $.ajax({ url: "{{ url(ROUTE_PREFIX.'/users/update-password') }}", type: 'POST', processData: false, 
         data: forms.serialize(), dataType: "html",
         }).done(function (a) {
           var data = JSON.parse(a);
+            resetChangepasswordForm();
+            enableBtn('password-submit-btn');
           if (data.flagError == false) {
             showSuccessToaster(data.message);
             // setTimeout(function () { 
@@ -358,6 +360,13 @@ img {
         });
       }
     })
+  }
+
+  function resetChangepasswordForm() {
+    changePasswordFormValidator.resetForm();
+    $('#changepasswordForm').find("input[type=password], textarea, hidden").val("");
+    $("#changepasswordForm label").removeClass("error");
+    $("#changepasswordForm .label-placeholder").addClass('active');
   }
 
   // $("#removeLogoDisplayBtn").click(function(event){

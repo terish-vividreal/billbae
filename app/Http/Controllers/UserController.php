@@ -279,6 +279,12 @@ class UserController extends Controller
             'new_password_confirmation' => ['same:new_password'],
         ]);
         if ($validator->passes()) {
+
+            if(strcmp($request->get('old_password'), $request->get('new_password')) == 0){
+                $errors = array('Old and new passwords cannot be same !');
+                return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$errors];
+            }
+
             User::find(auth()->user()->id)->update(['password'=> Hash::make($request->new_password)]);
             return ['flagError' => false, 'message' => $this->title. " password updated successfully"];
         }

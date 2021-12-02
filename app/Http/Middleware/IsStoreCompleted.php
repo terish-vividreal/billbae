@@ -21,9 +21,9 @@ class IsStoreCompleted
         $user   = Auth::user();
         $store  = Shop::find($user->shop_id);  
         
-        if($store->country_id == NULL) {
+        if ($store->country_id == NULL) {
             return redirect('store/profile')->with('error',"PLease update store country details.");
-        }else if($store->timezone == NULL) {
+        } else if ($store->timezone == NULL) {
             return redirect('store/profile')->with('error',"PLease update store timezone details.");
         }
         return $next($request);
