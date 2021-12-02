@@ -85,11 +85,9 @@ img {
                 $user_profile = ($user->profile != null) ? asset('storage/store/users/' . $user->profile) : asset('admin/images/user-icon.png');
               @endphp
               <a class="mr-2" href="#">
-                <img src="{{$user_profile}}" class="border-radius-4" alt="profile image" id="user_profile" 
-                  height="64" width="64">
+                <img src="{{$user_profile}}" class="border-radius-4" alt="profile image" id="user_profile" height="64" width="64">
               </a>
               <div class="media-body">
-
                 <form id="storeAdminImageForm" name="storeAdminImageForm" action="" method="POST" enctype="multipart/form-data" class="ajax-submit">
                   {{ csrf_field() }}
                   {!! Form::hidden('user_id', $user->id ?? '' , ['id' => 'user_id'] ); !!}
@@ -105,21 +103,16 @@ img {
                     <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
                   </div>
                 </form>
-
                 <!-- <h5 class="media-heading mt-0">Admin Photo</h5>
                 <div class="user-edit-btns display-flex">
-                  <button id="select-files" class="btn indigo mr-2">
-                    <span>Browse</span>
-                  </button>
+                  <button id="select-files" class="btn indigo mr-2"><span>Browse</span></button>
                   <a href="#" class="btn-small btn-light-pink">Remove</a>
                 </div>
                 <small>Allowed JPG, JPEG or PNG. Max size of 800kB</small>
                 <div class="upfilewrapper" style="display:none;">
                   <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
                 </div> -->
-
               </div>
-              
             </div>
             <!-- users edit account form start -->
             <h4 class="card-title">Store Admin {{ $page->title ?? ''}} Form</h4>
@@ -152,16 +145,13 @@ img {
               </div>
               <div class="row">
                 <div class="col s12 display-flex justify-content-end form-action">
-                  <button type="submit" class="btn indigo waves-effect waves-light mr-2">
-                    Save changes
-                  </button>
+                  <button type="submit" class="btn indigo waves-effect waves-light mr-2">Save changes</button>
                   <button type="button" class="btn btn-light-pink waves-effect waves-light mb-1">Cancel</button>
                 </div>
               </div>
             </form>
             <!-- users edit account form ends -->
           </div>
-          
           <div class="col s12" id="additionalTaxes">
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
             <h4 class="card-title">Update Password </h4>
@@ -190,6 +180,13 @@ img {
                 <button type="reset" class="btn btn-light-pink waves-effect waves-light">Cancel</button>
               </div>
              </div>
+
+             <div class="row">
+                <div class="col s12 display-flex justify-content-end form-action">
+                  <button type="submit" class="btn indigo waves-effect waves-light mr-2">Save changes</button>
+                  <button type="button" class="btn btn-light-pink waves-effect waves-light mb-1">Cancel</button>
+                </div>
+              </div>
              {!! Form::close() !!}
           </div>
         @endif
@@ -198,18 +195,15 @@ img {
     </div>
   </div>
 </div>
-
 @include('layouts.crop-modal') 
 
 @endsection
-
 {{-- vendor scripts --}}
 @section('vendor-script')
 
 @endsection
 
 @push('page-scripts')
-
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <!-- <script src="{{asset('admin/js/scripts/page-users.js')}}"></script> -->
@@ -313,7 +307,7 @@ img {
   } 
 
   if ($("#changepasswordForm").length > 0) {
-    var validator = $("#changepasswordForm").validate({ 
+    var changePasswordFormValidator = $("#changepasswordForm").validate({ 
       rules: {
         old_password: {
           required: true,
@@ -329,15 +323,15 @@ img {
       },
       messages: { 
         old_password: {
-            required: "Please enter password",
+          required: "Please enter password",
         },
         new_password: {
-            required: "Please enter password",
-            minlength: "Passwords must be at least 6 characters in length",
-            maxlength: "Length cannot be more than 10 characters",
+          required: "Please enter password",
+          minlength: "Passwords must be at least 6 characters in length",
+          maxlength: "Length cannot be more than 10 characters",
         },
         new_password_confirmation: {
-            equalTo: "Passwords are not matching",
+          equalTo: "Passwords are not matching",
         }
       },
       submitHandler: function (form) {

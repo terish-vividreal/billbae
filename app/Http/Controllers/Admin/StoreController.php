@@ -65,7 +65,7 @@ class StoreController extends Controller
     public function lists(Request $request)
     {
         $user_id    = Auth::user()->id;
-        $detail     =  User::with('shop')->select(['name', 'mobile', 'email', 'id']);
+        $detail     = User::with('shop')->select(['name', 'mobile', 'email', 'id']);
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {

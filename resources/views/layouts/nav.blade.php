@@ -8,13 +8,13 @@ $navCollapsed     = '';
 $menuStyle        = '';
 
 
-if(!empty($themeSettings)){
+if (!empty($themeSettings)) {
   $activeMenuColor  = ($themeSettings->activeMenuColor != '')?$themeSettings->activeMenuColor.' gradient-shadow':$configData['activeMenuColor'];
   $isMenuDark       = ($themeSettings->isMenuDark == 0)?'sidenav-light':'sidenav-dark';
   $navLock          = ($themeSettings->menuCollapsed == 1)?'':'nav-lock';
   $navCollapsed     = ($themeSettings->menuCollapsed == 1)?'nav-collapsed':'';
   $menuStyle        = $themeSettings->menuStyle;
-}else{
+} else {
   $isMenuDark       = $configData['sidenavMainColor'];
   $navbarBgColor    = $configData['navbarLargeColor'];
   $menuStyle        = 'sidenav-active-square';

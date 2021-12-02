@@ -49,8 +49,10 @@ class LoginController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
+
+        $remember_me = $request->has('remember_me') ? true : false;
    
-        if(auth()->attempt(array('email' => $input['email'], 'password' => $input['password'])))
+        if(auth()->attempt(array('email' => $input['email'], 'password' => $input['password']), $remember_me))
         {
             if (auth()->user()->is_admin == 1) {
                 return redirect()->route('admin.home');

@@ -42,7 +42,7 @@ if(!empty($themeSettings)){
               <li><a class="waves-effect waves-block waves-light notification-button" href="javascript:void(0);" data-target="notifications-dropdown1"><i class="material-icons">settings</i></a></li>
               <li class="hide-on-med-and-down"><a class="waves-effect waves-block waves-light toggle-fullscreen" href="javascript:void(0);"><i class="material-icons">settings_overscan</i></a></li>
               <li class="hide-on-large-only search-input-wrapper"><a class="waves-effect waves-block waves-light search-button" href="javascript:void(0);"><i class="material-icons">search</i></a></li>              
-              <li><a class="waves-effect waves-block waves-light notification-button" href="javascript:void(0);" data-target="notifications-dropdown-2"><i class="material-icons">notifications_none<small class="notification-badge">5</small></i></a></li>
+              <!-- <li><a class="waves-effect waves-block waves-light notification-button" href="javascript:void(0);" data-target="notifications-dropdown-2"><i class="material-icons">notifications_none<small class="notification-badge">5</small></i></a></li> -->
               <li><a class="waves-effect waves-block waves-light profile-button" href="javascript:void(0);" data-target="profile-dropdown"><span class="avatar-status avatar-online"><img src="{{$user_profile}}" alt="avatar" id="log_user_icon"><i></i></span></a></li>
             </ul>
             <!-- megamenu for settings-->
@@ -148,7 +148,7 @@ if(!empty($themeSettings)){
     </header>
     <!-- END: Header-->
 
-    <ul class="display-none" id="default-search-main">
+    <!-- <ul class="display-none" id="default-search-main">
       <li class="auto-suggestion-title"><a class="collection-item" href="#">
           <h6 class="search-title">FILES</h6></a></li>
       <li class="auto-suggestion"><a class="collection-item" href="#">
@@ -213,7 +213,7 @@ if(!empty($themeSettings)){
               <div class="member-info display-flex flex-column"><span class="black-text">Anna Strong</span><small class="grey-text">Web Designer</small></div>
             </div>
           </div></a></li>
-    </ul>
+    </ul> -->
     <ul class="display-none" id="page-search-title">
       <li class="auto-suggestion-title"><a class="collection-item" href="#">
           <h6 class="search-title">PAGES</h6></a></li>
