@@ -137,19 +137,20 @@ img {
               <div class="row">
                 <div class="col s6">
                   <div class="input-field">
-                    {!! Form::text('mobile', $user->mobile ?? '',  ['class' => 'check_numeric']) !!} 
+                    {!! Form::text('mobile', $user->mobile ?? '',  ['class' => '']) !!} 
                     <label for="mobile" class="label-placeholder">Store Mobile <span class="red-text">*</span></label>
                     <small class="errorTxt2"></small>
                   </div>
                 </div>
               </div>
               <div class="row">
-                <div class="col s12 display-flex justify-content-end form-action">
-                  <button type="submit" class="btn indigo waves-effect waves-light mr-2">Save changes</button>
-                  <button type="button" class="btn btn-light-pink waves-effect waves-light mb-1">Cancel</button>
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset" onclick="resetUserProfileForm()">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="profile-submit-btn">Submit <i class="material-icons right">keyboard_arrow_right</i></button>
                 </div>
               </div>
             </form>
+
             <!-- users edit account form ends -->
           </div>
           <div class="col s12" id="additionalTaxes">
@@ -175,19 +176,14 @@ img {
                   <label for="new_password_confirmation" class="label-placeholder">Confirm Password<span class="red-text">*</span></label>
                 </div>
               </div>
-              <div class="col s12 display-flex justify-content-end form-action">
-                <button type="submit" class="btn indigo waves-effect waves-light mr-1">Save changes</button>
-                <button type="reset" class="btn btn-light-pink waves-effect waves-light">Cancel</button>
-              </div>
              </div>
-
              <div class="row">
-                <div class="col s12 display-flex justify-content-end form-action">
-                  <button type="submit" class="btn indigo waves-effect waves-light mr-2">Save changes</button>
-                  <button type="button" class="btn btn-light-pink waves-effect waves-light mb-1">Cancel</button>
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset" onclick="resetChangepasswordForm()">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="password-submit-btn">Submit <i class="material-icons right">keyboard_arrow_right</i></button>
                 </div>
               </div>
-             {!! Form::close() !!}
+            {!! Form::close() !!}
           </div>
         @endif
       </div>
@@ -250,7 +246,7 @@ img {
   })
 
   if ($("#userProfileForm").length > 0) {
-    var validator = $("#userProfileForm").validate({ 
+    var userProfileFormValidator = $("#userProfileForm").validate({ 
       rules: {
         name: {
           required: true,
@@ -259,6 +255,7 @@ img {
         mobile: {
           required: true,
           maxlength: 10,
+          digits:true
         },
         email: {
           required: true,
@@ -306,6 +303,14 @@ img {
     })
   } 
 
+  function resetUserProfileForm() {
+    userProfileFormValidator.resetForm();
+    $('#userProfileForm').find("input[type=password], textarea, hidden").val("");
+    $('input').removeClass('error');
+    $("#userProfileForm label").removeClass("error");
+    $("#userProfileForm .label-placeholder").addClass('active');
+  }
+
   if ($("#changepasswordForm").length > 0) {
     var changePasswordFormValidator = $("#changepasswordForm").validate({ 
       rules: {
@@ -335,11 +340,14 @@ img {
         }
       },
       submitHandler: function (form) {
+        disableBtn('password-submit-btn');
         var forms   = $("#changepasswordForm");
         $.ajax({ url: "{{ url(ROUTE_PREFIX.'/users/update-password') }}", type: 'POST', processData: false, 
         data: forms.serialize(), dataType: "html",
         }).done(function (a) {
           var data = JSON.parse(a);
+            resetChangepasswordForm();
+            enableBtn('password-submit-btn');
           if (data.flagError == false) {
             showSuccessToaster(data.message);
             // setTimeout(function () { 
@@ -352,6 +360,13 @@ img {
         });
       }
     })
+  }
+
+  function resetChangepasswordForm() {
+    changePasswordFormValidator.resetForm();
+    $('#changepasswordForm').find("input[type=password], textarea, hidden").val("");
+    $("#changepasswordForm label").removeClass("error");
+    $("#changepasswordForm .label-placeholder").addClass('active');
   }
 
   // $("#removeLogoDisplayBtn").click(function(event){

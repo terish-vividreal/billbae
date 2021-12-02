@@ -57,3 +57,32 @@ function getChildElements(parent_id = null, selected = null, element = null, rou
 $(".card-alert .close").click(function () {
     $(this).closest(".card-alert").fadeOut("slow");
 });
+
+function disableBtn(element) {
+    $('#'+element).html('Please Wait... <i class="material-icons right">loop</i>');
+    $('#'+element).attr("disabled", true);
+}
+
+function enableBtn(element) {
+    $('#'+element).html('Submit <i class="material-icons right">keyboard_arrow_right</i>');
+    $('#'+element).attr("disabled", false);
+}
+
+// function clearForm() {
+//     validator.resetForm();
+//     $('input').removeClass('error');
+//     $("#manageScheduleForm .form-control").removeClass("error");
+//     $('select').removeClass('error');
+//     $('#manageScheduleForm').trigger("reset");
+//     $('#manageScheduleForm').find("input[type=text], textarea, hidden").val("");
+//     $('#service_type').select2({ placeholder: "Please select type"});
+//     $('#services').select2({ placeholder: "Please select service", allowClear: true });
+//     $('#packages').select2({ placeholder: "Please select package" });
+//     $("input[name='item_ids[]']").remove();
+//     $("input.disabled").attr("disabled", false);
+//     $('#manageScheduleForm').find("input[type=hidden]").val("");
+//     $('#itemDetails').html();
+//     $("#cancelSchedule").hide();
+//     $('#itemDetailsDiv').hide();
+//     $(".form-action-btn").show();
+// }

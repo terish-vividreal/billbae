@@ -27,7 +27,7 @@
                 <div class="input-field col s12">
                 <i class="material-icons prefix pt-2">lock_outline</i>
                 <input id="password" type="password" name="password" class="validate" autocomplete="off" required>
-                <label for="password" class="label-placeholder">Password zz</label>
+                <label for="password" class="label-placeholder">Password </label>
                 </div>
             </div>
             <div class="row">

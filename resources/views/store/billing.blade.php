@@ -312,10 +312,18 @@
   if ($("#storeBillingForm").length > 0) {
     var validator = $("#storeBillingForm").validate({ 
         rules: {
-          company_name: { maxlength: 200, required: true, }
+          company_name: { maxlength: 200, required: true, },
+          billing_country_id: { required: true, },
+          billing_state_id: { required: true, },
+          billing_district_id: { required: true, },
+          currency: { required: true, },
         },
         messages: { 
-          company_name: { maxlength: "Length cannot be more than 200 characters", required: "Please enter company name", }
+          company_name: { maxlength: "Length cannot be more than 200 characters", required: "Please enter company name", },
+          billing_country_id: { required: "Please select country", },
+          billing_state_id: { required: "Please select state", },
+          billing_district_id: { required: "Please select district", },
+          currency: { required: "Please select currency", },
         },
         submitHandler: function (form) {
             id = $("#billing_id").val();
