@@ -28,7 +28,7 @@
   <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
   <ol class="breadcrumbs mb-0">
     <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/store/billings') }}">{{ $page->title ?? ''}}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/store/billings') }}">Store {{ $page->title ?? ''}}</a></li>
     <li class="breadcrumb-item active">Update</li>
   </ol>
 @endsection
@@ -62,10 +62,17 @@
 
       <div class="divider mb-3"></div>
       <div class="row">
+        
         @if($store)
           <div class="col s12" id="account">
             <!-- users edit account form start -->
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text">I am sorry, this service is currently not supported in your selected country. In case you wish to use this service in any country other than India, please leave a message in the contact us page, and we shall respond to you at the earliest.</div></div>
+            @if (Session::has('error'))
+            <div class="card-alert card red lighten-5 print-error-msg">
+              <div class="card-content red-text">Few mandatory store details are missing</div>
+              <div class="card-content red-text">{!! Session::get('error') !!}</div>
+            </div>
+            @endif            
             <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
             <form id="storeBillingForm" name="storeBillingForm" role="form" method="" action="" class="ajax-submit">
               {{ csrf_field() }}
@@ -121,7 +128,7 @@
               <div class="row">
                 <div class="input-field col s12">
                   <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
-                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="store-billing-submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
             </form>
@@ -140,7 +147,7 @@
                 </div>
                 <div class="input-field col m5 s6">
                 {!! Form::text('hsn_code', $billing->hsn_code ?? '', ['id' => 'hsn_code']) !!}
-                <label for="hsn_code" class="label-placeholder">Store HSN Code </label>
+                <label for="hsn_code" class="label-placeholder">Store SAC Code </label>
                 </div>
                 <div class="input-field col m2 s6">
                   <div class="input-field col s12">
@@ -177,19 +184,33 @@
           </div>
           
           <div class="col s12" id="paymentTypes">
-            <h4 class="card-title">Additional taxes</h4>
+            <h4 class="card-title">Payment Types </h4>
             <!-- users edit Info form start -->
               <a href="javascript:" onclick="managePaymentType(null)" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">payment</i></a>
                 <div class="row">
                   <div class="col s12">
-                  <table id="data-table-payment-types" class="display">
+                      <!-- 
+
+                      <table class="table" id="dynamic_field"> 
+                        <tr> 
+                            
+                            <td><div class="input-field">{!! Form::select('payment_type[]', $variants->payment_types , '' , ['id' => 'payment_type' , 'class' => 'select2 browser-default']) !!}  </div> </td>
+                            <td><input name="payment_amount[]" type="text" placeholder="Amount" class="heck_numeric" value=""></td>  
+                            <td> <button type="button" name="add" id="add" class="btn-floating mb-1 btn-flat waves-effect waves-light blue accent-2 white-text tooltipped" data-position="bottom" data-tooltip="Add Row"><i class="material-icons">add</i></button></td>  
+                        
+                          </tr>  
+                      </table>
+                       -->
+                      <table id="paymentTypesTable">
                         <thead>
-                            <tr>
-                              <th>No</th>
-                              <th>Name</th>
-                              <th width="100px">Action</th>
-                            </tr>
+                        <tr>
+                          <th>Select </th>
+                          <th>Name</th>
+                          <th>Action</th>
+                        </tr>
                         </thead>
+                        <tbody>  
+                        </tbody>
                       </table>
                   </div>
                 </div>
@@ -223,7 +244,10 @@
 
 <script>
   var table;
+  var paymentTypeTable = '';
+
   $(function () {
+    loadPaymentTypes();
     table = $('#data-table-payment-types').DataTable({
       bSearchable: true,
       pagination: true,
@@ -258,6 +282,15 @@
     });
   });
 
+  function loadPaymentTypes(arg) {
+    $.getJSON("{{ url('/common/get-payment-types') }}", function(results) {
+      // callback
+      // results contains the returned data object
+      console.log(results.html);
+      $("#paymentTypesTable tbody").append(results.html);
+  });
+  }
+  
   $('#gst_percentage').select2({ placeholder: "Please select default GST percentage", allowClear: true });
   $('#billing_country_id').select2({ placeholder: "Please select country", allowClear: false });
   $('#billing_state_id').select2({ placeholder: "Please select state", allowClear: true });
@@ -266,11 +299,11 @@
 
   $(document).on('change', '#billing_country_id', function () {
     if(this.value != 101) {
-      $("#submit-btn").prop('disabled', true);
+      $("#store-billing-submit-btn").prop('disabled', true);
       showErrorToaster("Currently not supported in your selected country!");
       $(".print-error-msg").show();
     } else {
-      $("#submit-btn").prop('disabled', false);
+      $("#store-billing-submit-btn").prop('disabled', false);
       $(".print-error-msg").hide();
       $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
         success: function(data) {
@@ -326,6 +359,7 @@
           currency: { required: "Please select currency", },
         },
         submitHandler: function (form) {
+            disableBtn('store-billing-submit-btn');
             id = $("#billing_id").val();
             userId      = "" == id ? "" : "/" + id;
             formMethod  = "" == id ? "POST" : "PUT";
@@ -333,6 +367,7 @@
             $.ajax({ url: "{{ url('/store/update/billing') }}" + userId, type: formMethod, processData: false, 
             data: forms.serialize(), dataType: "html",
             }).done(function (a) {
+                // enableBtn('store-billing-submit-btn');
                 var data = JSON.parse(a);
                 if (data.flagError == false) {
                     showSuccessToaster(data.message);
@@ -352,7 +387,7 @@
     var validator = $("#storeGSTForm").validate({ 
       rules: {
         gst_percentage: {
-            // required: true,
+          // required: true,
         }
       },
       messages: { 
@@ -381,7 +416,7 @@
   }
 
   function manageAdditionalTax(additionaltax_id){
-    validator.resetForm();
+    additionalTaxValidator.resetForm();
     $('input').removeClass('error');
     if (additionaltax_id === null) {
       $("#additionalTaxForm")[0].reset();
@@ -433,7 +468,7 @@
   }
 
   if ($("#additionalTaxForm").length > 0) {
-    var validator = $("#additionalTaxForm").validate({ 
+    var additionalTaxValidator = $("#additionalTaxForm").validate({ 
       rules: {
         name: { required: true, maxlength: 100, },
         percentage: { required: true, },
