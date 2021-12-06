@@ -194,12 +194,12 @@ function getInvoiceDetails(discount = null){
   $.ajax({ type: 'post',
       url: "{{ url(ROUTE_PREFIX.'/billings/get-invoice-data') }}", dataType: 'json',data: { bill_id:bill_id, item_ids:item_ids} , delay: 250,
       success: function(data) {
-        if(data.flagError == false){
+        if (data.flagError == false) {
           $('#invoiceTable').html(data.html);
           $('.tooltipped').tooltip();
           $('#grandtTotal').html(data.grand_total.toFixed(2));
           $('#grand_total').val(data.grand_total);
-        }else{
+        } else {
           showErrorToaster(data.message);
           printErrorMsg(data.error);
         }
@@ -299,12 +299,11 @@ $('#submitPayment').click(function(){
   data: forms.serialize(), dataType: "html",
   }).done(function (a) {
       var data = JSON.parse(a);
-      if(data.flagError == false){
+      if(data.flagError == false) {
           showSuccessToaster(data.message);
           setTimeout(function () { 
             window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route.'/show/'.$billing->id) }}";                
           }, 2000);
-
       }else{
         $('#submitPayment').html('<i class="far fa-credit-card"></i> Submit Payment');
         $("#submitPayment"). attr("disabled", false);

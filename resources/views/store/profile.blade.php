@@ -116,7 +116,13 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   <div id="timezone_block"> 
+                  @if(!empty($variants->timezone))
+                    {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'select2 browser-default','placeholder'=>'Please select timezone']) !!}
+                  @else
                     {!! Form::select('timezone', [] , '', ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
+                  @endif
+
+      
                   </div>
                 </div>
                 <div class="input-field col m6 s12">
@@ -267,7 +273,7 @@
         success: function(data) {
           var selectTerms = '<option value="">Please select timezone</option>';
           $.each(data.data, function(key, value) {
-            selectTerms += '<option value="' + value.id + '" >' + value.zone_name + '</option>';
+            selectTerms += '<option value="' + value.zone_id + '" >' + value.zone_name + '</option>';
           });
           var select = $('#timezone');
           select.empty().append(selectTerms);

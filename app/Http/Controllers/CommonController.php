@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Form;
 use Illuminate\Http\Request;
 use App\Helpers\TaxHelper;
+use App\Models\PaymentType;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Country;
@@ -177,6 +178,32 @@ class CommonController extends Controller
           return response()->json(['flagError' => true,'message'=>'Customer not fount']);
     }
     
+    public function getPaymentTypes(Request $request)
+    {
+        $tableHtml      = '';
+        $paymentTypes   = PaymentType::whereIn('shop_id', [0, SHOP_ID])->get();
+
+        
+
+        if ($paymentTypes) {
+            foreach($paymentTypes as $row) {
+                $tableHtml.=    '<tr><th><p class="mb-1"><label><input type="checkbox" class="payment-types" name="payment_types[]" data-type="'.$row->id.'" id="payment_types_'.$row->id.'"  value="'.$row->id.'"><span></span></label></th>';
+                $tableHtml.=    '<th>'.$row->name.'</th>';
+                $tableHtml.=    '<th>'.$row->name.'</th></tr>';
+            }
+            return response()->json(['flagError' => false, 'data'=> $paymentTypes, 'html' => $tableHtml]);
+        } else {
+            return response()->json(['flagError' => true,'message'=>'Payment Types not fount']);
+        }
+
+
+          
+    }
+
+
+    
+
+
     public function calculateTax(Request $request)
     {
         

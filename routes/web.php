@@ -225,6 +225,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($link . '/get-all-therapists', [CommonController::class, 'getAllTherapists']);    
     Route::post($link . '/get-therapist/{id}', [CommonController::class, 'getTherapist']);    
     Route::post($link . '/billings/get-report-by-date/', [CommonController::class, 'getBillingReports']);    
+    Route::get($link . '/get-payment-types', [CommonController::class, 'getPaymentTypes']);  
     
     // Report Routes 
     $reports = 'reports';
