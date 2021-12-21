@@ -135,6 +135,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     $service_category = 'service-category';
     Route::resource($service_category, ServiceCategory::class)->except(['show']);
     Route::get($service_category . '/lists', [ServiceCategory::class, 'lists']);
+    Route::get($service_category . '/autocomplete', [ServiceCategory::class, 'autocomplete'])->name('service-category.autocomplete');
 
     // Country Routes
     $country = 'country';

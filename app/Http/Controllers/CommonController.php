@@ -173,7 +173,7 @@ class CommonController extends Controller
     {
         $customer   = Customer::where('id', $request->customer_id)->where('shop_id', SHOP_ID)->first();
         if($customer)
-            return response()->json(['flagError' => false,'data'=>$customer]);
+            return response()->json(['flagError' => false, 'data'=> $customer]);
         else
           return response()->json(['flagError' => true,'message'=>'Customer not fount']);
     }
@@ -195,14 +195,8 @@ class CommonController extends Controller
         } else {
             return response()->json(['flagError' => true,'message'=>'Payment Types not fount']);
         }
-
-
           
     }
-
-
-    
-
 
     public function calculateTax(Request $request)
     {

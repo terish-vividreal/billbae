@@ -59,7 +59,7 @@
                         </a>
                       </div>
                       <div class="input-field col m2 s12" id="newCustomerBtn">
-                        <a class="waves-effect waves-light btn-small mb-1 mr-1 cyan" onClick="addNewCustomer()" style="margin-top: 12px;"><i class="material-icons left">person_add</i>button</a>
+                        <a class="waves-effect waves-light btn-small mb-1 mr-1 cyan" onClick="addNewCustomer()" style="margin-top: 12px;"><i class="material-icons left">person_add</i>Add New</a>
                       </div>
                       
                     <!-- </div> -->
@@ -300,19 +300,19 @@ function getCustomerDetails(customer_id){
   $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-customer-details') }}", dataType: 'json', data: { customer_id:customer_id}, delay: 250,
     success: function(data) {
       var customerMobile = '';
-      if (data.data.mobile != null) {
-        customerMobile = ' - ' + data.data.mobile;
-      }
-      $("#search_customer").val(data.data.name + customerMobile );
-      $("#customer_name").val(data.data.name);
-      $("#customer_mobile").val(data.data.mobile);
-      $("#customer_email").val(data.data.email);
-      $("#customer_id").val(customer_id);
-      $("#newCustomerBtn").hide();
-      $("#customer_details_div").show();
-      var customerViewURL = "{{ url(ROUTE_PREFIX.'/customers/view-details/') }}/"+customer_id;
-      $("#customerViewLink").attr("href", customerViewURL);
-      $("#customerActionDiv").show();
+      // if (data.data.mobile != null) {
+      //   customerMobile = ' - ' + data.data.mobile;
+      // }
+      // $("#search_customer").val(data.data.name + customerMobile );
+      // $("#customer_name").val(data.data.name);
+      // $("#customer_mobile").val(data.data.mobile);
+      // $("#customer_email").val(data.data.email);
+      // $("#customer_id").val(customer_id);
+      // $("#newCustomerBtn").hide();
+      // $("#customer_details_div").show();
+      // var customerViewURL = "{{ url(ROUTE_PREFIX.'/customers/view-details/') }}/"+customer_id;
+      // $("#customerViewLink").attr("href", customerViewURL);
+      // $("#customerActionDiv").show();
     }
   });
 }
