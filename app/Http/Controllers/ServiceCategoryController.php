@@ -146,6 +146,20 @@ class ServiceCategoryController extends Controller
         return ['flagError' => true, 'error'=>$validator->errors()->all()];
     }
 
+    public function autocomplete(Request $request)
+    {
+        $data = array();
+        $result   = ServiceCategory::select("name")->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")->get();
+        if ($result) {
+            foreach($result as $row) {
+                $data[] = array([ 'id' => $row->id, 'name' => $row->name]);
+            }
+        } else {
+            $data = [];
+        }
+        return response()->json($result);
+    }
+
     /**
      * Remove the specified resource from storage.
      *

@@ -50,13 +50,16 @@
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">            
                   {{ csrf_field() }}
                   {!! Form::hidden('service_id', $service->id ?? '' , ['id' => 'service_id'] ); !!}
+                  {!! Form::hidden('service_category_id', '' , ['id' => 'service_category_id'] ); !!}
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $service->name ?? '', ['id' => 'name']) !!}  
                   <label for="name" class="label-placeholder">Service Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
-                  {!! Form::select('service_category_id',$variants->service_category , $service->service_category_id ?? '' , ['id' => 'service_category_id', 'class' => 'select2 browser-default', 'placeholder'=>'Please select service category']) !!}
+                  <input type="text" name="search_service_category" id="search_service_category" class="typeahead autocomplete" autocomplete="off" value="">
+                  <label for="search_service_category" class="typeahead label-placeholder">Enter service category</label>
+                  <!-- {!! Form::select('service_category_id',$variants->service_category , $service->service_category_id ?? '' , ['id' => 'service_category_id', 'class' => 'select2 browser-default', 'placeholder'=>'Please select service category']) !!} -->
                 </div>
               </div>
               <div class="row">
@@ -109,8 +112,8 @@
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
-                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
+                  <!-- <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button> -->
                 </div>
               </div>
             </form>
@@ -131,12 +134,34 @@
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
 <!-- date-time-picker -->
+<!-- typeahead -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 
 <script>
-$('#service_category_id').select2({ placeholder: "Please select service category", allowClear: true });
+// $('#service_category_id').select2({ placeholder: "Please select service category", allowClear: true });
 $('#gst_tax').select2({ placeholder: "Please select GST Tax %", allowClear: true });
 $('#hours_id').select2({ placeholder: "Please select service hour", allowClear: true });
 $('#additional_tax').select2({ placeholder: "Select additional tax", allowClear: true });
+var typeaheadSearchPath   = "{{ route('service-category.autocomplete') }}";
+
+$('input.typeahead').typeahead({
+  autoSelect: true,
+  hint: true,
+  highlight: true,
+  minLength: 1,
+  source:  function (query, process) {
+    return $.get(typeaheadSearchPath, { 
+      search: query, classNames: { input: 'Typeahead-input', hint: 'Typeahead-hint', selectable: 'Typeahead-selectable' }
+    }, function (data) {
+      return process(data);
+    });
+  },
+  updater: function (item) {
+    $('#service_category_id').val(item.id);
+    // getCustomerDetails(item.id);
+    return item;
+  }
+});
 
 if ($("#{{$page->entity}}Form").length > 0) {
     var validator = $("#{{$page->entity}}Form").validate({ 
