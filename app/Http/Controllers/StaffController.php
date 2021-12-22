@@ -156,6 +156,7 @@ class StaffController extends Controller
             }
             $token              = Str::random(64);
             $user->password_create_token = $token;
+            $user->is_active    = 1;
             $user->save();
             // Staff Profile
             $profile                = new StaffProfile();

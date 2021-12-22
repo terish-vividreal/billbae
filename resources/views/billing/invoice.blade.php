@@ -101,12 +101,9 @@
             </div>
           </div>
           <div class="divider mb-3 mt-3"></div>
-
-
           <!-- product details table-->
           <div class="invoice-product-details" id="invoiceTable"></div>
           <!-- invoice subtotal -->
-
           <div class="invoice-subtotal">
             <div class="row">
               <div class="col m7 s12">
@@ -122,7 +119,7 @@
                             <td><div class="input-field">{!! Form::select('payment_type[]', $variants->payment_types , '' , ['id' => 'payment_type' , 'class' => 'select2 browser-default']) !!}  </div> </td>
                             <td><input name="payment_amount[]" type="text" placeholder="Amount" class="heck_numeric" value=""></td>  
                             <td> <button type="button" name="add" id="add" class="btn-floating mb-1 btn-flat waves-effect waves-light blue accent-2 white-text tooltipped" data-position="bottom" data-tooltip="Add Row"><i class="material-icons">add</i></button></td>  
-                        
+        
                           </tr>  
                       </table>
                   </form>
@@ -204,7 +201,7 @@ function getInvoiceDetails(discount = null){
           printErrorMsg(data.error);
         }
       }
-    });
+  });
 }
 
 function manageDiscount(e){
@@ -260,10 +257,10 @@ if ($("#discountForm").length > 0) {
           data: forms.serialize(), dataType: "html",
           }).done(function (a) {
               var data = JSON.parse(a);
-              if(data.flagError == false){
+              if (data.flagError == false) {
                   getInvoiceDetails();
                   $("#discount-modal").modal("close");
-              }else{
+              } else {
                 showErrorToaster(data.message);
                 printErrorMsg(data.error);
               }

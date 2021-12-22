@@ -58,7 +58,7 @@ class StoreController extends Controller
         if ($store->country_id) {
             $variants->states           = DB::table('shop_states')->where('country_id', $store->country_id)->pluck('name', 'id'); 
             $country_code               = DB::table('shop_countries')->where('id', $store->country_id)->value('sortname');
-            $variants->timezone         = DB::table('timezone')->where('country_code', $country_code)->pluck('zone_name', 'zone_id');
+            $variants->timezone         = DB::table('timezone')->where('country_code', $country_code)->pluck('zone_name', 'zone_name');
         }        
         if ($store->state_id) {
             $variants->districts        = DB::table('shop_districts')->where('state_id', $store->state_id)->pluck('name', 'id'); 

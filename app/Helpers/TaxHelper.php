@@ -37,14 +37,13 @@ class TaxHelper
         $tax_array              = array();
 
             // $total_percentage       = $row->gst_tax ; 
-            if($row->gst_tax != NULL){
+            if ($row->gst_tax != NULL) {
                 $total_percentage           = $row->gsttax->percentage ;
             }
 
-            if($total_percentage > 0) {
-
-                if(count($row->additionaltax) > 0){
-                    foreach($row->additionaltax as $additional){
+            if ($total_percentage > 0) {
+                if (count($row->additionaltax) > 0) {
+                    foreach($row->additionaltax as $additional) {
                         $total_percentage = $total_percentage+$additional->percentage;
                     } 
                 }
@@ -59,37 +58,31 @@ class TaxHelper
                 $sgst_percentage            = ($row->gsttax->percentage/2);
             }
                           
-            
 
-            
-
-            if($row->tax_included == 1) {
+            if ($row->tax_included == 1) {
                 $included = 'Tax Included' ;
                 $gross_charge   = $row->price ;
                 $gross_value    = $row->price - $total_service_tax ;
-            }else{
+            } else {
                 $included = 'Tax Excluded' ;
                 $gross_charge   = $row->price + $total_service_tax  ;
                 $gross_value    = $row->price ;
             }
 
-            if(count($row->additionaltax) > 0){
-                foreach($row->additionaltax as $additional)
-                {
+            if (count($row->additionaltax) > 0) {
+                foreach($row->additionaltax as $additional) {
                     $additional_tax_array[] = ['name' => $additional->name, 'percentage' => $additional->percentage, 'amount' => number_format($tax_onepercentage*$additional->percentage,2)];
                 }
             }
 
             // Discount calculation starts
-            if($row->is_discount_used == 1)
-            {
-                if($row->tax_included == 1) 
-                {
-                    if($row->discount_type == 'amount'){
+            if ($row->is_discount_used == 1) {
+                if ($row->tax_included == 1) {
+                    if ($row->discount_type == 'amount') {
                         $discount_type      = 'amount';
                         $discount_amount  = $row->discount_value ;
                         $balance_discount_amount  = $gross_charge - $row->discount_value;
-                    }else{
+                    } else {
                         $discount_type      = 'percentage';
                         $discount_value     = $row->discount_value;
                         $discount_amount  = $gross_charge * ($row->discount_value/100);
@@ -104,31 +97,34 @@ class TaxHelper
                     } 
                       
                     
-                    if(count($additional_tax_array) > 0){
-                        foreach($additional_tax_array as $key => $additional)
-                        {
+                    if (count($additional_tax_array) > 0) {
+                        foreach($additional_tax_array as $key => $additional) {
                             $additional_tax_array[$key]['amount'] = $balance_discount_amount * ($additional['percentage']/100) ; 
                         }
                     }
-                }
-                else
-                {
-                    if($row->discount_type == 'amount'){
+                } else {
+                    if ($row->discount_type == 'amount') {
                         $discount_amount    = $row->discount_value ;
                         $discount_type      = 'amount';
-                    }else{
+                    } else {
                         $discount_type      = 'percentage';
                         $discount_value     = $row->discount_value;
                         $discount_amount    = $gross_value * ($row->discount_value/100);
                     }
 
                     $gross_value        = $gross_value - ($discount_amount * (100 - $total_percentage)/100) ;  
+
+
+                    // echo $gross_value;
+
+                    // exit;
+
+
                     $total_cgst_amount  = $total_cgst_amount - ($discount_amount * ($row->gsttax->percentage/2) / 100) ;
                     $total_sgst_amount  = $total_sgst_amount - ($discount_amount * ($row->gsttax->percentage/2) / 100) ;
 
-                    if(count($additional_tax_array) > 0){
-                        foreach($additional_tax_array as $key => $additional)
-                        {
+                    if (count($additional_tax_array) > 0) {
+                        foreach($additional_tax_array as $key => $additional) {
                             $additional_tax_array[$key]['amount'] = $additional['amount'] - ($discount_amount * $additional['percentage'] / 100) ; 
                         }
                     }
@@ -160,17 +156,16 @@ class TaxHelper
     public static function getGstincluded($amount,$percent,$cgst,$sgst)
     {
         $result         = array();
-
         $gst_amount     = $amount-($amount*(100/(100+$percent)));
         $percentcgst    = number_format($gst_amount/2, 2);
         $percentsgst    = number_format($gst_amount/2, 2);
 
 
-        if($cgst&&$sgst){
+        if ($cgst&&$sgst) {
             $gst = $percentcgst + $percentsgst;
-        }elseif($cgst){
+        } elseif ($cgst){
             $gst = $percentcgst;
-        }else{
+        } else {
             $gst = $percentsgst;
         }
         $withoutgst = number_format($amount - $gst_amount,2);
@@ -190,11 +185,10 @@ class TaxHelper
         $percentcgst    = number_format($gst_amount/2, 2);
         $percentsgst    = number_format($gst_amount/2, 2);
 
-        if($cgst&&$cgst){
+        if ($cgst&&$cgst) {
            $gst = $percentcgst + $percentsgst;
-        }elseif($cgst){
-           $gst = $percentcgst;
-        }else{
+        }elseif ($cgst) {
+           $gst = $percentcgst;                                                                                                                                                                                     }else{
            $gst = $percentsgst;
         }
         // $display .="</p>";

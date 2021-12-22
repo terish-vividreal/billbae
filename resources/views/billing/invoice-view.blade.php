@@ -114,7 +114,7 @@
             <tr>
               <th>No</th>
               <th>Items</th>
-              <th>HSN Code #</th>
+              <th>SAC Code #</th>
               <th class="right-align">Details</th>
             </tr>
             </thead>

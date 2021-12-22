@@ -1,4 +1,4 @@
-<div class="preloader-wrapper big active">
+<div class="preloader-wrapper big active" id="pre-loader-div" style="display:none">
     <div class="spinner-layer spinner-blue-only">
       <div class="circle-clipper left">
         <div class="circle"></div>

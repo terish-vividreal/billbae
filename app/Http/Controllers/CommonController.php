@@ -183,27 +183,20 @@ class CommonController extends Controller
         $tableHtml      = '';
         $paymentTypes   = PaymentType::whereIn('shop_id', [0, SHOP_ID])->get();
 
-        
-
         if ($paymentTypes) {
             foreach($paymentTypes as $row) {
-                $tableHtml.=    '<tr><th><p class="mb-1"><label><input type="checkbox" class="payment-types" name="payment_types[]" data-type="'.$row->id.'" id="payment_types_'.$row->id.'"  value="'.$row->id.'"><span></span></label></th>';
-                $tableHtml.=    '<th>'.$row->name.'</th>';
-                $tableHtml.=    '<th>'.$row->name.'</th></tr>';
+                $tableHtml.=    '<tr id="row'.$row->id.'" data-name="'.$row->name.'" data-id="'.$row->id.'" data-shop-id="'.$row->shop_id.'"><td><p class="mb-1"><label><input type="checkbox" class="payment-types" name="payment_types[]" data-type="'.$row->id.'" id="payment_types_'.$row->id.'"  value="'.$row->id.'"><span></span></label></td>';
+                $tableHtml.=    '<td>'.$row->name.'</td>';
+                $tableHtml.=    '<td><a href="javascript:" class="payment-types-btn-edit"><i class="material-icons yellow-text">edit</i></a> <a href="javascript:" id="'.$row->id.'" data-shop_id="'.$row->shop_id.'" class="deletePaymentTypes"><i class="material-icons pink-text">clear</i></a></td></tr>';
             }
             return response()->json(['flagError' => false, 'data'=> $paymentTypes, 'html' => $tableHtml]);
         } else {
-            return response()->json(['flagError' => true,'message'=>'Payment Types not fount']);
-        }
-
-
-          
+            return response()->json(['flagError' => true,'message'=>'Payment Types not found']);
+        }      
     }
 
 
     
-
-
     public function calculateTax(Request $request)
     {
         
@@ -276,7 +269,7 @@ class CommonController extends Controller
 
                 $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Total</span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_charge,2).'</h6></li>';
 
-                    // $html.='<tr data-widget="expandable-table" aria-expanded="true"><td>'.$index.'</td><td>'.$row->name.' - HSN Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
+                    // $html.='<tr data-widget="expandable-table" aria-expanded="true"><td>'.$index.'</td><td>'.$row->name.' - SAC Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
                     // $html.='<tr class="expandable-body"> </tr>';
                     // $html.='<tr class="expandable-body" style="text-align:center;">';
                     // $html.='<td colspan="2">';
@@ -394,7 +387,7 @@ class CommonController extends Controller
                     }
                     $html.='<li class="divider mt-2 mb-2"></li>';
                     $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Total</span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_charge,2).'</h6></li>';
-                    // $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - HSN Codessss : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
+                    // $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - SAC Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';
                     // $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % CGSTaaaa -  </span></td><td> '.number_format($total_cgst_amount,2).'</td></tr>';
                     // $html.='<tr><td></td><td><span> '.($row->gsttax->percentage/2).' % SGST -  </span></td><td> '.number_format($total_sgst_amount,2).'</td></tr>';
                     // if(count($row->additionaltax) > 0){

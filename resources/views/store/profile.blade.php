@@ -273,7 +273,7 @@
         success: function(data) {
           var selectTerms = '<option value="">Please select timezone</option>';
           $.each(data.data, function(key, value) {
-            selectTerms += '<option value="' + value.zone_id + '" >' + value.zone_name + '</option>';
+            selectTerms += '<option value="' + value.zone_name + '" >' + value.zone_name + '</option>';
           });
           var select = $('#timezone');
           select.empty().append(selectTerms);

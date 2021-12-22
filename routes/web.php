@@ -187,6 +187,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($paymentTypes, PaymentTypeController::class)->except(['show']);
     Route::get($paymentTypes . '/lists', [PaymentTypeController::class, 'lists']);
     Route::get($paymentTypes . '/select-list', [PaymentTypeController::class, 'lists']);
+    Route::post($paymentTypes . '/update', [CustomerController::class, 'update']);
 
     Route::middleware([isStoreCompleted::class])->group(function(){
         // Billing Routes 

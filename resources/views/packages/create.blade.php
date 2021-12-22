@@ -131,7 +131,7 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('hsn_code', $service->hsn_code ?? '', ['id' => 'hsn_code']) !!}  
-                  <label for="hsn_code" class="label-placeholder">HSN Code </label>
+                  <label for="hsn_code" class="label-placeholder">SAC Code</label>
                 </div>
                 <div class="input-field col m6 s12">
                 {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids ?? [] , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'select2 browser-default']) !!}

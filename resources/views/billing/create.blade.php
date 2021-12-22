@@ -147,7 +147,10 @@
                     </select> 
                   </div>
                   <div class="input-field col m6 s12">
+
+                    
                     <div id="services_block">
+                      @include('layouts.loader')
                       <select class="select2 browser-default service-type" data-type="services" name="bill_item[]" id="services" multiple="multiple"> </select>
                     </div>
                     <div id="packages_block" style="display:none;">
@@ -162,7 +165,7 @@
                         <tr>
                           <th>#</th>
                            <th>Name</th>
-                          <th>HSN Code</th>
+                          <th>SAC Code</th>
                           <th>Amount</th>
                         </tr>
                       </thead>
@@ -290,10 +293,11 @@ $('input.typeahead').typeahead({
 });
 
 $('#billing_address_checkbox').change(function() {
-  if($(this).is(":unchecked")) 
-    $('.billing-address-section').show();
-  else
-    $('.billing-address-section').hide();         
+  $('.billing-address-section').toggle();
+  // if($(this).is(":unchecked")) 
+  //   $('.billing-address-section').show();
+  // else
+  //   $('.billing-address-section').hide();         
 });
 
 function getCustomerDetails(customer_id){
@@ -352,7 +356,8 @@ function listItemDetails(type){
   }
 }
 
-function getServices(){
+function getServices() {
+  $("#pre-loader-div").show();
   $.ajax({ type: 'GET', url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}", dataType: 'json', delay: 250,
     success: function(data) {
       var selectTerms = '<option value="">Please select service</option>';
@@ -361,6 +366,7 @@ function getServices(){
       });
       var select = $('#services');
       select.empty().append(selectTerms);
+      $("#pre-loader-div").hide();
     }
   });
 }
