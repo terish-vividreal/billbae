@@ -6,6 +6,7 @@ use Form;
 use Illuminate\Http\Request;
 use App\Helpers\TaxHelper;
 use App\Models\PaymentType;
+use App\Models\ShopBilling;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Country;
@@ -295,6 +296,7 @@ class CommonController extends Controller
     
     public function calculateTaxTable(Request $request)
     {
+        $store_data     = ShopBilling::where('shop_id', SHOP_ID)->first();
         $data_array     = array();
         $type           = $request->type;
         if ($type == 'services') {
@@ -304,6 +306,8 @@ class CommonController extends Controller
             $result = Package::with('service','additionaltax', 'gsttax')->where('shop_id', SHOP_ID)
                         ->whereIn('packages.id', $request->data_ids)->orderBy('packages.id', 'desc')->get();
         }
+
+        // echo "<pre>"; print_r($store_data->; exit;
 
         if ($result) {
             $html                   = '';
@@ -315,6 +319,7 @@ class CommonController extends Controller
             $grand_total            = 0 ;
             $total_minutes          = 0;
             $additional_tax_array   = array();
+            $additional_amount      = 0;
 
             foreach ($result as $row) {
                 $minutes        = 0;
@@ -334,56 +339,88 @@ class CommonController extends Controller
                     $data_array[]           = array('name' => $service_details['package_services'], 'price' => $row->price, 'minutes' => $service_details['total_minutes']);
                 }
 
-                if($row->gst_tax != NULL){
-                    $total_percentage           = $row->gsttax->percentage ;
-                }
-                  
+                // Case 1 - Store has no GST
+                if ($store_data->gst_percentage != null) {
 
-                    if ($row->tax_included == 1) {
-                        $included               = 'Tax Included' ;
-                        $gross_charge           = $row->price ;
-                        $gross_value            = $row->price - $total_service_tax ;
+                    if ($row->gst_tax != NULL) {
+                        $total_percentage           = $row->gsttax->percentage ;
+                        $tax_percentage             = $row->gsttax->percentage ;
                     } else {
-                        $included               = 'Tax Excluded' ;
-                        $gross_charge           = $row->price + $total_service_tax  ;
-                        $gross_value            = $row->price ;
+                        $total_percentage           = $store_data->GSTTaxPercentage->percentage ;
+                        $tax_percentage             = $store_data->GSTTaxPercentage->percentage ;
                     }
 
-                    $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
-                    $html.='<td>'.$row->name.  '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
-                    $html.='<td class="right-align">';
-
+                } 
                 
-                if($total_percentage > 0) {
+                $included = ($row->tax_included == 1)?'Tax Included':'Tax Excluded';
+                $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
+                $html.='<td>'.$row->name. '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
+                $html.='<td class="right-align">';
+                    
+                if ($total_percentage > 0) {
+                    
+                    $total_service_tax          = ($row->price/100) * $total_percentage ;        
+                    $tax_onepercentage          = $total_service_tax/$total_percentage;
+                    $total_gst_amount           = $tax_onepercentage*$total_percentage ;
+                    $total_cgst_amount          = $tax_onepercentage*($total_percentage/2) ;
+                    $total_sgst_amount          = $tax_onepercentage*($total_percentage/2) ;
 
                     if (count($row->additionaltax) > 0) {
                         foreach ($row->additionaltax as $additional) {
                             $total_percentage = $total_percentage+$additional->percentage;
+                            $additional_amount = $tax_onepercentage*$additional->percentage;
                         } 
                     }
 
-                    $total_service_tax          = ($row->price/100) * $total_percentage ;        
-                    $tax_onepercentage          = $total_service_tax/$total_percentage;
-                    $total_gst_amount           = $tax_onepercentage*$row->gsttax->percentage ;
-                    $total_cgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
-                    $total_sgst_amount          = $tax_onepercentage*($row->gsttax->percentage/2) ;
+                    // gross_charge - total
+                    // gross_value - amount
+
+                    if ($row->tax_included == 1) {
+                        $gross_charge           = $row->price;
+                        $gross_value            = ( $row->price - $total_service_tax ) - $additional_amount;
+                        $gross_value            = $gross_value - $additional_amount;
+                        
+                    } else {
+                        $gross_charge           = $row->price + $total_service_tax  ;
+                        $gross_value            = $row->price ;
+                        $gross_charge           = $gross_charge + $additional_amount;
+                        // echo $additional_amount . '--' . $gross_value; exit;
+                    }
 
                     $html.='<ul><li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Amount </span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_value,2).'</h6></li>';
                   
-                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % CGST </span>';
+                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($tax_percentage/2).' % CGST </span>';
                     $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_cgst_amount,2).'</h6></li>';
 
-                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($row->gsttax->percentage/2).' % SGST</span>';
+                    $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">'.($tax_percentage/2).' % SGST</span>';
                     $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($total_sgst_amount,2).'</h6></li>';
-                }
 
+                    // echo $gross_charge; exit;
                     if (count($row->additionaltax) > 0) {
                         $html.='<li class="divider mt-2 mb-2"></li>';
                         foreach($row->additionaltax as $additional) {
                             $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">' . $additional->percentage . ' % ' . $additional->name. '</span>';
                             $html.='<h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($tax_onepercentage*$additional->percentage,2).'</h6></li>';
+                            
+                            // if ($row->tax_included == 1) {
+                            //     $gross_charge           = $gross_value - $additional_amount ;
+                            // } else {
+                            //     $gross_charge           = $gross_charge + $additional_amount  ;
+                            // }
                         }
                     }
+
+                } else {
+                    if ($row->tax_included == 1) {
+                        $gross_charge           = $row->price ;
+                        $gross_value            = $row->price - $total_service_tax ;
+                    } else {
+                        $gross_charge           = $row->price + $total_service_tax  ;
+                        $gross_value            = $row->price ;
+                    }
+                }
+
+                
                     $html.='<li class="divider mt-2 mb-2"></li>';
                     $html.='<li class="display-flex justify-content-between"><span class="invoice-subtotal-title">Total</span><h6 class="invoice-subtotal-value indigo-text">₹ '.number_format($gross_charge,2).'</h6></li>';
                     // $html.='<tr><td>'.$index.'</td><td>'.$row->name.' - SAC Code : '.$row->hsn_code.' ( '.$included.' )</td><td> '.number_format($gross_value,2).'</td></tr>';

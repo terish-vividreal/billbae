@@ -100,8 +100,8 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     // User Routes
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('users/lists', [UserController::class, 'lists']);
-    Route::post( 'users/unique', [UserController::class, 'isUnique']);
-    Route::post( 'users/manage-status', [UserController::class, 'manageStatus']);
+    Route::post('users/unique', [UserController::class, 'isUnique']);
+    Route::post('users/manage-status', [UserController::class, 'manageStatus']);
     Route::post('users/update-password', [UserController::class, 'updatePassword']);
 
     //Staff Routes
@@ -240,7 +240,6 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($cashbook, CashbookController::class)->except(['show']);
     Route::get($cashbook . '/lists', [CashbookController::class, 'lists']);
     Route::post($cashbook . '/withdraw', [CashbookController::class, 'withdraw']);
-
     // Route::get('send-mail', function () {
     //     $details = [
     //         'title' => 'Mail from Billbae',

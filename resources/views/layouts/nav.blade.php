@@ -33,7 +33,7 @@ if (!empty($themeSettings)) {
             <img class="show-on-medium-and-down hide-on-med-and-up" src="{{asset('admin/images/logo/logo.png')}}" alt="materialize logo"/>
             <span class="logo-text hide-on-med-and-down">Billbae</span>
           </a>
-          <a class="navbar-toggler" href="#"> <i class="material-icons">radio_button_checked</i> </a>
+          <a class="navbar-toggler" href="javascript:"> <i class="material-icons">radio_button_checked</i> </a>
         </h1>
       </div>
       <ul class="sidenav sidenav-collapsible leftside-navigation collapsible sidenav-fixed menu-shadow" id="slide-out" data-menu="menu-navigation" data-collapsible="menu-accordion">

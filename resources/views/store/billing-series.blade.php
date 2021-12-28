@@ -88,9 +88,9 @@
                             {{$type->name}} </td>
                           <td style="align:right">
                             <input placeholder="{{$type->name}} Prefix starts with" id="bill_prefix_{{$type->id}}" class="form-control"  name="bill_prefix_type[{{$type->id}}]"  type="text" value="{{$prefix}}" >
-                            <label id="bill_prefix-error_{{$type->id}}" class="error"></label>
+                            <label id="bill_prefix-error_{{$type->id}}" class="red-text error"></label>
                           </td>
-                          <td style="align:right"><input placeholder="{{$type->name}} Starts from" id="bill_suffix_{{$type->id}}" class="form-control check_numeric" name="bill_suffix_type[{{$type->id}}]" type="text" value="{{$suffix}}" ></td>
+                          <td style="align:right"><input placeholder="{{$type->name}} Prefix Starts from" id="bill_suffix_{{$type->id}}" class="form-control check_numeric" name="bill_suffix_type[{{$type->id}}]" type="text" value="{{$suffix}}" ></td>
                         <tr>
                       @endforeach
                     </tbody>

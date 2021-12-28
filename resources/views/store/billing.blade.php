@@ -98,8 +98,11 @@
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
-                    {!! Form::text('gst', $billing->gst ?? '', array('id' => 'gst', 'style' => "text-transform:uppercase")) !!} 
-                    <label for="gst" class="label-placeholder">GST No</label>
+                 @if(!empty($variants->currencies))
+                    {!! Form::select('currency', $variants->currencies , $billing->currency ?? '' , ['id' => 'currency' ,'class' => 'select2 browser-default','placeholder'=>'Please select currency ']) !!}
+                  @else
+                    {!! Form::select('currency', [] , $billing->currency ?? '' , ['id' => 'currency' ,'class' => 'select2 browser-default','placeholder'=>'Please select currency ']) !!}
+                  @endif
                 </div>
                 <div class="input-field col m6 s12">
                   @if(!empty($variants->states))
@@ -111,18 +114,11 @@
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
-                 @if(!empty($variants->currencies))
-                    {!! Form::select('currency', $variants->currencies , $billing->currency ?? '' , ['id' => 'currency' ,'class' => 'select2 browser-default','placeholder'=>'Please select currency ']) !!}
+                  @if(!empty($variants->districts))
+                    {!! Form::select('billing_district_id', $variants->districts , $billing->district_id ?? '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                   @else
-                    {!! Form::select('currency', [] , $billing->currency ?? '' , ['id' => 'currency' ,'class' => 'select2 browser-default','placeholder'=>'Please select currency ']) !!}
+                    {!! Form::select('billing_district_id', [] , '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                   @endif
-                </div>
-                <div class="input-field col m6 s12">
-                    @if(!empty($variants->districts))
-                        {!! Form::select('billing_district_id', $variants->districts , $billing->district_id ?? '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
-                    @else
-                        {!! Form::select('billing_district_id', [] , '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
-                    @endif
                 </div>
               </div>
               <div class="row">
@@ -140,18 +136,25 @@
               {{ csrf_field() }}
               {!! Form::hidden('gst_billing_id', $billing->id ?? '' , ['id' => 'gst_billing_id'] ) !!}
               <div class="row">
-              <div class="input-field col m5 s6">
+                <div class="input-field col m6 s12">
+                    {!! Form::text('gst', $billing->gst ?? '', array('id' => 'gst', 'style' => "text-transform:uppercase")) !!} 
+                    <label for="gst" class="label-placeholder">GST No</label>
+                </div>
+                <div class="input-field col m6 s12">
                   {!! Form::select('gst_percentage', $variants->tax_percentage, $billing->gst_percentage ?? '' , ['id' => 'gst_percentage', 'class' => 'select2 browser-default', 'placeholder'=>'Please select default GST percentage']) !!}
                   <!-- <label for="icon_prefix1">Default GST percentage </label> -->
                 </div>
+              </div>
+              <div class="row">
                 <div class="input-field col m5 s6">
                 {!! Form::text('hsn_code', $billing->hsn_code ?? '', ['id' => 'hsn_code']) !!}
                 <label for="hsn_code" class="label-placeholder">Store SAC Code </label>
                 </div>
-                <div class="input-field col m2 s6">
-                  <div class="input-field col s12">
-                    <button class="btn cyan waves-effect waves-light right" type="submit" name="action" id="gst-submit-btn">Submit <i class="material-icons right">send</i></button>
-                  </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="gst-submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
             </form>
@@ -491,13 +494,19 @@
   if ($("#storeGSTForm").length > 0) {
     var validator = $("#storeGSTForm").validate({ 
       rules: {
+        gst: {
+          required: true,
+        },
         gst_percentage: {
-          // required: true,
+          required: true,
         }
       },
       messages: { 
         gst_percentage: {
           required: "Please select store default GST",
+        },
+        gst: {
+          required: "Please enter store GST number",
         }
       },
       submitHandler: function (form) {

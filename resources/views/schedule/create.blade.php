@@ -493,7 +493,7 @@ function loadCalendar() {
       }
   });
 }
-
+      
 $("#cancelSchedule").click(function() {
   swal({ title: "Are you sure ?", icon: 'warning', dangerMode: true,
     buttons: { cancel: 'No, Please!',  delete: 'Yes, Cancel It' }
@@ -517,7 +517,7 @@ $("#cancelSchedule").click(function() {
     } 
   });
 })
-
+     
 function getSchedule(id){
   $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/schedules/') }}"+id, delay: 250,
     success: function(data) { return data; }
@@ -574,6 +574,8 @@ if ($("#manageScheduleForm").length > 0) {
           },
         },
         submitHandler: function (form) {
+            disableBtn('schedule-submit-btn');
+            disableBtn('receivePaymentBtn');
             $.ajax({
                 url: "{{ url(ROUTE_PREFIX.'/schedules/save-booking') }}", data: forms.serialize(), type: "POST",
                 success: function (data) {
@@ -583,6 +585,8 @@ if ($("#manageScheduleForm").length > 0) {
                     if (data.redirect === 'redirect') {
                       window.location.href = "{{ url(ROUTE_PREFIX.'/billings/invoice/') }}/" + data.billing_id;
                     }else{
+                      enableBtn('schedule-submit-btn');
+                      enableBtn('receivePaymentBtn');
                       $('#manage-schedule-modal').modal('close');
                       showSuccessToaster(data.message);
                       $('#calendar').fullCalendar( 'refetchEvents' );

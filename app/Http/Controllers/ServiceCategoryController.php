@@ -149,7 +149,7 @@ class ServiceCategoryController extends Controller
     public function autocomplete(Request $request)
     {
         $data = array();
-        $result   = ServiceCategory::select("name")->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")->get();
+        $result   = ServiceCategory::select("name", "id")->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")->get();
         if ($result) {
             foreach($result as $row) {
                 $data[] = array([ 'id' => $row->id, 'name' => $row->name]);

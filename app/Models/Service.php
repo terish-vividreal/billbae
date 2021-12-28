@@ -8,6 +8,7 @@ use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ServiceCategory;
 use App\Models\GstTaxPercentage;
+use App\Models\ShopBilling;
 use App\Models\Shop;
 use App\Models\Hours;
 use Auth;
@@ -128,33 +129,62 @@ class Service extends Model
 
     public static function getPriceAfterTax($id)
     {
+        $store_data             = ShopBilling::where('shop_id', SHOP_ID)->first();
         $total_percentage       = 0 ;
         $gross_charge           = 0 ;
         $gross_value            = 0 ;
         $grand_total            = 0 ;
+        $additional_amount      = 0;
         $data                   = self::find($id);
-        
-        $total_percentage = $data->gsttax->percentage ;                
-        if(count($data->additionaltax) > 0){
-            foreach($data->additionaltax as $additional){
-                $total_percentage = $total_percentage+$additional->percentage;
-            } 
-        }
 
-        $total_service_tax          = ($data->price/100) * $total_percentage ;        
-        $tax_onepercentage          = $total_service_tax/$total_percentage;
-        $total_gst_amount           = $tax_onepercentage*$data->gsttax->percentage ;
-        $total_cgst_amount          = $tax_onepercentage*($data->gsttax->percentage/2) ;
-        $total_sgst_amount          = $tax_onepercentage*($data->gsttax->percentage/2) ;
+        if ($store_data->gst_percentage != null) {
 
-        if($data->tax_included == 1) {
-            $included = 'Tax Included' ;
-            $gross_charge   = $data->price ;
-            $gross_value    = $data->price - $total_service_tax ;
-        }else{
-            $included = 'Tax Excluded' ;
-            $gross_charge   = $data->price + $total_service_tax  ;
-            $gross_value    = $data->price ; 
+            if ($data->gst_tax != NULL) {
+                $total_percentage           = $data->gsttax->percentage ;
+                $tax_percentage             = $data->gsttax->percentage ;
+            } else {
+                $total_percentage           = $store_data->GSTTaxPercentage->percentage ;
+                $tax_percentage             = $store_data->GSTTaxPercentage->percentage ;
+            }
+
+        } 
+        if ($total_percentage > 0) {
+
+            if(count($data->additionaltax) > 0){
+                foreach($data->additionaltax as $additional){
+                    $total_percentage = $total_percentage+$additional->percentage;
+                } 
+            }
+
+            // $total_service_tax          = ($data->price/100) * $total_percentage ;        
+            // $tax_onepercentage          = $total_service_tax/$total_percentage;
+            // $total_gst_amount           = $tax_onepercentage*$data->gsttax->percentage ;
+            // $total_cgst_amount          = $tax_onepercentage*($data->gsttax->percentage/2) ;
+            // $total_sgst_amount          = $tax_onepercentage*($data->gsttax->percentage/2) ;
+
+            $total_service_tax          = ($data->price/100) * $total_percentage ;        
+            $tax_onepercentage          = $total_service_tax/$total_percentage;
+            $total_gst_amount           = $tax_onepercentage*$total_percentage ;
+            $total_cgst_amount          = $tax_onepercentage*($total_percentage/2) ;
+            $total_sgst_amount          = $tax_onepercentage*($total_percentage/2) ;
+
+            if($data->tax_included == 1) {
+                $included = 'Tax Included' ;
+                $gross_charge   = $data->price ;
+                $gross_value    = $data->price - $total_service_tax ;
+            }else{
+                $included = 'Tax Excluded' ;
+                $gross_charge   = $data->price + $total_service_tax  ;
+                $gross_value    = $data->price ; 
+            }
+        } else {
+            if ($data->tax_included == 1) {
+                $gross_charge           = $data->price ;
+                $gross_value            = $data->price - $total_service_tax ;
+            } else {
+                $gross_charge           = $data->price + $total_service_tax  ;
+                $gross_value            = $data->price ;
+            }
         }
         return $gross_charge;
     }
