@@ -111,7 +111,7 @@
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('pincode', '', array('id' => 'pincode')) !!}  
-                    <label for="pincode" class="label-placeholder">Pincode</label> 
+                    <label for="pincode" class="label-placeholder">Pin code</label> 
                   </div>
                 </div>    
                 <div class="row billing-address-section" style="display:none;">
@@ -133,7 +133,7 @@
                 </div>
                 <div class="row billing-address-section" style="display:none;">
                   <div class="input-field col m12 s12">
-                  {!! Form::textarea('address', '', ['class' => 'materialize-textarea', 'placeholder'=>'Address','rows'=>3]) !!}
+                    {!! Form::textarea('address', '', ['class' => 'materialize-textarea', 'placeholder'=>'Address','rows'=>3]) !!}
                   </div>
                   <div class="input-field col m6 s12">
                   </div>
@@ -148,6 +148,7 @@
                   </div>
                   <div class="input-field col m6 s12">
                     <div id="services_block">
+                      @include('layouts.loader')
                       <select class="select2 browser-default service-type" data-type="services" name="bill_item[]" id="services" multiple="multiple"> </select>
                     </div>
                     <div id="packages_block" style="display:none;">
@@ -161,8 +162,8 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                           <th>Name</th>
-                          <th>HSN Code</th>
+                          <th>Name</th>
+                          <th>SAC Code</th>
                           <th>Amount</th>
                         </tr>
                       </thead>
@@ -207,12 +208,12 @@ var timeFormat  = {!! json_encode($variants->time_format) !!};
 var path        = "{{ route('billing.autocomplete') }}";
 var timeout;
 
-$('#country_id').select2({ placeholder: "Please select country", allowClear: true });
-$('#state_id').select2({ placeholder: "Please select state", allowClear: true });
-$('#district_id').select2({ placeholder: "Please select district", allowClear: true });
-$('#service_type').select2({ placeholder: "Please select type"});
-$('#services').select2({ placeholder: "Please select service", allowClear: true });
-$('#packages').select2({ placeholder: "Please select package", allowClear: true });
+$('#country_id').select2({placeholder: "Please select country", allowClear: true });
+$('#state_id').select2({placeholder: "Please select state", allowClear: true });
+$('#district_id').select2({placeholder: "Please select district", allowClear: true });
+$('#service_type').select2({placeholder: "Please select type"});
+$('#services').select2({placeholder: "Please select service", allowClear: true });
+$('#packages').select2({placeholder: "Please select package", allowClear: true });
 
 $('input[name="billed_date"]').daterangepicker({
   singleDatePicker: true,
@@ -269,7 +270,6 @@ $('input[name="dob"]').daterangepicker({
     console.log(picker.format('DD-MM-YYYY'));
 });
 
-
 $('input.typeahead').typeahead({
   autoSelect: true,
   hint: true,
@@ -290,29 +290,30 @@ $('input.typeahead').typeahead({
 });
 
 $('#billing_address_checkbox').change(function() {
-  if($(this).is(":unchecked")) 
-    $('.billing-address-section').show();
-  else
-    $('.billing-address-section').hide();         
+  $('.billing-address-section').toggle();
+  // if($(this).is(":unchecked")) 
+  //   $('.billing-address-section').show();
+  // else
+  //   $('.billing-address-section').hide();         
 });
 
 function getCustomerDetails(customer_id){
   $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-customer-details') }}", dataType: 'json', data: { customer_id:customer_id}, delay: 250,
     success: function(data) {
       var customerMobile = '';
-      // if (data.data.mobile != null) {
-      //   customerMobile = ' - ' + data.data.mobile;
-      // }
-      // $("#search_customer").val(data.data.name + customerMobile );
-      // $("#customer_name").val(data.data.name);
-      // $("#customer_mobile").val(data.data.mobile);
-      // $("#customer_email").val(data.data.email);
-      // $("#customer_id").val(customer_id);
-      // $("#newCustomerBtn").hide();
-      // $("#customer_details_div").show();
-      // var customerViewURL = "{{ url(ROUTE_PREFIX.'/customers/view-details/') }}/"+customer_id;
-      // $("#customerViewLink").attr("href", customerViewURL);
-      // $("#customerActionDiv").show();
+      if (data.data.mobile != null) {
+        customerMobile = ' - ' + data.data.mobile;
+      }
+      $("#search_customer").val(data.data.name + customerMobile );
+      $("#customer_name").val(data.data.name);
+      $("#customer_mobile").val(data.data.mobile);
+      $("#customer_email").val(data.data.email);
+      $("#customer_id").val(customer_id);
+      $("#newCustomerBtn").hide();
+      $("#customer_details_div").show();
+      var customerViewURL = "{{ url(ROUTE_PREFIX.'/customers/view-details/') }}/"+customer_id;
+      $("#customerViewLink").attr("href", customerViewURL);
+      $("#customerActionDiv").show();
     }
   });
 }
@@ -352,7 +353,8 @@ function listItemDetails(type){
   }
 }
 
-function getServices(){
+function getServices() {
+  $("#pre-loader-div").show();
   $.ajax({ type: 'GET', url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}", dataType: 'json', delay: 250,
     success: function(data) {
       var selectTerms = '<option value="">Please select service</option>';
@@ -361,6 +363,7 @@ function getServices(){
       });
       var select = $('#services');
       select.empty().append(selectTerms);
+      $("#pre-loader-div").hide();
     }
   });
 }
@@ -523,8 +526,8 @@ if ($("#newCustomerForm").length > 0) {
       }).done(function (a) {
         var data = JSON.parse(a);
         if(data.flagError == false){
-            getCustomerDetails(data.customer_id)
-            $("#new-customer-modal").modal("close");
+          getCustomerDetails(data.customer_id)
+          $("#new-customer-modal").modal("close");
         }else{
           showErrorToaster(data.message);
           printErrorMsg(data.error);
@@ -533,7 +536,5 @@ if ($("#newCustomerForm").length > 0) {
     }
   })
 }
-
 </script>
 @endpush
-

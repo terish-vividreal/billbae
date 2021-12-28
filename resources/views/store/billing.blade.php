@@ -4,7 +4,6 @@
 @section('seo_title', Str::plural($page->title) ?? '') 
 @section('search-title') {{ $page->title ?? ''}} @endsection
 
-
 {{-- vendor styles --}}
 @section('vendor-style')
 <link rel="stylesheet" type="text/css" href="{{asset('admin/vendors/select2/select2.min.css')}}">
@@ -20,10 +19,14 @@
 @section('page-style')
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/page-users.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('admin/css/pages/data-tables.css')}}">
+<style>
+.pt-error-label {
+  display:none;
+}
+</style>
 @endsection
 
 @section('content')
-
 @section('breadcrumb')
   <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
   <ol class="breadcrumbs mb-0">
@@ -32,7 +35,6 @@
     <li class="breadcrumb-item active">Update</li>
   </ol>
 @endsection
-
 <!-- users edit start -->
 <div class="section users-edit section-data-tables">
   <div class="card">
@@ -59,10 +61,8 @@
           </a>
         </li>
       </ul>
-
       <div class="divider mb-3"></div>
       <div class="row">
-        
         @if($store)
           <div class="col s12" id="account">
             <!-- users edit account form start -->
@@ -90,23 +90,10 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                     {!! Form::text('pincode', $billing->pincode ?? '', array('id' => 'pincode')) !!} 
-                    <label for="pincode" class="label-placeholder">Pincode</label>
+                    <label for="pincode" class="label-placeholder">Pin code</label>
                 </div>
                 <div class="input-field col m6 s12">
                     {!! Form::select('billing_country_id', $variants->countries , $billing->country_id ?? '' , ['id' => 'billing_country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
-                </div>
-              </div>
-              <div class="row">
-                <div class="input-field col m6 s12">
-                    {!! Form::text('gst', $billing->gst ?? '', array('id' => 'gst', 'style' => "text-transform:uppercase")) !!} 
-                    <label for="gst" class="label-placeholder">GST No</label>
-                </div>
-                <div class="input-field col m6 s12">
-                  @if(!empty($variants->states))
-                    {!! Form::select('billing_state_id', $variants->states , $billing->state_id ?? '' , ['id' => 'billing_state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
-                  @else
-                    {!! Form::select('billing_state_id', [] , '' , ['id' => 'billing_state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
-                  @endif
                 </div>
               </div>
               <div class="row">
@@ -118,11 +105,20 @@
                   @endif
                 </div>
                 <div class="input-field col m6 s12">
-                    @if(!empty($variants->districts))
-                        {!! Form::select('billing_district_id', $variants->districts , $billing->district_id ?? '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
-                    @else
-                        {!! Form::select('billing_district_id', [] , '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
-                    @endif
+                  @if(!empty($variants->states))
+                    {!! Form::select('billing_state_id', $variants->states , $billing->state_id ?? '' , ['id' => 'billing_state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                  @else
+                    {!! Form::select('billing_state_id', [] , '' , ['id' => 'billing_state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                  @endif
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col m6 s12">
+                  @if(!empty($variants->districts))
+                    {!! Form::select('billing_district_id', $variants->districts , $billing->district_id ?? '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                  @else
+                    {!! Form::select('billing_district_id', [] , '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                  @endif
                 </div>
               </div>
               <div class="row">
@@ -134,29 +130,34 @@
             </form>
             <!-- users edit account form ends -->
           </div>
-          
           <div class="col s12" id="additionalTaxes">
             <h4 class="card-title">GST Percentage</h4>
             <form id="storeGSTForm" name="storeGSTForm" role="form" method="" action="" class="ajax-submit">
               {{ csrf_field() }}
               {!! Form::hidden('gst_billing_id', $billing->id ?? '' , ['id' => 'gst_billing_id'] ) !!}
               <div class="row">
-              <div class="input-field col m5 s6">
+                <div class="input-field col m6 s12">
+                    {!! Form::text('gst', $billing->gst ?? '', array('id' => 'gst', 'style' => "text-transform:uppercase")) !!} 
+                    <label for="gst" class="label-placeholder">GST No</label>
+                </div>
+                <div class="input-field col m6 s12">
                   {!! Form::select('gst_percentage', $variants->tax_percentage, $billing->gst_percentage ?? '' , ['id' => 'gst_percentage', 'class' => 'select2 browser-default', 'placeholder'=>'Please select default GST percentage']) !!}
                   <!-- <label for="icon_prefix1">Default GST percentage </label> -->
                 </div>
+              </div>
+              <div class="row">
                 <div class="input-field col m5 s6">
                 {!! Form::text('hsn_code', $billing->hsn_code ?? '', ['id' => 'hsn_code']) !!}
                 <label for="hsn_code" class="label-placeholder">Store SAC Code </label>
                 </div>
-                <div class="input-field col m2 s6">
-                  <div class="input-field col s12">
-                    <button class="btn cyan waves-effect waves-light right" type="submit" name="action" id="gst-submit-btn">Submit <i class="material-icons right">send</i></button>
-                  </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="gst-submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
             </form>
-
             <!-- users edit Info form ends -->
             <div class="divider mb-3"></div>
                 <div class="row">
@@ -165,7 +166,6 @@
                       <a href="javascript:" onclick="manageAdditionalTax(null)" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add <i class="material-icons right">account_balance_wallet</i></a>
                     </div>
                 </div>
-
                 <div class="row">
                   <div class="col s12">
                       <table id="data-table-taxes" class="display">
@@ -182,25 +182,13 @@
                   </div>
                 </div>
           </div>
-          
           <div class="col s12" id="paymentTypes">
             <h4 class="card-title">Payment Types </h4>
             <!-- users edit Info form start -->
-              <a href="javascript:" onclick="managePaymentType(null)" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">payment</i></a>
+              <!-- <a href="javascript:" onclick="managePaymentType(null)" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">payment</i></a> -->
+              <a href="javascript:" onclick="addPaymentTypesTableRows()" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">payment</i></a>
                 <div class="row">
-                  <div class="col s12">
-                      <!-- 
-
-                      <table class="table" id="dynamic_field"> 
-                        <tr> 
-                            
-                            <td><div class="input-field">{!! Form::select('payment_type[]', $variants->payment_types , '' , ['id' => 'payment_type' , 'class' => 'select2 browser-default']) !!}  </div> </td>
-                            <td><input name="payment_amount[]" type="text" placeholder="Amount" class="heck_numeric" value=""></td>  
-                            <td> <button type="button" name="add" id="add" class="btn-floating mb-1 btn-flat waves-effect waves-light blue accent-2 white-text tooltipped" data-position="bottom" data-tooltip="Add Row"><i class="material-icons">add</i></button></td>  
-                        
-                          </tr>  
-                      </table>
-                       -->
+                  <div class="col s12">                     
                       <table id="paymentTypesTable">
                         <thead>
                         <tr>
@@ -244,7 +232,126 @@
 
 <script>
   var table;
-  var paymentTypeTable = '';
+  var paymentTypeTable  = '';
+  var i=1;
+  var isEnableNewRow    = 0;
+
+  function addPaymentTypesTableRows() {
+    let html = '';
+    i++;  
+    html += '<tr id="row'+i+'">';
+    html += '<th><p class="mb-1"><label><input type="checkbox" class="payment-types" name="payment_types" data-type="" id=""  value="" disabled><span></span></label></th>'
+    html += '<th><input name="payment_types" id="payment_type_'+i+'" type="text" placeholder="Payment Types" class="" value=""><label id="pt-error_'+i+'" class="error red-text pt-error-label" for="name">Please enter payment types</label></th>'
+    html += '<th><a  href="javascript:void(0);" id="'+i+'" class="btn mr-2 cyan btn_save" title="Save"><i class="material-icons">save</i>';
+    html += '<a href="javascript:void(0);" id="'+i+'" data-type="remove" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2 btn_remove" title="Remove"><i class="material-icons">clear</i></a></th>';
+    html += '</tr>';
+    $('#paymentTypesTable').append(html);  
+  }
+
+  $(document).on('click', '.btn_remove', function(){   
+    $('#row'+this.id).remove(); 
+  });
+
+  $(document).on('click', '.btn_save', function() {  
+    $(".pt-error-label").hide();
+    var row_id            = this.id;
+    var paymentTypeValue  = $("#payment_type_"+this.id).val();
+    if (paymentTypeValue  == '') {
+      // Replace below function with -  this.id.nearest.label
+      $("#pt-error_"+this.id).show();
+    } else {
+      disableBtn(this.id);
+      url = "{{ url(ROUTE_PREFIX.'/payment-types') }}";
+      $.post(url, {payment_type: paymentTypeValue, row_id:row_id}, function(response){
+        if (response.flagError == false) {
+          $('#row'+row_id).remove();
+          loadPaymentTypes('reload'); 
+        } else {
+          showErrorToaster(data.message);
+        }
+         
+      });
+    }
+  });
+
+  $("body").on("click", ".payment-types-btn-edit", function() {  
+    var shop_id = $(this).parents("tr").attr('data-shop-id');    
+
+    if (shop_id == 0) {
+      showErrorToaster("You are not allowed to delete this Payment type !");
+    } else {
+      var name = $(this).parents("tr").attr('data-name');  
+      $(this).parents("tr").find("td:eq(1)").html('<input name="payment_types" value="'+name+'">');   
+      $(this).parents("tr").find("td:eq(2)").prepend('<a href="javascript:void(0);" id="'+i+'" class="btn mr-2 cyan btn-update" title="Save"><i class="material-icons">update</i></a><a href="javascript:void(0);" id="'+i+'" class="btn mr-2 red btn-cancel" title="Cancel"><i class="material-icons">cancel</i></a>')  
+      
+      $(this).parents("tr").find(".deletePaymentTypes").hide();
+      $(this).hide();  
+    }
+  }); 
+
+  $("body").on("click", ".btn-cancel", function(){  
+    var name = $(this).parents("tr").attr('data-name');    
+    $(this).parents("tr").find("td:eq(1)").text(name);    
+  
+    $(this).parents("tr").find(".payment-types-btn-edit").show();  
+    $(this).parents("tr").find(".deletePaymentTypes").show();
+
+    $(this).parents("tr").find(".btn-update").remove();  
+    $(this).parents("tr").find(".btn-cancel").remove();  
+  }); 
+
+
+  $("body").on("click", ".btn-update", function() {  
+    var name  = $(this).parents("tr").find("input[name='payment_types']").val();  
+    var id    = $(this).parents("tr").attr('data-id');  
+    $.ajax({ url: "{{ url(ROUTE_PREFIX.'/payment-types/') }}/" + id, type: "PUT", data: {name: name, id:id} , dataType: "json",
+    }).done(function (response) {
+        if (response.flagError == false) {
+          showSuccessToaster(response.message);
+          loadPaymentTypes('reload');
+        } else {
+          showErrorToaster(data.message);
+        }
+     });
+  });
+
+  $(document).on('click', '.deletePaymentTypes', function(){   
+    var shop_id = $(this).attr('data-shop_id') ;
+    var data_id = this.id ;
+
+    if (shop_id == 0) {
+      showErrorToaster("You are not allowed to delete this Payment type !");
+    } else {
+      swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
+			buttons: { cancel: 'No, Please!',	delete: 'Yes, Delete It' }
+      }).then(function (willDelete) {
+        if (willDelete) {
+          $.ajax({url: "{{ url(ROUTE_PREFIX.'/payment-types') }}/" + data_id, type: "DELETE", dataType: "html"})
+            .done(function (a) {
+              var data = JSON.parse(a);
+              if (data.flagError == false) {
+                showSuccessToaster(data.message);  
+                $('table#paymentTypesTable tr#row'+data_id).remove();
+
+
+                // setTimeout(function () {
+                //   $("#paymentTypesTable").empty();
+                //   loadPaymentTypes();
+                // }, 1000);
+
+
+
+              } else {
+                showErrorToaster(data.message);
+                printErrorMsg(data.error);
+              }   
+            }).fail(function () {
+              showErrorToaster("Something went wrong!");
+            });
+        } 
+      });
+    }
+  });
 
   $(function () {
     loadPaymentTypes();
@@ -282,13 +389,14 @@
     });
   });
 
-  function loadPaymentTypes(arg) {
+  function loadPaymentTypes(arg = null) {
+    if(arg == 'reload') {
+      $("#paymentTypesTable").find("tr:gt(0)").remove();
+    }
+    
     $.getJSON("{{ url('/common/get-payment-types') }}", function(results) {
-      // callback
-      // results contains the returned data object
-      console.log(results.html);
       $("#paymentTypesTable tbody").append(results.html);
-  });
+    });
   }
   
   $('#gst_percentage').select2({ placeholder: "Please select default GST percentage", allowClear: true });
@@ -386,13 +494,19 @@
   if ($("#storeGSTForm").length > 0) {
     var validator = $("#storeGSTForm").validate({ 
       rules: {
+        gst: {
+          required: true,
+        },
         gst_percentage: {
-          // required: true,
+          required: true,
         }
       },
       messages: { 
         gst_percentage: {
           required: "Please select store default GST",
+        },
+        gst: {
+          required: "Please enter store GST number",
         }
       },
       submitHandler: function (form) {
@@ -588,4 +702,3 @@
 
 </script>
 @endpush
-

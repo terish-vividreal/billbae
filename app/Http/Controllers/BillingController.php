@@ -337,7 +337,7 @@ class BillingController extends Controller
                 return ['flagError' => true, 'message' => "Total amount is not matching !",  'error'=> $errors];
             }
         }
-        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=> $validator->errors()->all()];
     }
     public function updateInvoice(Request $request, $id)
     {

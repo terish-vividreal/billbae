@@ -113,18 +113,15 @@ class CustomerController extends Controller
     public function lists(Request $request)
     {
         $detail =  Customer::where('shop_id', SHOP_ID);
-
         if ($request['customer_type'] != '') {
             if ($request['customer_type'] == 'deleted') {  
                 $detail         = $detail->onlyTrashed();
             }
         }
-
         $detail = $detail->orderBy('id', 'desc');;
-
         return Datatables::of($detail)
             ->addIndexColumn()
-            ->addColumn('status', function($detail){
+            ->addColumn('status', function($detail) {
             if ($detail->deleted_at == null) {  
                 $status = '<span class="chip lighten-5 green green-text">Active</span>';
             } else {
@@ -161,28 +158,25 @@ class CustomerController extends Controller
         //         $query->whereBetween('created_at', [$from, $to]);
         //     });
         // }
-
         if ($request['billing_code'] != '') {
             $billing_code    = $request['billing_code'];
             $detail         = $detail->where(function($query)use($billing_code){
                     $query->where('billing_code', 'like', '%'.$billing_code.'%');
             }); 
         }
-
         if ($request['payment_status'] != '') {
             $payment_status    = $request['payment_status'];
             $detail         = $detail->where(function($query)use($payment_status){
                     $query->where('payment_status', $payment_status);
             }); 
         }
-
         $detail = $detail->orderBy('created_at', 'DESC')->get();
         return Datatables::of($detail)
             ->addIndexColumn()
-            ->editColumn('billed_date', function($detail){
+            ->editColumn('billed_date', function($detail) {
                 return FunctionHelper::dateToTimeZone($detail->billed_date, 'd-M-Y '.$this->time_format.':i a');
             })
-            ->editColumn('billing_code', function($detail){
+            ->editColumn('billing_code', function($detail) {
                 $billing_code = '';
                 $billing_code .=' <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '" target="_blank">'.$detail->billing_code.'</a>';
                 return $billing_code;
@@ -191,11 +185,11 @@ class CustomerController extends Controller
             //     $customer = $detail->customer->name;
             //     return $customer;
             // })
-            ->editColumn('amount', function($detail){
+            ->editColumn('amount', function($detail) {
                 $amount = $detail->amount;
                 return $amount;
             })
-            ->editColumn('payment_status', function($detail){
+            ->editColumn('payment_status', function($detail) {
                 $status = '';
                 if ($detail->payment_status == 0) {
                     $status = '<span class="chip lighten-5 red red-text">UNPAID</span>';
@@ -204,15 +198,15 @@ class CustomerController extends Controller
                 }
                 return $status;
             })
-            ->addColumn('in_out_time', function($detail){
-                $checkin_time   =  FunctionHelper::dateToTimeZone($detail->checkin_time, $this->time_format.':i a');
-                $checkout_time  =  FunctionHelper::dateToTimeZone($detail->checkout_time, $this->time_format.':i a');
+            ->addColumn('in_out_time', function($detail) {
+                $checkin_time   = FunctionHelper::dateToTimeZone($detail->checkin_time, $this->time_format.':i a');
+                $checkout_time  = FunctionHelper::dateToTimeZone($detail->checkout_time, $this->time_format.':i a');
                 $in_out_time    = $checkin_time . ' - ' . $checkout_time;
                 return $in_out_time;
             })
             ->addColumn('payment_method', function($detail){
                 $methods         = '';
-                foreach($detail->paymentMethods as $row){
+                foreach($detail->paymentMethods as $row) {
                     $methods .= $row->paymentype->name. ', '; 
                 }
                 return rtrim($methods, ', ');
@@ -240,8 +234,6 @@ class CustomerController extends Controller
         $variants->time_picker      = ($this->time_format === 'h')?false:true;
         $variants->time_format      = $this->time_format;
         return view($this->viewPath . '.create-bill', compact('page', 'customer', 'variants', 'store'));
-
-
     }
 
     /**
@@ -252,10 +244,10 @@ class CustomerController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $customer                       = Customer::find($id);
-        $last_activity                  = Customer::lastActivity($id);
-        $completed_bills                = Customer::completedBills($id);
-        $pending_bills                  = Customer::pendingBills($id);
+        $customer                   = Customer::find($id);
+        $last_activity              = Customer::lastActivity($id);
+        $completed_bills            = Customer::completedBills($id);
+        $pending_bills              = Customer::pendingBills($id);
         if ($customer) { 
             $page                   = collect();
             $variants               = collect();
@@ -264,7 +256,7 @@ class CustomerController extends Controller
             $page->route            = $this->route;
             $page->entity           = $this->entity;         
             return view($this->viewPath . '.show', compact('page', 'variants', 'customer', 'last_activity', 'completed_bills', 'pending_bills'));
-        }else {
+        } else {
             return redirect('customers')->with('error', $this->title.' not found');
         }  
     }
@@ -375,9 +367,7 @@ class CustomerController extends Controller
     {
         $data = array();
         $result   = Customer::select("customers.id", DB::raw("CONCAT(customers.name,' - ', COALESCE(customers.mobile, '')) as name"))
-                            ->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")
-                            ->orWhere("mobile","LIKE","%{$request->search}%")
-                            ->get();
+                                ->where('shop_id', SHOP_ID)->where("name","LIKE","%{$request->search}%")->orWhere("mobile","LIKE","%{$request->search}%")->get();
         if ($result) {
             foreach($result as $row) {
                 $data[] = array([ 'id' => $row->id, 'name' => $row->name]);

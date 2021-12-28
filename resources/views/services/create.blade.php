@@ -4,7 +4,6 @@
 @section('seo_title', Str::plural($page->title) ?? '') 
 @section('search-title') {{ $page->title ?? ''}} @endsection
 
-
 {{-- vendor styles --}}
 @section('vendor-style')
 
@@ -37,8 +36,7 @@
     <div class="card-content">
       <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsum is used for the ...</p>
     </div>
-  </div>
-  
+  </div> 
   <!--Basic Form-->
   <div class="row">
     <!-- Form Advance -->
@@ -48,16 +46,16 @@
             <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">            
-                  {{ csrf_field() }}
-                  {!! Form::hidden('service_id', $service->id ?? '' , ['id' => 'service_id'] ); !!}
-                  {!! Form::hidden('service_category_id', '' , ['id' => 'service_category_id'] ); !!}
+              {{ csrf_field() }}
+              {!! Form::hidden('service_id', $service->id ?? '' , ['id' => 'service_id'] ); !!}
+              {!! Form::hidden('service_category_id', '' , ['id' => 'service_category_id'] ); !!}
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $service->name ?? '', ['id' => 'name']) !!}  
                   <label for="name" class="label-placeholder">Service Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
-                  <input type="text" name="search_service_category" id="search_service_category" class="typeahead autocomplete" autocomplete="off" value="">
+                  <input type="text" name="search_service_category" id="search_service_category" class="typeahead autocomplete" value="{{$service->serviceCategory->name ?? ''}}" autocomplete="off" value="">
                   <label for="search_service_category" class="typeahead label-placeholder">Enter service category</label>
                   <!-- {!! Form::select('service_category_id',$variants->service_category , $service->service_category_id ?? '' , ['id' => 'service_category_id', 'class' => 'select2 browser-default', 'placeholder'=>'Please select service category']) !!} -->
                 </div>
@@ -68,25 +66,21 @@
                   <label for="price" class="label-placeholder">Price <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
-                  {!! Form::select('hours_id',$variants->hours , $service->hours_id ?? '' , ['class' => 'select2 browser-default', 'id' => 'hours_id', 'placeholder'=>'Please select service hour']) !!}
+                  {!! Form::select('hours_id',$variants->hours , $service->hours_id ?? '' , ['class' => 'select2 browser-default', 'id' => 'hours_id', 'placeholder'=>'Please select service minutes']) !!}
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
-                    @php 
-                      $checked = '';
-                        if(isset($service)){
-                            $checked = ($service->tax_included == 1) ? 'checked' : '' ; 
-                        }                      
-                    @endphp
-                    <div class="col s12">
-                      <label for="tax_included">Check if tax is included with price !</label>
-                      <p><label>
-                          <input class="validate" value="1" name="tax_included" id="tax_included" type="checkbox" {{ $checked }}>
-                          <span>Tax Included</span>
-                        </label> </p>
-                      <div class="input-field">
-                      </div>
+                  @php 
+                    $checked = '';
+                    if (isset($service)) {
+                      $checked = ($service->tax_included == 1) ? 'checked' : ''; 
+                    }                      
+                  @endphp
+                  <div class="col s12">
+                    <label for="tax_included">Check if tax is included with price !</label>
+                    <p><label><input class="validate" value="1" name="tax_included" id="tax_included" type="checkbox" {{ $checked }}><span>Tax Included</span></label></p>
+                    <div class="input-field"></div>
                   </div>
                 </div>
                 <div class="input-field col m6 s12">
@@ -96,10 +90,10 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('hsn_code', $service->hsn_code ?? '', ['id' => 'hsn_code']) !!}  
-                  <label for="hsn_code" class="label-placeholder">HSN Code </label>
+                  <label for="hsn_code" class="label-placeholder">SAC Code </label>
                 </div>
                 <div class="input-field col m6 s12">
-                {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids ?? [] , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'select2 browser-default']) !!}
+                  {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids ?? [] , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'select2 browser-default']) !!}
                 </div>
               </div>
               <div class="row">
@@ -112,8 +106,8 @@
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <!-- <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
-                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button> -->
+                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
             </form>
@@ -158,72 +152,71 @@ $('input.typeahead').typeahead({
   },
   updater: function (item) {
     $('#service_category_id').val(item.id);
-    // getCustomerDetails(item.id);
+    console.log(item.id)
     return item;
   }
 });
 
 if ($("#{{$page->entity}}Form").length > 0) {
-    var validator = $("#{{$page->entity}}Form").validate({ 
-        ignore: ".ignore-validation",
-        rules: {
-            name: {
-                  required: true,
-                  maxlength: 200,
-            },
-            service_category_id: {
-                  required: true,
-            },
-            hours_id: {
-                  required: true,
-            },
-            price: {
-                  required: true,
-            },
-            gst_tax: {
-                  // required: true,
-            }
-        },
-        messages: { 
-          name: {
-            required: "Please enter service name",
-            maxlength: "Length cannot be more than 200 characters",
-            },
-            service_category_id: {
-              required: "Please select service category",
-            },
-            hours_id: {
-              required: "Please select service hours",
-            },
-            price: {
-              required: "Please enter service price",
-            },
-            gst_tax: {
-              required: "Please select GST Tax percentage",
-            }
-        },
-        submitHandler: function (form) {
-          id = $("#service_id").val();
-          service_id   = "" == id ? "" : "/" + id;
-          formMethod  = "" == id ? "POST" : "PUT";
-          var forms = $("#{{$page->entity}}Form");
-          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + service_id, type: formMethod, processData: false, 
-          data: forms.serialize(), dataType: "html",
-          }).done(function (a) {
-            var data = JSON.parse(a);
-            if(data.flagError == false){
-                showSuccessToaster(data.message);          
-                setTimeout(function () {
-                  window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";
-                  }, 2000);
-
-            }else{
-              showErrorToaster(data.message);
-              printErrorMsg(data.error);
-            }
-          });
+  var validator = $("#{{$page->entity}}Form").validate({ 
+    ignore: ".ignore-validation",
+    rules: {
+      name: {
+        required: true,
+        maxlength: 200,
+      },
+      search_service_category: {
+        required: true,
+      },
+      hours_id: {
+        required: true,
+      },
+      price: {
+        required: true,
+      },
+      gst_tax: {
+        // required: true,
       }
-    })
-  }
+    },
+    messages: { 
+      name: {
+        required: "Please enter service name",
+        maxlength: "Length cannot be more than 200 characters",
+      },
+      search_service_category: {
+        required: "Please enter service category",
+      },
+      hours_id: {
+        required: "Please select service hours",
+      },
+      price: {
+        required: "Please enter service price",
+      },
+      gst_tax: {
+        required: "Please select GST Tax percentage",
+      }
+    },
+    submitHandler: function (form) {
+      console.log($('#service_category_id').val());
+      id            = $("#service_id").val();
+      service_id    = "" == id ? "" : "/" + id;
+      formMethod    = "" == id ? "POST" : "PUT";
+      var forms     = $("#{{$page->entity}}Form");
+      $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + service_id, type: formMethod, processData: false, data: forms.serialize(), dataType: "html",
+      }).done(function (a) {
+        var data = JSON.parse(a);
+        if (data.flagError == false) {
+          showSuccessToaster(data.message);          
+          setTimeout(function () {
+            window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";
+          }, 2000);
+        } else {
+          showErrorToaster(data.message);
+          printErrorMsg(data.error);
+        }
+      });
+    }
+  })
+}
 </script>
 @endpush

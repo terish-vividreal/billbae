@@ -62,7 +62,8 @@ if(!empty($themeSettings)){
                     <h4 class="row mega-title">Services</h4>     
                     <ul>
                       <li><a href="{{ url(ROUTE_PREFIX.'/services') }}" class="@if(Request::is(ROUTE_PREFIX.'services') || Request::is(ROUTE_PREFIX.'services/create') || Request::is(ROUTE_PREFIX.'services/*')) active @endif"> All services</a></li>
-                      <li><a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="@if(Request::is(ROUTE_PREFIX.'service-category')) active @endif">Service categories</a></li>
+                      <li><a href="{{ url(ROUTE_PREFIX.'/packages') }}" class="@if(Request::is(ROUTE_PREFIX.'packages') || Request::is(ROUTE_PREFIX.'packages/create') || Request::is(ROUTE_PREFIX.'packages/*')) active @endif">Packages</a></li>
+                      <!-- <li><a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="@if(Request::is(ROUTE_PREFIX.'service-category')) active @endif">Service categories</a></li> -->
                     </ul>   
                   </div>
                   <div class="col s12 m4 l4 colMr">
@@ -70,7 +71,6 @@ if(!empty($themeSettings)){
                     <ul>
                       <li><a href="{{ url(ROUTE_PREFIX.'/users') }}" class="@if (Request::is(ROUTE_PREFIX.'users') ||  Request::is(ROUTE_PREFIX.'users/create') ||  Request::is(ROUTE_PREFIX.'users/*')) active @endif">User management </a></li>
                       <li><a href="{{ url('store/user-profile') }}" class="@if(Request::is(ROUTE_PREFIX.'store/user-profile')) active @endif">Personal profile</a></li>
-                      <li><a href="{{ url(ROUTE_PREFIX.'/packages') }}" class="@if(Request::is(ROUTE_PREFIX.'packages') || Request::is(ROUTE_PREFIX.'packages/create') || Request::is(ROUTE_PREFIX.'packages/*')) active @endif">Packages</a></li>
                       <li><a href="{{ url(ROUTE_PREFIX.'/staffs') }}" class="@if(Request::is(ROUTE_PREFIX.'staffs') || Request::is(ROUTE_PREFIX.'staffs/*')) active @endif">Staffs</a></li>
                     </ul>
                   </div>

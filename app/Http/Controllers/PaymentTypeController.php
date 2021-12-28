@@ -68,16 +68,59 @@ class PaymentTypeController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [ 'name' => 'required' ]);
+        $validator = Validator::make($request->all(), [ 'payment_type' => 'required' ]);
+            if ($validator->passes()) {
+                $data               = new PaymentType();
+                $data->shop_id      = SHOP_ID;
 
-        if ($validator->passes()) {
-            $data               = new PaymentType();
-            $data->shop_id      = SHOP_ID;
-            $data->name         = $request->name;
-            $data->save();
-            return ['flagError' => false, 'message' => $this->title. " added successfully"];
-        }
-        return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
+                if ($request->ajax()) {
+                    $data->name         = $request->payment_type;
+                    if($data->save()) {
+                        $tableHtml = '';
+                        $tableHtml.=    '<tr id="'.$request->row_id.'">';
+                        $tableHtml.=    '<td><p class="mb-1"><label><input type="checkbox" class="payment-types" name="payment_types[]" data-type="'.$data->id.'" id="payment_types_'.$data->id.'"  value="'.$data->id.'"><span></span></label></th>';
+                        $tableHtml.=    '<td>'.$data->name.'</td>';
+                        $tableHtml.=    '<td><a href="#"><i class="material-icons yellow-text">edit</i></a> <a href="javascript:" data-shop_id="'.$data->shop_id.'"  id="'.$data->id.'" class="deletePaymentTypes"><i class="material-icons pink-text">clear</i></a></td>';
+                        $tableHtml.=    '</tr>';
+                        return response()->json(['flagError' => false, 'data'=> $data, 'html' => $tableHtml]);
+                    } else {
+                        return response()->json(['flagError' => true,'message'=>'Errors Occurred. Please check !']);
+                    }    
+                } else {
+                    $data               = new PaymentType();
+                    $data->shop_id      = SHOP_ID;
+                    $data->name         = $request->name;
+                    $data->save();
+                    return ['flagError' => false, 'message' => $this->title. " added successfully"];
+                }
+            }
+            return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
+
+        // if ($request->ajax()) {
+        //     $data->name         = $request->payment_type;
+        //     if($data->save()) {
+        //         $tableHtml = '';
+        //         $tableHtml.=    '<tr id="'.$request->row_id.'">';
+        //         $tableHtml.=    '<th><p class="mb-1"><label><input type="checkbox" class="payment-types" name="payment_types[]" data-type="'.$data->id.'" id="payment_types_'.$data->id.'"  value="'.$data->id.'"><span></span></label></th>';
+        //         $tableHtml.=    '<th>'.$data->name.'</th>';
+        //         $tableHtml.=    '<th><a href="#"><i class="material-icons yellow-text">edit</i></a> <a href="#"><i class="material-icons pink-text">clear</i></a></th>';
+        //         $tableHtml.=    '</tr>';
+        //         return response()->json(['flagError' => false, 'data'=> $data, 'html' => $tableHtml]);
+        //     } else {
+        //         return response()->json(['flagError' => true,'message'=>'Errors Occurred. Please check !']);
+        //     }
+                    
+        // } else {
+        //     $validator = Validator::make($request->all(), [ 'name' => 'required' ]);
+        //     if ($validator->passes()) {
+        //         $data               = new PaymentType();
+        //         $data->shop_id      = SHOP_ID;
+        //         $data->name         = $request->name;
+        //         $data->save();
+        //         return ['flagError' => false, 'message' => $this->title. " added successfully"];
+        //     }
+        //     return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];
+        // }
     }
 
     /**
@@ -119,7 +162,12 @@ class PaymentTypeController extends Controller
         $validator = Validator::make($request->all(), [ 'name' => 'required' ]);
 
         if ($validator->passes()) {
-            $data               = PaymentType::findOrFail($id);
+
+            if ($request->ajax()) {
+                $data               = PaymentType::findOrFail($request->id);
+            } else{
+                $data               = PaymentType::findOrFail($id);
+            }
             $data->name         = $request->name;
             $data->save();
             return ['flagError' => false, 'message' => $this->title. " updated successfully"];

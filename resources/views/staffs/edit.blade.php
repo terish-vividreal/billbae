@@ -146,13 +146,13 @@
                 </div>
               </div>
 
-              <div class="row">
+              <!-- <div class="row">
                 <div class="input-field col m6 s12">
                     {!! Form::select('schedule_color', $page->schedule_colors , $staff->staffProfile->schedule_color ?? '' , ['id' => 'schedule_color' ,'class' => 'select2 browser-default','placeholder'=>'Please select color']) !!}
                 </div>
                 <div class="input-field col m6 s12">                   
                 </div>
-              </div>
+              </div> -->
 
 
               <div class="row">
@@ -183,10 +183,6 @@
                     </form>
                 </div>
             </div> -->
-            
-
-
-
         </div>
       </div>
     </div>
@@ -245,6 +241,22 @@ $(document).ready(function(){
   }, function(start, end, label) {
     var years = moment().diff(start, 'years');
   });
+
+  $('input[name="contract_end_date"]').daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    // maxYear: parseInt(moment().format('YYYY'),10)
+  }, function(start, end, label) {
+    // var years = moment().diff(start, 'years');
+  });
+
+  $('input[name="joining_date"]').daterangepicker({
+    singleDatePicker: true,
+    showDropdowns: true,
+    // maxYear: parseInt(moment().format('YYYY'),10)
+  }, function(start, end, label) {
+    // var years = moment().diff(start, 'years');
+  });
 });
 
 $('#roles').select2({ placeholder: "Please select role", allowClear: true });
@@ -259,11 +271,11 @@ if ($("#{{$page->entity}}Form").length > 0) {
               maxlength: 200,
               lettersonly: true,
             },
-            mobile:{
-              required:true,
-              minlength:10,
-              maxlength:10
-            },
+            // mobile:{
+            //   required:true,
+            //   minlength:10,
+            //   maxlength:10
+            // },
             "roles[]": {
                     required: true,
             },

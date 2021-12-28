@@ -139,7 +139,7 @@
                         <tr>
                           <th>#</th>
                           <th>Name</th>
-                          <th>HSN Code</th>
+                          <th>SAC Code</th>
                           <th>Amount</th>
                         </tr>
                       </thead>

@@ -4,7 +4,7 @@
     <tr>
       <th>No</th>
       <th>Items</th>
-      <th>HSN Code #</th>
+      <th>SAC Code #</th>
       <th class="right-align">Details</th>
     </tr>
     </thead>
@@ -63,10 +63,13 @@
                   <div id="discountDiv">
                     @if($item['tax_array']['discount_applied'] == 0)
 
-                    <a class="btn-flat mb-1 waves-effect tooltipped" data-position="bottom" data-tooltip="Add Discount" data-id="{{$item['billingItemsId']}}" data-action="add" onClick="manageDiscount(this)">Discount<i class="material-icons right">add</i></a>
+                    <!-- <a class="btn-flat mb-1 waves-effect tooltipped" data-position="bottom" data-tooltip="Add Discount" >Discount<i class="material-icons right">add</i></a> -->
+                    <span class="new badge" data-badge-caption="Discount" data-id="{{$item['billingItemsId']}}" data-action="add" onClick="manageDiscount(this)"><i class="material-icons right">add</i></span>
+                    
                     @else
-                    <a class="btn-flat mb-1 waves-effect tooltipped" data-position="bottom" data-tooltip="Remove Discount" data-id="{{$item['billingItemsId']}}" data-action="remove" onClick="manageDiscount(this)">Discount<i class="material-icons right">remove_circle</i></a>
+                    <!-- <a class="btn-flat mb-1 waves-effect tooltipped" data-position="bottom" data-tooltip="Remove Discount" >Discount<i class="material-icons right">remove_circle</i></a> -->
                       <!-- <button class="btn btn-sm btn-primary" data-id="{{$item['billingItemsId']}}" data-action="remove" onClick="manageDiscount(this)" >Remove Discount</button> -->
+                      <span class="new badge" data-badge-caption="Discount" data-id="{{$item['billingItemsId']}}" data-action="remove" onClick="manageDiscount(this)"><i class="material-icons right">remove</i></span>
                     @endif
                   </div>
 

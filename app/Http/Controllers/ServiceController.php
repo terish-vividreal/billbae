@@ -134,14 +134,13 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
-        // echo "<pre>"; print_r($request->all()); exit;
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',Rule::unique('services')->where(function($query) {
                   $query->where('shop_id', '=', SHOP_ID);
               })
             ],
-            'service_category_id' => 'required',
+            // 'service_category_id' => 'required',
             'hours_id' => 'required',
             'price' => 'required',
         ]);
@@ -151,7 +150,10 @@ class ServiceController extends Controller
             $data->shop_id              = SHOP_ID;
             $data->name                 = $request->name;
             $data->slug                 = $request->name;
-            $data->service_category_id  = $request->service_category_id;
+            $service_category           = ServiceCategory::firstOrCreate(['shop_id' => SHOP_ID, 'name' => $request->search_service_category]);
+            if ($service_category) {
+                $data->service_category_id  = $service_category->id;
+            }
             $data->price                = $request->price;
             $data->tax_included         = ($request->tax_included == 1) ? 1 : 0 ;            
             $data->lead_before          = $request->lead_before;
@@ -227,7 +229,7 @@ class ServiceController extends Controller
                   $query->where('shop_id', '=', SHOP_ID)->where('id', '!=', $id);
               })
             ],
-            'service_category_id' => 'required',
+            // 'service_category_id' => 'required',
             'hours_id' => 'required',
             'price' => 'required',
         ]);
@@ -235,7 +237,11 @@ class ServiceController extends Controller
             $data = Service::findOrFail($id);
             if ($data) {
                 $data->name                 = $request->name;
-                $data->service_category_id  = $request->service_category_id;
+
+                $service_category           = ServiceCategory::firstOrCreate(['shop_id' => SHOP_ID, 'name' => $request->search_service_category]);
+                if ($service_category) {
+                    $data->service_category_id  = $service_category->id;
+                }
                 $data->price                = $request->price;
                 $data->lead_before          = $request->lead_before;
                 $data->lead_after           = $request->lead_after;  

@@ -104,7 +104,8 @@ class StoreController extends Controller
         $page->link                 = url($this->link);
         $variants->billing_formats          = BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', 0)->first();
         $variants->billing_formats_all      = collect(BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', '!=', 0)->get());
-        $variants->payment_types            = PaymentType::select('name', 'id')->where('shop_id', SHOP_ID)->get();     
+        $variants->payment_types            = PaymentType::select('name', 'id')->whereIn('shop_id', [SHOP_ID, 0] )->get(); 
+        // echo "<pre>"; print_r($variants->payment_types); exit;    
         return view($this->viewPath . '.billing-series', compact('page', 'user', 'store', 'variants', 'billing'));
     }
 

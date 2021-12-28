@@ -106,14 +106,14 @@
                 </div>              
                 <div class="input-field col m6 s12">                
                 {!! Form::text('mobile', '', array('id' => 'mobile', 'class' => 'check_numeric')) !!}
-                  <label for="mobile" class="label-placeholder">Mobile <span class="red-text">*</span></label>  
+                  <label for="mobile" class="label-placeholder">Mobile </label>  
                 </div>             
               </div>
 
               <div class="row">
                 <div class="input-field col m6 s12">                  
                   <input type='text' name="dob" id="dob" onkeydown="return false" class="" autocomplete="off" />
-                  <label for="dob" class="label-placeholder">DOB </label> 
+                  <label for="dob" class="label-placeholder active">DOB </label> 
                 </div>     
                 <div class="input-field col m6 s12">    
                 <p>  
@@ -193,11 +193,11 @@ if ($("#{{$page->entity}}Form").length > 0) {
               maxlength: 200,
               lettersonly: true,
             },
-            mobile:{
-              required:true,
-              minlength:10,
-              maxlength:10
-            },
+            // mobile:{
+            //   required:true,
+            //   minlength:10,
+            //   maxlength:10
+            // },
             email: {
               required: true,
               email: true,
