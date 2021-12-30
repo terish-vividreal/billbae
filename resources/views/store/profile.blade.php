@@ -111,39 +111,41 @@
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('country_id', $variants->countries , $store->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
+                  <label for="country_id" class="label-placeholder active">Store country</label> 
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
                   <div id="timezone_block"> 
-                  @if(!empty($variants->timezone))
-                    {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'select2 browser-default','placeholder'=>'Please select timezone']) !!}
-                  @else
-                    {!! Form::select('timezone', [] , '', ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
-                  @endif
-
-      
+                    @if(!empty($variants->timezone))
+                      {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'select2 browser-default','placeholder'=>'Please select timezone']) !!}
+                    @else
+                      {!! Form::select('timezone', [] , '', ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
+                    @endif
+                    <label for="timezone" class="label-placeholder active">Store timezone</label> 
                   </div>
                 </div>
                 <div class="input-field col m6 s12">
                   @if(!empty($variants->states))
-                  {!! Form::select('state_id', $variants->states , $store->state_id ?? '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                    {!! Form::select('state_id', $variants->states , $store->state_id ?? '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
                   @else
-                  {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                    {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
                   @endif
+                  <label for="state_id" class="label-placeholder active">Store state</label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::select('time_format', [1 => '12 Format', 2 => '24 Format'] , $store->time_format ?? '' , ['id' => 'time_format']) !!}
-                  <label for="time_format" class="label-placeholder">Time Format</label> 
+                  <label for="time_format" class="label-placeholder active">Time Format</label> 
                 </div>
                 <div class="input-field col m6 s12">
                   @if(!empty($variants->districts))
                     {!! Form::select('district_id', $variants->districts , $store->district_id ?? '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                   @else
-                      {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
+                    {!! Form::select('district_id', [] , '' , ['id' => 'district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                   @endif
+                  <label for="district_id" class="label-placeholder active">Store district</label>
                 </div>
               </div>
               <div class="row">

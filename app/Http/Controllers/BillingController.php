@@ -113,13 +113,13 @@ class BillingController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function($detail){
                 $action = '';
-                if($detail->payment_status == 0){
+                if ($detail->payment_status == 0) {
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/' . $detail->id ) . '"" class="btn mr-2 blue tooltipped" title="Update Payment"><i class="material-icons">payment</i></a>';
                 } 
-                if($detail->status == 0){
+                if ($detail->status == 0) {
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/edit/' . $detail->id) . '"" class="btn mr-2 cyan tooltipped" data-tooltip="Edit details"><i class="material-icons">mode_edit</i></a>';
                     $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="deleteBill(this.id)"  class="btn red btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
-                }else{
+                } else {
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/show/' . $detail->id) . '"" class="btn mr-2 cyan tooltipped" title="View details"><i class="material-icons">remove_red_eye</i></a>';
                     $action .= ' <a href="' . url(ROUTE_PREFIX.'/'.$this->route.'/invoice-data/generate-pdf/'. $detail->id) . '"" class="btn mr-2 indigo tooltipped" title="Download Invoice"><i class="material-icons mr-4">file_download</i></a>';
                     $action .= ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="cancelBill(this.id)" class="btn orange btn-sm btn-icon mr-2" title="Cancel Bill"><i class="material-icons">cancel</i> </a>';
@@ -136,25 +136,25 @@ class BillingController extends Controller
             })
             ->editColumn('payment_status', function($detail){
                 $status = '';
-                if($detail->payment_status == 0){
+                if ($detail->payment_status == 0) {
                     $status = '<span class="chip lighten-5 red red-text">UNPAID</span>';
-                }else{  
+                } else {  
                     $status = '<span class="chip lighten-5 green green-text">PAID</span>';                                
                 }
                 return $status;
             })
             ->addColumn('updated_date', function($detail){
-                if($detail->payment_status == 1){
+                if ($detail->payment_status == 1) {
                     return FunctionHelper::dateToTimeZone($detail->billed_date, 'd-M-Y '.$this->time_format.':i a');
                 }  
             })
             ->addColumn('bill_status', function($detail){
                 $status = '';
-                if($detail->status == 0){
+                if ($detail->status == 0) {
                     $status = '<span class="badge badge-warning">Open</span>';
-                }else if($detail->status == 1){  
+                } else if($detail->status == 1) {  
                     $status = '<span class="badge badge-success">Completed</span>';                                
-                }else{
+                } else {
                     $status = '<span class="badge badge-danger">Cancelled</span>';             
                 }
                 return $status;
@@ -229,7 +229,7 @@ class BillingController extends Controller
             $address->save();
         }
         if ($request->bill_item) {
-            foreach($request->bill_item as $row){
+            foreach($request->bill_item as $row) {
                 $item                   = new BillingItem();
                 $item->billing_id       = $billing->id ;
                 $item->customer_id      = $request->customer_id ;
@@ -252,8 +252,8 @@ class BillingController extends Controller
         foreach($request->input('payment_amount') as $key => $value) {
             $data["payment_amount.{$key}"] = 'required';
         }
-        $messages   = [ 'required' => 'Please enter amount' ];
-        $validator = Validator::make($request->all(), $data, $messages);
+        $messages   = ['required' => 'Please enter amount' ];
+        $validator  = Validator::make($request->all(), $data, $messages);
 
         if ($validator->passes()) {
             if ($request->grand_total == array_sum($request->payment_amount)) {
@@ -268,7 +268,6 @@ class BillingController extends Controller
                     $format_id      = $default_format->id;
                     $billing_code   = FunctionHelper::getBillingCode($default_format->id);
                 }
-
                 $billing                    = Billing::findOrFail($request->billing_id);
                 $billing->payment_status    = 1;
                 $billing->amount            = $request->grand_total;
