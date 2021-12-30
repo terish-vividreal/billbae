@@ -21,7 +21,7 @@
                     <div class="input-field col m4 s4 l4">
                       <input type="text" name="start" value="" id="start" class="disabled"/>
                     </div>  
-                    
+      
                     <div class="input-field col m4 s4 l4">
                       <p><label>
                           <input class="validate" name="checked_in" id="checked_in" value="1" type="checkbox">
@@ -68,7 +68,6 @@
                       </div>
                     </div>              
                   </div>
-
                   <div class="row" id="itemDetailsDiv" style="display:none;">
                     <div class="input-field col m12 s6"><ul class="collection" id="itemDetails"></ul></div>
                   </div>

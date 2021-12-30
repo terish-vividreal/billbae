@@ -91,25 +91,25 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::put($store_link . '/update/billing/{id}', [Store::class, 'storeBilling']);
     Route::post($store_link . '/update/bill-format/', [Store::class, 'updateBillFormat']);
     Route::post($store_link . '/theme-settings', [Store::class, 'themeSettings']);
-   
+       
     // User profile routes
     Route::get($store_link . '/user-profile', [Store::class, 'userProfile']);
     Route::post($store_link . '/user-profile', [Store::class, 'postUserProfile']);
     Route::post($store_link . '/update-user-image', [Store::class, 'updateUserImage']);
-    
+       
     // User Routes
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('users/lists', [UserController::class, 'lists']);
     Route::post('users/unique', [UserController::class, 'isUnique']);
     Route::post('users/manage-status', [UserController::class, 'manageStatus']);
     Route::post('users/update-password', [UserController::class, 'updatePassword']);
-
+       
     //Staff Routes
     $staff = 'staffs';
     Route::resource($staff, StaffController::class)->except(['show']);
     Route::get($staff.'/lists', [StaffController::class, 'lists']);
     Route::get($staff.'/{id}/manage-document', [StaffController::class, 'manageDocument']);
-
+       
     Route::post($staff.'/update/user-image', [StaffController::class, 'updateUserImage']);
     Route::post($staff.'/get-document', [StaffController::class, 'getDocument']);
     Route::post($staff.'/upload-id-proof', [StaffController::class, 'uploadIdProofs']);
@@ -119,29 +119,29 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post($staff.'/update/document-details', [StaffController::class, 'updateDocumentDetails']);
     Route::post($staff.'/store-document', [StaffController::class, 'storeDocuments']);
     Route::post($staff.'/remove-temp-document', [StaffController::class, 'removeTempDocuments']);
-
+         
     // Business type Routes
     // $business_type = 'business-types';
     // Route::resource($business_type, AdminBusinessType::class)->except(['show']);
     // Route::get($business_type . '/lists', [AdminBusinessType::class, 'lists']);
-
+            
     Route::get('change-password', [ProfileController::class, 'index']);
     Route::post('change-password', [ProfileController::class, 'update']);
-
+           
     // Roles Routes
     // Route::resource('roles', RoleController::class);
-
+             
     // Service category Routes
     $service_category = 'service-category';
     Route::resource($service_category, ServiceCategory::class)->except(['show']);
     Route::get($service_category . '/lists', [ServiceCategory::class, 'lists']);
     Route::get($service_category . '/autocomplete', [ServiceCategory::class, 'autocomplete'])->name('service-category.autocomplete');
-
+           
     // Country Routes
     $country = 'country';
     Route::resource($country, CountryController::class)->except(['show']);
     Route::get($country . '/lists', [CountryController::class, 'lists']);
-
+           
     // State Routes
     $state = 'states';
     Route::resource($state, StateController::class)->except(['show']);
