@@ -80,21 +80,22 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                     {!! Form::text('company_name', $billing->company_name ?? '', array('id' => 'company_name')) !!} 
-                    <label for="company_name" class="label-placeholder">Company Name <span class="red-text">*</span></label>
+                    <label for="company_name" class="label-placeholder active">Company Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                     {!! Form::textarea('address', $billing->address ?? '', ['id' => 'address', 'class' => 'materialize-textarea', 'placeholder'=>'Address','rows'=>3]) !!}
-                    <label for="address" class="label-placeholder">Address</label>
+                    <label for="address" class="label-placeholder active">Address</label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
                     {!! Form::text('pincode', $billing->pincode ?? '', array('id' => 'pincode')) !!} 
-                    <label for="pincode" class="label-placeholder">Pin code</label>
+                    <label for="pincode" class="label-placeholder active">Pin code</label>
                 </div>
                 <div class="input-field col m6 s12">
                     {!! Form::select('billing_country_id', $variants->countries , $billing->country_id ?? '' , ['id' => 'billing_country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
-                </div>
+                    <label for="billing_country_id" class="label-placeholder active">Country</label>
+                  </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
@@ -103,6 +104,7 @@
                   @else
                     {!! Form::select('currency', [] , $billing->currency ?? '' , ['id' => 'currency' ,'class' => 'select2 browser-default','placeholder'=>'Please select currency ']) !!}
                   @endif
+                  <label for="currency" class="label-placeholder active">Currency</label>
                 </div>
                 <div class="input-field col m6 s12">
                   @if(!empty($variants->states))
@@ -110,6 +112,7 @@
                   @else
                     {!! Form::select('billing_state_id', [] , '' , ['id' => 'billing_state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
                   @endif
+                  <label for="billing_state_id" class="label-placeholder active">State</label>
                 </div>
               </div>
               <div class="row">
@@ -119,6 +122,7 @@
                   @else
                     {!! Form::select('billing_district_id', [] , '' , ['id' => 'billing_district_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select district']) !!}
                   @endif
+                  <label for="billing_district_id" class="label-placeholder active">District</label>
                 </div>
               </div>
               <div class="row">
@@ -138,17 +142,17 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                     {!! Form::text('gst', $billing->gst ?? '', array('id' => 'gst', 'style' => "text-transform:uppercase")) !!} 
-                    <label for="gst" class="label-placeholder">GST No</label>
+                    <label for="gst" class="label-placeholder active">GST No</label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('gst_percentage', $variants->tax_percentage, $billing->gst_percentage ?? '' , ['id' => 'gst_percentage', 'class' => 'select2 browser-default', 'placeholder'=>'Please select default GST percentage']) !!}
-                  <!-- <label for="icon_prefix1">Default GST percentage </label> -->
+                  <label for="gst_percentage" class="label-placeholder active"> GST percentage </label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m5 s6">
                 {!! Form::text('hsn_code', $billing->hsn_code ?? '', ['id' => 'hsn_code']) !!}
-                <label for="hsn_code" class="label-placeholder">Store SAC Code </label>
+                <label for="hsn_code" class="label-placeholder active">Store SAC Code </label>
                 </div>
               </div>
               <div class="row">
