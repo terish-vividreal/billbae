@@ -52,11 +52,11 @@
                 <div class="row">
                   <div class="input-field col m6 s12">                      
                       {!! Form::text('bill_prefix', $variants->billing_formats->prefix ?? '') !!} 
-                      <label for="bill_prefix" class="label-placeholder">Starts with: <span class="red-text">*</span></label>
+                      <label for="bill_prefix" class="label-placeholder active">Starts with: <span class="red-text">*</span></label>
                   </div>
                   <div class="input-field col m6 s12">                      
                       {!! Form::text('bill_suffix', $variants->billing_formats->suffix ?? '') !!} 
-                      <label for="bill_suffix" class="label-placeholder">Starts From: <span class="red-text">*</span></label>
+                      <label for="bill_suffix" class="label-placeholder active">Starts From: <span class="red-text">*</span></label>
                   </div>
                 </div>
                 <div class="col s12">
