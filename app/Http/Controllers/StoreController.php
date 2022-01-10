@@ -104,8 +104,7 @@ class StoreController extends Controller
         $page->link                 = url($this->link);
         $variants->billing_formats          = BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', 0)->first();
         $variants->billing_formats_all      = collect(BillingFormat::where('shop_id', SHOP_ID)->where('payment_type', '!=', 0)->get());
-        $variants->payment_types            = PaymentType::select('name', 'id')->whereIn('shop_id', [SHOP_ID, 0] )->get(); 
-        // echo "<pre>"; print_r($variants->payment_types); exit;    
+        $variants->payment_types            = PaymentType::select('name', 'id')->whereIn('shop_id', [SHOP_ID, 0] )->get();    
         return view($this->viewPath . '.billing-series', compact('page', 'user', 'store', 'variants', 'billing'));
     }
 
@@ -119,6 +118,7 @@ class StoreController extends Controller
         $page->link             = url($this->link);
         $page->form_url         = url($this->link);
         $page->form_method      = 'POSt';
+        $variants->phonecode    = DB::table('shop_countries')->select("id", DB::raw('CONCAT("+", phonecode) AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
         return view($this->viewPath . '.user-profile', compact('page', 'user', 'store', 'variants'));
     }
 
@@ -175,7 +175,7 @@ class StoreController extends Controller
             $shop->state_id     = $request->state_id;
             $shop->district_id  = $request->district_id;
             $shop->save();
-            return ['flagError' => false, 'message' => "Account Updated successfully"];
+            return ['flagError' => false, 'message' => "Store profile details updated successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=> $validator->errors()->all()];
     }
@@ -194,6 +194,7 @@ class StoreController extends Controller
         // if ($validator->passes()) {
             $billing                    = ShopBilling::find($request->gst_billing_id);
             $billing->gst_percentage    = ($request->gst_percentage == 1)?NULL:$request->gst_percentage;
+            $billing->gst               = $request->gst;
             $billing->hsn_code          = $request->hsn_code;
             $billing->save();
             return ['flagError' => false, 'message' => "Details Updated successfully"];
@@ -264,6 +265,15 @@ class StoreController extends Controller
         // $image = str_replace(' ', '+', $image); 
         // $imageName = Str::random(20).'.'.$extension;
         // Storage::put($store_path.'/'.$imageName, base64_decode($image));
+    }
+
+    public function deleteLogo(Request $request) 
+    {
+        $store      = Shop::where('id', SHOP_ID)->update(['image' => NULL]); 
+        if($store)
+            return ['flagError' => false, 'logo' => asset('admin/images/image-not-found.png'),  'message' => "Logo deleted successfully"];
+
+        return ['flagError' => true, 'message' => "Errors Occurred. Please check!",  'error'=>$validator->errors()->all()];
     }
 
     /**

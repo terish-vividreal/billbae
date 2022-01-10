@@ -118,7 +118,6 @@ class CommonController extends Controller
                             ->whereIn('staff_profiles.designation', [1, 2])
                             ->where('users.is_active', '!=',  2)->get(['users.id', 'users.name as title', 'schedule_colors.name as eventColor']);
 
-        // return response()->json($data);
 
         if($data)
             return response()->json(['flagError' => false, 'data' => $data]);

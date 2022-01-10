@@ -141,8 +141,8 @@
               {!! Form::hidden('gst_billing_id', $billing->id ?? '' , ['id' => 'gst_billing_id'] ) !!}
               <div class="row">
                 <div class="input-field col m6 s12">
-                    {!! Form::text('gst', $billing->gst ?? '', array('id' => 'gst', 'style' => "text-transform:uppercase")) !!} 
-                    <label for="gst" class="label-placeholder active">GST No</label>
+                  {!! Form::text('gst', $billing->gst ?? '', array('id' => 'gst', 'style' => "text-transform:uppercase")) !!} 
+                  <label for="gst" class="label-placeholder active">GST No</label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('gst_percentage', $variants->tax_percentage, $billing->gst_percentage ?? '' , ['id' => 'gst_percentage', 'class' => 'select2 browser-default', 'placeholder'=>'Please select default GST percentage']) !!}
@@ -151,13 +151,13 @@
               </div>
               <div class="row">
                 <div class="input-field col m5 s6">
-                {!! Form::text('hsn_code', $billing->hsn_code ?? '', ['id' => 'hsn_code']) !!}
-                <label for="hsn_code" class="label-placeholder active">Store SAC Code </label>
+                  {!! Form::text('hsn_code', $billing->hsn_code ?? '', ['id' => 'hsn_code']) !!}
+                  <label for="hsn_code" class="label-placeholder active">Store SAC Code </label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn waves-effect waves-light" type="button" name="reset" id="gst-reset-btn">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="gst-submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
@@ -303,7 +303,6 @@
     $(this).parents("tr").find(".btn-update").remove();  
     $(this).parents("tr").find(".btn-cancel").remove();  
   }); 
-
 
   $("body").on("click", ".btn-update", function() {  
     var name  = $(this).parents("tr").find("input[name='payment_types']").val();  
@@ -499,10 +498,10 @@
     var validator = $("#storeGSTForm").validate({ 
       rules: {
         gst: {
-          required: true,
+          // required: true,
         },
         gst_percentage: {
-          required: true,
+          // required: true,
         }
       },
       messages: { 
@@ -514,6 +513,7 @@
         }
       },
       submitHandler: function (form) {
+        disableBtn("gst-submit-btn");
         id          = $("#gst_billing_id").val();
         var forms   = $("#storeGSTForm");
         $.ajax({ url: "{{ url('/store/update/gst-billing') }}" , type: 'POST', processData: false, data: forms.serialize(), dataType: "html",
@@ -521,6 +521,7 @@
           var data = JSON.parse(a);
           if (data.flagError == false) {
             showSuccessToaster(data.message);
+            enableBtn("gst-submit-btn");
             // setTimeout(function () { 
             //     window.location.href = "{{ url('store/billings')}}";                    
             // }, 2000);
@@ -532,6 +533,14 @@
       }
     })
   }
+
+  $("#gst-reset-btn").click(function() {
+    validator.resetForm();
+    $('#storeGSTForm').find("input[type=text]").val("");
+    $('input').removeClass('error');
+    $("#storeGSTForm label").removeClass("error");
+    $("#gst_percentage").val('').trigger('change')
+  });
 
   function manageAdditionalTax(additionaltax_id){
     additionalTaxValidator.resetForm();

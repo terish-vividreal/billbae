@@ -151,46 +151,46 @@ if ($("#{{$page->entity}}Form").length > 0) {
         },
         messages: { 
             name: {
-                required: "Please enter name",
-                maxlength: "Length cannot be more than 200 characters",
-                },
+              required: "Please enter name",
+              maxlength: "Length cannot be more than 200 characters",
+            },
             mobile: {
-                required: "Please enter mobile number",
-                maxlength: "Length cannot be more than 10 numbers",
-                minlength: "Length must be 10 numbers",
-                },
+              required: "Please enter mobile number",
+              maxlength: "Length cannot be more than 10 numbers",
+              minlength: "Length must be 10 numbers",
+            },
             email: {
-                required: "Please enter email",
-                email: "Please enter a valid email address.",
-                remote: "Email already existing"
+              required: "Please enter email",
+              email: "Please enter a valid email address.",
+              remote: "Email already existing"
             },
             "roles[]": {
-                required: "Please choose role",
+              required: "Please choose role",
             },
         },
         submitHandler: function (form) {
-            $('#submit-btn').html('Please Wait...');
-            $("#submit-btn"). attr("disabled", true);
-            id = $("#user_id").val();
-            user_id      = "" == id ? "" : "/" + id;
-            formMethod  = "" == id ? "POST" : "PUT";
-            var forms = $("#{{$page->entity}}Form");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + user_id, type: formMethod, processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-              $('#submit-btn').html('Submit <i class="material-icons right">send</i>');
-              $("#submit-btn"). attr("disabled", false);
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    setTimeout(function () { 
-                      window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-                    }, 2000);
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
+          $('#submit-btn').html('Please Wait...');
+          $("#submit-btn"). attr("disabled", true);
+          id = $("#user_id").val();
+          user_id      = "" == id ? "" : "/" + id;
+          formMethod  = "" == id ? "POST" : "PUT";
+          var forms = $("#{{$page->entity}}Form");
+          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + user_id, type: formMethod, processData: false, 
+          data: forms.serialize(), dataType: "html",
+          }).done(function (a) {
+            $('#submit-btn').html('Submit <i class="material-icons right">send</i>');
+            $("#submit-btn"). attr("disabled", false);
+              var data = JSON.parse(a);
+              if (data.flagError == false) {
+                showSuccessToaster(data.message);
+                setTimeout(function () { 
+                  window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+                }, 2000);
+              } else {
+                showErrorToaster(data.message);
+                printErrorMsg(data.error);
+              }
+          });
         },
         errorPlacement: function(error, element) {
           if (element.is("select")) {

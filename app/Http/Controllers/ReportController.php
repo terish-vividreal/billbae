@@ -85,7 +85,7 @@ class ReportController extends Controller
     {
         $from       = Carbon\Carbon::parse($request->start_range)->startOfDay();  
         $to         = Carbon\Carbon::parse($request->end_range)->endOfDay();
-        $detail     =  Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id', 'payment_status', 'billing_code', 'billed_date', 'checkin_time', 'checkout_time', 'customer_id')->where('shop_id', SHOP_ID)->groupBy('billings.id')->orderBy('created_at', 'ASC');
+        $detail     =  Billing::select( DB::raw("DATE_FORMAT(created_at, '%d %M') as day"), DB::raw("SUM(amount) as amount"), 'id', 'payment_status', 'billing_code', 'billed_date', 'checkin_time', 'checkout_time', 'customer_id')->where('shop_id', SHOP_ID)->groupBy('billings.id');
         if( ($from != '') && ($to != '') ) {
             $detail->Where(function ($query) use ($from, $to) {
                 $query->whereBetween('created_at', [$from, $to]);

@@ -2,8 +2,19 @@
   var image = document.getElementById('image');
   var cropper;
   $("body").on("change", ".image", function(e){
+
     var files = e.target.files;
+
+    console.log("11");
+
     var done = function (url) {
+
+      var ext =files[0].name.split('.').pop().toLowerCase();
+      if($.inArray(ext, ['gif','png','jpg','jpeg']) == -1) {
+        showErrorToaster('invalid extension!');
+        return false;
+      }
+
       image.src = url;
       $modal.modal('open');
     };
@@ -29,6 +40,7 @@
   $modal.modal({
       dismissible: true,
       onOpenEnd: function(modal, trigger) { 
+        console.log("44");
         $('input[type="file"]').val('');
         cropper = new Cropper(image, {
           aspectRatio: 15 / 15,
@@ -48,6 +60,3 @@
   $("#select-files").on("click", function () {
     $("#profile").click();
   })
-
-
-  

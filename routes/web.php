@@ -83,6 +83,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::get($store_link . '/profile', [Store::class, 'index']);
     Route::post($store_link . '/unique', [Store::class, 'isUnique']);
     Route::post($store_link . '/update-logo', [Store::class, 'updateLogo']);
+    Route::post($store_link . '/delete-logo', [Store::class, 'deleteLogo']);
     // Route::post($store_link . '/crop-image-upload', [Store::class, 'updateLogo']);
     Route::get($store_link . '/billings', [Store::class, 'billings']);
     Route::post($store_link . '/update/gst-billing', [Store::class, 'updateGst']);

@@ -23,17 +23,18 @@
   max-width: 100%;
 } */
 .preview {
-  overflow: hidden;
+  /* overflow: hidden;
   width: 160px; 
   height: 160px;
   margin: 10px;
-  border: 1px solid red;
+  border: 1px solid red; */
 }
 .modal-box{
   max-width: 1000px !important;
 }
 img {
-  max-width: 100%; /* This rule is very important, please do not ignore this! */
+  max-width: 100%; 
+  /* This rule is very important, please do not ignore this! */
 }
 .cropper-wrap-box, .cropper-canvas{
   transform: translateY(0) !important;
@@ -75,7 +76,6 @@ img {
           </a>
         </li>
       </ul>
-
       <div class="divider mb-3"></div>
       <div class="row">
         @if($user)
@@ -123,34 +123,41 @@ img {
                 <div class="col s6">
                   <div class="input-field">
                     {!! Form::text('name', $user->name ?? '', array('id' => 'name')) !!} 
-                    <label for="name" class="label-placeholder">Admin Name <span class="red-text">*</span></label>
+                    <label for="name" class="label-placeholder active">Admin Name <span class="red-text">*</span></label>
                   </div>
                 </div>
                 <div class="col s6">
                   <div class="input-field">
                     {!! Form::text('email', $user->email ?? '') !!} 
-                    <label for="email" class="label-placeholder">Store Email <span class="red-text">*</span></label>
+                    <label for="email" class="label-placeholder active">Store Email <span class="red-text">*</span></label>
                     <small class="errorTxt2"></small>
                   </div>
                 </div>
               </div>
               <div class="row">
-                <div class="col s6">
+                <div class="col s2">
+                  <div class="input-field">
+                  
+                  {!! Form::select('phone_code', $variants->phonecode , $store->country_id ?? '' , ['id' => 'phone_code']) !!}
+                  <label for="mobile" class="label-placeholder active">Phone code <span class="red-text">*</span></label>
+                  </div>
+                </div>
+                <div class="col s4">
                   <div class="input-field">
                     {!! Form::text('mobile', $user->mobile ?? '',  ['class' => '']) !!} 
-                    <label for="mobile" class="label-placeholder">Store Mobile <span class="red-text">*</span></label>
+                    <label for="mobile" class="label-placeholder active">Store Mobile <span class="red-text">*</span></label>
                     <small class="errorTxt2"></small>
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset" onclick="resetUserProfileForm()">Reset <i class="material-icons right">refresh</i></button>
+                  <!-- onclick="resetUserProfileForm()" -->
+                  <button class="btn waves-effect waves-light" type="button" name="reset" id="resetUserProfileForm">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="profile-submit-btn">Submit <i class="material-icons right">keyboard_arrow_right</i></button>
                 </div>
               </div>
             </form>
-
             <!-- users edit account form ends -->
           </div>
           <div class="col s12" id="additionalTaxes">
@@ -161,19 +168,19 @@ img {
               <div class="col s12">
                 <div class="input-field">
                   {!! Form::password('old_password',  ['class' => 'form-control', 'id' => 'old_password']) !!}
-                  <label for="old_password" class="label-placeholder">Old Password<span class="red-text">*</span></label> 
+                  <label for="old_password" class="label-placeholder active">Old Password<span class="red-text"> *</span></label> 
                 </div>
               </div>
               <div class="col s12">
                 <div class="input-field">
                   {!! Form::password('new_password',  ['class' => 'form-control',  'id' => 'new_password']) !!}
-                  <label for="new_password" class="label-placeholder">New Password<span class="red-text">*</span></label> 
+                  <label for="new_password" class="label-placeholder active">New Password<span class="red-text"> *</span></label> 
                 </div>
               </div>
               <div class="col s12">
                 <div class="input-field">
                   {!! Form::password('new_password_confirmation', ['id' => 'new_password_confirmation', 'class' => 'form-control']) !!}
-                  <label for="new_password_confirmation" class="label-placeholder">Confirm Password<span class="red-text">*</span></label>
+                  <label for="new_password_confirmation" class="label-placeholder active">Confirm Password<span class="red-text"> *</span></label>
                 </div>
               </div>
              </div>
@@ -207,29 +214,38 @@ img {
 <script src="{{ asset('admin/js/cropper-script.js') }}"></script>
 <script>
 
+  $(document).on('change', '#phone_code', function () {
+    if (this.value != 101) {
+      $("#profile-submit-btn").prop('disabled', true);
+      showErrorToaster("Currently not supported in your selected country!");
+      $(".print-error-msg").show();
+    } else {
+      $("#profile-submit-btn").prop('disabled', false);
+      $(".print-error-msg").hide();
+    }
+  });
+
   $("#profileImageSubmitBtn").click(function(){
     canvas = cropper.getCroppedCanvas({
-      width:400,
-      height:700,
+      // width:100,
+      // height:100,
       viewport: {
-        width: 600,
-        height: 300,
+        width: 100,
+        height: 100,
         type:'circle'
       },
     });
     canvas.toBlob(function(blob) {
+      disableBtn('profileImageSubmitBtn');
       url = URL.createObjectURL(blob);
       var reader = new FileReader();
       reader.readAsDataURL(blob); 
       reader.onloadend = function() {
         var base64data = reader.result; 
         id = $("#store_id").val();
-        $.ajax({
-          type: "POST",
-          dataType: "json",
-          url: "{{ url('/store/update-user-image') }}",
-          data: {store_id : id , 'image': base64data},
+        $.ajax({ type: "POST", dataType: "json", url: "{{ url('/store/update-user-image') }}", data: {store_id : id , 'image': base64data},
           success: function(data) {
+            enableBtn('profileImageSubmitBtn');
             if (data.flagError == false) {
               showSuccessToaster(data.message);                 
               $("#user_profile").attr("src", data.logo);
@@ -243,7 +259,7 @@ img {
         });
       }
     });
-  })
+  });
 
   if ($("#userProfileForm").length > 0) {
     var userProfileFormValidator = $("#userProfileForm").validate({ 
@@ -260,6 +276,7 @@ img {
         email: {
           required: true,
           email: true,
+          emailFormat:true,
           remote: { url: "{{ url(ROUTE_PREFIX.'/users/unique') }}", type: "POST",
             data: {
               user_id: function () {
@@ -279,17 +296,20 @@ img {
           maxlength: "Length cannot be more than 10 characters",
         },
         email: {
+          required: "Please enter store email",
           email: "Please enter a valid email address.",
           remote: "Email already existing"
         },
       },
       submitHandler: function (form) {
+        disableBtn('profile-submit-btn');
         var forms   = $("#userProfileForm");
         $.ajax({ url: "{{ url('/store/user-profile') }}", type: "POST", processData: false, 
         data: forms.serialize(), dataType: "html",
         }).done(function (a) {
           var data = JSON.parse(a);
           if (data.flagError == false) {
+            enableBtn('profile-submit-btn');
             showSuccessToaster(data.message);
             setTimeout(function () { 
               window.location.href = "{{ url('store/user-profile')}}";                    
@@ -301,15 +321,15 @@ img {
         });
       }
     })
-  } 
+  }
 
-  function resetUserProfileForm() {
+  $('#resetUserProfileForm').click(function() {
     userProfileFormValidator.resetForm();
-    $('#userProfileForm').find("input[type=password], textarea, hidden").val("");
+    $('#userProfileForm').find("input[type=text], textarea, hidden").val("");
     $('input').removeClass('error');
     $("#userProfileForm label").removeClass("error");
-    $("#userProfileForm .label-placeholder").addClass('active');
-  }
+    // $("#userProfileForm .label-placeholder").addClass('active');
+  });
 
   if ($("#changepasswordForm").length > 0) {
     var changePasswordFormValidator = $("#changepasswordForm").validate({ 
@@ -369,6 +389,10 @@ img {
     $("#changepasswordForm .label-placeholder").addClass('active');
   }
 
+  jQuery.validator.addMethod("emailFormat", function (value, element) {
+    return this.optional(element) || /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/igm.test(value);
+  }, "Please enter a valid email address");    
+
   // $("#removeLogoDisplayBtn").click(function(event){
   //   event.preventDefault();
   //   var old_logo = $("#user_photo_url").val();
@@ -393,4 +417,3 @@ img {
   
 </script>
 @endpush
-

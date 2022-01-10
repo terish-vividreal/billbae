@@ -266,7 +266,7 @@ $('input.typeahead').typeahead({
     autoSelect: true,
     hint: true,
     highlight: true,
-    minLength: 3,
+    minLength: 2,
     source:  function (query, process) {
     return $.get(path, 
         { 
@@ -302,6 +302,7 @@ function getCustomerDetails(customer_id){
 }
 
 function clearForm() {
+
   validator.resetForm();
   $('input').removeClass('error');
   $("#manageScheduleForm .form-control").removeClass("error");
@@ -309,8 +310,9 @@ function clearForm() {
   $('#manageScheduleForm').trigger("reset");
   $('#manageScheduleForm').find("input[type=text], textarea, hidden").val("");
   $('#service_type').select2({ placeholder: "Please select type"});
-  $('#services').select2({ placeholder: "Please select service", allowClear: true });
-  $('#packages').select2({ placeholder: "Please select package" });
+
+  $(".service-type").empty().trigger('change');
+
   $("input[name='item_ids[]']").remove();
   $("input.disabled").attr("disabled", false);
   $('#manageScheduleForm').find("input[type=hidden]").val("");
@@ -559,7 +561,7 @@ if ($("#manageScheduleForm").length > 0) {
             maxlength: "Length cannot be more than 200 characters",
           },
           user_id: {
-            required: "Please select therapist",
+            required: "Please select a therapist",
           },
           mobile: {
             required: "Please enter customer mobile",
@@ -584,9 +586,13 @@ if ($("#manageScheduleForm").length > 0) {
                   } else {
                     if (data.redirect === 'redirect') {
                       window.location.href = "{{ url(ROUTE_PREFIX.'/billings/invoice/') }}/" + data.billing_id;
-                    }else{
-                      enableBtn('schedule-submit-btn');
-                      enableBtn('receivePaymentBtn');
+                    } else {
+
+                      $('#receivePaymentBtn').html('Receive payment <i class="material-icons right">keyboard_arrow_right</i>');
+                      $('#receivePaymentBtn').attr("disabled", false);
+                      $('#schedule-submit-btn').html('Submit Schedule <i class="material-icons right">keyboard_arrow_right</i>');
+                      $('#schedule-submit-btn').attr("disabled", false);
+
                       $('#manage-schedule-modal').modal('close');
                       showSuccessToaster(data.message);
                       $('#calendar').fullCalendar( 'refetchEvents' );

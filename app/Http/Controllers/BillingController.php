@@ -93,6 +93,7 @@ class BillingController extends Controller
         $variants->payment_types    = PaymentType::where('shop_id', SHOP_ID)->pluck('name', 'id');         
         $variants->time_picker      = ($this->time_format === 'h')?false:true;
         $variants->time_format      = $this->time_format;
+        $variants->phonecode        = DB::table('shop_countries')->select("id", DB::raw('CONCAT("+", phonecode) AS phone_code'))->where('status',1)->pluck('phone_code', 'id');
         return view($this->viewPath . '.create', compact('page', 'variants', 'store'));
     }
 
@@ -201,16 +202,20 @@ class BillingController extends Controller
         $billed_date                    = FunctionHelper::dateToTimeFormat($request->billed_date);
         $checkin_time                   = FunctionHelper::dateToTimeFormat($request->checkin_time);
         $checkout_time                  = FunctionHelper::dateToTimeFormat($request->checkout_time);
+
+
+
         $billing                        = new Billing();
         $billing->shop_id               = SHOP_ID;
         $billing->customer_id           = $request->customer_id;
         $billing->customer_type         = Customer::isExisting($request->customer_id);        
         $billing->amount                = $request->grand_total;
-        $billing->billed_date           = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s A');
-        $billing->checkin_time          = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s A'); 
-        $billing->checkout_time         = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
+        $billing->billed_date           = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s');
+        $billing->checkin_time          = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s'); 
+        $billing->checkout_time         = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s'); 
         $billing->payment_status        = 0 ;
         $billing->address_type          = ($request->billing_address_checkbox == 0) ? 'company' : 'customer' ;
+        
         $billing->save();
         
         if ($request->billing_address_checkbox == 0) {
@@ -347,9 +352,9 @@ class BillingController extends Controller
         $billing                    = Billing::findOrFail($id);
         $billing->customer_id       = $request->customer_id;
         $billing->amount            = $request->grand_total;
-        $billing->billed_date       = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s A');
-        $billing->checkin_time      = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s A'); 
-        $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s A'); 
+        $billing->billed_date       = FunctionHelper::dateToUTC($billed_date, 'Y-m-d H:i:s');
+        $billing->checkin_time      = FunctionHelper::dateToUTC($checkin_time, 'Y-m-d H:i:s'); 
+        $billing->checkout_time     = FunctionHelper::dateToUTC($checkout_time, 'Y-m-d H:i:s'); 
         $address                    = BillingAddres::where('bill_id', $id)->where('customer_id', $request->customer_id)->first();
         $billing_address_checkbox   = $request->has('billing_address_checkbox') ? 1 : 0;
 
@@ -462,7 +467,7 @@ class BillingController extends Controller
         $billing                    = Billing::findOrFail($id);
         $variants->payment_types    = PaymentType::pluck('name', 'id'); 
         $variants->store            = Shop::with('billing')->select('shops.*', 'shop_states.name as state', 'shop_districts.name as district')->leftjoin('shop_states', 'shop_states.id', '=', 'shops.state_id')->leftjoin('shop_districts', 'shop_districts.id', '=', 'shops.district_id')->find($user->shop_id); 
-
+        $variants->phonecode        = DB::table('shop_countries')->select("id", DB::raw('CONCAT("+", phonecode) AS phone_code'))->where('status',1)->pluck('phone_code', 'id');
         if ($billing->status === 0) {
             if ($billing->items) {
                 $billing_items_array        = $billing->items->toArray();
@@ -592,6 +597,7 @@ class BillingController extends Controller
         $variants->services     = Service::where('shop_id', SHOP_ID)->pluck('name', 'id');          
         $variants->packages     = Package::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
         $billing                = Billing::findOrFail($id);
+        $variants->phonecode    = DB::table('shop_countries')->select("id", DB::raw('CONCAT("+", phonecode) AS phone_code'))->where('status',1)->pluck('phone_code', 'id');
         if ($billing->status === 0) {
             $user                       = Auth::user();
             $billing                    = Billing::findOrFail($id);
