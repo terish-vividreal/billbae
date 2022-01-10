@@ -70,6 +70,11 @@
                   <h5 class="media-heading mt-0">Logo</h5>
                   <div class="user-edit-btns display-flex">
                     <a id="select-files" class="btn indigo mr-2"><span>Browse</span></a>
+                    
+                    @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) menu-open @endif
+                    
+                    <button class="btn-small  btn-danger" id="deleteLogoBtn" style={{ ($store->image != '') ? 'display:block;' : 'display:none;'}}>Delete</button>
+                    
                     <a href="#" class="btn-small btn-light-pink logo-action-btn" id="removeLogoDisplayBtn" style="display:none;">Remove</a>
                     <button type="submit" class="btn btn-success logo-action-btn" id="uploadLogoBtn" style="display:none;">Upload</button>
                   </div>
@@ -176,7 +181,7 @@
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn waves-effect waves-light" type="button" name="reset" id="store-profile-reset-btn">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="store-profile-submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
@@ -231,11 +236,14 @@
   });
 
   $('#storeLogoForm').submit(function(e) {
+    disableBtn("uploadLogoBtn");
     var formData = new FormData(this);
     $.ajax({ type: "POST",url: "{{ url('/store/update-logo') }}", data: formData, cache:false, contentType: false, processData: false,
       success: function(data) {
         if (data.flagError == false) {
-          showSuccessToaster(data.message);                 
+          showSuccessToaster(data.message);  
+          $(".logo-action-btn").hide();
+          $("#deleteLogoBtn").show();
           $("#store_logo").attr("src", data.logo);
         } else {
           showErrorToaster(data.message);
@@ -243,6 +251,43 @@
         }
       }
     });
+  });
+
+  $("#deleteLogoBtn").click(function(event) {
+    event.preventDefault();
+    swal({ title: "Are you sure?", icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!', delete: 'Yes, Delete It' }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/store/delete-logo') }}/", type: "post"}).done(function (data) {
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);
+            $("#deleteLogoBtn").hide();          
+            $("#store_logo").attr("src", data.logo);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
+
+    // $.ajax({ type: "POST",url: "{{ url('/store/delete-logo') }}", data: formData, cache:false, contentType: false, processData: false,
+    //   success: function(data) {
+    //     if (data.flagError == false) {
+    //       showSuccessToaster(data.message);  
+    //       $(".logo-action-btn").hide();
+    //       $("#deleteLogoBtn").show();
+    //       $("#store_logo").attr("src", data.logo);
+    //     } else {
+    //       showErrorToaster(data.message);
+    //       printErrorMsg(data.error);
+    //     }
+    //   }
+    // });
+
+
   });
 
   $('#country_id').select2({ placeholder: "Please select country", allowClear: true });
@@ -367,6 +412,14 @@
       }
     })
   } 
+
+  $('#store-profile-reset-btn').click(function() {
+    validator.resetForm();
+    $('#storeProfileForm').find("input[type=text], textarea").val("");
+    $('input').removeClass('error');
+    $("label").removeClass("error");
+    $("#timezone").val('').trigger('change')
+  });
 
   $("#select-files").on("click", function () {
     $("#profile").click();

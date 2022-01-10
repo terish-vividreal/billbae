@@ -48,7 +48,7 @@
                       <div class="input-field col m6 s12" id="custom-templates">
                           <i class="material-icons prefix">textsms</i>
                           <input type="text" name="search_customer" id="search_customer" class="typeahead autocomplete" autocomplete="off" value="">
-                          <label for="search_customer" class="typeahead label-placeholder">Search Customer name or mobile...</label>
+                          <label for="search_customer" class="typeahead label-placeholder active">Search Customer name or mobile...</label>
                       </div>
                       <div class="input-field col m2 s12" id="customerActionDiv" style="display:none;">
                         <a class="btn-floating mb-1 btn-flat waves-effect waves-light pink accent-2 white-text amber darken-4" target="_blank" id="customerViewLink">
@@ -68,28 +68,31 @@
                 <div class="row">
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_name', '',  ['id' => 'customer_name', 'placeholder' => 'Customer Name', 'disabled' => 'disabled']) !!}  
-                    <!-- <label for="customer_name" class="label-placeholder">Customer Name <span class="red-text">*</span></label> -->
+                    <label for="customer_name" class="label-placeholder active">Name <span class="red-text">*</span></label>
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_mobile', '', array('id' => 'customer_mobile', 'placeholder' => 'Customer Mobile', 'disabled' => 'disabled')) !!}  
-                    <!-- <label for="customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label>  -->
+                    <label for="customer_mobile" class="label-placeholder active">Mobile </label> 
                   </div>
                 </div>
                 <div class="row">
                   <div class="input-field col m6 s12">
                     <input type="text" name="billed_date" id="billed_date" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                    <label for="billed_date" class="label-placeholder active">Billed Date </label> 
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_email', '', array('id' => 'customer_email', 'placeholder' => 'Customer Email', 'disabled' => 'disabled')) !!}  
-                    <!-- <label for="customer_email" class="label-placeholder">Customer Email <span class="red-text">*</span></label>  -->
+                    <label for="customer_email" class="label-placeholder active">Email</label> 
                   </div>
                 </div>
                 <div class="row">
                   <div class="input-field col m6 s12">
                     <input type="text" name="checkin_time" id="checkin_time" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                    <label for="checkin_time" class="label-placeholder active">Checkin time</label> 
                   </div>
                   <div class="input-field col m6 s12">
                     <input type="text" name="checkout_time" id="checkout_time" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                    <label for="checkout_time" class="label-placeholder active">Checkout time</label> 
                   </div>
                 </div>
                 <div class="row">
@@ -502,11 +505,10 @@ if ($("#newCustomerForm").length > 0) {
         maxlength: 200,
         lettersonly: true,
       },
-      // new_customer_mobile:{
-      //   required:true,
-      //   minlength:10,
-      //   maxlength:10
-      // },
+      new_customer_mobile:{
+        minlength:3,
+        maxlength:15
+      },
     },
     messages: { 
       new_customer_name: {
@@ -515,8 +517,8 @@ if ($("#newCustomerForm").length > 0) {
       },
       new_customer_mobile: {
         required: "Please enter mobile number",
-        maxlength: "Length cannot be more than 10 numbers",
-        minlength: "Length must be 10 numbers",
+        maxlength: "Length cannot be more than 15 numbers",
+        minlength: "Length must be 3 numbers",
       },
     },
     submitHandler: function (form) {
@@ -536,5 +538,11 @@ if ($("#newCustomerForm").length > 0) {
     }
   })
 }
+
+$(document).on('change', '#phone_code', function () {
+  if (this.value != 101) {
+    showErrorToaster("Currently not supported in your selected country!");
+  }
+});
 </script>
 @endpush

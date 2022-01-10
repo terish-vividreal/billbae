@@ -13,27 +13,32 @@
                 <div class="row">
                   <div class="input-field col m6 s12">
                   {!! Form::text('new_customer_name', '' , array('id' => 'new_customer_name')) !!}           
-                    <label for="new_customer_name" class="label-placeholder">Customer Name <span class="red-text">*</span></label>
+                    <label for="new_customer_name" class="label-placeholder active">Customer Name <span class="red-text">*</span></label>
                   </div>
-                  <div class="input-field col m6 s12">
+                  <div class="input-field col m2 s12">
+                    {!! Form::select('phone_code', $variants->phonecode , $store->country_id ?? '' , ['id' => 'phone_code']) !!}
+                    <label for="phone_code" class="label-placeholder active">Phone code <span class="red-text">*</span></label>
+                  </div>
+                  <div class="input-field col m4 s12">
                     {!! Form::text('new_customer_mobile', '' , array('id' => 'new_customer_mobile','class' => 'check_numeric')) !!} 
-                    <label for="new_customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label> 
+                    <label for="new_customer_mobile" class="label-placeholder active">Customer Mobile <span class="red-text">*</span></label> 
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="input-field col m6 s12">
                     <input type="text" name="dob" id="dob" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                    <label for="dob" class="label-placeholder active">Customer DOB <span class="red-text">*</span></label> 
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('new_customer_email', '' , array('id' => 'new_customer_email')) !!}   
-                    <label for="new_customer_email" class="label-placeholder">Customer Email</label> 
+                    <label for="new_customer_email" class="label-placeholder active">Customer Email</label> 
                   </div>
                 </div>
 
                 <div class="row">
                 <div class="input-field col m6 s12">    
-                <p> 
+                  <p> 
                     <label>
                       <input value="1" id="male" name="gender" type="radio" checked />
                       <span> Male </span>
@@ -52,15 +57,6 @@
                 </div>       
               </div>
 
-
-
-
-
-
-
-
-
-                
                 </div>
         </div>
         <div class="modal-footer">

@@ -61,7 +61,7 @@ class UserController extends Controller
     public function lists(Request $request)
     {
         $user_id    = Auth::user()->id;
-        $detail     =  User::select(['name', 'mobile', 'email', 'is_active', 'id']);
+        $detail     = User::select(['name', 'mobile', 'email', 'is_active', 'id']);
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -115,7 +115,7 @@ class UserController extends Controller
         $page->entity       = $this->entity;
         $page->form_method  = 'POST';
         $page->route        = $this->route;
-        $roles              = Role::where('name', '!=' , 'Super Admin')->orderBy('id', 'asc')->pluck('name','name')->all();
+        $roles              = Role::where('name', '!=' , 'Super Admin')->where('name', '!=' , 'Store')->orderBy('id', 'asc')->pluck('name','name')->all();
         return view($this->viewPath . '.create', compact('page', 'roles', 'you'));
     }
     
@@ -143,7 +143,7 @@ class UserController extends Controller
                 $shop           = new Shop();
                 $shop->name     = $input['shop_name'];
                 $shop->user_id  = $user->id;
-                $shop->save();
+                $shop->save();  
                 $user->shop_id  = $shop->id; 
             } else {
                 $user->shop_id  = Auth::user()->shop_id;
@@ -194,8 +194,8 @@ class UserController extends Controller
         $page->form_url     = url($this->link . '/' . $user->id);
         $page->form_method  = 'PUT';
         $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
-        $userRole           = $user->roles->pluck('name','name')->all();
-        return view($this->viewPath . '.create',compact('user','roles', 'you' ,'userRole', 'page'));
+        $userRole           = $user->roles->pluck('name','name')->where('name', '!=' , 'Super Admin')->where('name', '!=' , 'Store')->all();
+        return view($this->viewPath . '.create',compact('user','roles', 'you', 'userRole', 'page'));
     }
     
     /**

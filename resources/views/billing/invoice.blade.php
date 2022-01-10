@@ -204,31 +204,28 @@ function getInvoiceDetails(discount = null){
   });
 }
 
-function manageDiscount(e){
+function manageDiscount(e) {
   var id      = $(e).data("id");
   var action  = $(e).data("action");
+  validator.resetForm();
     $('#billing_item_id').val(id);
     $('#discount_action').val(action);
   if(action == 'add'){
     $('#discount_value').val('');
     $("#discount-modal").modal("open");
-  }else{
+  } else {
 
     swal({ title: 'Are you sure you want to remove the discount added?', icon: 'warning', dangerMode: true,
-			buttons: {
-				cancel: 'No, Please!',
-				delete: 'Yes, Remove It'
-			}
+			buttons: { cancel: 'No, Please!', delete: 'Yes, Remove It'}
 		}).then(function (willDelete) {
 			if (willDelete) {
         var forms       = $("#discountForm");
-          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, 
-          data: forms.serialize(), dataType: "html",
+          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, data: forms.serialize(), dataType: "html",
           }).done(function (a) {
               var data = JSON.parse(a);
-              if(data.flagError == false){
+              if (data.flagError == false) {
                   getInvoiceDetails();
-              }else{
+              } else {
                 showErrorToaster(data.message);
                 printErrorMsg(data.error);
               }
@@ -243,7 +240,8 @@ if ($("#discountForm").length > 0) {
   var validator = $("#discountForm").validate({ 
       rules: {
           discount_value: {
-                  required: true,
+            required: true,
+            digits:true
           },
       },
       messages: { 

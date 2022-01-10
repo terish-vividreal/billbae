@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use App\Models\ServiceCategory;
 use App\Models\GstTaxPercentage;
 use App\Models\ShopBilling;
@@ -91,7 +92,7 @@ class Service extends Model
                 $lead_after = $data->leadAfter->value;
             }
 
-            $description    .= $data->name. ' ( ' . ($data->hours->value+$lead_before+$lead_after) . ' mns ) - ' . $store->billing->currencyCode->symbol. ' ' .number_format($data_price,2) .' <br>';
+            $description    .=  Str::ucfirst($data->name). ' ( ' . ($data->hours->value+$lead_before+$lead_after) . ' mns ) - ' . $store->billing->currencyCode->symbol. ' ' .number_format($data_price,2) .' <br>';
             $lead_before    = 0;
             $lead_after     = 0;
         }

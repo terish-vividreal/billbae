@@ -51,12 +51,12 @@
                 {!! Form::hidden('bill_format_id', $variants->billing_formats->id , ['id' => 'bill_format_id'] ); !!}
                 <div class="row">
                   <div class="input-field col m6 s12">                      
-                      {!! Form::text('bill_prefix', $variants->billing_formats->prefix ?? '') !!} 
-                      <label for="bill_prefix" class="label-placeholder active">Starts with: <span class="red-text">*</span></label>
+                    {!! Form::text('bill_prefix', $variants->billing_formats->prefix ?? '') !!} 
+                    <label for="bill_prefix" class="label-placeholder active">Starts with: <span class="red-text">*</span></label>
                   </div>
                   <div class="input-field col m6 s12">                      
-                      {!! Form::text('bill_suffix', $variants->billing_formats->suffix ?? '') !!} 
-                      <label for="bill_suffix" class="label-placeholder active">Starts From: <span class="red-text">*</span></label>
+                    {!! Form::text('bill_suffix', $variants->billing_formats->suffix ?? '') !!} 
+                    <label for="bill_suffix" class="label-placeholder active">Starts From: <span class="red-text">*</span></label>
                   </div>
                 </div>
                 <div class="col s12">
@@ -97,7 +97,7 @@
                   </table>
                 </div>
               <div class="row">
-                <div class="input-field col s12">
+                  <div class="input-field col s12">
                   <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>

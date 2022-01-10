@@ -49,17 +49,17 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $customer->name ?? '', array('id' => 'name')) !!}  
-                  <label for="name" class="label-placeholder">Customer Name <span class="red-text">*</span></label>
+                  <label for="name" class="label-placeholder active">Customer Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::text('email', $customer->email ?? '', array('autocomplete' => 'off', 'id' => 'email')) !!}
-                  <label for="email" class="label-placeholder">Email</label>
+                  <label for="email" class="label-placeholder active">Email</label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('mobile', $customer->mobile ?? '', array('id' => 'mobile', 'class' => 'check_numeric')) !!}  
-                  <label for="mobile" class="label-placeholder">Mobile<span class="red-text">*</span></label>
+                  <label for="mobile" class="label-placeholder active">Mobile<span class="red-text">*</span></label>
                 </div>              
                 <div class="input-field col m6 s12">                
                   <p>
