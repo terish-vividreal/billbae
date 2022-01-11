@@ -84,7 +84,7 @@ img {
               @php
                 $user_profile = ($user->profile != null) ? asset('storage/store/users/' . $user->profile) : asset('admin/images/user-icon.png');
               @endphp
-              <a class="mr-2" href="#">
+              <a class="mr-2" href="javascript:">
                 <img src="{{$user_profile}}" class="border-radius-4" alt="profile image" id="user_profile" height="64" width="64">
               </a>
               <div class="media-body">
@@ -136,9 +136,8 @@ img {
               </div>
               <div class="row">
                 <div class="col s2">
-                  <div class="input-field">
-                  
-                  {!! Form::select('phone_code', $variants->phonecode , $store->country_id ?? '' , ['id' => 'phone_code']) !!}
+                  <div class="input-field">                  
+                  {!! Form::select('phone_code', $variants->phonecode , $user->phone_code ?: $store->country_id ?? '', ['id' => 'phone_code']) !!}
                   <label for="mobile" class="label-placeholder active">Phone code <span class="red-text">*</span></label>
                   </div>
                 </div>

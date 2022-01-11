@@ -54,7 +54,7 @@ class StoreController extends Controller
         $page->title                = $this->title;
         $page->link                 = url($this->link);
         $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id');  
-
+        $variants->phonecode    = DB::table('shop_countries')->select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
         if ($store->country_id) {
             $variants->states           = DB::table('shop_states')->where('country_id', $store->country_id)->pluck('name', 'id'); 
             $country_code               = DB::table('shop_countries')->where('id', $store->country_id)->value('sortname');
@@ -78,7 +78,6 @@ class StoreController extends Controller
         $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id'); 
         $variants->tax_percentage   = DB::table('gst_tax_percentages')->pluck('percentage', 'id');  
         $variants->payment_types    = PaymentType::get() ;
-
 
         if ($billing->country_id) {
             $variants->states           = DB::table('shop_states')->where('country_id',$billing->country_id)->pluck('name', 'id'); 
@@ -138,6 +137,7 @@ class StoreController extends Controller
             $user->name         = $request->name;
             $user->email        = $request->email;
             $user->mobile       = $request->mobile;
+            $user->phone_code   = $request->phone_code;
             $user->save();
             return ['flagError' => false, 'message' => "User details updated successfully"];
         }

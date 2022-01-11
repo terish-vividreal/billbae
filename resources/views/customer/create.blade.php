@@ -68,7 +68,7 @@
                   <label for="mobile" class="label-placeholder active">Mobile </label>
                 </div>              
                 <div class="input-field col m6 s12">  
-                <label for="gender" class="label-placeholder active">DOB </label>              
+                <label for="gender" class="label-placeholder active">Gender </label>              
                   <p style="margin-top: 23px;">
                     <label>
                       <input value="1" id="male" name="gender" type="radio" checked/>

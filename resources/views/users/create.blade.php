@@ -47,25 +47,27 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $user->name ?? '',  ['id' => 'name']) !!}  
-                  <label for="name" class="label-placeholder">Name <span class="red-text">*</span></label>
+                  <label for="name" class="label-placeholder active">Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::text('email', $user->email ?? '', array('id' => 'email', 'autocomplete' => 'off')) !!}  
-                  <label for="email" class="label-placeholder">Email <span class="red-text">*</span></label> 
+                  <label for="email" class="label-placeholder active">Email <span class="red-text">*</span></label> 
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('mobile', $user->mobile ?? '', array('id' => 'mobile', 'class' => 'check_numeric')) !!}
-                  <label for="mobile" class="label-placeholder">Mobile <span class="red-text">*</span></label>   
+                  <label for="mobile" class="label-placeholder active">Mobile <span class="red-text">*</span></label>   
                 </div>              
                 <div class="input-field col m6 s12">                
                   {!! Form::select('roles[]', $roles , $userRole ?? [] , ['id' => 'roles' ,'class' => 'select2 browser-default', 'multiple' => 'multiple' ]) !!}
+                  <label for="roles" class="label-placeholder active">Role <span class="red-text">*</span></label>
                 </div>             
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">    
-                <p> 
+                <label for="gender" class="label-placeholder active">Gender </label>              
+                  <p style="margin-top: 23px;">
                   @if(isset($user))  
                     <label>
                       <input value="1" id="male" name="gender" type="radio" @if($user->gender == 1) checked @endif/>

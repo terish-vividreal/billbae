@@ -407,11 +407,11 @@ class BillingController extends Controller
                 $item->save();
             }  
             if (!empty($billing->schedule)) {
-                $items_details              = Service::totalTime($request->bill_item);
+                $items_details              = Service::getScheduleDetails($request->bill_item);
                 $schedule                   = Schedule::find($billing->schedule->id);
                 $schedule->description      = $items_details['description'];
                 $schedule->total_minutes    = $items_details['total_hours'];
-
+                
                 // Calculating end time
                 $formatted_start_date       = new Carbon\Carbon($schedule->start);
                 $start_date                 = new Carbon\Carbon($schedule->start);

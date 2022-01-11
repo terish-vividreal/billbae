@@ -7,5 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentType extends Model
 {
-    // protected $table = 'my_flights';
+    public function billings()
+    {
+        return $this->hasMany(BillAmount::class, 'payment_type', 'id');
+    }
 }

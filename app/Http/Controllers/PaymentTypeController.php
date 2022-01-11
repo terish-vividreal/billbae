@@ -183,8 +183,13 @@ class PaymentTypeController extends Controller
      */
     public function destroy($id)
     {
-        $data   = PaymentType::findOrFail($id);
-        $data->delete();
-        return ['flagError' => false, 'message' => Str::singular($this->title). " deleted successfully"];
+        $data   = PaymentType::with('billings')->findOrFail($id);
+        if(count($data->billings) > 0 ) {
+            return ['flagError' => true, 'message' => "Error!, Payment type is used in billings. "];
+        } else {
+            $data->delete();
+            return ['flagError' => false, 'message' => Str::singular($this->title). " deleted successfully"]; 
+        }
+        
     }
 }
