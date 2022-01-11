@@ -118,7 +118,7 @@ class StoreController extends Controller
         $page->link             = url($this->link);
         $page->form_url         = url($this->link);
         $page->form_method      = 'POSt';
-        $variants->phonecode    = DB::table('shop_countries')->select("id", DB::raw('CONCAT("+", phonecode) AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
+        $variants->phonecode    = DB::table('shop_countries')->select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
         return view($this->viewPath . '.user-profile', compact('page', 'user', 'store', 'variants'));
     }
 
