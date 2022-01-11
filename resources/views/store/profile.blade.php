@@ -102,17 +102,17 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $store->name ?? '', array('id' => 'name')) !!} 
-                  <label for="name" class="label-placeholder">Store Name <span class="red-text">*</span></label> 
+                  <label for="name" class="label-placeholder active">Store Name <span class="red-text">*</span></label> 
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::text('email', $store->email ?? '', array('id' => 'email')) !!} 
-                  <label for="email" class="label-placeholder">Store Email</label> 
+                  <label for="email" class="label-placeholder active">Store Email</label> 
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::textarea('address', $store->address ?? '', ['class' => 'materialize-textarea', 'placeholder'=>'Address','rows'=>3]) !!}
-                  <label for="address" class="label-placeholder">Address</label> 
+                  <label for="address" class="label-placeholder active">Address</label> 
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('country_id', $variants->countries , $store->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
@@ -123,9 +123,9 @@
                 <div class="input-field col m6 s12">
                   <div id="timezone_block"> 
                     @if(!empty($variants->timezone))
-                      {!! Form::select('timezone', $variants->timezone , $store->timezone ?? '' , ['id' => 'timezone' ,'class' => 'select2 browser-default','placeholder'=>'Please select timezone']) !!}
+                      {!! Form::select('timezone', $variants->timezone, $store->timezone ?? '', ['id' => 'timezone' ,'class' => 'select2 browser-default','placeholder'=>'Please select timezone']) !!}
                     @else
-                      {!! Form::select('timezone', [] , '', ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
+                      {!! Form::select('timezone', [], '', ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
                     @endif
                     <label for="timezone" class="label-placeholder active">Store timezone</label> 
                   </div>
@@ -134,14 +134,14 @@
                   @if(!empty($variants->states))
                     {!! Form::select('state_id', $variants->states , $store->state_id ?? '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
                   @else
-                    {!! Form::select('state_id', [] , '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
+                    {!! Form::select('state_id', [], '' , ['id' => 'state_id' ,'class' => 'select2 browser-default','placeholder'=>'Please select state']) !!}
                   @endif
                   <label for="state_id" class="label-placeholder active">Store state</label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
-                  {!! Form::select('time_format', [1 => '12 Format', 2 => '24 Format'] , $store->time_format ?? '' , ['id' => 'time_format']) !!}
+                  {!! Form::select('time_format', [1 => '12hr format ', 2 => '24hr format'] , $store->time_format ?? '' , ['id' => 'time_format']) !!}
                   <label for="time_format" class="label-placeholder active">Time Format</label> 
                 </div>
                 <div class="input-field col m6 s12">
@@ -155,21 +155,21 @@
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
-                  {!! Form::text('pincode', $store->pincode ?? '' , array('id' => 'pincode', 'placeholder' => 'Pincode','class' => 'check_numeric')) !!}
-                  <label for="pincode" class="label-placeholder">Pincode</label> 
+                  {!! Form::text('pincode', $store->pincode ?? '', array('id' => 'pincode', 'placeholder' => 'Pincode','class' => 'check_numeric')) !!}
+                  <label for="pincode" class="label-placeholder">Pin code</label> 
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::text('contact', $store->contact ?? '', array('id' => 'contact', 'placeholder' => 'Contact Number','class' => 'form-control check_numeric')) !!}
-                  <label for="contact" class="label-placeholder">Contact</label>
+                  <label for="contact" class="label-placeholder">Contact </label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
-                {!! Form::text('location', $store->location ?? '', array('placeholder' => 'Store location','id' => 'location')) !!}
+                {!! Form::text('location', $store->location ?? '', array('placeholder' => 'Store location', 'id' => 'location')) !!}
                 <label for="location" class="label-placeholder">Location</label> 
                 </div>
                 <div class="input-field col m6 s12">
-                {!! Form::text('map_location', $store->map_location ?? '', array('placeholder' => 'Map location','id' => 'map_location')) !!}
+                {!! Form::text('map_location', $store->map_location ?? '', array('placeholder' => 'Map location', 'id' => 'map_location')) !!}
                 <label for="map_location" class="label-placeholder">Map location</label> 
                 </div>
               </div>
@@ -287,7 +287,6 @@
     //   }
     // });
 
-
   });
 
   $('#country_id').select2({ placeholder: "Please select country", allowClear: true });
@@ -298,11 +297,11 @@
 
   $(document).on('change', '#country_id', function () {
     if (this.value != 101) {
-      $("#submit-btn").prop('disabled', true);
+      $("#store-profile-submit-btn").prop('disabled', true);
       showErrorToaster("Currently not supported in your selected country!");
       $(".print-error-msg").show();
     } else {
-      $("#submit-btn").prop('disabled', false);
+      $("#store-profile-submit-btn").prop('disabled', false);
       $(".print-error-msg").hide();
       $.ajax({ type: 'POST', url: "{{ url(ROUTE_PREFIX.'/common/get-states-of-country') }}", data:{'country_id':this.value }, dataType: 'json',
         success: function(data) {
@@ -418,7 +417,7 @@
     $('#storeProfileForm').find("input[type=text], textarea").val("");
     $('input').removeClass('error');
     $("label").removeClass("error");
-    $("#timezone").val('').trigger('change')
+    $("#timezone").val('').trigger('change');
   });
 
   $("#select-files").on("click", function () {

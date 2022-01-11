@@ -74,8 +74,10 @@ class CustomerController extends Controller
         $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity; 
-        // $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');         
-        return view($this->viewPath . '.create', compact('page', 'variants'));
+        $store                  = Shop::find(SHOP_ID);        
+        // $variants->country      = Country::where('shop_id', SHOP_ID)->pluck('name', 'id');
+        $variants->phonecode    = DB::table('shop_countries')->select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->pluck('phone_code', 'id');                  
+        return view($this->viewPath . '.create', compact('page', 'variants', 'store'));
     }
 
     /**
@@ -94,6 +96,7 @@ class CustomerController extends Controller
             $data->gender           = $request->gender;
             $data->dob              = date("Y-m-d", strtotime($request->dob));
             $data->mobile           = $request->mobile;
+            $data->phone_code       = $request->phone_code;
             $data->email            = $request->email;
             $data->customer_code    = FunctionHelper::generateCustomerCode();
             // $data->district_id      = $request->district_id;
@@ -277,7 +280,9 @@ class CustomerController extends Controller
             $page->link                 = url($this->link);
             $page->route                = $this->route;
             $page->entity               = $this->entity; 
-            $variants->countries        = DB::table('shop_countries')->where('status', 1)->pluck('name', 'id');
+            $variants->countries        = DB::table('shop_countries')->pluck('name', 'id');
+            $store                      = Shop::find(SHOP_ID);        
+            $variants->phonecode        = DB::table('shop_countries')->select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->pluck('phone_code', 'id');
             if ($customer->country_id != null) {
                 $variants->states       = DB::table('shop_states')->where('country_id', $customer->country_id)->pluck('name', 'id');
             } else {
@@ -286,7 +291,7 @@ class CustomerController extends Controller
             if ($customer->state_id != null) {
                 $variants->districts   = DB::table('shop_districts')->where('state_id', $customer->state_id)->pluck('name', 'id');
             }
-            return view($this->viewPath . '.edit', compact('page', 'customer' ,'variants'));
+            return view($this->viewPath . '.edit', compact('page', 'customer' ,'variants', 'store'));
         } else {
             return redirect('customers')->with('error', $this->title.' not found');
         }   
@@ -308,6 +313,7 @@ class CustomerController extends Controller
             $data->gender           = $request->gender;
             $data->dob              = date("Y-m-d", strtotime($request->dob));
             $data->mobile           = $request->mobile;
+            $data->phone_code       = $request->phone_code;
             $data->country_id       = $request->country_id;
             $data->state_id         = $request->state_id;
             $data->district_id      = $request->district_id;

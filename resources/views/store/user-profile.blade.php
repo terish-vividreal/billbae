@@ -98,7 +98,7 @@ img {
                     <a href="#" class="btn-small btn-light-pink logo-action-btn" id="removeLogoDisplayBtn" style="display:none;">Remove</a>
                     <button type="submit" class="btn btn-success logo-action-btn" id="uploadLogoBtn" style="display:none;">Upload</button>
                   </div>
-                  <small>Allowed JPG, JPEG or PNG. Max size of 800kB</small>
+                  <small>Allowed JPG, JPEG or PNG extension only.</small>
                   <div class="upfilewrapper" style="display:none;">
                     <input id="profile" type="file" accept="image/png, image/gif, image/jpeg" name="image" class="image" />
                   </div>
@@ -152,7 +152,6 @@ img {
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <!-- onclick="resetUserProfileForm()" -->
                   <button class="btn waves-effect waves-light" type="button" name="reset" id="resetUserProfileForm">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="profile-submit-btn">Submit <i class="material-icons right">keyboard_arrow_right</i></button>
                 </div>
@@ -160,7 +159,7 @@ img {
             </form>
             <!-- users edit account form ends -->
           </div>
-          <div class="col s12" id="additionalTaxes">
+          <div class="col s12" id="additionalTaxes" style="display:none">
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
             <h4 class="card-title">Update Password </h4>
             {!! Form::open(['url' => $page->form_url, 'method' => $page->form_method, 'class'=>'ajax-submit','id'=>'changepasswordForm']) !!}
@@ -270,7 +269,8 @@ img {
         }, 
         mobile: {
           required: true,
-          maxlength: 10,
+          minlength: 3,
+          maxlength: 15,
           digits:true
         },
         email: {
@@ -292,8 +292,9 @@ img {
           maxlength: "Length cannot be more than 200 characters",
         },
         mobile: {
+          digits: "Please enter a valid mobile number",
           required: "Please enter mobile",
-          maxlength: "Length cannot be more than 10 characters",
+          maxlength: "Length cannot be more than 15 characters",
         },
         email: {
           required: "Please enter store email",

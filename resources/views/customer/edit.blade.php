@@ -52,21 +52,28 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $customer->name ?? '', array('id' => 'name')) !!}  
-                  <label for="name" class="label-placeholder">Customer Name <span class="red-text">*</span></label>
+                  <label for="name" class="label-placeholder active">Customer Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::text('email', $customer->email ?? '', array('autocomplete' => 'off', 'id' => 'email')) !!}
-                  <label for="email" class="label-placeholder">Email </label>
+                  <label for="email" class="label-placeholder active">Email </label>
                 </div>
               </div>
 
               <div class="row">
-                <div class="input-field col m6 s12">
+                <div class="col s2">
+                  <div class="input-field">                  
+                  {!! Form::select('phone_code', $variants->phonecode , $customer->phone_code ?? '' , ['id' => 'phone_code', 'class' => 'select2 browser-default', 'placeholder'=>'Please select phone code']) !!}
+                  <label for="phone_code" class="label-placeholder active">Phone code </label>
+                  </div>
+                </div>
+                <div class="input-field col m4 s12">
                   {!! Form::text('mobile', $customer->mobile ?? '', array('id' => 'mobile')) !!}  
-                  <label for="mobile" class="label-placeholder">Mobile <span class="red-text">*</span></label>
+                  <label for="mobile" class="label-placeholder active">Mobile </label>
                 </div>              
                 <div class="input-field col m6 s12">                
-                  <p>
+                <label for="gender" class="label-placeholder active">DOB </label>              
+                  <p style="margin-top: 23px;">
                     <label>
                       <input value="1" id="male" name="gender" type="radio"  @if($customer->gender == 1) checked @endif/>
                       <span> Male </span>
@@ -89,6 +96,7 @@
                     $dob = ($customer->dob != '') ? $customer->dob->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y');
                   @endphp
                   <input type='text' name="dob" id="dob" onkeydown="return false" class="" value="{{$dob}}" autocomplete="off" />
+                  <label for="dob" class="label-placeholder active">DOB </label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('country_id', $variants->countries , $customer->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
@@ -97,7 +105,8 @@
 
               <div class="row">
                 <div class="input-field col m6 s12">
-                  {!! Form::text('pincode', $customer->pincode ?? '' , array('placeholder' => 'Pincode', 'class' => 'check_numeric')) !!}    
+                  {!! Form::text('pincode', $customer->pincode ?? '' , array('placeholder' => 'Pincode', 'class' => 'check_numeric')) !!}  
+                  <label for="pincode" class="label-placeholder active">Pincode </label>  
                 </div>
                 <div class="input-field col m6 s12">
                   <div id="state_block">
@@ -112,7 +121,8 @@
 
               <div class="row">
                 <div class="input-field col m6 s12">  
-                  {!! Form::text('gst', $customer->gst ?? '' , array('placeholder' => 'GST No.')) !!} 
+                  {!! Form::text('gst', $customer->gst ?? '' , array('placeholder' => 'GST No')) !!} 
+                  <label for="gst" class="label-placeholder active">GST No </label>  
                 </div>
                 <div class="input-field col m6 s12">
                   <div id="state_block">
@@ -125,14 +135,14 @@
                 </div>
               </div>
               <div class="row">
-                <div class="input-field col s6">
+                <div class="input-field col m12 s12">
                   {!! Form::textarea('address', $customer->address ?? '', ['class' => 'materialize-textarea', 'placeholder'=>'Address','rows'=>3]) !!}
+                  <label for="address" class="label-placeholder active">Address</label>  
                 </div>
-
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn waves-effect waves-light" type="button" id="reset-btn" name="reset">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
@@ -185,10 +195,25 @@ if ($("#{{$page->entity}}Form").length > 0) {
         maxlength: 200,
         lettersonly: true,
       },
+      phone_code: {
+        // required: true,
+      },
       mobile:{
         // required:true,
-        minlength:10,
-        maxlength:10
+        minlength:3,
+        maxlength:15,
+        digits:true,
+      },
+      email: {
+        email: true,
+        emailFormat:true,
+        remote: { url: "{{ url(ROUTE_PREFIX.'/users/unique') }}", type: "POST",
+          data: {
+            user_id: function () {
+              return $('#customer_id').val();
+            }
+          }
+        },
       },
     },
     messages: { 
@@ -196,15 +221,23 @@ if ($("#{{$page->entity}}Form").length > 0) {
         required: "Please enter customer name",
         maxlength: "Length cannot be more than 200 characters",
       },
+      phone_code: {
+        required: "Please select phone code",
+      },
       mobile: {
         required: "Please enter mobile number",
-        maxlength: "Length cannot be more than 10 numbers",
-        minlength: "Length must be 10 numbers",
+        maxlength: "Length cannot be more than 15 numbers",
+        minlength: "Length must be 3 numbers",
+        digits: "Please enter a valid mobile number",
+      },
+      email: {
+        required: "Please enter store email",
+        email: "Please enter a valid email address",
+        remote: "Email already existing"
       },
     },
     submitHandler: function (form) {
-      $('#submit-btn').html('Please Wait...');
-      $("#submit-btn"). attr("disabled", true);
+      disableBtn("submit-btn");
       id = $("#customer_id").val();
       customer_id      = "" == id ? "" : "/" + id;
       formMethod  = "" == id ? "POST" : "PUT";
@@ -212,8 +245,7 @@ if ($("#{{$page->entity}}Form").length > 0) {
       $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + customer_id, type: formMethod, processData: false, 
       data: forms.serialize(), dataType: "html",
       }).done(function (a) {
-        $('#submit-btn').html('Submit');
-        $("#submit-btn"). attr("disabled", false);
+        enableBtn("submit-btn");
         var data = JSON.parse(a);
         if(data.flagError == false) {
           showSuccessToaster(data.message);
@@ -228,6 +260,10 @@ if ($("#{{$page->entity}}Form").length > 0) {
     },
   })
 }
+
+jQuery.validator.addMethod("emailFormat", function (value, element) {
+    return this.optional(element) || /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/igm.test(value);
+  }, "Please enter a valid email address"); 
 
 jQuery.validator.addMethod("lettersonly", function (value, element) {
     return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
@@ -259,6 +295,14 @@ $(document).on('change', '#state_id', function () {
       select.empty().append(selectTerms);
     }
   });
+});
+
+$("#reset-btn").click(function(e) {
+  validator.resetForm();
+  $('#{{$page->entity}}Form').find("input[type=text], textarea, radio").val("");
+  $("#male").prop("checked", true);
+  $("#country_id").val('').trigger('change');
+  $("#phone_code").val('').trigger('change');
 });
 
 </script>
