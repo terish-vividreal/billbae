@@ -75,7 +75,7 @@
                     
                     <button class="btn-small  btn-danger" id="deleteLogoBtn" style={{ ($store->image != '') ? 'display:block;' : 'display:none;'}}>Delete</button>
                     
-                    <a href="#" class="btn-small btn-light-pink logo-action-btn" id="removeLogoDisplayBtn" style="display:none;">Remove</a>
+                    <a href="" class="btn-small btn-light-pink logo-action-btn" id="removeLogoDisplayBtn" style="display:none;">Remove</a>
                     <button type="submit" class="btn btn-success logo-action-btn" id="uploadLogoBtn" style="display:none;">Upload</button>
                   </div>
                   <small>Allowed JPG, JPEG or PNG. Max size of 800kB</small>
@@ -127,7 +127,7 @@
                     @else
                       {!! Form::select('timezone', [], '', ['id' => 'timezone' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select timezone']) !!}
                     @endif
-                    <label for="timezone" class="label-placeholder active">Store timezone</label> 
+                    <label for="timezone" class="label-placeholder active">Store timezone <span class="red-text">*</span></label> 
                   </div>
                 </div>
                 <div class="input-field col m6 s12">
@@ -158,9 +158,15 @@
                   {!! Form::text('pincode', $store->pincode ?? '', array('id' => 'pincode', 'placeholder' => 'Pincode','class' => 'check_numeric')) !!}
                   <label for="pincode" class="label-placeholder">Pin code</label> 
                 </div>
-                <div class="input-field col m6 s12">
+                <div class="col s2">
+                  <div class="input-field">                  
+                  {!! Form::select('phone_code', $variants->phonecode , $user->phone_code ?: $store->country_id ?? '', ['id' => 'phone_code']) !!}
+                  <label for="mobile" class="label-placeholder active">Phone code <span class="red-text">*</span></label>
+                  </div>
+                </div>
+                <div class="input-field col m4 s12">
                   {!! Form::text('contact', $store->contact ?? '', array('id' => 'contact', 'placeholder' => 'Contact Number','class' => 'form-control check_numeric')) !!}
-                  <label for="contact" class="label-placeholder">Contact </label>
+                  <label for="contact" class="label-placeholder">Contact Mobile</label>
                 </div>
               </div>
               <div class="row">
@@ -214,6 +220,16 @@
 <!-- <script src="{{ asset('admin/js/cropper-script.js') }}"></script> -->
 <script src="{{asset('admin/js/scripts/page-users.js')}}"></script>
 <script>
+
+$(document).on('change', '#phone_code', function () {
+  if (this.value != 101) {
+    $("#store-profile-submit-btn").prop('disabled', true);
+    showErrorToaster("Currently not supported in your selected country!");
+  } else {
+    $("#store-profile-submit-btn").prop('disabled', false);
+  }
+});
+
   $('#profile').change(function() {   
     var ext = $('#profile').val().split('.').pop().toLowerCase();
     if ($.inArray(ext, ['png','jpg','jpeg']) == -1) {
@@ -354,6 +370,12 @@
         timezone: {
           required: true,
         },
+        contact: {
+          required: true,
+          minlength: 3,
+          maxlength: 15,
+          digits:true
+        },
         email: {
           email: true,
           remote: { url: "{{ url('/store/unique') }}", type: "POST",
@@ -375,6 +397,11 @@
         },
         timezone: {
           required: "Please choose timezone",
+        },
+        contact: {
+          digits: "Please enter a valid mobile number",
+          required: "Please enter mobile",
+          maxlength: "Length cannot be more than 15 characters",
         },
         email: {
           email: "Please enter a valid email address.",

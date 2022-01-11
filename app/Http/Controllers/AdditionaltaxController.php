@@ -36,7 +36,7 @@ class AdditionaltaxController extends Controller
      */
     public function lists(Request $request)
     {
-        $detail =  Additionaltax::where('shop_id', SHOP_ID)->orderBy('id', 'desc');  
+        $detail =  Additionaltax::where('shop_id', SHOP_ID)->orderBy('id', 'ASC');  
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
@@ -144,8 +144,13 @@ class AdditionaltaxController extends Controller
      */
     public function destroy($id)
     {
-        $data = Additionaltax::findOrFail($id);
-        $data->delete();
-        return ['flagError' => false, 'message' => $this->title. " Deleted successfully"];
+        $data = Additionaltax::with('service')->findOrFail($id);
+        
+        if (count($data->service) > 0 ) {
+            return ['flagError' => true, 'message' => "Error! ". $this->title. " is used in services. "];
+        } else {
+            $data->delete();
+            return ['flagError' => false, 'message' => $this->title. " deleted successfully"]; 
+        }
     }
 }
