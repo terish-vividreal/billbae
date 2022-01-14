@@ -63,7 +63,7 @@
               <div class="row">
                 <div class="col s2">
                   <div class="input-field">                  
-                  {!! Form::select('phone_code', $variants->phonecode , $customer->phone_code ?? '' , ['id' => 'phone_code', 'class' => 'select2 browser-default', 'placeholder'=>'Please select phone code']) !!}
+                  {!! Form::select('phone_code', $variants->phonecode , $customer->phone_code ? : $store->country_id ?? '' , ['id' => 'phone_code', 'class' => 'select2 browser-default', 'placeholder'=>'Please select phone code']) !!}
                   <label for="phone_code" class="label-placeholder active">Phone code </label>
                   </div>
                 </div>
@@ -99,7 +99,8 @@
                   <label for="dob" class="label-placeholder active">DOB </label>
                 </div>
                 <div class="input-field col m6 s12">
-                  {!! Form::select('country_id', $variants->countries , $customer->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
+                  {!! Form::select('country_id', $variants->countries , $customer->country_id ?: $store->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
+                  <label for="country_id" class="label-placeholder active">Country </label>
                 </div>
               </div>
 
@@ -173,7 +174,7 @@
 
 $(document).ready(function(){
 
-  $('#country_id').select2({ placeholder: "Please select country", allowClear: false });
+  $('#country_id').select2({ placeholder: "Please select country", allowClear: true });
   $('#state_id').select2({ placeholder: "Please select state", allowClear: true });
   $('#district_id').select2({ placeholder: "Please select district", allowClear: true });
 

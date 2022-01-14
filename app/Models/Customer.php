@@ -56,13 +56,33 @@ class Customer extends Model
     public static function isExisting($id)
     {
         $data   =  self::find($id);
-        $result = (count($data->billings) > 0)?'1':'0';
+        $result = (count($data->billings) > 0) ? '1' : '0';
         return $result;
         // if($is_existing){
         //     return "Yes" ;
         // }else{
         //     return "NO";
         // }
+    }
+
+    public static function getBillingAddress($id, $address_type = null) 
+    {
+        $data   =  self::find($id);
+        $html   = '';
+
+        $html.='<div class="invoice-address"><span>'.$data->name.'</span></div>';
+        $html.='<div class="invoice-address"><span>+'.$data->phone_code. ' ' .$data->mobile.'</span></div>';
+        $html.='<div class="invoice-address"><span>'.$data->email.'</span></div>';
+
+        if($address_type == "customer") {
+            $html.='<div class="invoice-address"><span>'.$data->address.'</span></div>';
+        } else {
+            $html.='<div class="invoice-address"><span>'.$data->billingaddress->billing_name.'</span></div>';
+            $html.='<div class="invoice-address"><span>'.$data->billingaddress->address.'</span></div>';
+            $html.='<div class="invoice-address"><span>Pincode: '.$data->billingaddress->pincode.', GST: '.$data->billingaddress->gst.'</span></div>';
+            $html.='<div class="invoice-address"><span>Pincode: '.$data->billingaddress->shopCountry->name.', '.$data->billingaddress->ShopState->name.', '.$data->billingaddress->ShopDistrict->name.'</span></div>';
+        }
+        return $html;
     }
 
     public static function lastActivity($id)

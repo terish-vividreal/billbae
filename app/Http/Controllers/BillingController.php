@@ -278,6 +278,7 @@ class BillingController extends Controller
                 $billing->amount            = $request->grand_total;
                 $billing->status            = 1;
                 $billing->billing_code      = $billing_code;
+                $billing->customer_address  = Customer::getBillingAddress($billing->customer_id, $billing->address_type);
                 $billing->save();
                 foreach ($request->input('payment_amount') as $key => $value) {
                     $bill_amount                    = new BillAmount();
@@ -583,6 +584,7 @@ class BillingController extends Controller
         $bill_title = str_replace(' ', '-', strtolower($billing->customer->name));
         return $pdf->download($bill_title.'-invoice.pdf');
     }
+    
     public function editInvoice(Request $request , $id)
     {
         $page                   = collect();

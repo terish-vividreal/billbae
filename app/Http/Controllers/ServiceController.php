@@ -68,12 +68,11 @@ class ServiceController extends Controller
     public function lists(Request $request)
     {
         $detail =  Service::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
-        // if($request['name'] != '') {
-        //     $names = strtolower($request['name']);
-        //     $detail->Where(function ($query) use ($names) {
-        //         $query->where('name', 'like', "'$names%'");
-        //     });
-        // }
+        if ($request['service_type'] != '') {
+            if ($request['service_type'] == 'deleted') {  
+                $detail         = $detail->onlyTrashed();
+            }
+        }
         if($request['service_category'] != '') {
             $service_category = $request['service_category'];
             $detail->Where(function ($query) use ($service_category) {
@@ -83,8 +82,12 @@ class ServiceController extends Controller
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
-                $action = ' <a  href="' . url(ROUTE_PREFIX.'/services/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                // $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
+                if ($detail->deleted_at == null) { 
+                    $action = ' <a  href="' . url(ROUTE_PREFIX.'/services/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Deactivate"><i class="material-icons">block</i></a>';    
+                } else {
+                    $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
+                }
                 return $action;
             })
             ->addColumn('service_category', function($detail){
@@ -159,8 +162,10 @@ class ServiceController extends Controller
             $data->lead_before          = $request->lead_before;
             $data->lead_after           = $request->lead_after;  
             $data->hours_id             = $request->hours_id;
-            $data->gst_tax              = CustomHelper::serviceGST(SHOP_ID, $request->gst_tax);
-            $data->hsn_code             = CustomHelper::serviceHSN(SHOP_ID, $request->hsn_code);
+            // $data->gst_tax              = CustomHelper::serviceGST(SHOP_ID, $request->gst_tax);
+            // $data->hsn_code             = CustomHelper::serviceHSN(SHOP_ID, $request->hsn_code);
+            $data->gst_tax              = $request->gst_tax;
+            $data->hsn_code             = $request->hsn_code;
             $data->save();
 
             if ($request->additional_tax) {
@@ -270,8 +275,26 @@ class ServiceController extends Controller
      */
     public function destroy(Service $service)
     {
-        $error = array('message' => 'Cant delete! Used in another modules.');
-        return ['flagError' => true, 'error'=> $error];
+        if (count($service->billingItems) > 0) {
+            return ['flagError' => true, 'message' => "Cant Delete, Service have billing information"];
+        } 
+        $service->updated_by = Auth::user()->id;
+        $service->save();
+        $service->delete();
+        return ['flagError' => false, 'message' => " Service deactivated successfully"];
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Customer  $customer
+     * @return \Illuminate\Http\Response
+     */
+    public function restore($id, Request $request)
+    {
+        $service   = Service::where('id', $id)->withTrashed()->first();
+        $service->restore();
+        return ['flagError' => false, 'message' => " Service activated successfully"];
     }
 
     /**

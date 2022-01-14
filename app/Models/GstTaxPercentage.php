@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class GstTaxPercentage extends Model
 {
     use HasFactory;
+    protected $fillable = ['percentage'];
 }

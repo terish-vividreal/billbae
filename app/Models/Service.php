@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\ServiceCategory;
@@ -18,6 +19,8 @@ class Service extends Model
 {
 
     use HasFactory;
+    use SoftDeletes;
+    
     protected $fillable = ['shop_id', 'name', 'service_category_id' , 'slug', 'hours_id', 'gst_tax', 'tax_included', 'price', 'hsn_code', 'lead_before', 'lead_after'];
 
     public function serviceCategory()
@@ -53,6 +56,11 @@ class Service extends Model
     public function gsttax()
     {
         return $this->belongsTo('App\Models\GstTaxPercentage', 'gst_tax', 'id');
+    }
+
+    public function billingItems()
+    {
+        return $this->hasMany(BillingItem::class, 'item_id', 'id');
     }
 
     /**

@@ -77,7 +77,8 @@
             <div class="col m6 s12">
               <div class="divider show-on-small hide-on-med-and-up mb-3"></div>
               <h6 class="invoice-to">Bill To</h6>
-              <div class="invoice-address">
+              {!! $billing->customer_address ?? '' !!}
+              <!-- <div class="invoice-address">
                 <span>{{ $billing->customer->name ?? '' }}.</span>
               </div>
               <div class="invoice-address">
@@ -103,7 +104,7 @@
                 <div class="invoice-address">
                   <span>{{ $billing->customer->billingaddress->shopCountry->name ?? ''}},  {{ $billing->customer->billingaddress->ShopState->name ?? '' }}, {{ $billing->customer->billingaddress->ShopDistrict->name ?? '' }} </span>
                 </div>
-              @endif
+              @endif -->
             </div>
           </div>
           <div class="divider mb-3 mt-3"></div>
@@ -153,8 +154,7 @@
                         @endforeach
                       @php } @endphp
 
-                      
-
+        
                       @if($item->is_discount_used == 1)
                         <li class="divider mt-2 mb-2"></li>
                         <li class="display-flex justify-content-between">

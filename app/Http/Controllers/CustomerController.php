@@ -132,6 +132,13 @@ class CustomerController extends Controller
             }
             return $status;
             })
+            ->editColumn('mobile', function($detail) {
+
+                $mobile = (!empty($detail->mobile)? '+' . $detail->phone_code . ' ' . $detail->mobile:'')  ;
+                
+         
+                return $mobile;
+            })
             ->addColumn('action', function($detail){
             if ($detail->deleted_at == null) {  
                 $action      = '<a  href="' . url(ROUTE_PREFIX.'/customers/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
@@ -236,6 +243,7 @@ class CustomerController extends Controller
         $variants->payment_types    = PaymentType::where('shop_id', SHOP_ID)->pluck('name', 'id');         
         $variants->time_picker      = ($this->time_format === 'h')?false:true;
         $variants->time_format      = $this->time_format;
+        $variants->phonecode        = DB::table('shop_countries')->select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->pluck('phone_code', 'id');
         return view($this->viewPath . '.create-bill', compact('page', 'customer', 'variants', 'store'));
     }
 
