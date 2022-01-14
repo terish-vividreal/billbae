@@ -130,8 +130,8 @@
   });
 
   $(".searchEmail").keyup(function(){
-        table.draw();
-    });
+      table.draw();
+  });
 
   function softDelete(b) {
     swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
@@ -148,25 +148,21 @@
                 showSuccessToaster(data.message);          
                 setTimeout(function () {
                   table.ajax.reload();
-                  }, 2000);
+                }, 2000);
 
             } else {
               showErrorToaster(data.message);
               printErrorMsg(data.error);
             }   
         }).fail(function () {
-            showErrorToaster("Something went wrong!");
+          showErrorToaster("Something went wrong!");
         });
       } 
     });
   }
 
   function hardDelete(b) {
-    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
-        buttons: {
-          cancel: 'No, Please!',
-          delete: 'Yes, Delete'
-        }
+    swal({ title: "Are you sure?", icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!', delete: 'Yes, Delete' }
     }).then(function (willDelete) {
       if (willDelete) {
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/hard-delete/" + b, type: "POST", dataType: "html"})
@@ -176,14 +172,13 @@
                 showSuccessToaster(data.message);          
                 setTimeout(function () {
                   table.ajax.reload();
-                  }, 2000);
-
-            }else{
+                }, 2000);
+            } else {
               showErrorToaster(data.message);
               printErrorMsg(data.error);
             }   
         }).fail(function () {
-            showErrorToaster("Something went wrong!");
+          showErrorToaster("Something went wrong!");
         });
       } 
     });
@@ -191,10 +186,7 @@
 
   function restore(b) {
     swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
-        buttons: {
-          cancel: 'No, Please!',
-          delete: 'Yes, Restore'
-        }
+      buttons: { cancel: 'No, Please!', delete: 'Yes, Restore' }
     }).then(function (willDelete) {
       if (willDelete) {
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/restore/" + b, type: "POST", dataType: "html"})
@@ -204,14 +196,14 @@
                 showSuccessToaster(data.message);          
                 setTimeout(function () {
                   table.ajax.reload();
-                  }, 2000);
+                }, 2000);
 
-            }else{
+            } else {
               showErrorToaster(data.message);
               printErrorMsg(data.error);
             }   
         }).fail(function () {
-                showErrorToaster("Something went wrong!");
+          showErrorToaster("Something went wrong!");
         });
       } 
     });

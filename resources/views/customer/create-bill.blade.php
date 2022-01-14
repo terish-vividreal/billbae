@@ -45,28 +45,31 @@
                 <div class="row">
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_name', $customer->name,  ['id' => 'customer_name', 'placeholder' => 'Customer Name', 'disabled' => 'disabled']) !!}  
-                    <!-- <label for="customer_name" class="label-placeholder">Customer Name <span class="red-text">*</span></label> -->
+                    <label for="customer_name" class="label-placeholder active">Name <span class="red-text">*</span></label>
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_mobile', $customer->mobile ?? '', array('id' => 'customer_mobile', 'placeholder' => 'Customer Mobile', 'disabled' => 'disabled')) !!}  
-                    <!-- <label for="customer_mobile" class="label-placeholder">Customer Mobile <span class="red-text">*</span></label>  -->
+                    <label for="customer_mobile" class="label-placeholder active">Mobile </label> 
                   </div>
                 </div>
                 <div class="row">
                   <div class="input-field col m6 s12">
                     <input type="text" name="billed_date" id="billed_date" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                    <label for="billed_date" class="label-placeholder active">Billed Date </label>
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_email', $customer->email ?? '', array('id' => 'customer_email', 'placeholder' => 'Customer Email', 'disabled' => 'disabled')) !!}  
-                    <!-- <label for="customer_email" class="label-placeholder">Customer Email <span class="red-text">*</span></label>  -->
+                    <label for="customer_email" class="label-placeholder active">Email</label>
                   </div>
                 </div>
                 <div class="row">
                   <div class="input-field col m6 s12">
                     <input type="text" name="checkin_time" id="checkin_time" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                    <label for="checkin_time" class="label-placeholder active">Checkin time</label> 
                   </div>
                   <div class="input-field col m6 s12">
                     <input type="text" name="checkout_time" id="checkout_time" class="form-control" onkeydown="return false" autocomplete="off" value="" />
+                    <label for="checkout_time" class="label-placeholder active">Checkout time</label>
                   </div>
                 </div>
                 <div class="row">
@@ -84,7 +87,7 @@
                 <div class="row billing-address-section" style="display:none;">
                   <div class="input-field col m6 s12">
                     {!! Form::text('customer_billing_name', '', array('id' => 'customer_billing_name')) !!}  
-                    <label for="customer_billing_name" class="label-placeholder">Billing Name/Company Name <span class="red-text">*</span></label> 
+                    <label for="customer_billing_name" class="label-placeholder active">Billing Name/Company Name</label> 
                   </div>
                   <div class="input-field col m6 s12">
                     {!! Form::text('pincode', '', array('id' => 'pincode')) !!}  

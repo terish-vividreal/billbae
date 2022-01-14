@@ -60,19 +60,18 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
                 }
             }
 
-            // $gst_tax=NULL;
-            // if($row['gst_tax']!=''){
-            //     $gst = GstTaxPercentage::firstOrCreate(['percentage' => $row['gst_tax']]);
-            //     if($hours){
-            //         $gst_tax = $gst->id;
-            //     }
-            // }
+            $gst_tax=NULL;
+            if($row['gst_tax']!=''){
+                $gst = GstTaxPercentage::firstOrCreate(['percentage' => $row['gst_tax']]);
+                if($hours){
+                    $gst_tax = $gst->id;
+                }
+            }
 
             $lead_before=NULL;
             if($row['lead_before']!=''){
                 $leadBefore = Hours::firstOrCreate(['value' => $row['lead_before']], ['name' => $row['lead_before']. ' mns'] );
 
-                
                 if($leadBefore){
                     $lead_before = $leadBefore->id;
                 }
@@ -87,9 +86,7 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
             }
 
             $tax_included   = (Str::of($row['tax_included'])->trim() == 'yes')?1:0;
-            // $hsn_code       = ($row['hsn_code'] != '')?$row['hsn_code']:NULL;
-            // dd($row['lead_before'],$hsn_code);
-            // echo $service_category_id; exit;
+            $hsn_code       = ($row['hsn_code'] != '') ? $row['hsn_code']:NULL;
 
             Service::create([
                 'shop_id' => SHOP_ID,
@@ -97,10 +94,10 @@ class ServicesImport implements ToCollection, WithHeadingRow, SkipsOnFailure
                 'service_category_id' => $service_category_id,
                 'slug' => $row['name'],
                 'hours_id' => $hours_id,
-                'gst_tax' => CustomHelper::serviceGST(SHOP_ID, $row['gst_tax']),
+                'gst_tax' => $gst_tax,
                 'tax_included' => $tax_included,
                 'price' => $row['price'],
-                'hsn_code' => CustomHelper::serviceHSN(SHOP_ID, $row['hsn_code']),
+                'hsn_code' => $hsn_code,
                 'lead_before' => $lead_before,
                 'lead_after' => $lead_after,
 

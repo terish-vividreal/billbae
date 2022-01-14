@@ -48,7 +48,7 @@
               {!! Form::hidden('customer_id', $customer->id ?? '' , ['id' => 'customer_id'] ); !!}
               <div class="row">
                 <div class="input-field col m6 s12">
-                  {!! Form::text('name', $customer->name ?? '', array('id' => 'name')) !!}  
+                  {!! Form::text('name', $customer->name ?? '', array('id' => 'name', 'autocomplete' => 'off',)) !!}  
                   <label for="name" class="label-placeholder active">Customer Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">

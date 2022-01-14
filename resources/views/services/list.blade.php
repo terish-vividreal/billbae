@@ -32,8 +32,16 @@
 @section('page-action')
   <a href="javascript:" class="btn waves-effect waves-light orange darken-4 breadcrumbs-btn" onclick="importBrowseModal()" >Upload<i class="material-icons right">attach_file</i></a>
   <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">person_add</i></a>
-  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn waves-effect waves-light light-blue darken-4 breadcrumbs-btn" type="submit" name="action">List<i class="material-icons right">list</i></a>
+  <a class="btn dropdown-settings waves-effect waves-light  light-blue darken-4 breadcrumbs-btn" href="#!" data-target="dropdown1"><i class="material-icons hide-on-med-and-up">settings</i><span class="hide-on-small-onl">List</span><i class="material-icons right">arrow_drop_down</i></a>
+    <ul class="dropdown-content" id="dropdown1" tabindex="0">
+      <li tabindex="0"><a class="grey-text text-darken-2 listBtn" href="javascript:" data-type="active">Active </a></li>
+      <li tabindex="0"><a class="grey-text text-darken-2 listBtn" data-type="deleted" href="javascript:">Deactivated</a></li>
+    </ul>
 @endsection
+<form id="customerListForm" name="serviceListForm" role="form" method="" action="" class="ajax-submit">
+  {{ csrf_field() }}
+  {!! Form::hidden('service_type', '', ['id' => 'service_type'] ); !!}
+</form>
 
 <div class="section section-data-tables">
   <div class="card">
@@ -82,7 +90,6 @@
 <script src="{{asset('admin/js/scripts/data-tables.js')}}"></script>
 
 <script>
-  
   $(function () {
     table = $('#data-table-simple-services').DataTable({
         bSearchable: true,
@@ -109,38 +116,60 @@
 
   function search(value) {
     value.name = $('input[type=search]').val();
+    value.service_type = $("#service_type").val();
   }
 
-  function softDelete(b) {       
-    Swal.fire({
-      title: 'Are you sure want to delete ?',
-      text: "You won't be able to revert this!",
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-      }).then(function(result) {
-        if (result.value) {
-          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+  $(".listBtn").on("click", function(){
+    $("#service_type").val($(this).attr('data-type'));
+    table.ajax.reload();
+  });
+
+  function softDelete(b) {
+    swal({ title: "Are you sure ?",icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!',  delete: 'Yes, Deactivate' }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
           .done(function (a) {
-            var data = JSON.parse(a);
-            if (data.flagError == false) {
-              showSuccessToaster(data.message);          
-              setTimeout(function () {
-                table.ajax.reload();
-              }, 2000);
+              var data = JSON.parse(a);
+              if (data.flagError == false) {
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                }, 2000);
             } else {
               showErrorToaster(data.message);
               printErrorMsg(data.error);
             }   
         }).fail(function () {
-          showErrorToaster("Somthing went wrong!");
+          showErrorToaster("Something went wrong!");
         });
-        }
-      });
+      } 
+    });
   }
 
+  function restore(b) {
+    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!', delete: 'Yes, Restore' }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/restore/" + b, type: "POST", dataType: "html"})
+          .done(function (a) {
+              var data = JSON.parse(a);
+              if(data.flagError == false){
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                }, 2000);
+
+            } else {
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
+  }
 </script>
 @endpush
 

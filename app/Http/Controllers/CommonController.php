@@ -73,7 +73,11 @@ class CommonController extends Controller
         // if($request->category_id)
         // whereIn('service_category_id', $request->category_id)->
 
-        $services   = Service::select('name','id')->where('shop_id', SHOP_ID)->get();
+        // $result = Service::with('additionaltax', 'gsttax', 'hours', 'leadBefore', 'leadAfter')
+        //                 select('services.*', DB::raw('CONCAT(phonecode , " (", name, ")") AS phone_code'))->where('shop_id', SHOP_ID)
+
+        $services   = Service::leftjoin('hours', 'hours.id', 'services.hours_id')
+                    ->select( DB::raw('CONCAT(services.name, " (", hours.name , ")") AS name'), 'services.id')->where('services.shop_id', SHOP_ID)->get();
         if($services)
             return response()->json(['flagError' => false, 'data' => $services]);
     }
@@ -353,7 +357,7 @@ class CommonController extends Controller
                 
                 $included = ($row->tax_included == 1)?'Tax Included':'Tax Excluded';
                 $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
-                $html.='<td>'.$row->name. '( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
+                $html.='<td>'.$row->name . ' - '. $row->hours->value . ' mns. ' . ' ( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
                 $html.='<td class="right-align">';
                     
                 if ($total_percentage > 0) {
