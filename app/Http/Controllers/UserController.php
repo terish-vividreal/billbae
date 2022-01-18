@@ -62,6 +62,17 @@ class UserController extends Controller
     {
         $user_id    = Auth::user()->id;
         $detail     = User::select(['name', 'mobile', 'email', 'is_active', 'id']);
+
+        if ($request['is_active'] != '') {
+            if ($request['is_active'] == 'deleted') {  
+                $detail         = $detail->where('is_active', 2);
+            } else {
+                $detail         = $detail->whereIn('is_active', [0,1]);
+            }
+        }else {
+            $detail         = $detail->whereIn('is_active', [0,1]);
+        }
+
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -70,7 +81,7 @@ class UserController extends Controller
                 }
             }
         }
-        $detail->where('parent_id', $user_id)->where('is_active', '!=',  2)->orderBy('id', 'desc');
+        $detail->where('parent_id', $user_id)->orderBy('id', 'desc');
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('role', function($detail){
@@ -84,15 +95,20 @@ class UserController extends Controller
                 return $html;
             })
             ->addColumn('activate', function($detail){
-                $checked    = ($detail->is_active == 1) ? 'checked' : '';
-                $html       = '<div class="switch"><label> <input type="checkbox" '.$checked.' id="' . $detail->id . '" class="activate-user" data-id="'.$detail->id.'" onclick="manageUserStatus(this.id)"> <span class="lever"></span> </label> </div>';
-                return $html;
+                if ($detail->is_active != 2) {
+                    $checked    = ($detail->is_active == 1) ? 'checked' : '';
+                    $html       = '<div class="switch"><label> <input type="checkbox" '.$checked.' id="' . $detail->id . '" class="activate-user" data-id="'.$detail->id.'" onclick="manageUserStatus(this.id)"> <span class="lever"></span> </label> </div>';
+                    return $html;
+                }
             })
             ->addColumn('action', function($detail){
-                $action     = ' <a  href="' . url('users/' . $detail->id . '/edit') . '" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                $action     .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
-                // $action .= '<form id="delete' . $detail->id . '" action="' . route('users.destroy', $detail->id) . '" method="POST">' . method_field('DELETE') . csrf_field() .
-                // '<button type="button" onclick="deleteConfirm(' . $detail->id . ')" class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></button></form>';
+                if ($detail->is_active != 2) {
+                    $action     = ' <a  href="' . url('users/' . $detail->id . '/edit') . '" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                    $action     .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="softDelete(this.id)"  class="btn btn-danger btn-sm btn-icon mr-2" title="Deactivate"><i class="material-icons">block</i></a>';
+                } else {
+                    $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
+                    // $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="hardDelete(this.id)" data-type="delete" class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
+                }
                 return $action;
             })
             ->removeColumn('id', 'is_active')
@@ -246,6 +262,20 @@ class UserController extends Controller
         $user->is_active    = 2;
         $user->save();
         return ['flagError' => false, 'message' => $this->title. " deactivated successfully"];
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Customer  $customer
+     * @return \Illuminate\Http\Response
+     */
+    public function restore($id, Request $request)
+    {
+        $user               = User::findOrFail($id);
+        $user->is_active    = 1;
+        $user->save();
+        return ['flagError' => false, 'message' => " Customer restored successfully"];
     }
 
     public function isUnique(Request $request)

@@ -133,10 +133,7 @@ class CustomerController extends Controller
             return $status;
             })
             ->editColumn('mobile', function($detail) {
-
-                $mobile = (!empty($detail->mobile)? '+' . $detail->phone_code . ' ' . $detail->mobile:'')  ;
-                
-         
+                $mobile = (!empty($detail->mobile)? '+' . $detail->phone_code . ' ' . $detail->mobile:'');
                 return $mobile;
             })
             ->addColumn('action', function($detail){
@@ -146,7 +143,7 @@ class CustomerController extends Controller
                 $action     .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Remove"><i class="material-icons">block</i></a>';
             } else {
                 $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
-                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="hardDelete(this.id)" data-type="delete" class="btn btn-danger btn-sm btn-icon mr-2" title="PDelete"><i class="material-icons">delete</i></a>';
+                $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="hardDelete(this.id)" data-type="delete" class="btn btn-danger btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
             }
                 return $action;
             })
@@ -188,7 +185,7 @@ class CustomerController extends Controller
             })
             ->editColumn('billing_code', function($detail) {
                 $billing_code = '';
-                $billing_code .=' <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '" target="_blank">'.$detail->billing_code.'</a>';
+                $billing_code .=' <a href="' . url(ROUTE_PREFIX.'/billings/show/' . $detail->id) . '">'.$detail->billing_code.'</a>';
                 return $billing_code;
             })
             // ->editColumn('customer_id', function($detail){
@@ -306,7 +303,7 @@ class CustomerController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified resource in storage. 
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Customer  $customer

@@ -30,7 +30,17 @@
 @endsection
 
 @section('page-action')
-  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">person_add</i></a>
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">person_add</i></a>
+  <a class="btn dropdown-settings waves-effect waves-light  light-blue darken-4 breadcrumbs-btn" href="#!" data-target="dropdown1" id="customerListBtn"><i class="material-icons hide-on-med-and-up">settings</i><span class="hide-on-small-onl">List</span><i class="material-icons right">arrow_drop_down</i></a>
+    <ul class="dropdown-content" id="dropdown1" tabindex="0">
+      <li tabindex="0"><a class="grey-text text-darken-2 listBtn" href="javascript:" data-type="active" >Active </a></li>
+      <li tabindex="0"><a class="grey-text text-darken-2 listBtn" data-type="deleted" href="javascript:">De active</a></li>
+    </ul>
+
+  <form id="userListForm" name="userListForm" role="form" method="" action="" class="ajax-submit">
+    {{ csrf_field() }}
+    {!! Form::hidden('is_active', '', ['id' => 'is_active'] ); !!}
+  </form>
 @endsection
 
 
@@ -95,14 +105,6 @@
         dom: 'Bfrtip',
         select: true,
         ajax: { url: "{{ url(ROUTE_PREFIX.'/users/lists') }}",  data: search },
-        buttons: [
-            {
-                text: 'My button',
-                action: function ( e, dt, node, config ) {
-                    alert( 'Button activated' );
-                }
-            }
-        ],
         columns: [
           {data: 'DT_RowIndex', orderable: false, width:10},
             {data: 'name', name: 'name', orderable: false},            
@@ -111,6 +113,11 @@
             {data: 'activate', name: 'name', orderable: false},               
             {data: 'action', name: 'action', orderable: false, searchable: false, width: 25},
         ]
+    });
+
+    $(".listBtn").on("click", function(){
+      $("#is_active").val($(this).attr('data-type'));
+      table.ajax.reload();
     });
 
   });
@@ -137,65 +144,73 @@
 
 
   function search(value) {
-    value.name = $('input[type=search]').val();
+    value.name      = $('input[type=search]').val();
+    value.is_active = $("#is_active").val();
   }
 
   function softDelete(b) { 
-    // Swal.fire({
-    //   title: 'Are you sure want to deactivate user ?',
-    //   type: 'warning',
-    //   showCancelButton: true,
-    //   confirmButtonColor: '#3085d6',
-    //   cancelButtonColor: '#d33',
-    //   confirmButtonText: 'Yes, deactivate!'
-    //   }).then(function(result) {
-    //       if (result.value) {
-    //           $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-    //               .done(function (a) {
-    //                   var data = JSON.parse(a);
-    //                   if(data.flagError == false){
-    //                     showSuccessToaster(data.message);          
-    //                     setTimeout(function () {
-    //                       table.ajax.reload();
-    //                       }, 2000);
+    swal({ title: "Are you sure want to deactivate user?",icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!', delete: 'Yes, deactivate It' }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+        .done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);          
+            setTimeout(function () { table.ajax.reload() }, 1000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
+  }
 
-    //                 }else{
-    //                   showErrorToaster(data.message);
-    //                   printErrorMsg(data.error);
-    //                 }   
-    //               }).fail(function () {
-    //                       showErrorToaster("Somthing went wrong!");
-    //               });
-    //       }
-    //   });
+  function hardDelete(b) {
+    swal({ title: "Are you sure?", icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!', delete: 'Yes, Delete' }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/hard-delete/" + b, type: "POST", dataType: "html"})
+          .done(function (a) {
+              var data = JSON.parse(a);
+              if(data.flagError == false){
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                }, 2000);
+            } else {
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
+  }
 
-
-      swal({ title: "Are you sure want to deactivate user?",icon: 'warning', dangerMode: true,
-        buttons: {
-          cancel: 'No, Please!',
-          delete: 'Yes, deactivate It'
-        }
-      }).then(function (willDelete) {
-        if (willDelete) {
-          $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-              .done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                  showSuccessToaster(data.message);          
-                  setTimeout(function () {
-                    table.ajax.reload();
-                    }, 1000);
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }   
-              }).fail(function () {
-                      showErrorToaster("Something went wrong!");
-              });
-        } 
-      });
-
-
+  function restore(b) {
+    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!', delete: 'Yes, Restore' }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/restore/" + b, type: "POST", dataType: "html"})
+        .done(function (a) {
+            var data = JSON.parse(a);
+            if (data.flagError == false) {
+              showSuccessToaster(data.message);          
+              setTimeout(function () { table.ajax.reload() }, 2000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
   }
 
 

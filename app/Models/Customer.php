@@ -29,8 +29,7 @@ class Customer extends Model
     
     public function getDobAttribute()
     {
-        $dob = new Carbon\Carbon($this->attributes['dob']);
-        return $dob;
+        return ($this->attributes['dob'] != '') ? new Carbon\Carbon($this->attributes['dob']) : NULL;
     }
 
     public function country()

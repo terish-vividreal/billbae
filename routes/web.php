@@ -104,6 +104,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::post('users/unique', [UserController::class, 'isUnique']);
     Route::post('users/manage-status', [UserController::class, 'manageStatus']);
     Route::post('users/update-password', [UserController::class, 'updatePassword']);
+    Route::post('users/restore/{id}', [UserController::class, 'restore']);
        
     //Staff Routes
     $staff = 'staffs';
