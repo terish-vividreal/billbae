@@ -74,6 +74,7 @@
       <div id="Form-advance" class="card card card-default scrollspy">
         <div class="card-content">
             <h4 class="card-title">{{ $page->title ?? ''}} Documents Form</h4>
+            <!-- <small>Allowed formats for staff document upload: jpg, jpeg, png, doc, docx, pdf, ppt, txt and xls.</small> -->
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
             <div class="row">
                 <div class="input-field col s12">
@@ -81,6 +82,7 @@
                         {!! Form::hidden('staff_id', $staff->id ?? '' , ['id' => 'staff_id'] ); !!}
                         @csrf
                         <h5 class="card-title"><span>Upload id proof(s) and Certificates/documents:</span></h5>
+                        <small>Allowed formats for staff document upload: jpg, jpeg, png, doc, docx, pdf, ppt, txt and xls.</small>
                     </form>
                 </div>
             </div>
@@ -139,7 +141,8 @@ var staff_id = $("#staff_id").val();
 
         maxFilesize: 12,
         addRemoveLinks: true,
-        acceptedFiles: ".jpeg,.jpg,.png,.pdf,.txt",
+        acceptedFiles: ".jpg, .jpeg, .png, .doc, .docx, .pdf, .ppt, .txt, .xls",
+        // acceptedFiles: ".ppt",
         renameFile: function(file) {
           var dt = new Date();
           var time = dt.getTime();

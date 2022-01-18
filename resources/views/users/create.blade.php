@@ -103,7 +103,7 @@
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn waves-effect waves-light" type="button" name="reset" id="reset-btn">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
@@ -142,6 +142,7 @@ if ($("#{{$page->entity}}Form").length > 0) {
             email: {
               required: true,
               email: true,
+              emailFormat:true,
               remote: { url: "{{ url(ROUTE_PREFIX.'/users/unique') }}", type: "POST",
                   data: {
                       user_id: function () {
@@ -207,6 +208,18 @@ if ($("#{{$page->entity}}Form").length > 0) {
 jQuery.validator.addMethod("lettersonly", function (value, element) {
     return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
+
+jQuery.validator.addMethod("emailFormat", function (value, element) {
+    return this.optional(element) || /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/igm.test(value);
+  }, "Please enter a valid email address");  
+
+$("#reset-btn").click(function(e) {
+  validator.resetForm();
+  $('#{{$page->entity}}Form').find("input[type=text], textarea, radio").val("");
+  $("#male").prop("checked", true);
+  $("#roles").val('').trigger('change');
+});
+
 </script>
 @endpush
 

@@ -14,12 +14,12 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
+// use Maatwebsite\Excel\Concerns\SkipsFailures;
 
 
-class CustomersImport implements ToCollection, WithHeadingRow, SkipsOnFailure
+class CustomersImport implements ToCollection, WithHeadingRow
 {
-    use Importable, SkipsFailures;
+    use Importable;
     /**
     * @param array $row
     *
@@ -38,22 +38,23 @@ class CustomersImport implements ToCollection, WithHeadingRow, SkipsOnFailure
             '*.email.required' => 'Customer email is required',
             '*.email.email' => 'Invalid email',
         ])->validate();
- 
-       foreach ($rows as $row) {
 
-        $gender = (Str::of($row['gender'])->trim() == 'Male')?1:2;
-        
-        Customer::create([
-            'shop_id' => SHOP_ID,
-            'customer_code' => FunctionHelper::generateCustomerCode(),
-            'name' => $row['name'],
-            'email' => $row['email'],
-            'mobile' => $row['mobile'],
-            'gender' => $gender,
-            'dob' => date("Y-m-d", strtotime($row['dob'])),
-            'customer_code' => FunctionHelper::generateCustomerCode(),
-        ]);
-       }        
+
+ 
+        foreach ($rows as $row) {
+            $gender = ($row['gender'] != '') ? $row['gender']:NULL;
+            $dob    = ($row['dob'] != '') ? date("Y-m-d", strtotime($row['dob'])) : NULL;
+            Customer::create([
+                'shop_id' => SHOP_ID,
+                'customer_code' => FunctionHelper::generateCustomerCode(),
+                'name' => $row['name'],
+                'email' => $row['email'],
+                'mobile' => $row['mobile'],
+                'gender' => $gender,
+                'dob' => $dob,
+                'customer_code' => FunctionHelper::generateCustomerCode(),
+            ]);
+        }        
     }
 
     /**

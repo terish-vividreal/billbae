@@ -119,6 +119,7 @@ class CommonController extends Controller
                             ->leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')
                             ->leftjoin('schedule_colors', 'staff_profiles.schedule_color', '=', 'schedule_colors.id')
                             ->where('users.parent_id', $user_id)
+                            ->where('users.is_active', '=',  1)
                             ->whereIn('staff_profiles.designation', [1, 2])
                             ->where('users.is_active', '!=',  2)->get(['users.id', 'users.name as title', 'schedule_colors.name as eventColor']);
 

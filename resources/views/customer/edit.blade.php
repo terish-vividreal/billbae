@@ -72,12 +72,12 @@
                   <label for="mobile" class="label-placeholder active">Mobile </label>
                 </div>              
                 <div class="input-field col m6 s12">                
-                <label for="gender" class="label-placeholder active">DOB </label>              
+                <label for="gender" class="label-placeholder active"> Gender </label>              
                   <p style="margin-top: 23px;">
                     <label>
                       <input value="1" id="male" name="gender" type="radio"  @if($customer->gender == 1) checked @endif/>
                       <span> Male </span>
-                    </label>             
+                    </label>            
                     <label>
                       <input value="2" id="female" name="gender" type="radio"  @if($customer->gender == 2) checked @endif/>
                       <span> Female </span>
@@ -93,10 +93,10 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   @php                             
-                    $dob = ($customer->dob != '') ? $customer->dob->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y');
+                    $dob = ($customer->dob != '') ? $customer->dob->format('d-m-Y') : Carbon\Carbon::now()->format('d-m-Y');
                   @endphp
                   <input type='text' name="dob" id="dob" onkeydown="return false" class="" value="{{$dob}}" autocomplete="off" />
-                  <label for="dob" class="label-placeholder active">DOB </label>
+                  <label for="dob" class="label-placeholder active">DOB {{$dob}} </label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('country_id', $variants->countries , $customer->country_id ?: $store->country_id ?? '' , ['id' => 'country_id' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select country']) !!}
@@ -181,6 +181,7 @@ $(document).ready(function(){
   $('input[name="dob"]').daterangepicker({
     singleDatePicker: true,
     showDropdowns: true,
+    locale: { format: 'DD-MM-YYYY '},
     maxYear: parseInt(moment().format('YYYY'),10)
   }, function(start, end, label) {
     var years = moment().diff(start, 'years');

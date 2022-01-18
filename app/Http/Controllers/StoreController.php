@@ -219,7 +219,7 @@ class StoreController extends Controller
             $billing->address           = $request->address;
             $billing->pincode           = $request->pincode;
             $billing->pin               = $request->pin;
-            $billing->gst               = $request->gst;
+            // $billing->gst               = $request->gst;
             $billing->country_id        = $request->billing_country_id;
             $billing->state_id          = $request->billing_state_id;
             $billing->district_id       = $request->billing_district_id;

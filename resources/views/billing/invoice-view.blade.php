@@ -70,8 +70,10 @@
                 <span>{{ $variants->store->contact ?? '' }}</span>                
               </div>
               <div class="invoice-address">
+                <span>@if($variants->store->billing->gst != '') GST:  {{ $variants->store->billing->gst ?? '' }} @endif</span>
+              </div>
+              <div class="invoice-address">
                 <span>{{ $variants->store->billing->address ?? '' }}</span>
-                
               </div>
             </div>
             <div class="col m6 s12">

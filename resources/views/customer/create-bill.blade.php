@@ -18,7 +18,7 @@
   <ol class="breadcrumbs mb-0">
     <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
     <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}">{{ Str::plural($page->title) ?? ''}}</a></li>
-    <li class="breadcrumb-item active">Create</li>
+    <!-- <li class="breadcrumb-item active">Create</li> -->
   </ol>
 @endsection
 @section('page-action')

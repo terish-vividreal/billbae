@@ -88,8 +88,8 @@
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
-                  <input type='text' name="dob" id="dob" onkeydown="return false" class="" autocomplete="off" />
                   <label for="dob" class="label-placeholder active">DOB </label>
+                  <input type='text' name="dob" id="dob" onkeydown="return false" class="" autocomplete="off" />
                 </div>
               </div>
               <div class="row">
@@ -128,7 +128,7 @@ $(document).ready(function(){
   $('input[name="dob"]').daterangepicker({
     singleDatePicker: true,
     showDropdowns: true,
-    // autoApply: true,
+    locale: { format: 'DD-MM-YYYY ' },
     maxYear: parseInt(moment().format('YYYY'),10)
   }, function(start, end, label) {
     var years = moment().diff(start, 'years');

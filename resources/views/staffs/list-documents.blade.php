@@ -8,7 +8,7 @@
       }
     @endphp
 
-    <div class="col s12 m2 l2">
+    <div class="col s12 l2">
       <div class="card">
         <div class="card-image waves-effect waves-block waves-light">
 
@@ -20,12 +20,7 @@
             {!! Form::text('details', $document->details ?? '',  ['class' => 'detail-input', 'id' => 'details-'.$document->id, 'placeholder' => 'Please enter document details']) !!} </span>
             <!-- <input type="number" id="num-{{$document->id}}" onChange="getValidation(3, {{$document->id}})" name="num" /> -->
           
-
           <a class="btn-floating mb-1 btn-flat waves-effect waves-light  blue accent-2 white-text" id="{{$document->id}}" onclick="updateDetails(this.id)" href="javascript:" data-target="dropdown2"><i class="material-icons">add</i></a>
-          
-          
-          
-          
           <a class="btn-floating mb-1 btn-flat waves-effect waves-light  blue accent-2 white-text" href="{{ route('download-files', ['document' => $document->name])}}" data-target="dropdown2"><i class="material-icons">cloud_download</i></a>
           <a class="btn-floating mb-1 btn-flat waves-effect waves-light  red accent-2 white-text" id="{{$document->name}}" onclick="deleteDocument(this.id)" href="javascript:" data-target="dropdown2"><i class="material-icons">delete</i></a>
 

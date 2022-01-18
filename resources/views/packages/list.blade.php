@@ -24,7 +24,7 @@
   <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
   <ol class="breadcrumbs mb-0">
     <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/services') }}">{{ Str::plural($page->title) ?? ''}}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/packages') }}">{{ Str::plural($page->title) ?? ''}}</a></li>
     <li class="breadcrumb-item active">List</li>
   </ol>
 @endsection
