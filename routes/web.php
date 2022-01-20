@@ -167,6 +167,7 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($packages, PackageController::class)->except(['show']);
     Route::get($packages . '/lists', [PackageController::class, 'lists']);
     Route::post($packages . '/update-status', [PackageController::class, 'updateStatus']);
+    Route::post($packages . '/restore/{id}', [PackageController::class, 'restore']);
 
     // Customer Routes
     $customer = 'customers';

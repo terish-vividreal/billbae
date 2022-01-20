@@ -34,6 +34,11 @@
       <li tabindex="0"><a class="grey-text text-darken-2 listBtn" href="javascript:" data-type="active">Active </a></li>
       <li tabindex="0"><a class="grey-text text-darken-2 listBtn" data-type="deleted" href="javascript:">Deactivated</a></li>
     </ul>
+<form id="packageFilterForm" name="packageFilterForm" role="form" method="" action="" class="ajax-submit">
+  {{ csrf_field() }}
+  {!! Form::hidden('package_status', '', ['id' => 'package_status'] ); !!}
+</form>
+
 @endsection
 
 <div class="section section-data-tables">
@@ -108,8 +113,14 @@
   });
 
   function search(value) {
-    value.name = $('input[type=search]').val();
+    value.name            = $('input[type=search]').val();
+    value.package_status  = $("#package_status").val();
   }
+
+  $(".listBtn").on("click", function(){
+    $("#package_status").val($(this).attr('data-type'));
+    table.ajax.reload();
+  });
 
   function updateStatus(id){
     $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/update-status') }}", data:{'id':id }, type: 'POST', dataType: "html"})
@@ -127,40 +138,52 @@
     });
   }
 
-
-
   function softDelete(b) {
-           
-           Swal.fire({
-             title: 'Are you sure want to delete ?',
-             text: "You won't be able to revert this!",
-             type: 'warning',
-             showCancelButton: true,
-             confirmButtonColor: '#3085d6',
-             cancelButtonColor: '#d33',
-             confirmButtonText: 'Yes, delete it!'
-             }).then(function(result) {
-                 if (result.value) {
-                     $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-                         .done(function (a) {
-                             var data = JSON.parse(a);
-                             if(data.flagError == false){
-                               showSuccessToaster(data.message);          
-                               setTimeout(function () {
-                                 table.ajax.reload();
-                                 }, 2000);
-       
-                           }else{
-                             showErrorToaster(data.message);
-                             printErrorMsg(data.error);
-                           }   
-                         }).fail(function () {
-                                 showErrorToaster("Somthing went wrong!");
-                         });
-                 }
-             });
-         }
+    swal({ title: "Are you sure ?",icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!',  delete: 'Yes, Deactivate' }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+          .done(function (a) {
+              var data = JSON.parse(a);
+              if (data.flagError == false) {
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                }, 2000);
+            } else {
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
+  }
 
+  function restore(b) {
+    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true, buttons: { cancel: 'No, Please!', delete: 'Yes, Restore' }
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/restore/" + b, type: "POST", dataType: "html"})
+          .done(function (a) {
+              var data = JSON.parse(a);
+              if(data.flagError == false){
+                showSuccessToaster(data.message);          
+                setTimeout(function () {
+                  table.ajax.reload();
+                }, 2000);
+
+            } else {
+              showErrorToaster(data.message);
+              printErrorMsg(data.error);
+            }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
+      } 
+    });
+  }
 
 
 </script>
