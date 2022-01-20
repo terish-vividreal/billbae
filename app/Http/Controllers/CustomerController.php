@@ -357,7 +357,7 @@ class CustomerController extends Controller
     {
         $billing    = Billing::where('customer_id', $customer->id)->get();
         if (count($billing) > 0) {
-            return ['flagError' => true, 'message' => "Cant Delete, Customer have billing information"];
+            return ['flagError' => true, 'message' => "Cant deactivate! Customer has billing informations"];
         } 
         $customer->delete();
         return ['flagError' => false, 'message' => " Customer removed successfully"];

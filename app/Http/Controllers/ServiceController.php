@@ -73,7 +73,7 @@ class ServiceController extends Controller
                 $detail         = $detail->onlyTrashed();
             }
         }
-        
+
         if($request['service_category'] != '') {
             $service_category = $request['service_category'];
             $detail->Where(function ($query) use ($service_category) {
@@ -277,7 +277,7 @@ class ServiceController extends Controller
     public function destroy(Service $service)
     {
         if (count($service->billingItems) > 0) {
-            return ['flagError' => true, 'message' => "Cant Delete, Service have billing information"];
+            return ['flagError' => true, 'message' => "Cant deactivate! Service has billing informations"];
         } 
         $service->updated_by = Auth::user()->id;
         $service->save();

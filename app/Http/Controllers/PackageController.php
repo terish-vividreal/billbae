@@ -250,7 +250,7 @@ class PackageController extends Controller
     public function destroy(Package $package)
     {
         if (count($package->billingItems) > 0) {
-            return ['flagError' => true, 'message' => "Cant Delete, Package have billing information"];
+            return ['flagError' => true, 'message' => "Cant deactivate! Package has billing informations"];
         } 
         $package->updated_by = Auth::user()->id;
         $package->save();
