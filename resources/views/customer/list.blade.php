@@ -94,11 +94,12 @@
   $(function () {
 
     table = $('#data-table-simple-2').DataTable({
-        bSearchable: true,
-        pagination: true,
-        pageLength: 10,
-        responsive: true,
-        searchDelay: 500,
+        // bSearchable: true,
+        // pagination: true,
+        // searchable: true,
+        // pageLength: 10,
+        // responsive: true,
+        // searchDelay: 500,
         processing: true,
         serverSide: true,
         ajax: {
@@ -122,6 +123,7 @@
   function search(value) {
     value.name          = $('input[type=search]').val();
     value.customer_type = $("#customer_type").val();
+    value.top_search    = $("#top_search").val();
   }
 
   $(".listBtn").on("click", function(){

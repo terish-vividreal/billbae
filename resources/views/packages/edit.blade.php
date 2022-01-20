@@ -58,7 +58,8 @@
                   <label for="name" class="label-placeholder">Package Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
-                  <select class="select2 browser-default" name="services[]" id="services" multiple="multiple"> </select>
+                  <!-- <select class="select2 browser-default" name="services[]" id="services" multiple="multiple"> </select> -->
+                  {!! Form::select('services[]', $variants->services, $service_ids, ['id' => 'services', 'multiple' => 'multiple', 'class' => 'select2 browser-default']) !!}
                 </div>
               </div>
 
@@ -144,7 +145,7 @@
 
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn waves-effect waves-light" type="button" id="reset-btn" name="reset">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
@@ -174,12 +175,12 @@
 $(document).ready(function() {
 
 var service_ids = <?php echo json_encode($service_ids); ?>; 
-
 $('#additional_tax').select2({ placeholder: "Please choose services", allowClear: false });
- $("#services").select2({ placeholder: "Please choose services", allowClear: false })
-   .on('select2:select select2:unselect', function (e) { loadData() });
-
- getServices(service_ids);
+$('#gst_tax').select2({ placeholder: "Please select GST Tax %", allowClear: true });
+$("#services").select2({ placeholder: "Please choose services", allowClear: false })
+  .on('select2:select select2:unselect', function (e) { loadData() });
+  // getServices(service_ids);
+  loadData()
 });
 
 function loadData(){
@@ -262,51 +263,70 @@ $("#price").change(function(){
 
 if ($("#{{$page->entity}}Form").length > 0) {
    var validator = $("#{{$page->entity}}Form").validate({ 
-       rules: {
-           name: {
-                   required: true,
-                   maxlength: 200,
-           },
-           price: {
-                   required: true,
-           },
-       },
-       messages: { 
-           name: {
-               required: "Please enter package name",
-               maxlength: "Length cannot be more than 200 characters",
-               },
-             price: {
-               required: "Please enter package price",
-               },
-       },
-       submitHandler: function (form) {
-           id = $("#package_id").val();
-           package_id      = "" == id ? "" : "/" + id;
-           formMethod  = "" == id ? "POST" : "PUT";
-           var forms = $("#{{$page->entity}}Form");
-           $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + package_id, type: formMethod, processData: false, 
-           data: forms.serialize(), dataType: "html",
-           }).done(function (a) {
-               var data = JSON.parse(a);
-               if(data.flagError == false){
-                   showSuccessToaster(data.message);
-                   setTimeout(function () { 
-                     window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-                   }, 2000);
-
-               }else{
-                 showErrorToaster(data.message);
-                 printErrorMsg(data.error);
-               }
-           });
-       }
+    rules: {
+      name: {
+        required: true,
+        maxlength: 200,
+      },
+      price: {
+        required: true,
+      },
+      "services[]": {
+        required: true,
+      },
+    },
+    messages: { 
+      name: {
+        required: "Please enter package name",
+        maxlength: "Length cannot be more than 200 characters",
+      },
+      price: {
+        required: "Please enter package price",
+      },
+      "services[]": {
+        required: "Please choose services",
+      },
+    },
+    submitHandler: function (form) {
+      disableBtn("submit-btn");
+      id = $("#package_id").val();
+      package_id      = "" == id ? "" : "/" + id;
+      formMethod      = "" == id ? "POST" : "PUT";
+      var forms = $("#{{$page->entity}}Form");
+      $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + package_id, type: formMethod, processData: false, 
+      data: forms.serialize(), dataType: "html",
+      }).done(function (a) {
+        enableBtn("submit-btn");
+        var data = JSON.parse(a);
+        if (data.flagError == false) {
+            showSuccessToaster(data.message);
+            setTimeout(function () { 
+              // window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+            }, 2000);
+        } else {
+          showErrorToaster(data.message);
+          printErrorMsg(data.error);
+        }
+      });
+    }
    })
 } 
 
 jQuery.validator.addMethod("lettersonly", function (value, element) {
  return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
+
+$("#reset-btn").click(function(e) {
+  validator.resetForm();
+  $('#{{$page->entity}}Form').find("input[type=text], textarea, radio").val("");
+  $("#services").val('').trigger('change');
+  $("#validity_mode").val('').trigger('change');
+  $("#validity").val('').trigger('change');
+  $("#gst_tax").val('').trigger('change');
+  $("#additional_tax").val('').trigger('change');
+  $('#tax_included').prop('checked', false);
+  $('#usedServicesDiv').hide();
+});
 
 </script>
 @endpush

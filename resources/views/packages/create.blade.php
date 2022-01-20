@@ -31,15 +31,12 @@
   <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">List<i class="material-icons right">list</i></a>
 @endsection
 
-
 <div class="section">
   <div class="card">
     <div class="card-content">
       <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsum is used for the ...</p>
     </div>
   </div>
-
-  
   <!--Basic Form-->
   <div class="row">
     <!-- Form Advance -->
@@ -47,42 +44,37 @@
       <div id="Form-advance" class="card card card-default scrollspy">
         <div class="card-content">
             <h4 class="card-title">{{ $page->title ?? ''}} Form</h4>
-
             <div class="card-alert card red lighten-5 print-error-msg" style="display:none"><div class="card-content red-text"><ul></ul></div></div>
             <form id="{{$page->entity}}Form" name="{{$page->entity}}Form" role="form" method="" action="" class="ajax-submit">
-                  {{ csrf_field() }}
-                  {!! Form::hidden('package_id', $package->id ?? '' , ['id' => 'package_id'] ); !!}
+              {{ csrf_field() }}
+              {!! Form::hidden('package_id', $package->id ?? '' , ['id' => 'package_id'] ); !!}
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $package->name ?? '', ['id' => 'name']) !!}             
                   <label for="name" class="label-placeholder">Package Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
-                  {!! Form::select('services', [] ,'', ['id' => 'services', 'multiple' => 'multiple', 'class' => 'select2 browser-default', 'placeholder'=>'Please select services']) !!}
+                  {!! Form::select('services[]', $variants->services, [], ['id' => 'services', 'multiple' => 'multiple', 'class' => 'select2 browser-default']) !!}
                 </div>
               </div>
-
-
               <div class="row">
                 <div class="input-field col m12 s12"> 
-                      <div class="form-group" id="usedServicesDiv" style="display:none;">
-                      <h5 class="card-title">Services </h5>           
-                          <table class="table table-hover text-nowrap" id="servicesTable" >
-                            <thead>
-                              <tr>
-                                <th>Name</th>
-                                <th>Hours</th>
-                                <th>price</th>
-                              </tr>
-                            </thead>
-                            <tbody>                         
-                              
-                            </tbody>
-                          </table>
-                      </div>
+                  <div class="form-group" id="usedServicesDiv" style="display:none;">
+                  <h5 class="card-title">Services </h5>           
+                    <table class="table table-hover text-nowrap" id="servicesTable" >
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Hours</th>
+                          <th>price</th>
+                        </tr>
+                      </thead>
+                      <tbody>                         
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-
               <div class="row">
                 <div class="input-field col m6 s12">                 
                   <input class="form-control check_numeric" type="text" name="price" id="price" value="" /> 
@@ -103,31 +95,25 @@
                   <label for="validity" class="label-placeholder">Validity no</label>
                 </div>
               </div>
-
               <div class="row">
                 <div class="input-field col m6 s12">
-                    <div class="col s12">
-                        @php 
-                          $checked = '';
-                            if(isset($service)){
-                                $checked = ($service->tax_included == 1) ? 'checked' : '' ; 
-                            }                      
-                        @endphp
-                      <label for="tax_included">Check if tax is included with price !</label>
-                      <p><label><input class="custom-control-input" type="checkbox" name="tax_included" id="tax_included" value="1" {{ $checked }} >
-                          <span>Tax Included</span>
-                        </label> </p>
-                      <div class="input-field">
-                      </div>
+                  <div class="col s12">
+                    @php 
+                      $checked = '';
+                        if(isset($service)){
+                          $checked = ($service->tax_included == 1) ? 'checked' : '' ; 
+                        }                      
+                    @endphp
+                    <label for="tax_included">Check if tax is included with price !</label>
+                    <p><label><input class="custom-control-input" type="checkbox" name="tax_included" id="tax_included" value="1" {{ $checked }} ><span>Tax Included</span></label></p>
+                    <div class="input-field">
+                    </div>
                   </div>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('gst_tax', $variants->tax_percentage , $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => 'select2 browser-default', 'placeholder'=>'Select GST Tax %']) !!}
                 </div>
               </div>
-
-              
-
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('hsn_code', $service->hsn_code ?? '', ['id' => 'hsn_code']) !!}  
@@ -137,19 +123,12 @@
                 {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids ?? [] , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'select2 browser-default']) !!}
                 </div>
               </div>
-
-
-
-
-
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn waves-effect waves-light" type="button" name="reset" id="reset-btn">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
-
-
             </form>
         </div>
       </div>
@@ -181,7 +160,7 @@ $(document).ready(function() {
       $(this).valid()
       });
 
-  getServices();
+  // getServices();
 });
 
 function loadData(){
@@ -201,7 +180,7 @@ function loadData(){
             $.each(data.data, function(key, value) {
               html += '<tr><td>'+value.name+'</td><td>'+value.hours.name+'</td><td>'+value.price+'</td></tr>';
             });
-            $('#servicesTable').append('<tfoot><tr><td></td><td><strong>Total</strong></td><td><strong>'+data.totalPrice+'</strong></td></tr></tfoot>');
+            $('#servicesTable').append('<tfoot><tr><td></td><td><b>Total</b></td><td><b>'+data.totalPrice+'</b></td></tr></tfoot>');
 
             $('#totalPrice').val(data.totalPrice);
             $( "#price" ).prop( "disabled", false );
@@ -237,91 +216,103 @@ function calculateDiscount(){
       
 }
 
-function getServices(){
-  $.ajax({
-      type: 'GET',
-      url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}",
-      dataType: 'json',
-      // data: { category_id:category_id},
-      delay: 250,
-      success: function(data) {
-          var selectTerms = '<option value="">Please choose services</option>';
-          $.each(data.data, function(key, value) {
-            selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
-          });
+// function getServices(){
+//   $.ajax({
+//       type: 'GET',
+//       url: "{{ url(ROUTE_PREFIX.'/common/get-all-services') }}",
+//       dataType: 'json',
+//       // data: { category_id:category_id},
+//       delay: 250,
+//       success: function(data) {
+//           var selectTerms = '<option value="">Please choose services</option>';
+//           $.each(data.data, function(key, value) {
+//             selectTerms += '<option value="' + value.id + '" >' + value.name + '</option>';
+//           });
 
-          var select = $('#services');
-          select.empty().append(selectTerms);
-      }
-  });
-}
+//           var select = $('#services');
+//           select.empty().append(selectTerms);
+//       }
+//   });
+// }
 
 $("#price").change(function(){
   calculateDiscount();
 });
 
 if ($("#{{$page->entity}}Form").length > 0) {
-    var validator = $("#{{$page->entity}}Form").validate({ 
-        rules: {
-            name: {
-                    required: true,
-                    maxlength: 200,
-            },
-            price: {
-                    required: true,
-            },
-            "services[]": {
-                    required: true,
-            },
-            gst_tax: {
-                  required: true,
-            }
-        },
-        messages: { 
-            name: {
-                required: "Please enter package name",
-                maxlength: "Length cannot be more than 200 characters",
-                },
-            price: {
-                required: "Please enter package price",
-                },
-            "services[]": {
-                required: "Please choose services",
-            },
-            gst_tax: {
-              required: "Please select GST Tax percentage",
-            }
-        },
-        submitHandler: function (form) {
-            id = $("#package_id").val();
-            package_id      = "" == id ? "" : "/" + id;
-            formMethod  = "" == id ? "POST" : "PUT";
-            var forms = $("#{{$page->entity}}Form");
-            $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + package_id, type: formMethod, processData: false, 
-            data: forms.serialize(), dataType: "html",
-            }).done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                    showSuccessToaster(data.message);
-                    setTimeout(function () { 
-                      window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
-                    }, 2000);
-
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }
-            });
-        },
-        errorPlacement: function(error, element) {
-            if (element.is("select")) {
-                error.insertAfter(element.next('.select2'));
-            }else {
-                error.insertAfter(element);
-            }
+  var validator = $("#{{$page->entity}}Form").validate({ 
+    rules: {
+      name: {
+        required: true,
+        maxlength: 250,
+      },
+      price: {
+        required: true,
+      },
+      "services[]": {
+        required: true,
+      },
+      gst_tax: {
+        // required: true,
+      }
+    },
+    messages: { 
+      name: {
+        required: "Please enter package name",
+        maxlength: "Length cannot be more than 250 characters",
+      },
+      price: {
+        required: "Please enter package price",
+      },
+      "services[]": {
+        required: "Please choose services",
+      },
+      gst_tax: {
+        required: "Please select GST Tax percentage",
+      }
+    },
+    submitHandler: function (form) {
+      disableBtn("submit-btn");
+      id = $("#package_id").val();
+      package_id      = "" == id ? "" : "/" + id;
+      formMethod  = "" == id ? "POST" : "PUT";
+      var forms = $("#{{$page->entity}}Form");
+      $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + package_id, type: formMethod, processData: false, data: forms.serialize(), dataType: "html",
+      }).done(function (a) {
+        enableBtn("submit-btn");
+        var data = JSON.parse(a);
+        if(data.flagError == false) {
+          showSuccessToaster(data.message);
+          setTimeout(function () { 
+            window.location.href = "{{ url(ROUTE_PREFIX.'/'.$page->route) }}";                
+          }, 2000);
+        }else{
+          showErrorToaster(data.message);
+          printErrorMsg(data.error);
         }
-    })
+      });
+    },
+    errorPlacement: function(error, element) {
+      if (element.is("select")) {
+        error.insertAfter(element.next('.select2'));
+      } else {
+        error.insertAfter(element);
+      }
+    }
+  })
 } 
+
+$("#reset-btn").click(function(e) {
+  validator.resetForm();
+  $('#{{$page->entity}}Form').find("input[type=text], textarea, radio").val("");
+  $("#services").val('').trigger('change');
+  $("#validity_mode").val('').trigger('change');
+  $("#validity").val('').trigger('change');
+  $("#gst_tax").val('').trigger('change');
+  $("#additional_tax").val('').trigger('change');
+  $('#tax_included').prop('checked', false);
+  $('#usedServicesDiv').hide();
+});
 
 </script>
 @endpush

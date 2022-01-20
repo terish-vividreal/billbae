@@ -10,10 +10,14 @@
     </thead>
     <tbody>
     @if($billing_items)
+
+      
       @foreach($billing_items->toArray() as $key => $item)
+
+
           <tr id="{{$item['id'] }}">
             <td>{{$loop->index + 1}}</td>
-            <td>{{ $item['name'] }} ( {{ $item['tax_array']['tax_method'] }} )</td>
+            <td>{{ $item['item_details'] }} ( {{ $item['tax_array']['tax_method'] }} )</td>
             <td>{{ $item['hsn_code'] }}</td>            
             <td class="right-align">
 

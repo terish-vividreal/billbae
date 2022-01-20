@@ -94,25 +94,24 @@
 
 <script>
   $(function () {
-
     table = $('#data-table-users').DataTable({
-        // bSearchable: true,
-        // pagination: true,
-        // pageLength: 10,
-        // responsive: true,
-        // searchDelay: 500,
-        // processing: true,
-        dom: 'Bfrtip',
-        select: true,
-        ajax: { url: "{{ url(ROUTE_PREFIX.'/users/lists') }}",  data: search },
-        columns: [
-          {data: 'DT_RowIndex', orderable: false, width:10},
-            {data: 'name', name: 'name', orderable: false},            
-            {data: 'email', name: 'name', orderable: false},               
-            {data: 'mobile', name: 'name', orderable: false},               
-            {data: 'activate', name: 'name', orderable: false},               
-            {data: 'action', name: 'action', orderable: false, searchable: false, width: 25},
-        ]
+      // bSearchable: true,
+      // pagination: true,
+      // pageLength: 10,
+      // responsive: true,
+      // searchDelay: 500,
+      // processing: true,
+      dom: 'Bfrtip',
+      select: true,
+      ajax: { url: "{{ url(ROUTE_PREFIX.'/users/lists') }}",  data: search },
+      columns: [
+        { data: 'DT_RowIndex', orderable: false, width:10 },
+        { data: 'name', name: 'name', orderable: false },          
+        { data: 'email', name: 'name', orderable: false },               
+        { data: 'mobile', name: 'name', orderable: false },               
+        { data: 'activate', name: 'name', orderable: false },               
+        { data: 'action', name: 'action', orderable: false, searchable: false, width: 25 },
+      ]
     });
 
     $(".listBtn").on("click", function(){
@@ -123,25 +122,22 @@
   });
 
   function manageUserStatus(id){
-    // alert(id)
     $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-status') }}", data:{'user_id':id }, type: 'POST', dataType: "html"})
-              .done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                  showSuccessToaster(data.message);          
-                  setTimeout(function () {
-                    table.ajax.reload();
-                    }, 1000);
-                }else{
-                  showErrorToaster(data.message);
-                  printErrorMsg(data.error);
-                }   
-              }).fail(function () {
-                      showErrorToaster("Something went wrong!");
-              });
+    .done(function (a) {
+      var data = JSON.parse(a);
+      if (data.flagError == false) {
+        showSuccessToaster(data.message);          
+        setTimeout(function () {
+          table.ajax.reload();
+          }, 1000);
+      } else {
+        showErrorToaster(data.message);
+        printErrorMsg(data.error);
+      }   
+    }).fail(function () {
+      showErrorToaster("Something went wrong!");
+    });
   }
-
-
 
   function search(value) {
     value.name      = $('input[type=search]').val();
@@ -175,12 +171,10 @@
       if (willDelete) {
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/hard-delete/" + b, type: "POST", dataType: "html"})
           .done(function (a) {
-              var data = JSON.parse(a);
-              if(data.flagError == false){
-                showSuccessToaster(data.message);          
-                setTimeout(function () {
-                  table.ajax.reload();
-                }, 2000);
+            var data = JSON.parse(a);
+            if (data.flagError == false) {
+              showSuccessToaster(data.message);          
+              setTimeout(function () { table.ajax.reload();  }, 2000);
             } else {
               showErrorToaster(data.message);
               printErrorMsg(data.error);
@@ -198,10 +192,10 @@
       if (willDelete) {
         $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/restore/" + b, type: "POST", dataType: "html"})
         .done(function (a) {
-            var data = JSON.parse(a);
-            if (data.flagError == false) {
-              showSuccessToaster(data.message);          
-              setTimeout(function () { table.ajax.reload() }, 2000);
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);          
+            setTimeout(function () { table.ajax.reload() }, 2000);
           } else {
             showErrorToaster(data.message);
             printErrorMsg(data.error);
@@ -212,9 +206,6 @@
       } 
     });
   }
-
-
-
 </script>
 @endpush
 
