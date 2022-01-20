@@ -11,6 +11,7 @@ use App\Models\ServiceCategory;
 use DataTables;
 use Validator;
 use DB;
+use Auth;
 
 class PackageController extends Controller
 {
@@ -70,10 +71,20 @@ class PackageController extends Controller
         //         $query->where('service_category_id', $service_category);
         //     });
         // }
+        if ($request['package_status'] != '') {
+            if ($request['package_status'] == 'deleted') {  
+                $detail         = $detail->onlyTrashed();
+            }
+        }
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
-                $action = ' <a  href="' . url(ROUTE_PREFIX.'/packages/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                if ($detail->deleted_at == null) { 
+                    $action = ' <a  href="' . url(ROUTE_PREFIX.'/'.$this->route.'/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Deactivate"><i class="material-icons">block</i></a>';    
+                } else {
+                    $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
+                }
                 return $action;
             })
             ->addColumn('price', function($detail){
@@ -233,12 +244,31 @@ class PackageController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Package  $package
+     * @param  \App\Models\State  $state
      * @return \Illuminate\Http\Response
      */
     public function destroy(Package $package)
     {
-        //
+        if (count($package->billingItems) > 0) {
+            return ['flagError' => true, 'message' => "Cant Delete, Package have billing information"];
+        } 
+        $package->updated_by = Auth::user()->id;
+        $package->save();
+        $package->delete();
+        return ['flagError' => false, 'message' => " Package deactivated successfully"];
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Customer  $customer
+     * @return \Illuminate\Http\Response
+     */
+    public function restore($id, Request $request)
+    {
+        $service   = Package::where('id', $id)->withTrashed()->first();
+        $service->restore();
+        return ['flagError' => false, 'message' => " Package activated successfully"];
     }
 
     public function updateStatus(Request $request)

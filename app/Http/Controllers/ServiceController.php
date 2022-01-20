@@ -73,6 +73,7 @@ class ServiceController extends Controller
                 $detail         = $detail->onlyTrashed();
             }
         }
+        
         if($request['service_category'] != '') {
             $service_category = $request['service_category'];
             $detail->Where(function ($query) use ($service_category) {

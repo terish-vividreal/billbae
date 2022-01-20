@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\GstTaxPercentage;
 use App\Models\ServiceCategory;
 use App\Models\Service;
@@ -13,7 +14,7 @@ use Auth;
 
 class Package extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     // public function services()
     // {
@@ -35,6 +36,11 @@ class Package extends Model
         return $this->belongsTo('App\Models\GstTaxPercentage', 'gst_tax', 'id');
     }
 
+    public function billingItems()
+    {
+        return $this->hasMany(BillingItem::class, 'item_id', 'id');
+    }
+    
     public static function getDetails($id)
     {
         $result             = array();
