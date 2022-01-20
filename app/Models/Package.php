@@ -43,7 +43,7 @@ class Package extends Model
         $lead_before        = 0;
         $lead_after         = 0;
         $package_services   = '';
-        $data           = self::find($id);
+        $data               = self::find($id);
 
         if($data) {
 
@@ -69,7 +69,7 @@ class Package extends Model
             }
             
                 
-            $result = array('package_services' => rtrim($package_services, ', '), 'total_minutes' => $total_minutes, 'lead_before' => $lead_before, 'lead_after' => $lead_after);
+            $result = array('full_name' => $data->name, 'package_services' => rtrim($package_services, ', '), 'total_minutes' => $total_minutes, 'lead_before' => $lead_before, 'lead_after' => $lead_after);
             return $result;
         }
         return false;

@@ -155,6 +155,7 @@
                       <select class="select2 browser-default service-type" data-type="services" name="bill_item[]" id="services" multiple="multiple"> </select>
                     </div>
                     <div id="packages_block" style="display:none;">
+                      @include('layouts.loader')
                       <select class="select2 browser-default service-type" data-type="packages" name="bill_item[]" id="packages" multiple="multiple"> </select>
                     </div>
                   </div>
@@ -277,7 +278,7 @@ $('input.typeahead').typeahead({
   autoSelect: true,
   hint: true,
   highlight: true,
-  minLength: 3,
+  minLength: 2,
   source:  function (query, process) {
     return $.get(path, { 
       search: query, classNames: { input: 'Typeahead-input', hint: 'Typeahead-hint', selectable: 'Typeahead-selectable' }
@@ -372,6 +373,7 @@ function getServices() {
 }
 
 function getPackages(){
+  $("#pre-loader-div").show();
   $.ajax({ type: 'GET', url: "{{ url(ROUTE_PREFIX.'/common/get-all-packages') }}", dataType: 'json', delay: 250,
     success: function(data) {
       var selectTerms = '<option value="">Please choose packages</option>';
@@ -381,6 +383,7 @@ function getPackages(){
 
       var select = $('#packages');
       select.empty().append(selectTerms);
+      $("#pre-loader-div").hide();
     }
   });
 }

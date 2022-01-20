@@ -127,8 +127,9 @@ class BillingController extends Controller
                 }   
                 return $action;
             })
-            ->editColumn('customer_id', function($detail){
-                $customer = $detail->customer->name;
+            ->editColumn('customer_id', function($detail) {
+                $customer     = '<a href="' . url(ROUTE_PREFIX.'/customers/view-details/' . $detail->customer->id ) . '" >'. $detail->customer->name.'</a>';
+                // $customer = $detail->customer->name;
                 return $customer;
             })
             ->editColumn('amount', function($detail){
@@ -203,8 +204,6 @@ class BillingController extends Controller
         $checkin_time                   = FunctionHelper::dateToTimeFormat($request->checkin_time);
         $checkout_time                  = FunctionHelper::dateToTimeFormat($request->checkout_time);
 
-
-
         $billing                        = new Billing();
         $billing->shop_id               = SHOP_ID;
         $billing->customer_id           = $request->customer_id;
@@ -239,7 +238,14 @@ class BillingController extends Controller
                 $item->billing_id       = $billing->id ;
                 $item->customer_id      = $request->customer_id ;
                 $item->item_type        = ($request->service_type == 1) ? 'services' : 'packages' ;
-                $item->item_id          = $row ;
+                $item->item_id          = $row;
+
+                if($request->service_type == 1) {
+                    $item_details       = Service::getDetails($row);
+                } else {
+                    $item_details       = Package::getDetails($row);
+                }
+                $item->item_details     = $item_details['full_name'].' ('. $item_details['total_minutes']. 'mns)';
                 $item->save();
             }       
         }
@@ -280,6 +286,10 @@ class BillingController extends Controller
                 $billing->billing_code      = $billing_code;
                 $billing->customer_address  = Customer::getBillingAddress($billing->customer_id, $billing->address_type);
                 $billing->save();
+
+
+
+
                 foreach ($request->input('payment_amount') as $key => $value) {
                     $bill_amount                    = new BillAmount();
                     $bill_amount->bill_id           = $billing->id;
@@ -319,6 +329,7 @@ class BillingController extends Controller
                         $item_tax->tax_amount               = $tax_array['amount'];
                         $item_tax->save();
 
+                        //
                         if ( count($tax_array['additiona_array']) > 0) {
                             foreach ($tax_array['additiona_array'] as $additional) {
                                 $additional_obj                 = new BillingItemAdditionalTax();
@@ -344,6 +355,7 @@ class BillingController extends Controller
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=> $validator->errors()->all()];
     }
+
     public function updateInvoice(Request $request, $id)
     {
         // Formatting time 
@@ -450,6 +462,7 @@ class BillingController extends Controller
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=> $validator->errors()->all()];
     }
+
     /**
      * Display the specified resource.
      *
@@ -509,13 +522,15 @@ class BillingController extends Controller
             $item_type              = $billing_items_array[0]['item_type'];                                 
 
             if($item_type == 'services') {
-                $billing_items = Service::select('services.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
+                $billing_items = Service::select('services.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value', 'billing_items.item_details')
                                     ->join('billing_items', 'billing_items.item_id', '=', 'services.id')->where('services.shop_id', SHOP_ID)->where('billing_items.billing_id', $request->bill_id)->whereIn('services.id', $request->item_ids)->orderBy('services.id', 'desc')->get();
             }
             else {
-                $billing_items = Package::select('packages.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value')
+                $billing_items = Package::select('packages.*', 'billing_items.id as billingItemsId', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 'billing_items.discount_type', 'billing_items.discount_value', 'billing_items.item_details')
                                     ->join('billing_items', 'billing_items.item_id', '=', 'packages.id')->where('packages.shop_id', SHOP_ID)->where('billing_items.billing_id', $request->bill_id)->whereIn('packages.id', $request->item_ids)->orderBy('packages.id', 'desc')->get();
             }
+
+            // echo "<pre>"; print_r($billing_items); exit;
 
             foreach ($billing_items as $key => $row) {
                 $tax_array                          = TaxHelper::simpleTaxCalculation($row, $discount);
@@ -663,13 +678,13 @@ class BillingController extends Controller
                         $ids[] = $row['item_id']; 
                     }
                     if ($item_type == 'services') {
-                        $billing_items  = BillingItem::select('services.name',  'services.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 
+                        $billing_items  = BillingItem::select('services.name',  'services.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.item_details', 'billing_items.is_discount_used', 
                                             'billing_items.discount_type', 'billing_items.discount_value', 'billing_item_taxes.cgst_percentage', 'billing_item_taxes.sgst_percentage',
                                             'billing_item_taxes.tax_amount', 'billing_item_taxes.sgst_amount','billing_item_taxes.grand_total', 'billing_item_taxes.cgst_amount', )
                                             ->join('services', 'services.id', '=', 'billing_items.item_id')->join('billing_item_taxes', 'billing_item_taxes.bill_item_id', '=', 'billing_items.id')                                        
                                             ->where('services.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('services.id', $ids)->orderBy('services.id', 'desc')->get();
                     } else {
-                        $billing_items  = BillingItem::select('packages.name',  'packages.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 
+                        $billing_items  = BillingItem::select('packages.name',  'packages.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.item_details', 'billing_items.is_discount_used', 
                                             'billing_items.discount_type', 'billing_items.discount_value', 'billing_item_taxes.cgst_percentage', 'billing_item_taxes.sgst_percentage',
                                             'billing_item_taxes.tax_amount', 'billing_item_taxes.sgst_amount','billing_item_taxes.grand_total', 'billing_item_taxes.cgst_amount',)
                                             ->join('packages', 'packages.id', '=', 'billing_items.item_id')->join('billing_item_taxes', 'billing_item_taxes.bill_item_id', '=', 'billing_items.id')                                        

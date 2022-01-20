@@ -393,19 +393,20 @@ $(function () {
   } //Chat search filter
 
 
-  $("#messages .header-search-input").on("keyup", function () {
-    $(".chat-user").css("animation", "none");
-    var value = $(this).val().toLowerCase();
+  // $("#messages .header-search-input").on("keyup", function () {
+  //   $(".chat-user").css("animation", "none");
+  //   var value = $(this).val().toLowerCase();
 
-    if (value != "") {
-      $(".right-sidebar-chat .right-sidebar-chat-item").filter(function () {
-        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-      });
-    } else {
-      // if search filter box is empty
-      $(".right-sidebar-chat .right-sidebar-chat-item").show();
-    }
-  }); // Chat scroll till bottom of the chat content area
+  //   if (value != "") {
+  //     $(".right-sidebar-chat .right-sidebar-chat-item").filter(function () {
+  //       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+  //     });
+  //   } else {
+  //     // if search filter box is empty
+  //     $(".right-sidebar-chat .right-sidebar-chat-item").show();
+  //   }
+  // }); 
+  // Chat scroll till bottom of the chat content area
 
   var chatScrollAuto = $("#right-sidebar-nav #slide-out-chat .chat-body .collection");
 

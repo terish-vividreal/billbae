@@ -130,7 +130,7 @@ class Service extends Model
                 $lead_after     = $data->leadAfter->value;
             }
                 
-            $result = array('total_minutes' => $minutes, 'lead_before' => $lead_before, 'lead_after' => $lead_after);
+            $result = array('full_name' => $data->name, 'total_minutes' => $minutes, 'lead_before' => $lead_before, 'lead_after' => $lead_after);
             return $result;
         }
         return false;

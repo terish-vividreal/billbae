@@ -50,9 +50,9 @@ class PackageController extends Controller
         $page->route                    = $this->route;
         $page->entity                   = $this->entity; 
         $variants->services             = Service::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
-        $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
+        $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'id');   
         $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id');        
-        $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');    
+        $variants->service_category     = ServiceCategory::where('shop_id', SHOP_ID)->pluck('name', 'id');   
         $variants->additional_tax_ids   = [];     
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
@@ -172,8 +172,9 @@ class PackageController extends Controller
             $page->route                    = $this->route;
             $page->entity                   = $this->entity;   
             $service_ids                    = array();
-            $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'percentage');  
+            $variants->tax_percentage       = DB::table('gst_tax_percentages')->pluck('percentage', 'id');  
             $variants->additional_tax       = Additionaltax::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
+            $variants->services             = Service::where('shop_id', SHOP_ID)->pluck('name', 'id');
             $variants->additional_tax_ids   = [];
             foreach ($package->service as $data) {
                 $service_ids[] = $data->id ;

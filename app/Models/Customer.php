@@ -47,6 +47,11 @@ class Customer extends Model
         return $this->belongsTo(District::class);
     }
 
+    public function phoneCode()
+    {
+        return $this->belongsTo(Country::class, 'phone_code', 'id');
+    }
+
     public function getCreatedAtAttribute()
     {
         return FunctionHelper::dateToTimeZone($this->attributes['created_at'], 'd-m-Y h:i A');

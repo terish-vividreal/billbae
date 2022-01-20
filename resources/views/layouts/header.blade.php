@@ -15,9 +15,9 @@ if(!empty($themeSettings)){
   $navbarBgColor        = ($themeSettings->navbarBgColor != '')?$themeSettings->navbarBgColor:$configData['navbarLargeColor'];
   $navBarFixed          = ($themeSettings->footerFixed == 1)?'navbar-fixed':'';
 
-  if($themeSettings->isNavbarDark != null){
+  if($themeSettings->isNavbarDark != null) {
     $navbarMain         = ($themeSettings->isNavbarDark == 0)?'navbar-light':'navbar-dark';
-  }else{
+  } else {
     $navbarMain         = 'navbar-dark '. $navbarBgColor;
   }
 } else {
@@ -30,11 +30,11 @@ if(!empty($themeSettings)){
       <div class="navbar {{$navBarFixed}}"> 
         <nav class="navbar-main navbar-color nav-collapsible {{$navCollapsed}} {{$sideNavLock}} {{$navbarMain}} no-shadow">
           <div class="nav-wrapper">
+            @if(isset($page->top_search))
             <div class="header-search-wrapper hide-on-med-and-down"><i class="material-icons">search</i>
-              <input class="header-search-input z-depth-2" type="text" name="Search" placeholder="Search @yield('search-title', '')" data-search="template-list">
-              <ul class="search-list collection display-none"></ul>
+              <input class="header-search-input z-depth-2" type="text" name="top_search" id="top_search" placeholder="Search @yield('search-title', '')" value="">
             </div>
-
+            @endif
             <ul class="navbar-list right billbae-list">
               <!-- <li><a class="waves-effect waves-block waves-light" href="{{ url(ROUTE_PREFIX.'/users') }}"><i class="material-icons">person</i></a></li>
               <li><a class="waves-effect waves-block waves-light notification-button" href="javascript:void(0);" data-target="notifications-dropdown"><i class="material-icons">settings</i></a></li>
@@ -61,7 +61,7 @@ if(!empty($themeSettings)){
                   <div class="col s12 m4 l4 colMr">
                     <h4 class="row mega-title">Services</h4>     
                     <ul>
-                      <li><a href="{{ url(ROUTE_PREFIX.'/services') }}" class="@if(Request::is(ROUTE_PREFIX.'services') || Request::is(ROUTE_PREFIX.'services/create') || Request::is(ROUTE_PREFIX.'services/*')) active @endif"> All services</a></li>
+                      <li><a href="{{ url(ROUTE_PREFIX.'/services') }}" class="@if(Request::is(ROUTE_PREFIX.'services') || Request::is(ROUTE_PREFIX.'services/create') || Request::is(ROUTE_PREFIX.'services/*')) active @endif"> Services</a></li>
                       <li><a href="{{ url(ROUTE_PREFIX.'/packages') }}" class="@if(Request::is(ROUTE_PREFIX.'packages') || Request::is(ROUTE_PREFIX.'packages/create') || Request::is(ROUTE_PREFIX.'packages/*')) active @endif">Packages</a></li>
                       <!-- <li><a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="@if(Request::is(ROUTE_PREFIX.'service-category')) active @endif">Service categories</a></li> -->
                     </ul>   

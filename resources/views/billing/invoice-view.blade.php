@@ -123,10 +123,12 @@
             </thead>
             <tbody>
             @if($billing_items)
+
+
               @foreach($billing_items as $key => $item)
                 <tr id="{{$item['id'] }}">
                   <td>{{$loop->index + 1}}</td>
-                  <td>{{ $item->name }} </td>
+                  <td>{{ $item->item_details }} </td>
                   <td>{{ $item->hsn_code }}</td>
                   <td class="right-align">
                     <ul>

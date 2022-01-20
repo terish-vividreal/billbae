@@ -311,7 +311,6 @@ class CommonController extends Controller
                         ->whereIn('packages.id', $request->data_ids)->orderBy('packages.id', 'desc')->get();
         }
 
-        // echo "<pre>"; print_r($store_data->; exit;
 
         if ($result) {
             $html                   = '';
@@ -324,6 +323,7 @@ class CommonController extends Controller
             $total_minutes          = 0;
             $additional_tax_array   = array();
             $additional_amount      = 0;
+            $package_full_name      = '';
 
             foreach ($result as $row) {
                 $minutes        = 0;
@@ -337,15 +337,17 @@ class CommonController extends Controller
 
                 } else {
                     foreach ($row->service as $service_row) {
-                        $service_ids[]      = $service_row->id ;
+                        $service_ids[]      = $service_row->id;
                     }   
+
                     $service_details        = Package::getDetails($row->id);
-                    $data_array[]           = array('name' => $service_details['package_services'], 'price' => $row->price, 'minutes' => $service_details['total_minutes']);
+                    $package_full_name      = $row->name. ' (' .$service_details['package_services'].')';
+                    $data_array[]           = array('name' => $package_full_name, 'price' => $row->price, 'minutes' => $service_details['total_minutes']);
                 }
 
                 // Case 1 - Store has no GST
                 if ($store_data->gst_percentage != null) {
-
+                                
                     if ($row->gst_tax != NULL) {
                         $total_percentage           = $row->gsttax->percentage ;
                         $tax_percentage             = $row->gsttax->percentage ;
@@ -353,13 +355,16 @@ class CommonController extends Controller
                         $total_percentage           = $store_data->GSTTaxPercentage->percentage ;
                         $tax_percentage             = $store_data->GSTTaxPercentage->percentage ;
                     }
-
                 } 
                 
                 $included = ($row->tax_included == 1)?'Tax Included':'Tax Excluded';
                 $html.='<tr id="'.$index.'"><td>'.$index.'</td>';
-                $html.='<td>'.$row->name . ' - '. $row->hours->value . ' mns. ' . ' ( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
-                $html.='<td class="right-align">';
+                if ($type == 'services') {
+                    $html.='<td>'.$row->name . ' - '. $row->hours->value . ' mns. ' . ' ( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
+                } else {
+                    $html.='<td>'.$package_full_name . ' - '. $service_details['total_minutes'] . ' mns. ' . ' ( '.$included.' ) </td><td>'.$row->hsn_code.'</td>';
+                }
+                    $html.='<td class="right-align">';
                     
                 if ($total_percentage > 0) {
                     

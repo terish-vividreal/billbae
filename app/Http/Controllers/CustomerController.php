@@ -57,6 +57,7 @@ class CustomerController extends Controller
         $page->title            = $this->title;
         $page->link             = url($this->link);
         $page->route            = $this->route;
+        $page->top_search       = 1;
         $page->entity           = $this->entity;       
         return view($this->viewPath . '.list', compact('page', 'variants'));
     }
@@ -121,7 +122,20 @@ class CustomerController extends Controller
                 $detail         = $detail->onlyTrashed();
             }
         }
-        $detail = $detail->orderBy('id', 'desc');;
+
+        if ($request['top_search'] != '') {
+            $name       = $request['top_search'];
+            $detail     = $detail->where(function($query)use($name){
+                $query->where('name', 'LIKE', "{$name}%")
+                        ->orWhere('email', 'LIKE', "%{$name}%") 
+                        ->orWhere('customer_code', 'LIKE', "%{$name}%") 
+                        ->orWhere('mobile', 'LIKE', "%{$name}%") ;
+
+            }); 
+        }
+
+
+        $detail = $detail->orderBy('id', 'desc')->get();
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('status', function($detail) {
@@ -133,7 +147,8 @@ class CustomerController extends Controller
             return $status;
             })
             ->editColumn('mobile', function($detail) {
-                $mobile = (!empty($detail->mobile)? '+' . $detail->phone_code . ' ' . $detail->mobile:'');
+                $phone_code     = (!empty($detail->phoneCode->phonecode) ? '+' .$detail->phoneCode->phonecode : '');
+                $mobile         = (!empty($detail->mobile) ? $phone_code . ' ' . $detail->mobile:'');
                 return $mobile;
             })
             ->addColumn('action', function($detail){
@@ -277,7 +292,7 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
-        $customer                       = Customer::find($id);  
+        $customer                       = Customer::find($id); 
         if ($customer) { 
             $page                       = collect();
             $variants                   = collect();
