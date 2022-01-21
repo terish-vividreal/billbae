@@ -52,21 +52,22 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $service->name ?? '', ['id' => 'name']) !!}  
-                  <label for="name" class="label-placeholder">Service Name <span class="red-text">*</span></label>
+                  <label for="name" class="label-placeholder active">Service Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                   <input type="text" name="search_service_category" id="search_service_category" class="typeahead autocomplete" value="{{$service->serviceCategory->name ?? ''}}" autocomplete="off" value="">
-                  <label for="search_service_category" class="typeahead label-placeholder">Enter service category</label>
+                  <label for="search_service_category" class="typeahead label-placeholder active">Enter service category</label>
                   <!-- {!! Form::select('service_category_id',$variants->service_category , $service->service_category_id ?? '' , ['id' => 'service_category_id', 'class' => 'select2 browser-default', 'placeholder'=>'Please select service category']) !!} -->
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12"> 
                   {!! Form::text('price',  $service->price ?? '' , ['id' => 'price' ,'class' => 'check_numeric']) !!}
-                  <label for="price" class="label-placeholder">Price <span class="red-text">*</span></label>
+                  <label for="price" class="label-placeholder active">Price <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('hours_id',$variants->hours , $service->hours_id ?? '' , ['class' => 'select2 browser-default', 'id' => 'hours_id', 'placeholder'=>'Please select service minutes']) !!}
+                  <!-- <label for="hours_id" class="label-placeholder active">Minutes </label> -->
                 </div>
               </div>
               <div class="row">
@@ -85,15 +86,17 @@
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('gst_tax', $variants->tax_percentage , $service->gst_tax ?? '' , ['id' => 'gst_tax', 'class' => 'select2 browser-default', 'placeholder'=>'Select GST Tax %']) !!}
+                  <!-- <label for="gst_tax" class="label-placeholder active">Tax </label>                 -->
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('hsn_code', $service->hsn_code ?? '', ['id' => 'hsn_code']) !!}  
-                  <label for="hsn_code" class="label-placeholder">SAC Code </label>
+                  <label for="hsn_code" class="label-placeholder active">SAC Code </label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('additional_tax[]', $variants->additional_tax, $variants->additional_tax_ids ?? [] , ['id' => 'additional_tax', 'multiple' => 'multiple' ,'class' => 'select2 browser-default']) !!}
+                  <label for="additional_tax" class="label-placeholder active">Additional Tax </label>
                 </div>
               </div>
               <div class="row">
@@ -106,7 +109,7 @@
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn waves-effect waves-light" type="button" name="reset" id="reset-btn">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
@@ -198,12 +201,14 @@ if ($("#{{$page->entity}}Form").length > 0) {
     },
     submitHandler: function (form) {
       console.log($('#service_category_id').val());
+      disableBtn("submit-btn");
       id            = $("#service_id").val();
       service_id    = "" == id ? "" : "/" + id;
       formMethod    = "" == id ? "POST" : "PUT";
       var forms     = $("#{{$page->entity}}Form");
       $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}" + service_id, type: formMethod, processData: false, data: forms.serialize(), dataType: "html",
       }).done(function (a) {
+        enableBtn("submit-btn");
         var data = JSON.parse(a);
         if (data.flagError == false) {
           showSuccessToaster(data.message);          
@@ -218,5 +223,16 @@ if ($("#{{$page->entity}}Form").length > 0) {
     }
   })
 }
+
+$("#reset-btn").click(function(e) {
+  validator.resetForm();
+  $('#{{$page->entity}}Form').find("input[type=text], textarea, radio").val("");
+  $("#hours_id").val('').trigger('change');
+  $("#gst_tax").val('').trigger('change');
+  $("#additional_tax").val('').trigger('change');
+  $("#lead_before").val('').trigger('change');
+  $("#lead_after").val('').trigger('change');
+  $('#tax_included').prop('checked', false);
+});
 </script>
 @endpush
