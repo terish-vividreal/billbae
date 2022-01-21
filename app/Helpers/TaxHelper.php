@@ -61,12 +61,19 @@ class TaxHelper
             $total_service_tax          = ($row->price/100) * $total_percentage ;        
             $tax_onepercentage          = $total_service_tax/$total_percentage;
             $total_gst_amount           = $tax_onepercentage*$total_percentage;
-            $total_cgst_amount          = $tax_onepercentage*($total_percentage/2) ;
-            $total_sgst_amount          = $tax_onepercentage*($total_percentage/2) ;
+            // $total_cgst_amount          = $tax_onepercentage*($total_percentage/2) ;
+            // $total_sgst_amount          = $tax_onepercentage*($total_percentage/2) ;
+
+            $total_cgst_amount          = $tax_onepercentage*($tax_percentage/2) ;
+            $total_sgst_amount          = $tax_onepercentage*($tax_percentage/2) ;
+
             $cgst_percentage            = ($tax_percentage/2);
             $sgst_percentage            = ($tax_percentage/2);
         }
-                        
+               
+        
+        // echo $total_service_tax; exit;
+
         if (count($row->additionaltax) > 0) {
             foreach($row->additionaltax as $additional) {
                 $additional_amount      = $tax_onepercentage*$additional->percentage;
@@ -83,28 +90,28 @@ class TaxHelper
             $included = 'Tax Excluded' ;
             $gross_charge   = $row->price + $total_service_tax  ;
             $gross_value    = $row->price ;
-            $gross_charge           = $gross_charge + $additional_amount;
+            // $gross_charge   = $gross_charge + $additional_amount;
         }
 
         //Discount calculation start
         if ($row->is_discount_used == 1) {
             if ($row->tax_included == 1) {
                 if ($row->discount_type == 'amount') {
-                    $discount_type      = 'amount';
-                    $discount_amount  = $row->discount_value ;
-                    $balance_discount_amount  = $gross_charge - $row->discount_value;
+                    $discount_type              = 'amount';
+                    $discount_amount            = $row->discount_value ;
+                    $balance_discount_amount    = $gross_charge - $row->discount_value;
                 } else {
-                    $discount_type      = 'percentage';
-                    $discount_value     = $row->discount_value;
-                    $discount_amount  = $gross_charge * ($row->discount_value/100);
-                    $balance_discount_amount  = $gross_charge - $discount_amount;
+                    $discount_type              = 'percentage';
+                    $discount_value             = $row->discount_value;
+                    $discount_amount            = $gross_charge * ($row->discount_value/100);
+                    $balance_discount_amount    = $gross_charge - $discount_amount;
                 }
 
                 $gross_value            = $balance_discount_amount * ((100 - $total_percentage)/100)  ;
                 
                 if ($total_percentage > 0) {
-                    $total_cgst_amount      = $balance_discount_amount * (($row->gsttax->percentage/2)/100) ;  
-                    $total_sgst_amount      = $balance_discount_amount * (($row->gsttax->percentage/2)/100) ;
+                    $total_cgst_amount      = $balance_discount_amount * (($tax_percentage/2)/100) ;  
+                    $total_sgst_amount      = $balance_discount_amount * (($tax_percentage/2)/100) ;
                 } 
                 
                 if (count($additional_tax_array) > 0) {
@@ -133,6 +140,8 @@ class TaxHelper
                 }
             }
         }
+
+        
 
         $tax_array = [  
             'name' => $row->name, 
