@@ -287,9 +287,6 @@ class BillingController extends Controller
                 $billing->customer_address  = Customer::getBillingAddress($billing->customer_id, $billing->address_type);
                 $billing->save();
 
-
-
-
                 foreach ($request->input('payment_amount') as $key => $value) {
                     $bill_amount                    = new BillAmount();
                     $bill_amount->bill_id           = $billing->id;
@@ -417,6 +414,13 @@ class BillingController extends Controller
                 $item->customer_id          = $request->customer_id ;
                 $item->item_type            = ($request->service_type == 1) ? 'services' : 'packages' ;
                 $item->item_id              = $row ;
+                if($request->service_type == 1) {
+                    $item_details       = Service::getDetails($row);
+                } else {
+                    $item_details       = Package::getDetails($row);
+                }
+                $item->item_details     = $item_details['full_name'].' ('. $item_details['total_minutes']. 'mns)';
+
                 $item->save();
             }  
             if (!empty($billing->schedule)) {
@@ -541,6 +545,7 @@ class BillingController extends Controller
                 }
             }
         }
+
         $invoice_details = view($this->viewPath . '.invoice-data', compact('billing_items'))->render();  
         return ['flagError' => false, 'grand_total' => $grand_total, 'html' => $invoice_details];      
     }

@@ -208,32 +208,30 @@ function manageDiscount(e) {
   var id      = $(e).data("id");
   var action  = $(e).data("action");
   validator.resetForm();
-    $('#billing_item_id').val(id);
-    $('#discount_action').val(action);
-  if(action == 'add'){
+  $('#billing_item_id').val(id);
+  $('#discount_action').val(action);
+
+  if (action == 'add') {
     $('#discount_value').val('');
     $("#discount-modal").modal("open");
   } else {
-
-    swal({ title: 'Are you sure you want to remove the discount added?', icon: 'warning', dangerMode: true,
-			buttons: { cancel: 'No, Please!', delete: 'Yes, Remove It'}
+    swal({ title: 'Are you sure you want to remove the discount added?', icon: 'warning', dangerMode: true,	buttons: { cancel: 'No, Please!', delete: 'Yes, Remove It'}
 		}).then(function (willDelete) {
 			if (willDelete) {
         var forms       = $("#discountForm");
-          $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, data: forms.serialize(), dataType: "html",
-          }).done(function (a) {
-              var data = JSON.parse(a);
-              if (data.flagError == false) {
-                  getInvoiceDetails();
-              } else {
-                showErrorToaster(data.message);
-                printErrorMsg(data.error);
-              }
-          });
+        $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, data: forms.serialize(), dataType: "html",
+        }).done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+              getInvoiceDetails();
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }
+        });
 			} 
 		});   
   }
-
 }
 
 if ($("#discountForm").length > 0) {
@@ -250,10 +248,12 @@ if ($("#discountForm").length > 0) {
           }
       },
       submitHandler: function (form) {
+          disableBtn("discount-submit-btn");
           var forms       = $("#discountForm");
           $.ajax({ url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/manage-discount') }}", type: "POST", processData: false, 
           data: forms.serialize(), dataType: "html",
           }).done(function (a) {
+              enableBtn("discount-submit-btn");
               var data = JSON.parse(a);
               if (data.flagError == false) {
                   getInvoiceDetails();
