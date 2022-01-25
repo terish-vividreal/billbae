@@ -65,11 +65,13 @@ class BillingController extends Controller
     public function index()
     {
         $page                   = collect();
+        $variants               = collect();
         $page->title            = $this->title;
         $page->link             = url($this->link);
         $page->route            = $this->route;
-        $page->entity           = $this->entity;      
-        return view($this->viewPath . '.list', compact('page'));
+        $page->entity           = $this->entity;
+        $variants->customers         = Billing::with(['customer'])->where('shop_id', SHOP_ID)->groupBy('customer_id')->get()->pluck('customer.name', 'customer.id',); 
+        return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 
     /**
@@ -93,7 +95,7 @@ class BillingController extends Controller
         $variants->payment_types    = PaymentType::where('shop_id', SHOP_ID)->pluck('name', 'id');         
         $variants->time_picker      = ($this->time_format === 'h')?false:true;
         $variants->time_format      = $this->time_format;
-        $variants->phonecode        = DB::table('shop_countries')->select("id", DB::raw('CONCAT("+", phonecode) AS phone_code'))->where('status',1)->pluck('phone_code', 'id');
+        $variants->phonecode        = DB::table('shop_countries')->select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->pluck('phone_code', 'id');
         return view($this->viewPath . '.create', compact('page', 'variants', 'store'));
     }
 
@@ -103,38 +105,55 @@ class BillingController extends Controller
      */
     public function lists(Request $request)
     {
-        $detail =  Billing::where('shop_id', SHOP_ID)->orderBy('id', 'desc');
-        // if($request['service_category'] != '') {
-        //     $service_category = $request['service_category'];
-        //     $detail->Where(function ($query) use ($service_category) {
-        //         $query->where('service_category_id', $service_category);
-        //     });
-        // }
-        return Datatables::of($detail)
+        $detail =  Billing::select(['billing_code', 'customer_id', 'status', 'payment_status', 'id', ])
+                            ->with(['customer'])
+                            ->where('billings.shop_id', SHOP_ID);
+
+        if (isset($request->form)) {
+            $customer_ids = [];
+            foreach ($request->form as $search) {
+                if ($search['value'] != NULL && $search['name'] == 'invoice') {
+                    $invoice = strtolower($search['value']);
+                    $detail->where('billing_code', 'like', "%{$invoice}%");
+                }
+                if ($search['value'] != NULL && $search['name'] == 'customer_id') {
+                    $customer_ids[] = $search['value'];
+                }
+                if ($search['value'] != NULL && $search['name'] == 'payment_status') {
+                    $detail->where('payment_status', $search['value']);
+                }
+            }
+            if( count($customer_ids) > 0 ) {
+                $detail->whereIn('customer_id', $customer_ids);
+            } 
+        }
+
+        $detail->orderBy('id', 'desc');
+        return Datatables::eloquent($detail)
             ->addIndexColumn()
-            ->addColumn('action', function($detail){
-                $action = '';
-                if ($detail->payment_status == 0) {
-                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/' . $detail->id ) . '"" class="btn mr-2 blue tooltipped" title="Update Payment"><i class="material-icons">payment</i></a>';
-                } 
-                if ($detail->status == 0) {
-                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/edit/' . $detail->id) . '"" class="btn mr-2 cyan tooltipped" data-tooltip="Edit details"><i class="material-icons">mode_edit</i></a>';
-                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="deleteBill(this.id)"  class="btn red btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
-                } else {
-                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/show/' . $detail->id) . '"" class="btn mr-2 cyan tooltipped" title="View details"><i class="material-icons">remove_red_eye</i></a>';
-                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'.$this->route.'/invoice-data/generate-pdf/'. $detail->id) . '"" class="btn mr-2 indigo tooltipped" title="Download Invoice"><i class="material-icons mr-4">file_download</i></a>';
-                    $action .= ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="cancelBill(this.id)" class="btn orange btn-sm btn-icon mr-2" title="Cancel Bill"><i class="material-icons">cancel</i> </a>';
-                }   
-                return $action;
-            })
+            // ->addColumn('row_id', function ($detail) {
+            //     $row_id = '<input type="checkbox" name="sel_ids[]" value="'. $detail->id .'" class="performancecheckedrows"/>';
+            //     return $row_id ;
+            // })
             ->editColumn('customer_id', function($detail) {
                 $customer     = '<a href="' . url(ROUTE_PREFIX.'/customers/view-details/' . $detail->customer->id ) . '" >'. $detail->customer->name.'</a>';
                 // $customer = $detail->customer->name;
                 return $customer;
             })
-            ->editColumn('amount', function($detail){
-                $amount = '₹ '. $detail->amount;
-                return $amount;
+            // ->editColumn('amount', function($detail){
+            //     $amount = '₹ '. $detail->amount;
+            //     return $amount;
+            // })
+            ->editColumn('status', function($detail){
+                $status = '';
+                if ($detail->status == 0) {
+                    $status = '<span class="chip lighten-5 dark blue-text">Open</span>';
+                } else if($detail->status == 1) {  
+                    $status = '<span class="chip lighten-5 dark green green-text">Completed</span>';                                
+                } else {
+                    $status = '<span class="chip lighten-5 dark red-text">Cancelled</span>';             
+                }
+                return $status;
             })
             ->editColumn('payment_status', function($detail){
                 $status = '';
@@ -144,24 +163,26 @@ class BillingController extends Controller
                     $status = '<span class="chip lighten-5 green green-text">PAID</span>';                                
                 }
                 return $status;
-            })
+            })            
             ->addColumn('updated_date', function($detail){
                 if ($detail->payment_status == 1) {
                     return FunctionHelper::dateToTimeZone($detail->billed_date, 'd-M-Y '.$this->time_format.':i a');
                 }  
             })
-            ->addColumn('bill_status', function($detail){
-                $status = '';
-                if ($detail->status == 0) {
-                    $status = '<span class="badge badge-warning">Open</span>';
-                } else if($detail->status == 1) {  
-                    $status = '<span class="badge badge-success">Completed</span>';                                
+            ->addColumn('action', function($detail){
+                $action = '';
+                if ($detail->payment_status == 0) {
+                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/' . $detail->id ) . '"" class="btn mr-2 blue tooltipped" title="Update Payment"><i class="material-icons">payment</i></a>';
+                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/invoice/edit/' . $detail->id) . '"" class="btn mr-2 cyan tooltipped" data-tooltip="Edit details"><i class="material-icons">mode_edit</i></a>';
+                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" onclick="deleteBill(this.id)"  class="btn red btn-sm btn-icon mr-2" title="Delete"><i class="material-icons">delete</i></a>';
                 } else {
-                    $status = '<span class="badge badge-danger">Cancelled</span>';             
-                }
-                return $status;
+                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'. $this->route . '/show/' . $detail->id) . '"" class="btn mr-2 cyan tooltipped" title="View details"><i class="material-icons">remove_red_eye</i></a>';
+                    $action .= ' <a href="' . url(ROUTE_PREFIX.'/'.$this->route.'/invoice-data/generate-pdf/'. $detail->id) . '"" class="btn mr-2 indigo tooltipped" title="Download Invoice"><i class="material-icons mr-4">file_download</i></a>';
+                    $action .= ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="cancelBill(this.id)" class="btn orange btn-sm btn-icon mr-2" title="Cancel Bill"><i class="material-icons">cancel</i> </a>';
+                }   
+                return $action;
             })
-            ->removeColumn('id')
+            ->removeColumn('id', 'customer')
             ->escapeColumns([])
             ->make(true);                    
     }

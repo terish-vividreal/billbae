@@ -150,13 +150,13 @@
                           data-url="{{ $page->link.'/lists' }}" data-form="page" data-length="20">
                         <thead>
                           <tr>
-                          <th>No</th>
-                          <th>Date</th>
-                          <th>Cash Book name</th>                            
-                          <th>Amount</th> 
-                          <th>Transaction Type</th>   
-                          <th>Transaction Done by</th>   
-                          <th>Message</th>        
+                            <th>No</th>
+                            <th>Date</th>
+                            <th>Cash Book name</th>                            
+                            <th>Amount</th> 
+                            <th>Transaction Type</th>   
+                            <th>Transaction Done by</th>   
+                            <th>Message</th>        
                           </tr>
                         </thead>
                     </table>

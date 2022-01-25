@@ -59,7 +59,7 @@
                         </a>
                       </div>
                       <div class="input-field col m2 s12" id="newCustomerBtn">
-                        <a class="waves-effect waves-light btn-small mb-1 mr-1 cyan" onClick="addNewCustomer()" style="margin-top: 12px;"><i class="material-icons left">person_add</i>Add New</a>
+                        <a class="waves-effect waves-light btn-small mb-1 mr-1 cyan" onClick="addNewCustomer()" style="margin-top: 12px;"><i class="material-icons left">person_add</i>New customer</a>
                       </div>
                       
                     <!-- </div> -->
