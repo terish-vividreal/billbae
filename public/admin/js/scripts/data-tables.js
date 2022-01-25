@@ -141,3 +141,66 @@ $(document).ready(function () {
     }
   })
 })
+
+$(document).ready(function () {
+  $('.data-table-container').each(function () {
+      var formValue;
+      var columns;
+      var length;
+      var form;
+      var url;
+      var table;
+      table     = $(this).find('.data-tables');
+      url       = table.data('url');
+      form      = table.data('form');
+      length    = table.data('length');
+      columns   = [];
+      formValue = [];
+      table.find('thead th').each(function () {
+        var column = {'data': $(this).data('column')};
+        columns.push(column);
+      });
+
+      // console.log(length);
+
+      table.DataTable({
+          processing: true,
+          serverSide: true,
+          stateSave: true,
+          searching: false,
+          bLengthChange: false,
+          pageLength: 10,
+          ajax: {
+              "type": "GET",
+              "url": url,
+              "data": function (data) {
+                  data.form = formValue;
+              }
+          },
+          columns: columns,
+          fnDrawCallback: function () {
+            $('[data-toggle="tooltip"]').tooltip();
+          }
+      });
+      $('#' + form + '-filter-button').click(function () {
+        formValue = $('#' + form + '-form').serializeArray();
+        table.DataTable().draw();
+      });
+
+      $('#' + form + '-clear-button').click(function () {
+        $('#' + form + '-form').find("input[type=text], textarea").val("");
+        $('#' + form + '-form').find(".select2").val('').trigger("change");
+        $('#' + form + '-form').trigger("reset");
+        formValue = $('#' + form + '-form').serializeArray();
+        table.DataTable().draw();
+      });
+
+      $(document).on('keypress', function (e) {
+        if (e.which == 13) {
+          e.preventDefault();
+          formValue = $('#' + form + '-form').serializeArray();
+          table.DataTable().draw();
+        }
+      });
+  });
+});

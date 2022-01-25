@@ -134,7 +134,6 @@ class CustomerController extends Controller
             }); 
         }
 
-
         $detail = $detail->orderBy('id', 'desc')->get();
         return Datatables::of($detail)
             ->addIndexColumn()

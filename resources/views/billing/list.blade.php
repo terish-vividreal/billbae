@@ -40,6 +40,12 @@
       <p class="caption mb-0">{{ Str::plural($page->title) ?? ''}}. Lorem ipsume is used for the ...</p>
     </div>
   </div>
+
+    <div class="row">
+      <div class="col s12 m6 l12">
+          <div id="button-trigger" class="card card card-default scrollspy"></div>
+      </div>
+    </div>
     <!-- DataTables example -->
     <div class="row">
       <div class="col s12 m12 l12">
@@ -47,19 +53,50 @@
             <div class="card-content">
                 <h4 class="card-title">{{ Str::plural($page->title) ?? ''}} Table</h4>
                 <div class="row">
-                  <div class="col s12">
-                    <table id="data-table-billing" class="display data-tables">
+                  <div class="col s12 data-table-container">
+                    <div class="card-content">
+                        <div class="row">
+                          <div class="col s12">
+                            <form id="page-form" name="page-form">
+                            {{ csrf_field() }}
+                              <div class="row">
+                                <div class="input-field col m3 s12">
+                                  {!! Form::text('invoice', '' , ['id' => 'invoice']) !!} 
+                                  <label for="invoice" class="label-placeholder active">Invoice ID</label>
+                                </div>
+                                <div class="input-field col m4 s12"> 
+                                  {!! Form::select('customer_id', $variants->customers, '', ['id' => 'customer_id', 'class' => 'select2 browser-default', 'multiple' => 'multiple']) !!}
+                                  <!-- <label for="customer_id" class="label-placeholder active">Customers</label> -->
+                                </div>
+                                <div class="input-field col m2 s12">
+                                  {!! Form::select('payment_status', [1 => 'Paid', 0 => 'Unpaid'] , '' , ['id' => 'payment_status' ,'class' => 'select2 browser-default', 'placeholder'=>'Search by status']) !!}
+                                  <!-- <label for="payment_status" class="label-placeholder active">Payment Status</label> -->
+                                </div>
+                                <div class="input-field col m3">
+                                  <div class="input-field col m6">
+                                    <button class="btn waves-effect waves-light" type="button" id="page-filter-button"> FILTER <i class="material-icons right">send</i></button>
+                                  </div>
+                                  <div class="input-field col m6">
+                                    <button class="btn-floating waves-effect waves-light cyan" type="button" id="page-filter-button"> RESET <i class="material-icons right">refresh</i></button>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                    </div>
+                    <table id="data-table-billing" class="display data-tables" data-url="{{ $page->link.'/lists' }}" data-form="page" data-length="10">
                         <thead>
-                          <tr>
-                            <th>No</th>
-                            <th>Code </th>
-                            <th>Customer Name</th>
-                            <th>Status</th>
-                            <th>Payment Status</th>
-                            <th>Paid on </th>
-                            <th width="280px">Action</th>
-                          </tr>
-                        </thead>
+                            <tr>
+                                <th width="10px" data-orderable="false" data-column="DT_RowIndex">No</th>
+                                <th width="100px" data-orderable="false" data-column="billing_code">Invoice ID</th>
+                                <th data-orderable="false" data-column="customer_id">Customer Name</th>
+                                <th width="70px" data-orderable="false" data-column="status">Status</th>
+                                <th width="70px" data-orderable="false" data-column="payment_status">Payment Status</th>
+                                <th width="150px" data-orderable="false" data-column="updated_date">Paid on</th>
+                                <th width="250px" data-orderable="false" data-column="action">Action</th>
+                            </tr>
+                            </thead>
                       </table>
                   </div>
                 </div>
@@ -83,124 +120,50 @@
 @push('page-scripts')
 <script src="{{asset('admin/js/scripts/data-tables.js')}}"></script>
 <script>
-var link = '{{ $page->link }}';
-  $(function () {
-
-    table = $('#data-table-billing').DataTable({
-        pagination: true,
-        pageLength: 10,
-        responsive: true,
-        searchDelay: 500,
-        processing: true,
-        serverSide: true,
-        ajax: {
-                url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
-                data: search
-            },
-        columns: [
-          {data: 'DT_RowIndex', orderable: false, width:10},
-            {data: 'billing_code', name: 'name', orderable: false},            
-            {data: 'customer_id', name: 'name', orderable: false},            
-            {data: 'bill_status', name: 'name', orderable: false},    
-            {data: 'payment_status', name: 'name', orderable: false},            
-            {data: 'updated_date', name: 'name', orderable: false},                   
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ]
-    });
-
-  });
-
-  function search(value) {
-    value.name = $('input[type=search]').val();
-  }
+$('#customer_id').select2({ placeholder: "Search by customers", allowClear: true });
+$('#payment_status').select2({ placeholder: "Search by status", allowClear: true });
 
   function cancelBill(b) {
-
-      swal({ title: "Are you sure?",icon: 'warning', dangerMode: true,
-          buttons: {
-            cancel: 'No, Please!',
-            delete: 'Yes, Cancel Bill'
-          }
-      }).then(function (willDelete) {
-        if (willDelete) {
-          $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/cancel/') }}/" + b, type: "post", dataType: "html"})
-            .done(function (a) {
-                var data = JSON.parse(a);
-                if(data.flagError == false){
-                  showSuccessToaster(data.message);          
-                  setTimeout(function () {
-                    table.ajax.reload();
-                    }, 2000);
-
-              }else{
-                showErrorToaster(data.message);
-                printErrorMsg(data.error);
-              }   
-          }).fail(function () {
-                  showErrorToaster("Something went wrong!");
-          });
-        } 
-      });
-
-      // Swal.fire({
-      //   title: 'Are you sure want to cancel ?',
-      //   text: "You won't be able to revert this!",
-      //   type: 'warning',
-      //   showCancelButton: true,
-      //   confirmButtonColor: '#3085d6',
-      //   cancelButtonColor: '#d33',
-      //   confirmButtonText: 'Yes, cancel it!'
-      // }).then(function(result) {
-      //     if (result.value) {
-      //         $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/cancel/') }}/" + b, type: "post", dataType: "html"})
-      //             .done(function (a) {
-      //                 var data = JSON.parse(a);
-      //                 if(data.flagError == false){
-      //                   showSuccessToaster(data.message);          
-      //                   setTimeout(function () {
-      //                     table.ajax.reload();
-      //                     }, 2000);
-
-      //               }else{
-      //                 showErrorToaster(data.message);
-      //                 printErrorMsg(data.error);
-      //               }   
-      //             }).fail(function () {
-      //                     showErrorToaster("Somthing went wrong!");
-      //             });
-      //     }
-      // });
-  }
-
-  function deleteBill(b) {
-
-    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true, 
-        buttons: {
-          cancel: 'No, Please!',
-          delete: 'Yes, Delete It'
-        }
+    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true, buttons: {cancel: 'No, Please!', delete: 'Yes, Cancel Bill'}
     }).then(function (willDelete) {
       if (willDelete) {
-        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
-          .done(function (a) {
-              var data = JSON.parse(a);
-              if(data.flagError == false){
-                showSuccessToaster(data.message);          
-                setTimeout(function () {
-                  table.ajax.reload();
-                  }, 2000);
-
-            }else{
-              showErrorToaster(data.message);
-              printErrorMsg(data.error);
-            }   
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/cancel/') }}/" + b, type: "post", dataType: "html"})
+        .done(function (a) {
+          var data = JSON.parse(a);
+          if(data.flagError == false) {
+            showSuccessToaster(data.message);          
+            setTimeout(function () { table.ajax.reload(); }, 2000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }   
         }).fail(function () {
-                showErrorToaster("Something went wrong!");
+          showErrorToaster("Something went wrong!");
         });
       } 
     });
   }
 
+  function deleteBill(b) {
+    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true, buttons:{cancel: 'No, Please!', delete: 'Yes, Delete It'}
+    }).then(function (willDelete) {
+      if (willDelete) {
+        $.ajax({url: "{{ url(ROUTE_PREFIX.'/'.$page->route) }}/" + b, type: "DELETE", dataType: "html"})
+        .done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);          
+            setTimeout(function () { table.ajax.reload(); }, 2000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }   
+      }).fail(function () {
+        showErrorToaster("Something went wrong!");
+      });
+      } 
+    });
+  }
 </script>
 @endpush
 
