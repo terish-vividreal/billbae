@@ -591,13 +591,13 @@ class BillingController extends Controller
                 $ids[] = $row['item_id']; 
             }
             if ($item_type == 'services') {
-                $billing_items  = BillingItem::select('services.name',  'services.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 
+                $billing_items  = BillingItem::select('services.name',  'services.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.item_details', 'billing_items.is_discount_used', 
                                     'billing_items.discount_type', 'billing_items.discount_value', 'billing_item_taxes.cgst_percentage', 'billing_item_taxes.sgst_percentage',
                                     'billing_item_taxes.tax_amount', 'billing_item_taxes.sgst_amount','billing_item_taxes.grand_total', 'billing_item_taxes.cgst_amount', )
                                     ->join('services', 'services.id', '=', 'billing_items.item_id')->join('billing_item_taxes', 'billing_item_taxes.bill_item_id', '=', 'billing_items.id')                                        
                                     ->where('services.shop_id', SHOP_ID)->where('billing_items.billing_id', $id)->whereIn('services.id', $ids)->orderBy('services.id', 'desc')->get();
             } else {
-                $billing_items  = BillingItem::select('packages.name',  'packages.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.is_discount_used', 
+                $billing_items  = BillingItem::select('packages.name',  'packages.hsn_code', 'billing_items.id as id', 'billing_items.billing_id as billingId', 'billing_items.item_details', 'billing_items.is_discount_used', 
                                     'billing_items.discount_type', 'billing_items.discount_value', 'billing_item_taxes.cgst_percentage', 'billing_item_taxes.sgst_percentage',
                                     'billing_item_taxes.tax_amount', 'billing_item_taxes.sgst_amount','billing_item_taxes.grand_total', 'billing_item_taxes.cgst_amount',)
                                     ->join('packages', 'packages.id', '=', 'billing_items.item_id')->join('billing_item_taxes', 'billing_item_taxes.bill_item_id', '=', 'billing_items.id')                                        
@@ -621,6 +621,9 @@ class BillingController extends Controller
             // }
         }              
         $data       = ['billing' => $billing, 'store' => $store, 'billing_items' => $billing_items, 'grand_total' => $grand_total, ];
+        // echo $store->country->name; exit;
+        // echo "<pre>"; print_r($data); exit;
+
         $pdf        = PDF::loadView($this->viewPath . '.invoice-pdf', $data);
         $bill_title = str_replace(' ', '-', strtolower($billing->customer->name));
         return $pdf->download($bill_title.'-invoice.pdf');
