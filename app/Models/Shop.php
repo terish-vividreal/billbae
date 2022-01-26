@@ -38,4 +38,19 @@ class Shop extends Model
     {
         return $this->belongsTo('App\Models\ShopBilling', 'id', 'shop_id');
     }
+
+    public function country()
+    {
+        return $this->belongsTo('App\Models\ShopCountry', 'country_id', 'id');
+    }
+
+    // public function state()
+    // {
+    //     return $this->belongsTo('App\Models\ShopState', 'state_id', 'id');
+    // }
+
+    // public function district()
+    // {
+    //     return $this->belongsTo('App\Models\ShopDistrict', 'district_id', 'id');
+    // }
 }
