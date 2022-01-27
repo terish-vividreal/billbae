@@ -13,6 +13,7 @@ use App\Models\ShopBilling;
 use App\Models\BillingFormat;
 use Spatie\Permission\Models\Role;
 use App\Models\BusinessType;
+use App\Models\ShopCountry;
 use Mail;
 use DB;
 use Event;
@@ -74,7 +75,6 @@ class StoreController extends Controller
                 }
             }
         }
-
         $detail->where('parent_id', $user_id)->orderBy('id', 'desc');
         return Datatables::of($detail)
             ->addIndexColumn()
@@ -116,8 +116,7 @@ class StoreController extends Controller
     public function create()
     {
         $page                       = collect();
-        $variants                   = collect();
-        $user                       = Auth::user();       
+        $variants                   = collect();      
         $page->title                = $this->title;
         $page->link                 = url($this->link);
         $page->form_url             = url($this->link);
@@ -125,7 +124,8 @@ class StoreController extends Controller
         $page->route                = $this->route;
         $page->entity               = $this->entity;
         $variants->business_types   = BusinessType::pluck('name','id')->all();
-        $variants->roles            = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();        
+        $variants->roles            = Role::where('id', '=' , 2)->pluck('name','name')->all();     
+        $variants->phonecode        = ShopCountry::select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
         return view($this->viewPath . '.create', compact('page', 'variants'));
     }
     
@@ -146,21 +146,17 @@ class StoreController extends Controller
         if ($validator->passes()) {
             $input                      = $request->all();
             $user_id                    = Auth::user()->id;
-            // $input['password']          = Hash::make($input['password']);
             $input['parent_id']         = $user_id;
-
-            $user = User::create($input);
+            $user                       = User::create($input);
             $user->assignRole($request->input('roles'));
 
             if (Auth::user()->parent_id == null) {
-                $shop = new Shop();
+                $shop                   = new Shop();
                 $shop->name             = $input['shop_name'];
                 $shop->business_type_id = $input['business_type'];
                 $shop->user_id          = $user->id;
                 $shop->save();  
-
                 $user->shop_id = $shop->id;
-            
             } else {
                 $user->shop_id          = Auth::user()->shop_id;
             }
@@ -169,20 +165,24 @@ class StoreController extends Controller
             $user->verify_token         = $token;
             $user->save();
 
+            // Store billing details created
             $billing                    = new ShopBilling();
             $billing->shop_id           = $shop->id;
             $billing->save();
 
+            // Store billing format created with default details
             $billing_format             = new BillingFormat();
             $billing_format->shop_id    = $shop->id;
             $billing_format->prefix     = Str::upper(Str::substr(str_replace(' ', '', $shop->name), 0, 3)); 
             $billing_format->suffix     = 1000;
             $billing_format->save();
 
+            // Store theme details created with default styles
             $theme_settings             = new ThemeSetting();
             $theme_settings->shop_id    = $shop->id;
             $theme_settings->save();
 
+            //Store registration event  
             StoreRegistered::dispatch($user->id);
 
             return ['flagError' => false, 'message' => "Account Added successfully"];
@@ -211,19 +211,19 @@ class StoreController extends Controller
      */
     public function edit($id)
     {
-        $user               = User::find($id);
-        $page               = collect();
-        $variants           = collect();
-        $page->title        = $this->title;
-        $page->link         = url($this->link);
-        $page->form_url     = url($this->link . '/' . $user->id);
-        $page->form_method  = 'PUT';   
-        $page->route        = $this->route;
-        $page->entity       = $this->entity;     
-        $variants->roles    = Role::pluck('name','name')->all();
-        $variants->business_types     = BusinessType::pluck('name','id')->all();
-        $userRole           = $user->roles->pluck('name','name')->all();
-    
+        $user                       = User::find($id);
+        $page                       = collect();
+        $variants                   = collect();
+        $page->title                = $this->title;
+        $page->link                 = url($this->link);
+        $page->form_url             = url($this->link . '/' . $user->id);
+        $page->form_method          = 'PUT';   
+        $page->route                = $this->route;
+        $page->entity               = $this->entity;     
+        $variants->roles            = Role::pluck('name','name')->all();
+        $variants->business_types   = BusinessType::pluck('name','id')->all();
+        $userRole                   = $user->roles->pluck('name','name')->all();
+        $variants->phonecode        = ShopCountry::select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
         return view($this->viewPath . '.create',compact('user','variants','userRole', 'page'));
     }
     

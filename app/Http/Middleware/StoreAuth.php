@@ -19,16 +19,14 @@ class StoreAuth
     public function handle(Request $request, Closure $next)
     {
         $user   = Auth::user();
-        $store = Shop::find($user->shop_id);
-        if($user->hasAnyRole(['Store', 'Manager', 'Staff'])){
+        $store  = Shop::find($user->shop_id);
+        // if($user->hasAnyRole(['Store', 'Manager', 'Staff'])){
             define('USER_ROLE', 'user');
             define('ROUTE_PREFIX', '');
             define('SHOP_ID', $user->shop_id);
             define('CURRENCY', (empty($store->billing->currencyCode))?'₹':$store->billing->currencyCode->symbol);
             return $next($request);            
-        }
-        
-   
-        return redirect('home')->with('error',"You don't have access.");
+        // }
+        return redirect('/')->with('error',"You don't have access.");
     }
 }

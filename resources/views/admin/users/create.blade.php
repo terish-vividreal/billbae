@@ -52,36 +52,42 @@
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('shop_name', $user->shop->name ?? '', array('id' => 'shop_name')) !!}  
-                  <label for="shop_name" class="label-placeholder">Store Name <span class="red-text">*</span></label>
+                  <label for="shop_name" class="label-placeholder active">Store Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('business_type', $variants->business_types , $user->shop->business_type_id ?? '' , ['id' => 'business_type' ,'class' => 'select2 browser-default', 'placeholder'=>'Please select business type']) !!}
-                
-                
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col m6 s12">
                   {!! Form::text('name', $user->name ?? '', array('id' => 'name')) !!}  
-                  <label for="name" class="label-placeholder">Admin Name <span class="red-text">*</span></label>
+                  <label for="name" class="label-placeholder active">Admin Name <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::text('email', $user->email ?? '', array('id' => 'email', 'autocomplete' => 'off')) !!}  
-                  <label for="email" class="label-placeholder">Email <span class="red-text">*</span></label>
+                  <label for="email" class="label-placeholder active">Email <span class="red-text">*</span></label>
                 </div>
               </div>
               <div class="row">
-                <div class="input-field col m6 s12">
+                <div class="col s2">
+                  <div class="input-field">  
+                  @php $phonecode = (isset($user->phone_code) ? $user->phone_code : 101) @endphp    
+                  {!! Form::select('phone_code', $variants->phonecode , $phonecode, ['id' => 'phone_code']) !!}
+                  <label for="mobile" class="label-placeholder active">Phone code <span class="red-text">*</span></label>
+                  </div>
+                </div>
+                <div class="input-field col m4 s12">
                   {!! Form::text('mobile', $user->mobile ?? '', array('id' => 'mobile', 'class' => 'check_numeric')) !!}
-                  <label for="mobile" class="label-placeholder">Mobile <span class="red-text">*</span></label>
+                  <label for="mobile" class="label-placeholder active">Mobile <span class="red-text">*</span></label>
                 </div>
                 <div class="input-field col m6 s12">
                   {!! Form::select('roles[]', $variants->roles, $userRole ??  [] , array('id' =>'roles' , 'class' => 'select2 browser-default', 'multiple' => 'multiple', 'placeholder'=>'Please select roles')) !!}
+                  <!-- <label for="roles" class="label-placeholder active">Role <span class="red-text">*</span></label> -->
                 </div>
               </div>  
               <div class="row">
                 <div class="input-field col s12">
-                  <button class="btn waves-effect waves-light" type="reset" name="reset">Reset <i class="material-icons right">refresh</i></button>
+                  <button class="btn waves-effect waves-light" type="button" name="reset" id="reset-btn">Reset <i class="material-icons right">refresh</i></button>
                   <button class="btn cyan waves-effect waves-light" type="submit" name="action" id="submit-btn">Submit <i class="material-icons right">send</i></button>
                 </div>
               </div>
@@ -102,7 +108,6 @@
 
 @push('page-scripts')
 <script src="{{ asset('admin/js/common-script.js') }}"></script>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script> -->
 <script>
 
 $('#business_type').select2({ placeholder: "Please select business type", allowClear: false });
@@ -111,28 +116,38 @@ $('#roles').select2({ placeholder: "Please select roles", allowClear: true });
 if ($("#{{$page->entity}}Form").length > 0) {
   var validator = $("#{{$page->entity}}Form").validate({ 
     rules: {
-      shop_name: { required: true, maxlength: 200 }, 
-      email: { required: true,  email: true,
+      shop_name: { 
+        required: true, 
+        maxlength: 200 
+      }, 
+      email: { 
+        required: true,  
+        email: true, 
+        emailFormat:true,
         remote: { url: "{{ url('admin/users/unique') }}", type: "POST",
-            data: {
+              data: {
                 user_id: function () {
-                    return $('#user_id').val();
+                  return $('#user_id').val();
                 }
-            }
+              }
         },
       },
-      name: {  required: true, maxlength: 200, },
-      business_type: { required: true, },
-      mobile:{ required:true, minlength:10, maxlength:10 },
-      "roles[]": { required: true, },
-      // password: {
-      //     required: true,
-      //     minlength: 6,
-      //     maxlength: 10,
-      // },
-      // password_confirmation: {
-      //     equalTo: "#password"
-      // },
+      name: {
+        required: true, 
+        maxlength: 200
+      },
+      business_type: {
+        required: true
+      },
+      mobile: {
+          required: true,
+          minlength: 3,
+          maxlength: 15,
+          digits:true
+      },
+      "roles[]": {
+        required: true, 
+      },
     },
     messages: { 
       shop_name: {
@@ -153,8 +168,9 @@ if ($("#{{$page->entity}}Form").length > 0) {
       },
       mobile: {
         required: "Please enter mobile number",
-        maxlength: "Length cannot be more than 10 numbers",
-        minlength: "Length must be 10 numbers",
+        maxlength: "Length cannot be more than 15 numbers",
+        minlength: "Length must be 3 numbers",
+        digits: "Please enter a valid mobile number",
       },
       "roles[]": {
         required: "Please choose role",
@@ -178,8 +194,7 @@ if ($("#{{$page->entity}}Form").length > 0) {
       userId      = "" == id ? "" : "/" + id;
       formMethod  = "" == id ? "POST" : "PUT";
       var forms   = $("#{{$page->entity}}Form");
-      $.ajax({ url: "{{ url('admin/stores') }}" + userId, type: formMethod, processData: false, 
-      data: forms.serialize(), dataType: "html",
+      $.ajax({ url: "{{ url('admin/stores') }}" + userId, type: formMethod, processData: false, data: forms.serialize(), dataType: "html",
       }).done(function (a) {
         var data = JSON.parse(a);
         if (data.flagError == false) {
@@ -200,6 +215,8 @@ jQuery.validator.addMethod("lettersonly", function (value, element) {
   return this.optional(element) || /^[a-zA-Z()._\-\s]+$/i.test(value);
 }, "Letters only please");
 
-
+jQuery.validator.addMethod("emailFormat", function (value, element) {
+  return this.optional(element) || /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/igm.test(value);
+}, "Please enter a valid email address"); 
 </script>
 @endpush

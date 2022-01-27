@@ -68,6 +68,8 @@ function enableBtn(element) {
     $('#'+element).attr("disabled", false);
 }
 
+
+
 // function clearForm() {
 //     validator.resetForm();
 //     $('input').removeClass('error');

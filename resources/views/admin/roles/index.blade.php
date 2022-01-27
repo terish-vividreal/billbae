@@ -35,21 +35,21 @@
                           <tr>
                             <th>No</th>
                             <th>Name</th>
-                            <th width="280px">Action</th>
+                            <th width="380px">Action</th>
                           </tr>
                           @foreach ($roles as $key => $role)
                             <tr>
                                 <td>{{ ++$i }}</td>
                                 <td>{{ $role->name }}</td>
                                 <td> 
-                                    <a class="btn mr-2 blue" href="{{ url(ROUTE_PREFIX.'/roles/'.$role->id) }}"><i class="material-icons">visibility</i></a>
+                                    <a href="{{ url(ROUTE_PREFIX.'/roles/'.$role->id) }}" class="btn mr-2 blue tooltipped" data-tooltip="View details"><i class="material-icons">visibility</i></a>
                                   @can('role-edit')
-                                    <a class="btn mr-2 cyan" href="{{ route('roles.edit',$role->id) }}"><i class="material-icons">mode_edit</i></a>
+                                    <a href="{{ route('roles.edit',$role->id) }}" class="btn mr-2 orange tooltipped" data-tooltip="Edit details"><i class="material-icons">mode_edit</i></a>
                                   @endcan
 
                                   @can('role-delete')
-                                    {!! Form::open(['method' => 'DELETE','route' => ['roles.destroy', $role->id],'style'=>'display:inline']) !!}
-                                      {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                                    {!! Form::open(['method' => 'DELETE','route' => ['roles.destroy', $role->id], 'name'=>'roleForm', 'style'=>'display:inline']) !!}
+                                      <a href="javascript:void(0);" id="{{$role->id}}" class="btn btn-sm btn-icon mr-2 role-delete-btn" title="Delete Role"><i class="material-icons">cancel</i> </a>
                                     {!! Form::close() !!}
                                   @endcan
                                 </td>
@@ -67,6 +67,16 @@
 @endsection
 @push('page-scripts')
 <script>
+
+  $(".role-delete-btn").click( function() {
+    var form  = $(this).closest('form');
+    swal({ title: "Are you sure?",icon: 'warning', dangerMode: true, buttons:{cancel: 'No, Please!', delete: 'Yes, Delete It'}
+    }).then(function (willDelete) {
+      if (willDelete) {
+        form.submit();
+      } 
+    });
+  });
 
 </script>
 @endpush

@@ -37,7 +37,9 @@ class StoreController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:store-profile-update', ['only' => ['index','update']]);
+        $this->middleware('permission:manage-store', ['only' => ['index', 'update', 'updateLogo']]);
+        $this->middleware('permission:manage-store-billing', ['only' => ['billings', 'billingSeries', 'storeBilling', 'updateGst']]);
+
     }
 
     /**
@@ -54,7 +56,7 @@ class StoreController extends Controller
         $page->title                = $this->title;
         $page->link                 = url($this->link);
         $variants->countries        = DB::table('shop_countries')->where('status',1)->pluck('name', 'id');  
-        $variants->phonecode    = DB::table('shop_countries')->select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
+        $variants->phonecode        = DB::table('shop_countries')->select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
         if ($store->country_id) {
             $variants->states           = DB::table('shop_states')->where('country_id', $store->country_id)->pluck('name', 'id'); 
             $country_code               = DB::table('shop_countries')->where('id', $store->country_id)->value('sortname');

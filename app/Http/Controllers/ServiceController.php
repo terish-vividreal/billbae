@@ -37,11 +37,10 @@ class ServiceController extends Controller
      */
     function __construct()
     {
-        // $this->middleware('permission:service-list|service-create|service-edit|service-delete', ['only' => ['index','store']]);
-        // $this->middleware('permission:service-create', ['only' => ['create','store']]);
-        // $this->middleware('permission:service-edit', ['only' => ['edit','update']]);
-        // $this->middleware('permission:service-delete', ['only' => ['destroy']]);
-        // $this->middleware('permission:service-list', ['only' => ['list']]);
+        $this->middleware('permission:service-list', ['only' => ['index','lists']]);
+        $this->middleware('permission:service-create', ['only' => ['create','store','import']]);
+        $this->middleware('permission:service-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:product-delete', ['only' => ['destroy', 'restore']]);
     }
 
     /**
@@ -83,11 +82,19 @@ class ServiceController extends Controller
         return Datatables::of($detail)
             ->addIndexColumn()
             ->addColumn('action', function($detail){
+                $action = '';
                 if ($detail->deleted_at == null) { 
-                    $action = ' <a  href="' . url(ROUTE_PREFIX.'/services/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Deactivate"><i class="material-icons">block</i></a>';    
+                                        
+                    if( Auth::user()->hasPermissionTo('service-edit')) {
+                        $action = ' <a  href="' . url(ROUTE_PREFIX.'/services/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                    }
+                    if( Auth::user()->hasPermissionTo('service-delete')) {
+                        $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Deactivate"><i class="material-icons">block</i></a>';    
+                    }
                 } else {
-                    $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
+                    if( Auth::user()->hasPermissionTo('service-delete')) {
+                        $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
+                    }
                 }
                 return $action;
             })

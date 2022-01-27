@@ -68,12 +68,12 @@
                   {!! Form::hidden('store_id', $store->id ?? '' , ['id' => 'store_id'] ); !!}
                   {!! Form::hidden('log_url', $store->show_image, ['id' => 'log_url'] ); !!}
                   <h5 class="media-heading mt-0">Logo</h5>
-                  <div class="user-edit-btns display-flex">
-                    <a id="select-files" class="btn indigo mr-2"><span>Browse</span></a>
+                  <div class="user-edit-btns display-flex ">
+                    <a id="select-files" class="btn indigo mr-2 logo-onload-btn"><span>Browse</span></a>
                     
                     @if (Request::is('country*') ||  Request::is('states*') ||  Request::is('districts*')) menu-open @endif
                     
-                    <button class="btn-small  btn-danger" id="deleteLogoBtn" style={{ ($store->image != '') ? 'display:block;' : 'display:none;'}}>Delete</button>
+                    <button class="btn-small btn-danger logo-onload-btn" id="deleteLogoBtn" style={{ ($store->image != '') ? 'display:block;' : 'display:none;'}}>Delete</button>
                     
                     <a href="" class="btn-small btn-light-pink logo-action-btn" id="removeLogoDisplayBtn" style="display:none;">Remove</a>
                     <button type="submit" class="btn btn-success logo-action-btn" id="uploadLogoBtn" style="display:none;">Upload</button>
@@ -239,6 +239,7 @@ $(document).on('change', '#phone_code', function () {
       reader.onload = (e) => { 
         $('#store_logo').attr('src', e.target.result); 
         $(".logo-action-btn").show();
+        $(".logo-onload-btn").hide();
       }
       reader.readAsDataURL(this.files[0]); 
     }    
@@ -249,6 +250,7 @@ $(document).on('change', '#phone_code', function () {
     var old_logo = $("#log_url").val();
     $("#store_logo").attr("src", old_logo); 
     $(".logo-action-btn").hide();
+    $(".logo-onload-btn").show();
   });
 
   $('#storeLogoForm').submit(function(e) {
@@ -256,10 +258,12 @@ $(document).on('change', '#phone_code', function () {
     var formData = new FormData(this);
     $.ajax({ type: "POST",url: "{{ url('/store/update-logo') }}", data: formData, cache:false, contentType: false, processData: false,
       success: function(data) {
+        enableBtn("uploadLogoBtn");
         if (data.flagError == false) {
           showSuccessToaster(data.message);  
           $(".logo-action-btn").hide();
           $("#deleteLogoBtn").show();
+          $(".logo-onload-btn").show();
           $("#store_logo").attr("src", data.logo);
         } else {
           showErrorToaster(data.message);
