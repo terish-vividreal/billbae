@@ -28,7 +28,7 @@ class StoreController extends Controller
 {
     protected $title    = 'Stores';
     protected $viewPath = '/admin/users';
-    protected $link     = 'stores';
+    protected $link     = 'admin/stores';
     protected $route    = 'stores';
     protected $entity   = 'stores';
 
@@ -66,7 +66,7 @@ class StoreController extends Controller
     public function lists(Request $request)
     {
         $user_id    = Auth::user()->id;
-        $detail     = User::with('shop')->select(['name', 'mobile', 'email', 'id']);
+        $detail     = User::with(['shop'])->select(['name', 'mobile', 'phone_code', 'email', 'is_active', 'id']);
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -95,6 +95,22 @@ class StoreController extends Controller
             ->addColumn('businesstype', function($detail){                        
                 $html =$detail->shop->business_types->name;                      
                 return $html;
+            })
+            ->editColumn('mobile', function($detail) {
+                $phone_code     = (!empty($detail->phoneCode->phonecode) ? '+' .$detail->phoneCode->phonecode : '');
+                $mobile         = (!empty($detail->mobile) ? $phone_code . ' ' . $detail->mobile:'');
+                return $mobile;
+            })
+            ->addColumn('is_active', function($detail){
+                $html = '';
+                if ($detail->is_active != 2) {
+                    $checked    = ($detail->is_active == 1) ? 'checked' : '';
+                    // $html       .= '<a href="javascript:" class="btn btn-primary btn-sm btn-icon mr-2" title="Edit details"> <i class="icon-1x fas fa-pencil-alt"></i></a>';
+                    $html       .= '<div class="switch"><label><input type="checkbox" '.$checked.' id="' . $detail->id . '" data-url="' . url($this->link.'/manage-status/') . '" class="activate-user" data-id="'.$detail->id.'" > <span class="lever"></span> </label> </div>';
+                    return $html;
+                }
+
+                // onclick="manageUserStatus(this.id)"
             })
             ->addColumn('action', function($detail){
                 $action = ' <a  href="' . url('admin/stores/' . $detail->id . '/edit') . '" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
@@ -147,7 +163,9 @@ class StoreController extends Controller
             $input                      = $request->all();
             $user_id                    = Auth::user()->id;
             $input['parent_id']         = $user_id;
+            $input['mobile']            = $input['mobile'];
             $user                       = User::create($input);
+
             $user->assignRole($request->input('roles'));
 
             if (Auth::user()->parent_id == null) {
@@ -220,7 +238,7 @@ class StoreController extends Controller
         $page->form_method          = 'PUT';   
         $page->route                = $this->route;
         $page->entity               = $this->entity;     
-        $variants->roles            = Role::pluck('name','name')->all();
+        $variants->roles            = Role::where('id', '=' , 2)->pluck('name','name')->all();
         $variants->business_types   = BusinessType::pluck('name','id')->all();
         $userRole                   = $user->roles->pluck('name','name')->all();
         $variants->phonecode        = ShopCountry::select("id", DB::raw('CONCAT(" +", phonecode , " (", name, ")") AS phone_code'))->where('status',1)->pluck('phone_code', 'id');         
@@ -252,8 +270,9 @@ class StoreController extends Controller
             } else {
                 $input              = Arr::except($input,array('password'));    
             }
-        
+            
             $user                   = User::find($id);
+            $input['updated_by']    = Auth::user()->id;
             $user->update($input);
             DB::table('model_has_roles')->where('model_id',$id)->delete();
             $user->assignRole($request->input('roles'));
@@ -279,5 +298,17 @@ class StoreController extends Controller
         DB::table('model_has_roles')->where('model_id',$id)->delete();
         User::find($id)->delete();
         return redirect()->route('users.index')->with('success','User deleted successfully');
+    }
+
+    public function manageStatus(Request $request)
+    {
+        $user                   = User::findOrFail($request->user_id);
+        if ($user) {
+            $status             = ($user->is_active == 0)?1:0;
+            $user->is_active    = $status;
+            $user->save();
+            return ['flagError' => false, 'message' => $this->title. " status updated successfully"];
+        }
+        return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
     }
 }

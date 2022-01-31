@@ -18,9 +18,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = [
-        'name','email','password','parent_id','mobile','gender',
-    ];
+    protected $fillable = ['name','email','password','parent_id','mobile', 'phone_code', 'gender', 'updated_by'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -49,6 +47,11 @@ class User extends Authenticatable
     public function staffProfile()
     {
         return $this->hasOne(StaffProfile::class);
+    }
+
+    public function phoneCode()
+    {
+        return $this->belongsTo(Country::class, 'phone_code', 'id');
     }
 
 }

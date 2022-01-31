@@ -265,6 +265,7 @@ Route::prefix('admin/')->group(function () {
         $store_link = 'stores';
         Route::resource($store_link, AdminStore::class)->except(['show']);
         Route::get($store_link . '/lists', [AdminStore::class, 'lists']);
+        Route::post($store_link. '/manage-status', [AdminStore::class, 'manageStatus']);
 
         // Business type Routes
         $business_type = 'business-types';
@@ -276,6 +277,7 @@ Route::prefix('admin/')->group(function () {
 
         // User
         Route::post('users/unique', [UserController::class, 'isUnique']);
+        
 
         // Notifications
         $notifications = 'notifications';

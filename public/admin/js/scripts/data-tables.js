@@ -182,6 +182,7 @@ $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip();
           }
       });
+
       $('#' + form + '-filter-button').click(function () {
         formValue = $('#' + form + '-form').serializeArray();
         table.DataTable().draw();
@@ -202,5 +203,27 @@ $(document).ready(function () {
           table.DataTable().draw();
         }
       });
+
+      table.on('click','.activate-user',function(){
+        var postUrl = $(this).attr('data-url');
+        $.ajax({url: postUrl, data:{'user_id':this.id }, type: 'POST', dataType: "html"})
+        .done(function (a) {
+          var data = JSON.parse(a);
+          if (data.flagError == false) {
+            showSuccessToaster(data.message);          
+            setTimeout(function () {
+              table.DataTable().draw();
+            }, 1000);
+          } else {
+            showErrorToaster(data.message);
+            printErrorMsg(data.error);
+          }   
+        }).fail(function () {
+          showErrorToaster("Something went wrong!");
+        });
+      });
+
+
   });
 });
+

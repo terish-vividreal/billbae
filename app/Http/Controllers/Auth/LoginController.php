@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -54,6 +55,12 @@ class LoginController extends Controller
    
         if(auth()->attempt(array('email' => $input['email'], 'password' => $input['password']), $remember_me))
         {
+            if (! auth()->user()->is_active == 1) {
+                Auth::logout();
+                return redirect()->route('login')
+                ->with('error','Account not active, please try again later or contact support.');
+            }
+
             if (auth()->user()->is_admin == 1) {
                 return redirect()->route('admin.home');
             }else{
