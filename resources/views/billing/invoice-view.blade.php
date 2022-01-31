@@ -112,96 +112,87 @@
           <div class="divider mb-3 mt-3"></div>
           <!-- product details table-->
           <div class="invoice-product-details">
-          <table class="responsive-table">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Items</th>
-              <th>SAC Code #</th>
-              <th class="right-align">Details</th>
-            </tr>
-            </thead>
-            <tbody>
-            @if($billing_items)
+            <table class="responsive-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Items</th>
+                  <th>SAC Code #</th>
+                  <th class="right-align">Details</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @if($billing_items)
+                    @foreach($billing_items as $key => $item)
+                      <tr id="{{$item['id'] }}">
+                        <td>{{$loop->index + 1}}</td>
+                        <td>{{ $item->item_details }} </td>
+                        <td>{{ $item->hsn_code }}</td>
+                        <td class="right-align">
+                          <ul>
+                            <li class="display-flex justify-content-between">
+                              <span class="invoice-subtotal-title">Amount (Without Tax)</span>
+                              <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($item->tax_amount ,2)  @endphp</h6>
+                            </li>
+                            @if($item->cgst_amount > 0)
+                            <li class="display-flex justify-content-between">
+                              <span class="invoice-subtotal-title">{{ $item->cgst_percentage }} % CGST </span>
+                              <h6 class="invoice-subtotal-value indigo-text">₹{{ $item->cgst_amount }}</h6>
+                            </li>
+                            @endif
+                            @if($item->sgst_amount > 0)
+                            <li class="display-flex justify-content-between">
+                              <span class="invoice-subtotal-title">{{$item->sgst_percentage }} % SGST</span>
+                              <h6 class="invoice-subtotal-value indigo-text">₹ {{ $item->sgst_amount }}</h6>
+                            </li>
+                            @endif
+                            @php if(count($item->additionalTax) > 0) { @endphp
+                              <li class="divider mt-2 mb-2"></li>
+                              @foreach($item->additionalTax as $key => $additional)
+                                <li class="display-flex justify-content-between">
+                                  <span class="invoice-subtotal-title"> {{ $additional->percentage }} % {{ $additional->tax_name }}</span>
+                                  <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($additional->amount,2)  @endphp</h6>
+                                </li>
+                              @endforeach
+                            @php } @endphp
 
+                            @if($item->is_discount_used == 1)
+                              <li class="divider mt-2 mb-2"></li>
+                              <li class="display-flex justify-content-between">
+                                <span class="invoice-subtotal-title">Discount @if($item->discount_type == 'percentage') ({{$item->discount_value}}%) @endif </span>
+                                <h6 class="invoice-subtotal-value indigo-text">
 
-              @foreach($billing_items as $key => $item)
-                <tr id="{{$item['id'] }}">
-                  <td>{{$loop->index + 1}}</td>
-                  <td>{{ $item->item_details }} </td>
-                  <td>{{ $item->hsn_code }}</td>
-                  <td class="right-align">
-                    <ul>
-                      <li class="display-flex justify-content-between">
-                        <span class="invoice-subtotal-title">Amount (Without Tax)</span>
-                        <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($item->tax_amount ,2)  @endphp</h6>
-                      </li>
-                      @if($item->cgst_amount > 0)
-                      <li class="display-flex justify-content-between">
-                        <span class="invoice-subtotal-title">{{ $item->cgst_percentage }} % CGST </span>
-                        <h6 class="invoice-subtotal-value indigo-text">₹{{ $item->cgst_amount }}</h6>
-                      </li>
-                      @endif
-                      @if($item->sgst_amount > 0)
-                      <li class="display-flex justify-content-between">
-                        <span class="invoice-subtotal-title">{{$item->sgst_percentage }} % SGST</span>
-                        <h6 class="invoice-subtotal-value indigo-text">₹ {{ $item->sgst_amount }}</h6>
-                      </li>
-                      @endif
-                      @php if(count($item->additionalTax) > 0) { @endphp
-                        <li class="divider mt-2 mb-2"></li>
-                        @foreach($item->additionalTax as $key => $additional)
-                          <li class="display-flex justify-content-between">
-                            <span class="invoice-subtotal-title"> {{ $additional->percentage }} % {{ $additional->tax_name }}</span>
-                            <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($additional->amount,2)  @endphp</h6>
-                          </li>
-                        @endforeach
-                      @php } @endphp
+                                @if($item->discount_type == 'percentage') 
+                                  @php $discount_value = $item->grand_total * (($item->discount_value/100)) @endphp
+                                @else 
+                                  @php $discount_value = $item->discount_value; @endphp                
+                                @endif
 
-        
-                      @if($item->is_discount_used == 1)
-                        <li class="divider mt-2 mb-2"></li>
-                        <li class="display-flex justify-content-between">
-                          <span class="invoice-subtotal-title">Discount @if($item->discount_type == 'percentage') ({{$item->discount_value}}%) @endif </span>
-                          <h6 class="invoice-subtotal-value indigo-text">
+                                @php 
+                                  $grand_total = $grand_total - $discount_value;
+                                @endphp
 
-                          @if($item->discount_type == 'percentage') 
-                            @php $discount_value = $item->grand_total * (($item->discount_value/100)) @endphp
-                          @else 
-                            @php $discount_value = $item->discount_value; @endphp                
-                          @endif
+                                - ₹ @php echo number_format($discount_value,2)  @endphp
 
-                          @php 
-                            $grand_total = $grand_total - $discount_value;
-                          @endphp
+                                </h6>
+                              </li>
 
-                          - ₹ @php echo number_format($discount_value,2)  @endphp
-
-                          </h6>
-                        </li>
-
-                      @else
-                        @php 
-                          $discount_value = 0;
-                        @endphp
-                      @endif
-
-                      <li class="divider mt-2 mb-2"></li>
-                      <li class="display-flex justify-content-between">
-        
-                      <span class="invoice-subtotal-title">Total</span>
-                        <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format(($item->grand_total - $discount_value),2) @endphp</h6>
-                      </li>
-
-
-
-                  </td>
-                    </tr>
-                @php 
-
-                @endphp
-              @endforeach
-              @endif
+                            @else
+                              @php 
+                                $discount_value = 0;
+                              @endphp
+                            @endif
+                            <li class="divider mt-2 mb-2"></li>
+                            <li class="display-flex justify-content-between">
+                            <span class="invoice-subtotal-title">Total</span>
+                              <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format(($item->grand_total - $discount_value),2) @endphp</h6>
+                            </li>
+                        </td>
+                      </tr>
+                      @php 
+                      @endphp
+                    @endforeach
+                  @endif
             </table>
           </div>
           <!-- invoice subtotal -->

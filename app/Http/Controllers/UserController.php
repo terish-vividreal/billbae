@@ -154,7 +154,9 @@ class UserController extends Controller
             // $input['password'] = Hash::make($input['password']);
             $input['parent_id']     = $user_id;   
             $user                   = User::create($input);
+            
             $user->assignRole($request->input('roles'));
+
             if (Auth::user()->parent_id == null) {
                 $shop           = new Shop();
                 $shop->name     = $input['shop_name'];
@@ -170,11 +172,13 @@ class UserController extends Controller
             $profile                = new StaffProfile();
             $profile->user_id       = $user->id;
             $profile->save();
+
             // Password create link
-            // Mail::send('email.passwordCreate', ['token' => $token], function($message) use($request) {
-            //     $message->to($request->email);
-            //     $message->subject('Create New Password Email');
-            // });
+            Mail::send('email.passwordCreate', ['token' => $token], function($message) use($request) {
+                $message->to($request->email);
+                $message->subject('Create New Password Email');
+            });
+            
             return ['flagError' => false, 'message' => "Account Added successfully"];
         }
         return ['flagError' => true, 'message' => "Errors Occurred. Please check !",  'error'=>$validator->errors()->all()];

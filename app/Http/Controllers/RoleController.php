@@ -38,14 +38,14 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $page           = collect();
-        $page->title    = $this->title;
-        $page->link     = url($this->link);
-        $page->route    = $this->route;
-        $page->entity   = $this->entity;
+        $page               = collect();
+        $page->title        = $this->title;
+        $page->link         = url($this->link);
+        $page->route        = $this->route;
+        $page->entity       = $this->entity;
 
         if (auth()->user()->is_admin == 1) {
-            $roles          = Role::get(); 
+            $roles          = Role::where('name', '!=', 'Super Admin')->get(); 
         } else {
             $roles          = Role::where('name', '!=', 'Super Admin')->get(); 
         }
@@ -64,8 +64,7 @@ class RoleController extends Controller
         $page->link     = url($this->link);
         $page->route    = $this->route;
         $page->entity   = $this->entity;
-        $permissions    = Permission::where('parent', '=', 0)->get();
-        return view($this->viewPath . '.create', compact('page', 'permissions'));
+        return view($this->viewPath . '.create', compact('page'));
     }
     
     /**
@@ -76,14 +75,10 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|unique:roles,name',
-            'permission' => 'required',
-        ]);
-    
+        $this->validate($request, ['name' => 'required|unique:roles,name' ]);
+
         $role = Role::create(['name' => $request->input('name')]);
-        $role->syncPermissions($request->input('permission'));
-    
+        // $role->syncPermissions($request->input('permission'));
         return redirect()->route('roles.index')->with('success','Role created successfully');
     }
     /**
@@ -112,10 +107,15 @@ class RoleController extends Controller
      */
     public function edit($id)
     {
+        $page               = collect();
+        $page->title        = $this->title;
+        $page->link         = url($this->link);
+        $page->route        = $this->route;
+        $page->entity       = $this->entity;
         $role               = Role::find($id);
-        $permissions        = Permission::where('parent', '=', 0)->get();
+        $permissions        = Permission::where('parent', '=', 0)->orderBy('sequence', 'ASC')->get();
         $rolePermissions    = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')->all();
-        return view('admin.roles.edit',compact('role','permissions','rolePermissions'));
+        return view('admin.roles.edit',compact('page','role','permissions','rolePermissions'));
     }
     
     /**
@@ -129,14 +129,16 @@ class RoleController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'permission' => 'required',
+            // 'permission' => 'required',
         ]);
-    
+
         $role       = Role::find($id);
         $role->name = $request->input('name');
         $role->save();
+
         $role->syncPermissions($request->input('permission'));
-        return redirect()->route('roles.index')->with('success','Role updated successfully');
+
+        return redirect()->route('roles.edit', [$id])->with('success','Role updated successfully');
     }
     /**
      * Remove the specified resource from storage.
@@ -146,7 +148,14 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        DB::table("roles")->where('id',$id)->delete();
-        return redirect()->route('roles.index')->with('success','Role deleted successfully');
+
+        $role               = Role::find($id);
+        $rolePermissions    = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")->where("role_has_permissions.role_id",$id)->get();
+        
+        if(count($rolePermissions) === 0 ) {
+            DB::table("roles")->where('id',$id)->delete();
+            return redirect()->route('roles.index')->with('success','Role deleted successfully');
+        }
+        return redirect()->route('roles.index')->with('error','Cant Delete! Role has assigned permissions');
     }
 }

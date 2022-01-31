@@ -72,8 +72,7 @@ class TaxHelper
         }
                
         
-        // echo $total_service_tax; exit;
-
+        
         if (count($row->additionaltax) > 0) {
             foreach($row->additionaltax as $additional) {
                 $additional_amount      = $tax_onepercentage*$additional->percentage;
@@ -96,6 +95,7 @@ class TaxHelper
         //Discount calculation start
         if ($row->is_discount_used == 1) {
             if ($row->tax_included == 1) {
+
                 if ($row->discount_type == 'amount') {
                     $discount_type              = 'amount';
                     $discount_amount            = $row->discount_value ;
@@ -120,28 +120,41 @@ class TaxHelper
                     }
                 }
             } else {
+
                 if ($row->discount_type == 'amount') {
                     $discount_amount    = $row->discount_value ;
                     $discount_type      = 'amount';
+                    $balance_discount_amount    = $gross_charge - $row->discount_value;
                 } else {
                     $discount_type      = 'percentage';
                     $discount_value     = $row->discount_value;
                     $discount_amount    = $gross_value * ($row->discount_value/100);
+                    $balance_discount_amount    = $gross_charge - $discount_amount;
                 }
 
-                $gross_value        = $gross_value - ($discount_amount * (100 - $total_percentage)/100) ;  
-                $total_cgst_amount  = $total_cgst_amount - ($discount_amount * ($total_percentage/2) / 100) ;
-                $total_sgst_amount  = $total_sgst_amount - ($discount_amount * ($total_percentage/2) / 100) ;
+                // $gross_value        = $gross_value - ($discount_amount * (100 - $total_percentage)/100) ;  
+                $gross_value            = $balance_discount_amount * ((100 - $total_percentage)/100)  ;
+
+                if ($total_percentage > 0) {
+                    $total_cgst_amount      = $balance_discount_amount * (($tax_percentage/2)/100) ;  
+                    $total_sgst_amount      = $balance_discount_amount * (($tax_percentage/2)/100) ;
+                }
+
+                // $total_cgst_amount  = $total_cgst_amount - ($discount_amount * ($total_percentage/2) / 100) ;
+                // $total_sgst_amount  = $total_sgst_amount - ($discount_amount * ($total_percentage/2) / 100) ;
 
                 if (count($additional_tax_array) > 0) {
                     foreach($additional_tax_array as $key => $additional) {
-                        $additional_tax_array[$key]['amount'] = $additional['amount'] - ($discount_amount * $additional['percentage'] / 100) ; 
+                        // $additional_tax_array[$key]['amount'] = $additional['amount'] - ($discount_amount * $additional['percentage'] / 100) ; 
+                        $additional_tax_array[$key]['amount'] = $balance_discount_amount * ($additional['percentage']/100) ; 
+
                     }
                 }
             }
+
+            // echo $gross_value; exit;
         }
 
-        
 
         $tax_array = [  
             'name' => $row->name, 

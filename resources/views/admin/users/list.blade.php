@@ -32,22 +32,26 @@
       <div class="col s12 m12 l12">
         @include('layouts.success') 
         @include('layouts.error')
-          <div id="button-trigger" class="card card card-default scrollspy">
+          <div id="button-trigger" class="card card card-default scrollspy data-table-container">
             <div class="card-content">
                 <h4 class="card-title">{{ Str::plural($page->title) ?? ''}} Table</h4>
                 <div class="row">
                   <div class="col s12">
-                      <table id="data-table-simple-2" class="display data-tables">
+                      <table id="data-table-users" class="display data-tables" data-url="{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}" data-form="page" data-length="10">
                         <thead>
                           <tr>
-                            <th>No</th>
-                            <th>Store</th>
-                            <th>Business Type</th>
-                            <th>Admin Name</th>
-                            <th>Mobile</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th width="100px">Action</th>
+                            <th width="10px" data-orderable="false" data-column="DT_RowIndex">No</th>
+                            <th data-orderable="false" data-column="store">Store</th>
+                            <th width="100px" data-orderable="false" data-column="name">Admin Name</th>
+                            <th width="50px" data-orderable="false" data-column="businesstype">Business Type</th>
+                            
+                            <th width="70px" data-orderable="false" data-column="mobile">Mobile</th>
+                            <th width="75px" data-orderable="false" data-column="email">Email</th>
+                            <th width="50px" data-orderable="false" data-column="role">Role</th>
+                            <th width="10px" data-orderable="false" data-column="is_active">Status</th>
+                            <th width="70px" data-orderable="false" data-column="action">Action</th>
+
+
                           </tr>
                         </thead>
                       </table>
@@ -67,37 +71,7 @@
 @push('page-scripts')
 <script src="{{asset('admin/js/scripts/data-tables.js')}}"></script>
 <script>
-  $(function () {
 
-    table = $('#data-table-simple-2').DataTable({
-        bSearchable: true,
-        pagination: true,
-        pageLength: 10,
-        responsive: true,
-        searchDelay: 500,
-        processing: true,
-        serverSide: true,
-        ajax: {
-          url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
-          data: search
-        },
-        columns: [
-          {data: 'DT_RowIndex', orderable: false, width:10},
-          {data: 'store', name: 'name', orderable: false},            
-          {data: 'businesstype', name: 'name', orderable: false},            
-          {data: 'name', name: 'name', orderable: false},               
-          {data: 'mobile', name: 'name', orderable: false},               
-          {data: 'email', name: 'name', orderable: false},               
-          {data: 'role', name: 'name', orderable: false},               
-          {data: 'action', name: 'action', orderable: false, searchable: false, width:75},
-        ]
-    });
-
-  });
-
-  function search(value) {
-    value.name          = $('input[type=search]').val();
-  }
 
 </script>
 @endpush
