@@ -12,7 +12,7 @@ use DB;
 class RoleController extends Controller
 {
     protected $title    = 'Roles';
-    protected $viewPath = 'admin/roles';
+    protected $viewPath = 'roles';
     protected $link     = 'roles';
     protected $route    = 'roles';
     protected $entity   = 'roles';
@@ -25,10 +25,10 @@ class RoleController extends Controller
     function __construct()
     {
         //  $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
-        //  $this->middleware('permission:role-create', ['only' => ['create','store']]);
-        //  $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-        //  $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-        //  $this->middleware('permission:role-list', ['only' => ['show']]);
+        $this->middleware('permission:role-create', ['only' => ['create','store']]);
+        $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:role-list', ['only' => ['index', 'show']]);
     }
     
     /**
@@ -47,9 +47,10 @@ class RoleController extends Controller
         if (auth()->user()->is_admin == 1) {
             $roles          = Role::where('name', '!=', 'Super Admin')->get(); 
         } else {
-            $roles          = Role::where('name', '!=', 'Super Admin')->get(); 
+            $roles          = Role::where('name', '!=', 'Super Admin')->where('shop_id', SHOP_ID)->get(); 
         }
-        return view($this->viewPath . '.index', compact('page', 'roles'))->with('i', ($request->input('page', 1) - 1) * 5);
+        $route_prefix       = (auth()->user()->is_admin == 1)?'admin':'';
+        return view($route_prefix . '.' . $this->viewPath . '.index', compact('page', 'roles'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
     
     /**
@@ -64,7 +65,8 @@ class RoleController extends Controller
         $page->link     = url($this->link);
         $page->route    = $this->route;
         $page->entity   = $this->entity;
-        return view($this->viewPath . '.create', compact('page'));
+        $route_prefix   = (auth()->user()->is_admin == 1)?'admin':'';
+        return view($route_prefix . '.' .$this->viewPath . '.create', compact('page'));
     }
     
     /**
@@ -75,11 +77,11 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, ['name' => 'required|unique:roles,name' ]);
-
-        $role = Role::create(['name' => $request->input('name')]);
+        $this->validate($request, ['name' => 'required']);
+        $role = Role::create(['name' => $request->input('name'), 'shop_id' => SHOP_ID]);
         // $role->syncPermissions($request->input('permission'));
-        return redirect()->route('roles.index')->with('success','Role created successfully');
+        $route_prefix   = (auth()->user()->is_admin == 1)?'admin':'';
+        return redirect($route_prefix.'/roles')->with('success','Role created successfully');
     }
     /**
      * Display the specified resource.
@@ -96,7 +98,8 @@ class RoleController extends Controller
         $page->entity       = $this->entity;
         $role               = Role::find($id);
         $rolePermissions    = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")->where("role_has_permissions.role_id",$id)->get();
-        return view($this->viewPath . '.show',compact('page', 'role', 'rolePermissions'));
+        $route_prefix       = (auth()->user()->is_admin == 1)?'admin':'';
+        return view($route_prefix . '.' .$this->viewPath . '.show',compact('page', 'role', 'rolePermissions'));
     }
     
     /**
@@ -115,7 +118,8 @@ class RoleController extends Controller
         $role               = Role::find($id);
         $permissions        = Permission::where('parent', '=', 0)->orderBy('sequence', 'ASC')->get();
         $rolePermissions    = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')->all();
-        return view('admin.roles.edit',compact('page','role','permissions','rolePermissions'));
+        $route_prefix       = (auth()->user()->is_admin == 1)?'admin':'';
+        return view($route_prefix . '.' .$this->viewPath . '.edit', compact('page','role','permissions','rolePermissions'));
     }
     
     /**
@@ -138,8 +142,11 @@ class RoleController extends Controller
 
         $role->syncPermissions($request->input('permission'));
 
-        return redirect()->route('roles.edit', [$id])->with('success','Role updated successfully');
+        // return redirect()->route('roles.edit', [$id])->with('success','Role updated successfully');
+        $route_prefix   = (auth()->user()->is_admin == 1)?'admin':'';
+        return redirect($route_prefix.'/roles')->with('success','Role updated successfully');
     }
+
     /**
      * Remove the specified resource from storage.
      *

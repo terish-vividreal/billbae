@@ -33,8 +33,8 @@
     <!-- 404 -->
     <div class="col s12 center-align white">
       <img src="{{asset('admin/images/gallery/error-2.png')}}" class="bg-image-404" alt="">
-      <h1 class="error-code m-0">404</h1>
-      <h6 class="mb-2">BAD REQUEST</h6>
+      <h1 class="error-code m-0">403</h1>
+      <h6 class="mb-2">Warning! User don't have the right access to this page</h6>
       <a class="btn waves-effect waves-light gradient-45deg-deep-purple-blue gradient-shadow mb-4" href="{{ url()->previous() }}">Back</a>
     </div>
   </div>

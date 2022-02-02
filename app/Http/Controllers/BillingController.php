@@ -50,6 +50,9 @@ class BillingController extends Controller
      */
     function __construct()
     {
+        $this->middleware('permission:billing-list', ['only' => ['index', 'show']]);
+        $this->middleware('permission:billing-create', ['only' => ['create']]);
+        $this->middleware('permission:billing-edit', ['only' => ['editInvoice', 'invoice']]);
         $this->middleware(function ($request, $next) {
             $this->timezone     = Shop::where('user_id', Auth::user()->id)->value('timezone');
             $this->time_format  = (Shop::where('user_id', Auth::user()->id)->value('time_format') == 1)?'h':'H';
@@ -70,7 +73,11 @@ class BillingController extends Controller
         $page->link             = url($this->link);
         $page->route            = $this->route;
         $page->entity           = $this->entity;
-        $variants->customers         = Billing::with(['customer'])->where('shop_id', SHOP_ID)->groupBy('customer_id')->get()->pluck('customer.name', 'customer.id',); 
+        $variants->customers    = Customer::leftjoin('billings', 'billings.customer_id', 'customers.id')
+                                    ->select("customers.id", DB::raw("CONCAT(customers.name,' - ',customers.mobile) as name"))
+                                    ->where('customers.shop_id', SHOP_ID)
+                                    ->groupBy('billings.customer_id')
+                                    ->pluck('customers.name', 'customers.id');
         return view($this->viewPath . '.list', compact('page', 'variants'));
     }
 

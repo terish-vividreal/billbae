@@ -131,7 +131,7 @@ class UserController extends Controller
         $page->entity       = $this->entity;
         $page->form_method  = 'POST';
         $page->route        = $this->route;
-        $roles              = Role::where('name', '!=' , 'Super Admin')->where('name', '!=' , 'Store')->orderBy('id', 'asc')->pluck('name','name')->all();
+        $roles              = Role::where('shop_id', SHOP_ID)->orderBy('id', 'asc')->pluck('name','name')->all();
         return view($this->viewPath . '.create', compact('page', 'roles', 'you'));
     }
     
@@ -213,7 +213,7 @@ class UserController extends Controller
         $page->link         = url($this->link);
         $page->form_url     = url($this->link . '/' . $user->id);
         $page->form_method  = 'PUT';
-        $roles              = Role::where('name', '!=' , 'Super Admin')->pluck('name','name')->all();
+        $roles              = Role::where('shop_id', SHOP_ID)->pluck('name','name')->all();
         $userRole           = $user->roles->pluck('name','name')->where('name', '!=' , 'Super Admin')->where('name', '!=' , 'Store')->all();
         return view($this->viewPath . '.create',compact('user','roles', 'you', 'userRole', 'page'));
     }

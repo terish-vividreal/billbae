@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\Additionaltax;
 use App\Models\Service;
 use App\Models\ServiceCategory;
+use Illuminate\Support\Str;
 use DataTables;
 use Validator;
 use DB;
@@ -20,6 +21,15 @@ class PackageController extends Controller
     protected $link     = 'packages';
     protected $route    = 'packages';
     protected $entity   = 'Package';
+
+
+    function __construct()
+    {
+        $this->middleware('permission:package-create', ['only' => ['create','store']]);
+        $this->middleware('permission:package-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:package-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:package-list', ['only' => ['index', 'show']]);
+    }
 
     /**
      * Display a listing of the resource.
@@ -78,12 +88,19 @@ class PackageController extends Controller
         }
         return Datatables::of($detail)
             ->addIndexColumn()
-            ->addColumn('action', function($detail){
+            ->addColumn('action', function($detail) {
+                $action = '';
                 if ($detail->deleted_at == null) { 
-                    $action = ' <a  href="' . url(ROUTE_PREFIX.'/'.$this->route.'/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
-                    $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Deactivate"><i class="material-icons">block</i></a>';    
+                    if( Auth::user()->hasPermissionTo('package-edit')) {
+                        $action .= ' <a  href="' . url(ROUTE_PREFIX.'/'.$this->route.'/' . $detail->id . '/edit') . '"" class="btn mr-2 cyan" title="Edit details"><i class="material-icons">mode_edit</i></a>';
+                    }
+                    if( Auth::user()->hasPermissionTo('package-delete')) {
+                        $action .= '<a href="javascript:void(0);" id="' . $detail->id . '" data-type="remove" onclick="softDelete(this.id)" data-type="remove" class="btn btn-danger btn-sm btn-icon mr-2" title="Deactivate"><i class="material-icons">block</i></a>';    
+                    }
                 } else {
-                    $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
+                    if( Auth::user()->hasPermissionTo('package-delete')) {
+                        $action = ' <a href="javascript:void(0);" id="' . $detail->id . '" onclick="restore(this.id)" class="btn mr-2 cyan" title="Restore"><i class="material-icons">restore</i></a>';
+                    }
                 }
                 return $action;
             })
@@ -92,11 +109,19 @@ class PackageController extends Controller
                 return $price;
             })
             ->addColumn('services', function($detail){
-                $services ='';
+                $services_list  ='';
+                $services       = '';
                 foreach ($detail->service as $data) {
-                    $services.=$data->name.',' ;
+                    $services_list.=$data->name.', ' ;
                 }
-                return rtrim($services, ',');
+
+                $services_list = rtrim($services_list, ',');
+
+                $services = Str::limit(strip_tags($services_list), 30);
+                if (strlen(strip_tags($services_list)) > 40) {
+                    $services .= "<a href='javascript:void(0);' id=' . $detail->id . ' onclick='showMessage(\"".$services_list."\")'>View</a>";
+                }
+                return $services ;
             })
             ->addColumn('activate', function($detail){
                 $checked = ($detail->status == 1) ? 'checked' : '';

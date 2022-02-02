@@ -39,7 +39,6 @@ class StoreController extends Controller
     {
         $this->middleware('permission:manage-store', ['only' => ['index', 'update', 'updateLogo']]);
         $this->middleware('permission:manage-store-billing', ['only' => ['billings', 'billingSeries', 'storeBilling', 'updateGst']]);
-
     }
 
     /**

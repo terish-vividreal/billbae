@@ -52,7 +52,7 @@ img {
   <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
   <ol class="breadcrumbs mb-0">
     <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/store/profile') }}">{{ $page->title ?? ''}}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/store/user-profile') }}">{{ $page->title ?? ''}}</a></li>
     <li class="breadcrumb-item active">Update</li>
   </ol>
 @endsection
@@ -115,7 +115,7 @@ img {
               </div>
             </div>
             <!-- users edit account form start -->
-            <h4 class="card-title">Store Admin {{ $page->title ?? ''}} Form</h4>
+            <h4 class="card-title">User {{ $page->title ?? ''}} Form</h4>
             <form id="userProfileForm" name="userProfileForm" role="form" method="" action="" class="ajax-submit">
               {{ csrf_field() }}
               {!! Form::hidden('user_id', $user->id ?? '' , ['id' => 'user_id'] ); !!}
@@ -123,13 +123,13 @@ img {
                 <div class="col s6">
                   <div class="input-field">
                     {!! Form::text('name', $user->name ?? '', array('id' => 'name')) !!} 
-                    <label for="name" class="label-placeholder active">Admin Name <span class="red-text">*</span></label>
+                    <label for="name" class="label-placeholder active">Name <span class="red-text">*</span></label>
                   </div>
                 </div>
                 <div class="col s6">
                   <div class="input-field">
                     {!! Form::text('email', $user->email ?? '') !!} 
-                    <label for="email" class="label-placeholder active">Store Email <span class="red-text">*</span></label>
+                    <label for="email" class="label-placeholder active"> Email <span class="red-text">*</span></label>
                     <small class="errorTxt2"></small>
                   </div>
                 </div>
@@ -144,7 +144,7 @@ img {
                 <div class="col s4">
                   <div class="input-field">
                     {!! Form::text('mobile', $user->mobile ?? '',  ['class' => '']) !!} 
-                    <label for="mobile" class="label-placeholder active">Store Mobile <span class="red-text">*</span></label>
+                    <label for="mobile" class="label-placeholder active"> Mobile <span class="red-text">*</span></label>
                     <small class="errorTxt2"></small>
                   </div>
                 </div>
