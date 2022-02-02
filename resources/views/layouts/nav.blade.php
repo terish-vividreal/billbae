@@ -47,16 +47,26 @@ if (!empty($themeSettings)) {
           <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'notifications*') ||  Request::is(ROUTE_PREFIX.'roles/notifications*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="javascript:"><i class="material-icons">notifications</i><span class="menu-title" data-i18n="Stores">Notifications</span></a>
           </li>
         @else
-          <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'schedules*') ||  Request::is(ROUTE_PREFIX.'schedules/create*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/schedules') }}"><i class="material-icons">schedule</i><span class="menu-title" data-i18n="Billing">Schedule</span></a>
-          </li>
-          <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'billings*') ||  Request::is(ROUTE_PREFIX.'billings/create*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/billings') }}"><i class="material-icons">receipt</i><span class="menu-title" data-i18n="Billing">Billing</span></a>
-          </li>
-          <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'cashbook*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/cashbook') }}"><i class="material-icons">account_balance</i><span class="menu-title" data-i18n="Cashbook">Cashbook</span></a>
-          </li>
-          <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'customers*') ||  Request::is(ROUTE_PREFIX.'customers/create*') || Request::is(ROUTE_PREFIX.'customers/create')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/customers') }}"><i class="material-icons">people</i><span class="menu-title" data-i18n="Customers">Customers</span></a>
-          </li>
-          <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'reports*') ||  Request::is(ROUTE_PREFIX.'reports/sales-report*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/reports/sales-report') }}"><i class="material-icons">report</i><span class="menu-title" data-i18n="Reports">Reports</span></a>
-          </li>
+          @can('schedule-list')
+            <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'schedules*') ||  Request::is(ROUTE_PREFIX.'schedules/create*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/schedules') }}"><i class="material-icons">schedule</i><span class="menu-title" data-i18n="Billing">Schedule</span></a>
+            </li>
+          @endcan 
+          @can('billing-list') 
+            <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'billings*') ||  Request::is(ROUTE_PREFIX.'billings/create*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/billings') }}"><i class="material-icons">receipt</i><span class="menu-title" data-i18n="Billing">Billing</span></a>
+            </li>
+          @endcan
+          @can('cashbook-view') 
+            <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'cashbook*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/cashbook') }}"><i class="material-icons">account_balance</i><span class="menu-title" data-i18n="Cashbook">Cashbook</span></a>
+            </li>
+          @endcan
+          @can('customer-list')
+            <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'customers*') ||  Request::is(ROUTE_PREFIX.'customers/create*') || Request::is(ROUTE_PREFIX.'customers/create')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/customers') }}"><i class="material-icons">people</i><span class="menu-title" data-i18n="Customers">Customers</span></a>
+            </li>
+          @endcan
+          @can('report-view')
+            <li class="bold"><a class="@if (Request::is(ROUTE_PREFIX.'reports*') ||  Request::is(ROUTE_PREFIX.'reports/sales-report*')) active {{$activeMenuColor}} @endif waves-effect waves-cyan " href="{{ url(ROUTE_PREFIX.'/reports/sales-report') }}"><i class="material-icons">report</i><span class="menu-title" data-i18n="Reports">Reports</span></a>
+            </li>
+          @endcan
         @endif
         <!-- <li class="navigation-header"><a class="navigation-header-text">Tables &amp; Forms </a><i class="navigation-header-icon material-icons">more_horiz</i></li>
         <li class="bold"><a class="collapsible-header waves-effect waves-cyan " href="JavaScript:void(0)"><i class="material-icons">chrome_reader_mode</i><span class="menu-title" data-i18n="Forms">Forms</span></a>

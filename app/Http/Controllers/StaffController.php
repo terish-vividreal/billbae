@@ -66,7 +66,7 @@ class StaffController extends Controller
     public function lists(Request $request)
     {
         $user_id = Auth::user()->id;
-        $detail =  User::role('Staffs')->where('parent_id', $user_id)->where('is_active', '!=',  2)->select(['name', 'mobile', 'email', 'is_active', 'id']);
+        $detail =  User::leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')->where('users.parent_id', $user_id)->where('users.is_active', '!=',  2)->select(['users.name', 'users.mobile', 'users.email', 'users.is_active', 'users.id']);
         if (isset($request->form)) {
             foreach ($request->form as $search) {
                 if ($search['value'] != NULL && $search['name'] == 'search_name') {
@@ -285,7 +285,6 @@ class StaffController extends Controller
             $user->save();
             return ['flagError' => false, 'message' => $this->title. " status updated successfully"];
         }
-
         return ['flagError' => true, 'message' => "Errors occurred Please check !",  'error'=>$validator->errors()->all()];
     }
 

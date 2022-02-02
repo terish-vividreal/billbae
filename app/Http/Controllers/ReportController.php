@@ -27,7 +27,7 @@ class ReportController extends Controller
      */
     function __construct()
     {
-        // $this->middleware('permission:store-profile-update', ['only' => ['index','update']]);
+        $this->middleware('permission:report-view', ['only' => ['salesReport']]);
         $this->middleware(function ($request, $next) {
             $this->timezone     = Shop::where('user_id', Auth::user()->id)->value('timezone');
             $this->time_format  = (Shop::where('user_id', Auth::user()->id)->value('time_format') == 1)?'h':'H';

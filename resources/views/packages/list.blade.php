@@ -28,8 +28,10 @@
 @endsection
 
 @section('page-action')
-  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">create</i></a>
-  <a class="btn dropdown-settings waves-effect waves-light  light-blue darken-4 breadcrumbs-btn" href="#!" data-target="dropdown1"><i class="material-icons hide-on-med-and-up">settings</i><span class="hide-on-small-onl">List</span><i class="material-icons right">arrow_drop_down</i></a>
+  @can('package-create')
+    <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">add</i></a>
+  @endcan  
+    <a class="btn dropdown-settings waves-effect waves-light  light-blue darken-4 breadcrumbs-btn" href="#!" data-target="dropdown1"><i class="material-icons hide-on-med-and-up">settings</i><span class="hide-on-small-onl">List</span><i class="material-icons right">arrow_drop_down</i></a>
     <ul class="dropdown-content" id="dropdown1" tabindex="0">
       <li tabindex="0"><a class="grey-text text-darken-2 listBtn" href="javascript:" data-type="active">Active </a></li>
       <li tabindex="0"><a class="grey-text text-darken-2 listBtn" data-type="deleted" href="javascript:">Deactivated</a></li>
@@ -74,7 +76,7 @@
     </div>
   </div>
 </div>
-
+@include('packages.full-message')
 @endsection
 
 {{-- vendor scripts --}}
@@ -93,10 +95,11 @@
     table = $('#data-table-simple-packages').DataTable({
       pagination: true,
       pageLength: 10,
-      responsive: true,
+      // responsive: true,
       searchDelay: 500,
       processing: true,
       serverSide: true,
+      scrollX: true,
       ajax: {
         url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/lists') }}",
         data: search
@@ -185,6 +188,10 @@
     });
   }
 
+  showMessage = function(message) {
+  $("#fullMessage").text(message)
+  $("#full-message-modal").modal("open");
+}
 
 </script>
 @endpush

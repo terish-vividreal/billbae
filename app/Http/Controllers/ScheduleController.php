@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\FunctionHelper;
 use Illuminate\Http\Request;
+use App\Models\StaffProfile;
 use App\Models\BillingItem;
 use App\Models\Schedule;
 use App\Models\Customer;
@@ -44,9 +45,7 @@ class ScheduleController extends Controller
 
     /**
      * Display a listing of the resource.
-     * 2569
-     * 2348
-     * 221
+     * 
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -66,7 +65,7 @@ class ScheduleController extends Controller
         $variants->time_format  = $this->time_format;   
         $variants->timezone     = $this->timezone;   
         $variants->customers    = Customer::where('shop_id', SHOP_ID)->pluck('name', 'id'); 
-        $variants->therapists   = User::role('Staffs')->leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')->where('users.parent_id', $user_id)->whereIn('staff_profiles.designation', [1, 2])->where('users.is_active', '!=',  2)->pluck('users.name', 'users.id'); 
+        $variants->therapists   = User::leftjoin('staff_profiles', 'staff_profiles.user_id', '=', 'users.id')->where('users.shop_id', SHOP_ID)->whereIn('staff_profiles.designation', [1, 2])->where('users.is_active', '!=',  2)->pluck('users.name', 'users.id'); 
         $schedule_data          = Schedule::whereDate('start', Carbon\Carbon::today())->get(['id', 'user_id as resourceId', 'start', 'end', 'name as title', 'description']);
         $sales_report           = Billing::select( DB::raw("SUM(amount) as amount"), 'id as row_id', 'payment_status')->where('shop_id', SHOP_ID)->where('payment_status', 1)->whereDate('created_at', Carbon\Carbon::today())->groupBy(DB::raw("day(created_at)"))->get()->toArray(); 
         return view($this->viewPath . '.create', compact('page', 'variants', 'schedule_data', 'sales_report'));

@@ -23,18 +23,18 @@
 
               <ul>
                   <li class="display-flex justify-content-between">
-                    <span class="invoice-subtotal-title">Amount (Without Tax)</span>
+                    <span class="invoice-subtotal-title">Service value</span>
                     <h6 class="invoice-subtotal-value indigo-text">₹ @php echo number_format($item['tax_array']['amount'],2)  @endphp</h6>
                   </li>
                   @if($item['tax_array']['cgst'] > 0)
                   <li class="display-flex justify-content-between">
-                    <span class="invoice-subtotal-title">{{ $item['tax_array']['cgst_percentage'] }} % CGST </span>
+                    <span class="invoice-subtotal-title">{{ $item['tax_array']['cgst_percentage'] }} CGST </span>
                     <h6 class="invoice-subtotal-value indigo-text">₹ {{ $item['tax_array']['cgst'] }}</h6>
                   </li>
                   @endif
                   @if($item['tax_array']['sgst'] > 0)
                   <li class="display-flex justify-content-between">
-                    <span class="invoice-subtotal-title">{{ $item['tax_array']['sgst_percentage'] }} % SGST</span>
+                    <span class="invoice-subtotal-title">{{ $item['tax_array']['sgst_percentage'] }} SGST</span>
                     <h6 class="invoice-subtotal-value indigo-text">₹ {{ $item['tax_array']['sgst'] }}</h6>
                   </li>
                   @endif

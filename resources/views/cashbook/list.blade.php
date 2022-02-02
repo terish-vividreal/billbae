@@ -31,9 +31,16 @@
 @endsection
 
 @section('page-action')
+  <!-- <a href="javascript:" class="btn waves-effect waves-light orange darken-4 breadcrumbs-btn" onclick="importBrowseModal()" >Upload<i class="material-icons right">attach_file</i></a>
+  <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn" type="submit" name="action">Add<i class="material-icons right">person_add</i></a> -->
+  
   <!-- <a href="{{ url(ROUTE_PREFIX.'/'.$page->route.'/create/') }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">Add<i class="material-icons right">add</i></a> -->
-  <a href="javascript:" data-modalname="add-cash-modal"  data-form="addCashForm" class="btn waves-effect waves-light cyan breadcrumbs-btn right loadModal"><i class="fa fa-plus" aria-hidden="true"></i> Add Cash </a>
-  <a href="javascript:" data-modalname="withdraw-cash-modal" data-form="withdrawCashForm" class="btn waves-effect waves-light cyan breadcrumbs-btn right orange loadModal"><i class="fa fa-credit-card" aria-hidden="true"></i> Withdraw Cash</a>
+  @can('cashbook-add-cash')
+    <a href="javascript:" data-modalname="add-cash-modal"  data-form="addCashForm" class="btn waves-effect waves-light cyan breadcrumbs-btn loadModal"><i class="material-icons right">add</i> Add Cash </a>
+  @endcan
+  @can('cashbook-withdraw-cash')
+    <a href="javascript:" data-modalname="withdraw-cash-modal" data-form="withdrawCashForm" class="btn waves-effect waves-light cyan breadcrumbs-btn orange loadModal"><i class="material-icons right">account_balance_wallet</i> Withdraw Cash</a>
+  @endcan
 @endsection
 
 <div class="section section-data-tables">

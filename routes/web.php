@@ -244,6 +244,12 @@ Route::group(['middleware' => ['auth', 'store']], function () {
     Route::resource($cashbook, CashbookController::class)->except(['show']);
     Route::get($cashbook . '/lists', [CashbookController::class, 'lists']);
     Route::post($cashbook . '/withdraw', [CashbookController::class, 'withdraw']);
+
+    // Roles Routes
+    Route::resource('roles', RoleController::class);
+    // Route::post('role/user-update/{id}', RoleController::class, 'updateByUser');
+    
+
     // Route::get('send-mail', function () {
     //     $details = [
     //         'title' => 'Mail from Billbae',
@@ -255,11 +261,11 @@ Route::group(['middleware' => ['auth', 'store']], function () {
 });
 
 // Super Admin Routes
-Route::prefix('admin/')->group(function () {
+Route::prefix('admin/')->name('admin.')->group(function () {
     Route::group(['middleware' => ['auth', 'admin']], function () {
 
         // Dashboard
-        Route::get('home', [AdminHome::class, 'index'])->name('admin.home');
+        Route::get('home', [AdminHome::class, 'index'])->name('home');
         
         // Store Routes
         $store_link = 'stores';

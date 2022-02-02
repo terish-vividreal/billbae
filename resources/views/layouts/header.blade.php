@@ -52,26 +52,41 @@ if(!empty($themeSettings)){
                   <div class="col s12 m4 l4 colMr">
                     <h4 class="row mega-title">Store settings</h4>        
                     <ul>
-                      <li><a href="{{ url('store/profile') }}" class="@if(Request::is(ROUTE_PREFIX.'store/profile')) active @endif">Store profile </a></li>
-                      <li><a href="{{ url('store/billings') }}" class="@if(Request::is(ROUTE_PREFIX.'store/billings')) active @endif">Billing & Tax settings</a></li>
-                      <li><a href="{{ url('store/billing-series') }}" class="@if(Request::is(ROUTE_PREFIX.'store/billing-series')) active @endif">Billing series settings</a></li>
-                      <!-- <li><a href="{{ url('store/billings') }}" class="@if(Request::is(ROUTE_PREFIX.'store/billings')) active @endif">Payment types</a></li> -->
+                      @can('manage-store')
+                        <li><a href="{{ url('store/profile') }}" class="@if(Request::is(ROUTE_PREFIX.'store/profile')) active @endif">Store profile </a></li>
+                      @endcan
+                      @can('manage-store-billing')
+                        <li><a href="{{ url('store/billings') }}" class="@if(Request::is(ROUTE_PREFIX.'store/billings')) active @endif">Billing & Tax settings</a></li>
+                        <li><a href="{{ url('store/billing-series') }}" class="@if(Request::is(ROUTE_PREFIX.'store/billing-series')) active @endif">Billing series settings</a></li>
+                        <!-- <li><a href="{{ url('store/billings') }}" class="@if(Request::is(ROUTE_PREFIX.'store/billings')) active @endif">Payment types</a></li> -->
+                      @endcan 
                     </ul>
                   </div>
                   <div class="col s12 m4 l4 colMr">
                     <h4 class="row mega-title">Services</h4>     
                     <ul>
-                      <li><a href="{{ url(ROUTE_PREFIX.'/services') }}" class="@if(Request::is(ROUTE_PREFIX.'services') || Request::is(ROUTE_PREFIX.'services/create') || Request::is(ROUTE_PREFIX.'services/*')) active @endif"> Services</a></li>
-                      <li><a href="{{ url(ROUTE_PREFIX.'/packages') }}" class="@if(Request::is(ROUTE_PREFIX.'packages') || Request::is(ROUTE_PREFIX.'packages/create') || Request::is(ROUTE_PREFIX.'packages/*')) active @endif">Packages</a></li>
-                      <!-- <li><a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="@if(Request::is(ROUTE_PREFIX.'service-category')) active @endif">Service categories</a></li> -->
+                      @can('service-list')
+                        <li><a href="{{ url(ROUTE_PREFIX.'/services') }}" class="@if(Request::is(ROUTE_PREFIX.'services') || Request::is(ROUTE_PREFIX.'services/create') || Request::is(ROUTE_PREFIX.'services/*')) active @endif"> Services</a></li>
+                      @endcan 
+                      @can('package-list')
+                        <li><a href="{{ url(ROUTE_PREFIX.'/packages') }}" class="@if(Request::is(ROUTE_PREFIX.'packages') || Request::is(ROUTE_PREFIX.'packages/create') || Request::is(ROUTE_PREFIX.'packages/*')) active @endif">Packages</a></li>
+                        <!-- <li><a href="{{ url(ROUTE_PREFIX.'/service-category') }}" class="@if(Request::is(ROUTE_PREFIX.'service-category')) active @endif">Service categories</a></li> -->
+                      @endcan
                     </ul>   
                   </div>
                   <div class="col s12 m4 l4 colMr">
                     <h4 class="row mega-title">Others</h4>     
                     <ul>
-                      <li><a href="{{ url(ROUTE_PREFIX.'/users') }}" class="@if (Request::is(ROUTE_PREFIX.'users') ||  Request::is(ROUTE_PREFIX.'users/create') ||  Request::is(ROUTE_PREFIX.'users/*')) active @endif">User management </a></li>
-                      <li><a href="{{ url('store/user-profile') }}" class="@if(Request::is(ROUTE_PREFIX.'store/user-profile')) active @endif">Personal profile</a></li>
-                      <li><a href="{{ url(ROUTE_PREFIX.'/staffs') }}" class="@if(Request::is(ROUTE_PREFIX.'staffs') || Request::is(ROUTE_PREFIX.'staffs/*')) active @endif">Staffs</a></li>
+                      @can('user-list')
+                        <li><a href="{{ url(ROUTE_PREFIX.'/users') }}" class="@if (Request::is(ROUTE_PREFIX.'users') ||  Request::is(ROUTE_PREFIX.'users/create') ||  Request::is(ROUTE_PREFIX.'users/*')) active @endif">User management </a></li>
+                      @endcan                      
+                        <li><a href="{{ url('store/user-profile') }}" class="@if(Request::is(ROUTE_PREFIX.'store/user-profile')) active @endif">Personal profile</a></li>
+                      @can('staff-list')
+                        <li><a href="{{ url(ROUTE_PREFIX.'/staffs') }}" class="@if(Request::is(ROUTE_PREFIX.'staffs') || Request::is(ROUTE_PREFIX.'staffs/*')) active @endif">Staffs</a></li>
+                      @endcan
+                      @can('role-list')
+                        <li><a href="{{ url(ROUTE_PREFIX.'/roles') }}" class="@if(Request::is(ROUTE_PREFIX.'roles') || Request::is(ROUTE_PREFIX.'roles/*')) active @endif">Roles & Permissions</a></li>
+                      @endcan
                     </ul>
                   </div>
                 </div>

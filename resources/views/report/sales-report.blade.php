@@ -26,7 +26,7 @@
   <h5 class="breadcrumbs-title mt-0 mb-0"><span>{{ Str::plural($page->title) ?? ''}}</span></h5>
   <ol class="breadcrumbs mb-0">
     <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/home') }}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/staffs') }}">{{ Str::plural($page->title) ?? ''}}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url(ROUTE_PREFIX.'/reports/sales-report') }}">{{ Str::plural($page->title) ?? ''}}</a></li>
     <li class="breadcrumb-item active">List</li>
   </ol>
 @endsection
@@ -276,15 +276,16 @@ $(function () {
         bSearchable: true,
         pagination: true,
         pageLength: 10,
-        responsive: true,
+        // responsive: true,
         searchDelay: 500,
         processing: true,
         serverSide: true,
         deferLoading: 0,
+        scrollX: true,
         ajax: {
-                url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/get-sales-table-data') }}",
-                data: search
-            },
+          url: "{{ url(ROUTE_PREFIX.'/'.$page->route.'/get-sales-table-data') }}",
+          data: search
+        },
         dom: 'Bfrtip',
         buttons: [ 'excel','pdf'],
         select: true,
@@ -303,10 +304,7 @@ $(function () {
             var api = this.api(), data;
             // Remove the formatting to get integer data for summation
             var intVal = function ( i ) {
-                return typeof i === 'string' ?
-                    i.replace(/[\$,]/g, '')*1 :
-                    typeof i === 'number' ?
-                        i : 0;
+                return typeof i === 'string' ? i.replace(/[\$,]/g, '')*1 :  typeof i === 'number' ? i : 0;
             };
 
             // Total over all pages

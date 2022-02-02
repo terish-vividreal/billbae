@@ -25,8 +25,10 @@
 @endsection
 
 @section('page-action')
+@can('schedule-create')
   <a href="{{ url(ROUTE_PREFIX.'/'.$page->route) }}" class="btn waves-effect waves-light cyan breadcrumbs-btn right" type="submit" name="action">List<i class="material-icons right">list</i></a>
-@endsection
+  @endcan
+  @endsection
 
 <div class="section">
   <div class="card">
